@@ -1,10 +1,13 @@
 // Server-side admin commands (need DB access):
 //   node dist/cli.js create-owner <email> <name>   first Owner account, prints a temporary password
 //   node dist/cli.js reset-2fa <email>             last-resort 2FA reset (C14)
+//   node dist/cli.js seed-demo                     dev-only demo catalog (refused in production)
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { z } from 'zod';
 import { AppModule } from './app.module';
+import { PrismaService } from './prisma/prisma.service';
+import { seedDemoCatalog } from './seed/demo-catalog';
 import { StaffService } from './staff/staff.service';
 
 try {
@@ -14,6 +17,9 @@ try {
 }
 
 async function run([command, ...args]: string[]) {
+  if (command === 'seed-demo' && process.env.NODE_ENV === 'production') {
+    throw new Error('seed-demo is dev-only and refuses to run when NODE_ENV=production');
+  }
   const app = await NestFactory.createApplicationContext(AppModule, { logger: ['error', 'warn'] });
   try {
     const staff = app.get(StaffService);
@@ -30,8 +36,10 @@ async function run([command, ...args]: string[]) {
     } else if (command === 'reset-2fa' && args[0]) {
       const reset = await staff.resetTotp(null, await staff.findIdByEmail(args[0]));
       console.log(`2FA reset for ${reset.email}; all their sessions were signed out.`);
+    } else if (command === 'seed-demo') {
+      await seedDemoCatalog(app.get(PrismaService));
     } else {
-      console.error('usage: cli create-owner <email> <name> | reset-2fa <email>');
+      console.error('usage: cli create-owner <email> <name> | reset-2fa <email> | seed-demo');
       process.exitCode = 1;
     }
   } finally {

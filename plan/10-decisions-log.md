@@ -261,3 +261,8 @@ Note on S6: our order tracking covers status until the parcel is handed to the c
 | C18 | 2FA reset traceability = **reset by / at on the staff row**; full audit_log stays out of P1 |
 | C19 | Settings + feature flags: **own DB tables**, defaults in code, cached in Redis (no Unleash/GrowthBook) |
 | C20 | Self-hosted deploy runner **moved from step 1 to step 9** (with production setup on owner PCs); GitHub CI tests every push meanwhile |
+| C21 | Admin app routing + data: **TanStack Router + TanStack Query** (typed routes/search params, cached API data) |
+| C22 | Product HTML editor: **Mantine TipTap** with a "view HTML" switch (Q29) |
+| C23 | Image upload **through the API** (max 10 MB, sharp validates + strips EXIF, stored in Garage); imgproxy resizes on view, so no stored renditions |
+| C24 | Bulk import/export: **XLSX + CSV** (exceljs), one row per variant |
+| C25 | Step 2 built by a **parallel agent swarm** (owner request): lead (Opus) owns schema/migrations/shared files and commits; Sonnet agents per module; Haiku for the demo seed |
