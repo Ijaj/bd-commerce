@@ -34,6 +34,8 @@ const OPTION_TYPES = new Set(['select', 'multiselect']);
 const DEPTH_MESSAGE = `Categories can be at most ${MAX_LEVEL} levels deep`;
 
 type Tx = Prisma.TransactionClient;
+type Db = Tx | PrismaService;
+const SLUG_RETRIES = 5;
 export type AttributeWithOptions = CategoryAttribute & { options: AttributeOption[] };
 
 const withOptions = {
@@ -149,7 +151,7 @@ export class CategoriesService {
   }
 
   async get(id: string): Promise<CategoryDetailDto> {
-    const cat = await this.load(id);
+    const cat = await this.load(this.prisma, id);
     const [productCount, childCount, own, inheritedAll] = await Promise.all([
       this.prisma.productCategory.count({ where: { categoryId: id } }),
       this.prisma.category.count({ where: { parentId: id } }),
@@ -182,52 +184,56 @@ export class CategoriesService {
   }
 
   async create(actor: StaffAuthContext, input: CreateCategoryDto): Promise<CategoryDto> {
-    const parent = input.parentId ? await this.load(input.parentId) : null;
-    const level = (parent?.level ?? 0) + 1;
-    if (level > MAX_LEVEL) throw new BadRequestException(DEPTH_MESSAGE);
-    if (level === 1 && !input.imageMediaId) {
-      throw new BadRequestException('Main categories need an image');
-    }
-    if (input.showOnHome) this.assertCanSetHome(actor, level);
     await this.assertMedia([input.imageMediaId, input.iconMediaId, input.bannerMediaId]);
-
-    const slug = input.slug ?? (await this.uniqueSlug(slugify(input.nameEn) || 'category'));
-    const sort = input.sort ?? (await this.nextSort(parent?.id ?? null));
-    try {
-      const id = await this.prisma.$transaction(async (tx) => {
-        const created = await tx.category.create({
-          data: {
-            parentId: parent?.id ?? null,
-            level,
-            path: '',
-            nameEn: input.nameEn,
-            nameBn: input.nameBn,
-            slug,
-            descriptionEn: input.descriptionEn,
-            descriptionBn: input.descriptionBn,
-            imageMediaId: input.imageMediaId,
-            iconMediaId: input.iconMediaId,
-            bannerMediaId: input.bannerMediaId,
-            chipColor: input.chipColor,
-            sort,
-            isActive: input.isActive,
-            showOnHome: input.showOnHome,
-            returnWindowDays: input.returnWindowDays,
-            seoTitle: input.seoTitle,
-            seoDescription: input.seoDescription,
-          },
+    const given = input.slug !== undefined;
+    // Auto slugs are retried on a unique violation; a slug the user chose is a 409.
+    for (let attempt = 1; ; attempt++) {
+      try {
+        const id = await this.treeTx(async (tx) => {
+          const parent = input.parentId ? await this.load(tx, input.parentId) : null;
+          const level = (parent?.level ?? 0) + 1;
+          if (level > MAX_LEVEL) throw new BadRequestException(DEPTH_MESSAGE);
+          if (level === 1 && !input.imageMediaId) {
+            throw new BadRequestException('Main categories need an image');
+          }
+          if (input.showOnHome) this.assertCanSetHome(actor, level);
+          const slug =
+            input.slug ?? (await this.uniqueSlug(tx, slugify(input.nameEn) || 'category'));
+          const sort = input.sort ?? (await this.nextSort(tx, parent?.id ?? null));
+          const created = await tx.category.create({
+            data: {
+              parentId: parent?.id ?? null,
+              level,
+              path: '',
+              nameEn: input.nameEn,
+              nameBn: input.nameBn,
+              slug,
+              descriptionEn: input.descriptionEn,
+              descriptionBn: input.descriptionBn,
+              imageMediaId: input.imageMediaId,
+              iconMediaId: input.iconMediaId,
+              bannerMediaId: input.bannerMediaId,
+              chipColor: input.chipColor,
+              sort,
+              isActive: input.isActive,
+              showOnHome: input.showOnHome,
+              returnWindowDays: input.returnWindowDays,
+              seoTitle: input.seoTitle,
+              seoDescription: input.seoDescription,
+            },
+          });
+          // The id is only known after insert, so the path is filled in right away.
+          await tx.category.update({
+            where: { id: created.id },
+            data: { path: `${parent?.path ?? '/'}${created.id}/` },
+          });
+          return created.id;
         });
-        // The id is only known after insert, so the path is filled in right away.
-        await tx.category.update({
-          where: { id: created.id },
-          data: { path: `${parent?.path ?? '/'}${created.id}/` },
-        });
-        return created.id;
-      });
-      return this.one(id);
-    } catch (err) {
-      if (isUniqueViolation(err)) throw new ConflictException('Slug already in use');
-      throw err;
+        return await this.one(id);
+      } catch (err) {
+        if (!isUniqueViolation(err)) throw err;
+        if (given || attempt >= SLUG_RETRIES) throw new ConflictException('Slug already in use');
+      }
     }
   }
 
@@ -236,36 +242,40 @@ export class CategoriesService {
     id: string,
     input: UpdateCategoryDto,
   ): Promise<CategoryDto> {
-    const cat = await this.load(id);
+    await this.assertMedia([input.imageMediaId, input.iconMediaId, input.bannerMediaId]);
     const { parentId, ...fields } = input;
-
-    const moving = parentId !== undefined && parentId !== cat.parentId;
-    const newParent = moving && parentId ? await this.load(parentId) : null;
-    const level = moving ? (newParent?.level ?? 0) + 1 : cat.level;
-
-    if (moving) {
-      if (newParent && (newParent.id === cat.id || newParent.path.startsWith(cat.path))) {
-        throw new BadRequestException('A category cannot be moved under itself or its descendants');
-      }
-      const maxLevel = await this.maxLevelUnder(this.prisma, cat.path);
-      if (level + (maxLevel - cat.level) > MAX_LEVEL) throw new BadRequestException(DEPTH_MESSAGE);
-    }
-
-    const imageMediaId = fields.imageMediaId === undefined ? cat.imageMediaId : fields.imageMediaId;
-    if (level === 1 && !imageMediaId)
-      throw new BadRequestException('Main categories need an image');
-
-    const showOnHome = fields.showOnHome ?? cat.showOnHome;
-    if (fields.showOnHome !== undefined && fields.showOnHome !== cat.showOnHome) {
-      this.assertCanSetHome(actor, level);
-    }
-    if (showOnHome && level !== 1) {
-      throw new BadRequestException('Only main categories can be shown on the home page');
-    }
-    await this.assertMedia([fields.imageMediaId, fields.iconMediaId, fields.bannerMediaId]);
-
     try {
-      await this.prisma.$transaction(async (tx) => {
+      await this.treeTx(async (tx) => {
+        const cat = await this.load(tx, id);
+        const moving = parentId !== undefined && parentId !== cat.parentId;
+        const newParent = moving && parentId ? await this.load(tx, parentId) : null;
+        const level = moving ? (newParent?.level ?? 0) + 1 : cat.level;
+
+        if (moving) {
+          if (newParent && (newParent.id === cat.id || newParent.path.startsWith(cat.path))) {
+            throw new BadRequestException(
+              'A category cannot be moved under itself or its descendants',
+            );
+          }
+          const maxLevel = await this.maxLevelUnder(tx, cat.path);
+          if (level + (maxLevel - cat.level) > MAX_LEVEL) {
+            throw new BadRequestException(DEPTH_MESSAGE);
+          }
+        }
+
+        const imageMediaId =
+          fields.imageMediaId === undefined ? cat.imageMediaId : fields.imageMediaId;
+        if (level === 1 && !imageMediaId) {
+          throw new BadRequestException('Main categories need an image');
+        }
+
+        const showOnHome = fields.showOnHome ?? cat.showOnHome;
+        // Turning it off never needs set_home; only turning it on does.
+        if (fields.showOnHome === true && !cat.showOnHome) this.assertCanSetHome(actor, level);
+        if (showOnHome && level !== 1) {
+          throw new BadRequestException('Only main categories can be shown on the home page');
+        }
+
         if (moving) {
           await this.assertNoKeyClash(tx, cat.path, newParent ? pathIds(newParent.path) : []);
           await this.relocate(tx, cat, newParent);
@@ -280,27 +290,27 @@ export class CategoriesService {
   }
 
   async reorder(items: { id: string; sort: number }[]): Promise<void> {
-    const rows = await this.prisma.category.findMany({
-      where: { id: { in: items.map((i) => i.id) } },
-      select: { id: true, parentId: true },
+    await this.treeTx(async (tx) => {
+      const rows = await tx.category.findMany({
+        where: { id: { in: items.map((i) => i.id) } },
+        select: { id: true, parentId: true },
+      });
+      if (rows.length !== new Set(items.map((i) => i.id)).size) {
+        throw new NotFoundException('Category not found');
+      }
+      if (new Set(rows.map((r) => r.parentId)).size > 1) {
+        throw new BadRequestException(
+          'Only categories with the same parent can be reordered together',
+        );
+      }
+      for (const i of items) {
+        await tx.category.update({ where: { id: i.id }, data: { sort: i.sort } });
+      }
     });
-    if (rows.length !== new Set(items.map((i) => i.id)).size) {
-      throw new NotFoundException('Category not found');
-    }
-    if (new Set(rows.map((r) => r.parentId)).size > 1) {
-      throw new BadRequestException(
-        'Only categories with the same parent can be reordered together',
-      );
-    }
-    await this.prisma.$transaction(
-      items.map((i) =>
-        this.prisma.category.update({ where: { id: i.id }, data: { sort: i.sort } }),
-      ),
-    );
   }
 
   async deletePreview(id: string): Promise<DeletePreviewDto> {
-    const cat = await this.load(id);
+    const cat = await this.load(this.prisma, id);
     const ids = (
       await this.prisma.category.findMany({
         where: { path: { startsWith: cat.path } },
@@ -318,21 +328,23 @@ export class CategoriesService {
     const needed = input.mode === 'move' ? 'categories.delete' : 'categories.delete_with_products';
     if (!actor.permissions.has(needed))
       throw new ForbiddenException(`Missing permission: ${needed}`);
-    const cat = await this.load(id);
-    if (input.mode === 'cascade') return this.removeCascade(cat);
-    return this.removeMove(cat, input.targetId as string);
+    await this.treeTx(async (tx) => {
+      const cat = await this.load(tx, id);
+      if (input.mode === 'cascade') return this.removeCascade(tx, cat);
+      return this.removeMove(tx, cat, input.targetId as string);
+    });
   }
 
-  private async removeMove(cat: Category, targetId: string) {
-    const target = await this.load(targetId);
+  private async removeMove(tx: Tx, cat: Category, targetId: string) {
+    const target = await this.load(tx, targetId);
     if (target.id === cat.id || target.path.startsWith(cat.path)) {
       throw new BadRequestException(
         'The target cannot be the category itself or one of its sub-categories',
       );
     }
-    const children = await this.prisma.category.findMany({ where: { parentId: cat.id } });
+    const children = await tx.category.findMany({ where: { parentId: cat.id } });
     for (const child of children) {
-      const maxLevel = await this.maxLevelUnder(this.prisma, child.path);
+      const maxLevel = await this.maxLevelUnder(tx, child.path);
       if (target.level + 1 + (maxLevel - child.level) > MAX_LEVEL) {
         throw new BadRequestException(
           `Moving "${child.nameEn}" under "${target.nameEn}" would exceed ${MAX_LEVEL} levels`,
@@ -340,82 +352,110 @@ export class CategoriesService {
       }
     }
 
-    await this.prisma.$transaction(async (tx) => {
-      for (const child of children) {
-        await this.assertNoKeyClash(tx, child.path, pathIds(target.path));
-        await this.relocate(tx, child, target);
-      }
-      const links = await tx.productCategory.findMany({
-        where: { categoryId: cat.id },
-        select: { productId: true },
-      });
-      const primaries = await tx.product.findMany({
-        where: { primaryCategoryId: cat.id },
-        select: { id: true },
-      });
-      const productIds = new Set([...links.map((l) => l.productId), ...primaries.map((p) => p.id)]);
-      await tx.productCategory.createMany({
-        data: [...productIds].map((productId) => ({ productId, categoryId: target.id })),
-        skipDuplicates: true,
-      });
-      await tx.product.updateMany({
-        where: { primaryCategoryId: cat.id },
-        data: { primaryCategoryId: target.id },
-      });
-      await tx.category.delete({ where: { id: cat.id } });
+    // Children first: parent_id is RESTRICT, so the category can only go once it has none.
+    for (const child of children) {
+      await this.assertNoKeyClash(tx, child.path, pathIds(target.path));
+      await this.relocate(tx, child, target);
+    }
+    const links = await tx.productCategory.findMany({
+      where: { categoryId: cat.id },
+      select: { productId: true },
     });
+    const primaries = await tx.product.findMany({
+      where: { primaryCategoryId: cat.id },
+      select: { id: true },
+    });
+    const productIds = new Set([...links.map((l) => l.productId), ...primaries.map((p) => p.id)]);
+    await tx.productCategory.createMany({
+      data: [...productIds].map((productId) => ({ productId, categoryId: target.id })),
+      skipDuplicates: true,
+    });
+    await tx.product.updateMany({
+      where: { primaryCategoryId: cat.id },
+      data: { primaryCategoryId: target.id },
+    });
+    await tx.category.delete({ where: { id: cat.id } });
   }
 
-  private async removeCascade(cat: Category) {
-    await this.prisma.$transaction(async (tx) => {
-      const ids = (
-        await tx.category.findMany({
-          where: { path: { startsWith: cat.path } },
-          select: { id: true },
-        })
-      ).map((c) => c.id);
-      // Hard delete: no orders exist yet. Once orders do (step 4), products that were ordered
-      // are archived instead and only the rest are deleted.
-      await tx.product.deleteMany({ where: { primaryCategoryId: { in: ids } } });
-      await tx.productCategory.deleteMany({ where: { categoryId: { in: ids } } });
-      await tx.category.deleteMany({ where: { id: { in: ids } } });
+  private async removeCascade(tx: Tx, cat: Category) {
+    const subtree = await tx.category.findMany({
+      where: { path: { startsWith: cat.path } },
+      select: { id: true, level: true },
     });
+    const ids = subtree.map((c) => c.id);
+    // Products with stock history can't be hard-deleted (the ledger is append-only); the admin
+    // has to archive or move them first. Once orders exist (step 4), ordered products need the same.
+    const blocked = await tx.product.findMany({
+      where: {
+        primaryCategoryId: { in: ids },
+        variants: { some: { movements: { some: {} } } },
+      },
+      select: { id: true, titleEn: true },
+    });
+    if (blocked.length) {
+      throw new ConflictException({
+        message: 'Some products have stock history; archive or move them first',
+        products: blocked,
+      });
+    }
+    await tx.product.deleteMany({ where: { primaryCategoryId: { in: ids } } });
+    await tx.productCategory.deleteMany({ where: { categoryId: { in: ids } } });
+    // parent_id is RESTRICT, so delete level by level, deepest first.
+    for (let level = MAX_LEVEL; level >= 1; level--) {
+      const levelIds = subtree.filter((c) => c.level === level).map((c) => c.id);
+      if (levelIds.length) await tx.category.deleteMany({ where: { id: { in: levelIds } } });
+    }
   }
 
   // ---- attributes ----
 
   async createAttribute(categoryId: string, input: CreateAttributeDto): Promise<AttributeDto> {
-    const cat = await this.load(categoryId);
-    await this.assertKeyFree(cat, input.key);
     try {
-      const sort = input.sort ?? (await this.nextAttributeSort(categoryId));
-      const created = await this.prisma.categoryAttribute.create({
-        data: {
-          categoryId,
-          key: input.key,
-          nameEn: input.nameEn,
-          nameBn: input.nameBn,
-          type: input.type,
-          unit: input.unit,
-          isFilterable: input.isFilterable,
-          isRequired: input.isRequired,
-          sort,
-        },
-        include: withOptions,
+      return await this.treeTx(async (tx) => {
+        const cat = await this.load(tx, categoryId);
+        await this.assertKeyFree(tx, cat, input.key);
+        const sort = input.sort ?? (await this.nextAttributeSort(tx, categoryId));
+        const created = await tx.categoryAttribute.create({
+          data: {
+            categoryId,
+            key: input.key,
+            nameEn: input.nameEn,
+            nameBn: input.nameBn,
+            type: input.type,
+            unit: input.unit,
+            isFilterable: input.isFilterable,
+            isRequired: input.isRequired,
+            sort,
+          },
+          include: withOptions,
+        });
+        return toAttributeDto(created);
       });
-      return toAttributeDto(created);
     } catch (err) {
       if (isUniqueViolation(err)) throw new ConflictException('Attribute key already used here');
       throw err;
     }
   }
 
-  async updateAttribute(attrId: string, input: UpdateAttributeDto): Promise<AttributeDto> {
-    const attr = await this.loadAttribute(attrId);
-    const typeChanged = input.type !== undefined && input.type !== attr.type;
+  async updateAttribute(
+    attrId: string,
+    input: UpdateAttributeDto,
+    force: boolean,
+  ): Promise<AttributeDto> {
     await this.prisma.$transaction(async (tx) => {
-      if (typeChanged) {
-        // Stored product values are typed by the old type; they no longer make sense.
+      const attr = await this.lockAttribute(tx, attrId);
+      const typeChanged = input.type !== undefined && input.type !== attr.type;
+      // select <-> multiselect keeps options and values valid.
+      const keepsValues = OPTION_TYPES.has(attr.type) && OPTION_TYPES.has(input.type ?? '');
+      if (typeChanged && !keepsValues) {
+        const valueCount = await tx.productAttributeValue.count({ where: { attributeId: attrId } });
+        if (valueCount > 0 && !force) {
+          throw new ConflictException({
+            message: 'Changing the type would delete values stored on products',
+            valueCount,
+            productCount: await this.productCount(tx, attrId),
+          });
+        }
         await tx.productAttributeValue.deleteMany({ where: { attributeId: attrId } });
         if (!OPTION_TYPES.has(input.type as string)) {
           await tx.attributeOption.deleteMany({ where: { attributeId: attrId } });
@@ -426,13 +466,23 @@ export class CategoriesService {
     return toAttributeDto(await this.loadAttribute(attrId));
   }
 
-  async removeAttribute(attrId: string): Promise<void> {
-    await this.loadAttribute(attrId);
-    await this.prisma.categoryAttribute.delete({ where: { id: attrId } });
+  async removeAttribute(attrId: string, force: boolean): Promise<void> {
+    await this.prisma.$transaction(async (tx) => {
+      await this.lockAttribute(tx, attrId);
+      const valueCount = await tx.productAttributeValue.count({ where: { attributeId: attrId } });
+      if (valueCount > 0 && !force) {
+        throw new ConflictException({
+          message: 'Products have values for this attribute',
+          valueCount,
+          productCount: await this.productCount(tx, attrId),
+        });
+      }
+      await tx.categoryAttribute.delete({ where: { id: attrId } });
+    });
   }
 
   async reorderAttributes(categoryId: string, items: { id: string; sort: number }[]) {
-    await this.load(categoryId);
+    await this.load(this.prisma, categoryId);
     const rows = await this.prisma.categoryAttribute.findMany({
       where: { id: { in: items.map((i) => i.id) }, categoryId },
       select: { id: true },
@@ -448,28 +498,50 @@ export class CategoriesService {
   }
 
   /** Replaces the option list: rows with an id are updated, new ones created, missing ones deleted. */
-  async setOptions(attrId: string, input: SetOptionsDto): Promise<AttributeDto['options']> {
-    const attr = await this.loadAttribute(attrId);
-    if (!OPTION_TYPES.has(attr.type)) {
-      throw new BadRequestException('Only select and multiselect attributes have options');
-    }
+  async setOptions(
+    attrId: string,
+    input: SetOptionsDto,
+    force: boolean,
+  ): Promise<AttributeDto['options']> {
     const rows = input.map((o, index) => ({
       index,
       id: o.id,
       valueEn: o.valueEn.trim(),
       valueBn: o.valueBn?.trim() || null,
     }));
-    this.validateOptions(rows);
-    const existing = new Set(attr.options.map((o) => o.id));
-    const unknown = rows.filter((r) => r.id && !existing.has(r.id));
-    if (unknown.length) {
-      throw new BadRequestException({
-        message: 'Unknown option id',
-        rows: unknown.map((r) => ({ index: r.index, field: 'id', reason: 'unknown' })),
-      });
-    }
-    const keep = new Set(rows.flatMap((r) => (r.id ? [r.id] : [])));
-    await this.prisma.$transaction(async (tx) => {
+    return this.prisma.$transaction(async (tx) => {
+      const attr = await this.lockAttribute(tx, attrId);
+      if (!OPTION_TYPES.has(attr.type)) {
+        throw new BadRequestException('Only select and multiselect attributes have options');
+      }
+      this.validateOptions(rows);
+      const existing = new Map(attr.options.map((o) => [o.id, o]));
+      const unknown = rows.filter((r) => r.id && !existing.has(r.id));
+      if (unknown.length) {
+        throw new BadRequestException({
+          message: 'Unknown option id',
+          rows: unknown.map((r) => ({ index: r.index, field: 'id', reason: 'unknown' })),
+        });
+      }
+      const keep = new Set(rows.flatMap((r) => (r.id ? [r.id] : [])));
+      const removed = attr.options.filter((o) => !keep.has(o.id));
+      if (removed.length && !force) {
+        const used = await tx.productAttributeValue.groupBy({
+          by: ['optionId'],
+          where: { optionId: { in: removed.map((o) => o.id) } },
+          _count: { _all: true },
+        });
+        if (used.length) {
+          throw new ConflictException({
+            message: 'Some options to remove are used by products',
+            usage: used.map((u) => ({
+              optionId: u.optionId,
+              valueEn: existing.get(u.optionId as string)?.valueEn ?? '',
+              productCount: u._count._all,
+            })),
+          });
+        }
+      }
       await tx.attributeOption.deleteMany({
         where: { attributeId: attrId, id: { notIn: [...keep] } },
       });
@@ -478,13 +550,12 @@ export class CategoriesService {
         if (r.id) await tx.attributeOption.update({ where: { id: r.id }, data });
         else await tx.attributeOption.create({ data: { ...data, attributeId: attrId } });
       }
+      const saved = await tx.attributeOption.findMany({
+        where: { attributeId: attrId },
+        orderBy: { sort: 'asc' },
+      });
+      return saved.map((o) => ({ id: o.id, valueEn: o.valueEn, valueBn: o.valueBn, sort: o.sort }));
     });
-    return (await this.loadAttribute(attrId)).options.map((o) => ({
-      id: o.id,
-      valueEn: o.valueEn,
-      valueBn: o.valueBn,
-      sort: o.sort,
-    }));
   }
 
   /** Q116: blank and (case-insensitive, per language) duplicate values are rejected, naming the rows. */
@@ -514,8 +585,36 @@ export class CategoriesService {
 
   // ---- helpers ----
 
-  private async load(id: string) {
-    const cat = await this.prisma.category.findUnique({ where: { id } });
+  /** Tree-changing work runs one at a time (advisory lock) and validates on fresh rows. */
+  private treeTx<T>(fn: (tx: Tx) => Promise<T>): Promise<T> {
+    return this.prisma.$transaction(
+      async (tx) => {
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('categories_tree'))`;
+        return fn(tx);
+      },
+      { timeout: 15_000 },
+    );
+  }
+
+  /** Locks the attribute row so concurrent option edits and type changes queue up. */
+  private async lockAttribute(tx: Tx, id: string) {
+    await tx.$queryRaw`SELECT id FROM category_attributes WHERE id = ${id}::uuid FOR UPDATE`;
+    const attr = await tx.categoryAttribute.findUnique({ where: { id }, include: withOptions });
+    if (!attr) throw new NotFoundException('Attribute not found');
+    return attr;
+  }
+
+  private async productCount(tx: Tx, attributeId: string) {
+    const rows = await tx.productAttributeValue.findMany({
+      where: { attributeId },
+      distinct: ['productId'],
+      select: { productId: true },
+    });
+    return rows.length;
+  }
+
+  private async load(db: Db, id: string) {
+    const cat = await db.category.findUnique({ where: { id } });
     if (!cat) throw new NotFoundException('Category not found');
     return cat;
   }
@@ -599,10 +698,10 @@ export class CategoriesService {
     if (found !== wanted.length) throw new BadRequestException('Image not found');
   }
 
-  private async uniqueSlug(base: string) {
+  private async uniqueSlug(db: Db, base: string) {
     const taken = new Set(
       (
-        await this.prisma.category.findMany({
+        await db.category.findMany({
           where: { slug: { startsWith: base } },
           select: { slug: true },
         })
@@ -612,20 +711,20 @@ export class CategoriesService {
     for (let n = 2; ; n++) if (!taken.has(`${base}-${n}`)) return `${base}-${n}`;
   }
 
-  private async nextSort(parentId: string | null) {
-    const max = await this.prisma.category.aggregate({ _max: { sort: true }, where: { parentId } });
+  private async nextSort(db: Db, parentId: string | null) {
+    const max = await db.category.aggregate({ _max: { sort: true }, where: { parentId } });
     return (max._max.sort ?? -1) + 1;
   }
 
-  private async nextAttributeSort(categoryId: string) {
-    const max = await this.prisma.categoryAttribute.aggregate({
+  private async nextAttributeSort(db: Db, categoryId: string) {
+    const max = await db.categoryAttribute.aggregate({
       _max: { sort: true },
       where: { categoryId },
     });
     return (max._max.sort ?? -1) + 1;
   }
 
-  private async maxLevelUnder(db: Tx | PrismaService, path: string) {
+  private async maxLevelUnder(db: Db, path: string) {
     const agg = await db.category.aggregate({
       _max: { level: true },
       where: { path: { startsWith: path } },
@@ -647,8 +746,8 @@ export class CategoriesService {
   }
 
   /** An attribute key must be unique along any root-to-leaf chain. */
-  private async assertKeyFree(cat: Category, key: string) {
-    const clash = await this.prisma.categoryAttribute.findFirst({
+  private async assertKeyFree(db: Db, cat: Category, key: string) {
+    const clash = await db.categoryAttribute.findFirst({
       where: {
         key,
         OR: [

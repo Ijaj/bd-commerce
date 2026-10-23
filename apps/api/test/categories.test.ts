@@ -466,4 +466,153 @@ describe('categories and attributes', () => {
     await agent.put(url).send([]).expect(200);
     expect(await prisma.attributeOption.count({ where: { attributeId: attr.id } })).toBe(0);
   });
+
+  it('cascade refuses products with stock history (409) and deletes the rest, variants with options included', async () => {
+    const root = await mk('Root');
+    const child = await mk('Child', root.id);
+    const plain = await newProduct(child.id);
+    const withOptions = await newProduct(root.id);
+    const opt = await prisma.productOption.create({
+      data: { productId: withOptions, position: 1, nameEn: 'Size' },
+    });
+    const val = await prisma.productOptionValue.create({
+      data: { optionId: opt.id, valueEn: 'S' },
+    });
+    await prisma.variant.updateMany({
+      where: { productId: withOptions },
+      data: { optionValue1Id: val.id },
+    });
+    const moved = await newProduct(root.id);
+    const variant = await prisma.variant.findFirstOrThrow({ where: { productId: moved } });
+    await prisma.stockMovement.create({
+      data: { variantId: variant.id, qtyDelta: 5, reason: 'adjust' },
+    });
+
+    const res = await agent
+      .delete(`/v1/admin/categories/${root.id}`)
+      .send({ mode: 'cascade' })
+      .expect(409);
+    expect(res.body.products).toEqual([{ id: moved, titleEn: expect.any(String) }]);
+    // nothing was deleted
+    expect(await prisma.category.count()).toBe(2);
+    expect(await prisma.product.count()).toBe(3);
+
+    // once the blocking product lives elsewhere, the cascade goes through
+    const keep = await mk('Keep');
+    await prisma.product.update({ where: { id: moved }, data: { primaryCategoryId: keep.id } });
+    await agent.delete(`/v1/admin/categories/${root.id}`).send({ mode: 'cascade' }).expect(204);
+    expect(await prisma.category.count()).toBe(1);
+    expect(await prisma.product.count({ where: { id: { in: [plain, withOptions] } } })).toBe(0);
+    expect(await prisma.product.count({ where: { id: moved } })).toBe(1);
+  });
+
+  it('runs opposite moves one at a time and keeps the tree consistent', async () => {
+    const a = await mk('A');
+    const b = await mk('B');
+    const results = await Promise.all([
+      agent.patch(`/v1/admin/categories/${a.id}`).send({ parentId: b.id }),
+      agent.patch(`/v1/admin/categories/${b.id}`).send({ parentId: a.id }),
+    ]);
+    expect(results.map((r) => r.status).sort()).toEqual([200, 400]);
+    const rows = await prisma.category.findMany();
+    expect(rows).toHaveLength(2);
+    for (const r of rows) {
+      const parent = rows.find((x) => x.id === r.parentId);
+      expect(r.path).toBe(`${parent?.path ?? '/'}${r.id}/`);
+      expect(r.level).toBe((parent?.level ?? 0) + 1);
+    }
+    expect(rows.filter((r) => r.parentId === null)).toHaveLength(1);
+  });
+
+  it('turning showOnHome off never needs set_home, even in a move', async () => {
+    const home = await mk('Home', undefined, { showOnHome: true });
+    const target = await mk('Target');
+    const editor = await createStaffWith(app, ['categories.view', 'categories.edit']);
+    const res = await editor.agent
+      .patch(`/v1/admin/categories/${home.id}`)
+      .send({ parentId: target.id, showOnHome: false })
+      .expect(200);
+    expect(res.body).toMatchObject({ showOnHome: false, level: 2 });
+    // moving a home category without clearing the flag is still refused
+    const home2 = await mk('Home2', undefined, { showOnHome: true });
+    await agent.patch(`/v1/admin/categories/${home2.id}`).send({ parentId: target.id }).expect(400);
+    await agent
+      .patch(`/v1/admin/categories/${home2.id}`)
+      .send({ parentId: target.id, showOnHome: false })
+      .expect(200);
+  });
+
+  describe('attribute usage by products', () => {
+    async function setup(type: 'select' | 'multiselect' = 'select') {
+      const cat = await mk('Cat');
+      const attr = (
+        await agent
+          .post(`/v1/admin/categories/${cat.id}/attributes`)
+          .send({ key: 'color', nameEn: 'Colour', type })
+          .expect(201)
+      ).body;
+      const options = (
+        await agent
+          .put(`/v1/admin/attributes/${attr.id}/options`)
+          .send([{ valueEn: 'Red' }, { valueEn: 'Blue' }])
+          .expect(200)
+      ).body as { id: string; valueEn: string }[];
+      const p1 = await newProduct(cat.id);
+      const p2 = await newProduct(cat.id);
+      for (const productId of [p1, p2]) {
+        await prisma.productAttributeValue.create({
+          data: { productId, attributeId: attr.id, optionId: options[0].id },
+        });
+      }
+      return { cat, attr, options };
+    }
+
+    it('blocks removing used options unless forced', async () => {
+      const { attr, options } = await setup();
+      const url = `/v1/admin/attributes/${attr.id}/options`;
+      const keepBlue = [{ id: options[1].id, valueEn: 'Blue' }];
+      const res = await agent.put(url).send(keepBlue).expect(409);
+      expect(res.body.usage).toEqual([
+        { optionId: options[0].id, valueEn: 'Red', productCount: 2 },
+      ]);
+      expect(await prisma.attributeOption.count({ where: { attributeId: attr.id } })).toBe(2);
+      // unused options can go without force
+      await agent
+        .put(url)
+        .send([{ id: options[0].id, valueEn: 'Red' }])
+        .expect(200);
+      await agent.put(`${url}?force=true`).send([]).expect(200);
+      expect(await prisma.productAttributeValue.count({ where: { attributeId: attr.id } })).toBe(0);
+    });
+
+    it('keeps values on select <-> multiselect, blocks other type changes unless forced', async () => {
+      const { attr } = await setup();
+      const multi = await agent
+        .patch(`/v1/admin/attributes/${attr.id}`)
+        .send({ type: 'multiselect' })
+        .expect(200);
+      expect(multi.body.options).toHaveLength(2);
+      expect(await prisma.productAttributeValue.count({ where: { attributeId: attr.id } })).toBe(2);
+
+      const res = await agent
+        .patch(`/v1/admin/attributes/${attr.id}`)
+        .send({ type: 'text' })
+        .expect(409);
+      expect(res.body).toMatchObject({ valueCount: 2, productCount: 2 });
+      const forced = await agent
+        .patch(`/v1/admin/attributes/${attr.id}?force=true`)
+        .send({ type: 'text' })
+        .expect(200);
+      expect(forced.body).toMatchObject({ type: 'text', options: [] });
+      expect(await prisma.productAttributeValue.count({ where: { attributeId: attr.id } })).toBe(0);
+    });
+
+    it('blocks deleting an attribute that products use unless forced', async () => {
+      const { attr } = await setup();
+      const res = await agent.delete(`/v1/admin/attributes/${attr.id}`).expect(409);
+      expect(res.body).toMatchObject({ valueCount: 2, productCount: 2 });
+      await agent.delete(`/v1/admin/attributes/${attr.id}?force=true`).expect(204);
+      expect(await prisma.productAttributeValue.count()).toBe(0);
+    });
+  });
 });

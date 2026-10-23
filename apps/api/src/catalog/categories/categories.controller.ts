@@ -9,8 +9,15 @@ import {
   Patch,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
-import { ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CurrentStaff, StaffAuth } from '../../auth/staff-auth.guard';
 import type { StaffAuthContext } from '../../auth/staff-auth.service';
 import {
@@ -124,28 +131,39 @@ export class AttributesController {
   }
 
   @Patch('attributes/:attrId')
+  @ApiQuery({ name: 'force', required: false, type: Boolean })
   @StaffAuth('categories.edit')
   @ApiOkResponse({ type: AttributeDto })
   update(
     @Param('attrId', ParseUUIDPipe) attrId: string,
     @Body() body: UpdateAttributeDto,
+    @Query('force') force?: string,
   ): Promise<AttributeDto> {
-    return this.categories.updateAttribute(attrId, body);
+    return this.categories.updateAttribute(attrId, body, force === 'true');
   }
 
   @Delete('attributes/:attrId')
+  @ApiQuery({ name: 'force', required: false, type: Boolean })
   @HttpCode(204)
   @StaffAuth('categories.edit')
   @ApiNoContentResponse()
-  remove(@Param('attrId', ParseUUIDPipe) attrId: string) {
-    return this.categories.removeAttribute(attrId);
+  remove(@Param('attrId', ParseUUIDPipe) attrId: string, @Query('force') force?: string) {
+    return this.categories.removeAttribute(attrId, force === 'true');
   }
 
-  /** Full ordered option list; position in the array becomes `sort`. */
+  /**
+   * Full ordered option list; position in the array becomes `sort`. Removing options that products
+   * use returns 409 with usage counts unless `?force=true`.
+   */
   @Put('attributes/:attrId/options')
+  @ApiQuery({ name: 'force', required: false, type: Boolean })
   @StaffAuth('categories.edit')
   @ApiOkResponse({ type: OptionListDto })
-  setOptions(@Param('attrId', ParseUUIDPipe) attrId: string, @Body() body: SetOptionsDto) {
-    return this.categories.setOptions(attrId, body);
+  setOptions(
+    @Param('attrId', ParseUUIDPipe) attrId: string,
+    @Body() body: SetOptionsDto,
+    @Query('force') force?: string,
+  ) {
+    return this.categories.setOptions(attrId, body, force === 'true');
   }
 }
