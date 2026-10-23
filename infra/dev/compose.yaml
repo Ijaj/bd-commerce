@@ -53,6 +53,12 @@ services:
       IMGPROXY_ENABLE_AVIF_DETECTION: "true"
     ports: ["127.0.0.1:8080:8080"]
 
+  mailpit:
+    image: docker.io/axllent/mailpit:v1.32.0
+    ports:
+      - 127.0.0.1:1025:1025 # SMTP
+      - 127.0.0.1:8025:8025 # web UI
+
 volumes:
   pg-data:
   redis-data:

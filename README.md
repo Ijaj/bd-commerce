@@ -34,3 +34,14 @@ pnpm stack:init    # first run only: Garage layout, dev key, buckets
 `apps/api`: NestJS 11 + Prisma 7, compiled with SWC (TypeScript 7 type-check). `pnpm --filter @bdc/api dev` serves on `:4000`: `/health`, routes under `/v1`, Swagger UI at `/docs` (non-production).
 
 After changing API routes or schemas run `pnpm api:gen`. It rewrites `packages/api-client/openapi.json` and the generated types; CI fails if they are stale.
+
+### Staff accounts
+
+Staff sign in at `/v1/admin/auth/*`: email + password, then a mandatory authenticator-app code (2FA). Sessions are httpOnly cookies, 8 h idle timeout, 7 day hard cap. Server-side commands (after `pnpm --filter @bdc/api build`):
+
+```sh
+pnpm --filter @bdc/api cli create-owner owner@example.com "Owner Name"   # prints a temporary password
+pnpm --filter @bdc/api cli reset-2fa owner@example.com                    # last-resort 2FA reset
+```
+
+Dev mail (new-device alerts) lands in Mailpit: http://localhost:8025.

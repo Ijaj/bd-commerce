@@ -253,3 +253,7 @@ Note on S6: our order tracking covers status until the parcel is handed to the c
 | C10 | API client: **openapi-typescript + openapi-fetch** (types only, tiny runtime) |
 | C11 | NestJS build: **SWC** builder; type-check separately with TS 7 `tsc --noEmit` |
 | C12 | API framework: **NestJS 11** (Nest 12 is ESM and nestjs-zod does not support it yet; upgrade later). ORM: **Prisma 7.10** stable (8.0 still rc) |
+| C13 | Staff 2FA (TOTP authenticator app) **required for all staff**; set up on first login before any admin access |
+| C14 | 2FA recovery: **10 one-time backup codes** at setup + staff with manage-staff permission can **reset** another's 2FA (audit-logged); server CLI reset as last resort |
+| C15 | Staff password hashing: **Argon2id** (@node-rs/argon2) |
+| C16 | Default staff **idle timeout 8 hours** (admin setting, per-staff override) |

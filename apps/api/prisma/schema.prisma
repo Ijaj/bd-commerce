@@ -1,4 +1,4 @@
-// Foundation tables arrive in step 1c (staff, roles, sessions) and 1d (settings, flags). See plan/12-data-model.md.
+// Tables follow plan/12-data-model.md. Step 1c: staff accounts, sessions, RBAC.
 
 generator client {
   provider     = "prisma-client"
@@ -8,4 +8,133 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+/// Staff accounts (doc 12 §1, Q68, C13–C16). Never deleted: disabled_at instead.
+model Staff {
+  id                String    @id @default(uuid(7)) @db.Uuid
+  name              String
+  email             String    @unique
+  phone             String?
+  passwordHash      String    @map("password_hash")
+  /// AES-256-GCM encrypted TOTP secret. Set at 2FA setup, active once totp_enabled_at is set.
+  totpSecret        String?   @map("totp_secret")
+  totpEnabledAt     DateTime? @map("totp_enabled_at") @db.Timestamptz
+  /// Last accepted TOTP time step; codes at or before it are rejected (replay guard).
+  totpLastStep      Int?      @map("totp_last_step")
+  /// Last 2FA reset by another staff member (C14). Full audit log is not in P1.
+  totpResetAt       DateTime? @map("totp_reset_at") @db.Timestamptz
+  totpResetById     String?   @map("totp_reset_by_id") @db.Uuid
+  disabledAt        DateTime? @map("disabled_at") @db.Timestamptz
+  lastLoginAt       DateTime? @map("last_login_at") @db.Timestamptz
+  /// Idle timeout override; null = default setting (C16).
+  sessionTimeoutMin Int?      @map("session_timeout_min")
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  totpResetBy Staff?             @relation("TotpReset", fields: [totpResetById], references: [id])
+  totpResets  Staff[]            @relation("TotpReset")
+  sessions    StaffSession[]
+  devices     StaffKnownDevice[]
+  backupCodes StaffBackupCode[]
+  roles       StaffRole[]
+
+  @@map("staff")
+}
+
+model StaffSession {
+  id            String    @id @default(uuid(7)) @db.Uuid
+  staffId       String    @map("staff_id") @db.Uuid
+  tokenHash     String    @unique @map("token_hash")
+  /// Null until the 2FA step passes; until then only 2FA endpoints are allowed.
+  mfaVerifiedAt DateTime? @map("mfa_verified_at") @db.Timestamptz
+  mfaAttempts   Int       @default(0) @map("mfa_attempts")
+  ip            String?
+  userAgent     String?   @map("user_agent")
+  lastSeenAt    DateTime  @default(now()) @map("last_seen_at") @db.Timestamptz
+  expiresAt     DateTime  @map("expires_at") @db.Timestamptz
+  revokedAt     DateTime? @map("revoked_at") @db.Timestamptz
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  staff Staff @relation(fields: [staffId], references: [id])
+
+  @@index([staffId])
+  @@map("staff_sessions")
+}
+
+/// Devices seen at login, keyed by a long-lived random device cookie (new-device alert, Q68).
+model StaffKnownDevice {
+  id              String   @id @default(uuid(7)) @db.Uuid
+  staffId         String   @map("staff_id") @db.Uuid
+  fingerprintHash String   @map("fingerprint_hash")
+  userAgent       String?  @map("user_agent")
+  firstSeenAt     DateTime @default(now()) @map("first_seen_at") @db.Timestamptz
+  lastSeenAt      DateTime @default(now()) @map("last_seen_at") @db.Timestamptz
+
+  staff Staff @relation(fields: [staffId], references: [id])
+
+  @@unique([staffId, fingerprintHash])
+  @@map("staff_known_devices")
+}
+
+/// One-time 2FA backup codes (C14), hashed.
+model StaffBackupCode {
+  id       String    @id @default(uuid(7)) @db.Uuid
+  staffId  String    @map("staff_id") @db.Uuid
+  codeHash String    @map("code_hash")
+  usedAt   DateTime? @map("used_at") @db.Timestamptz
+
+  staff Staff @relation(fields: [staffId], references: [id])
+
+  @@index([staffId])
+  @@map("staff_backup_codes")
+}
+
+/// Permission catalog, synced from code at startup (doc 12 §2). Not editable.
+model Permission {
+  key         String @id
+  group       String
+  description String
+
+  roles RolePermission[]
+
+  @@map("permissions")
+}
+
+model Role {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  name        String   @unique
+  description String?
+  /// Owner role: cannot be deleted or edited, always has every permission.
+  isSystem    Boolean  @default(false) @map("is_system")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  permissions RolePermission[]
+  staff       StaffRole[]
+
+  @@map("roles")
+}
+
+model RolePermission {
+  roleId        String @map("role_id") @db.Uuid
+  permissionKey String @map("permission_key")
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionKey], references: [key], onDelete: Cascade)
+
+  @@id([roleId, permissionKey])
+  @@map("role_permissions")
+}
+
+model StaffRole {
+  staffId String @map("staff_id") @db.Uuid
+  roleId  String @map("role_id") @db.Uuid
+
+  staff Staff @relation(fields: [staffId], references: [id])
+  role  Role  @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([staffId, roleId])
+  @@index([roleId])
+  @@map("staff_roles")
 }
