@@ -239,7 +239,9 @@ export function ImportCard() {
         {errorCount > 0 && (
           <Stack gap={4}>
             <Group gap="xs">
-              <Badge color="red">{errorCount} errors</Badge>
+              <Badge color="red">
+                {errorCount} {errorCount === 1 ? 'error' : 'errors'}
+              </Badge>
               <Text size="sm" c="dimmed">
                 Fix these in the file and check it again.
               </Text>
@@ -250,7 +252,9 @@ export function ImportCard() {
 
         {summary && summary.warnings.length > 0 && (
           <Stack gap={4}>
-            <Badge color="yellow">{summary.warnings.length} warnings</Badge>
+            <Badge color="yellow">
+              {summary.warnings.length} {summary.warnings.length === 1 ? 'warning' : 'warnings'}
+            </Badge>
             <IssueTable issues={summary.warnings} color="orange" />
           </Stack>
         )}

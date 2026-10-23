@@ -10,7 +10,7 @@ import {
   Text,
   TextInput,
 } from '@mantine/core';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { useCan } from '~/lib/perm';
 import { categoriesApi } from './api';
@@ -34,6 +34,7 @@ export function DeleteCategoryModal({
   const canMove = useCan('categories.delete');
   const canCascade = useCan('categories.delete_with_products');
   const invalidate = useInvalidateCategories();
+  const qc = useQueryClient();
   const [modeChoice, setMode] = useState<Mode | null>(null);
   const mode: Mode = modeChoice ?? (canMove ? 'move' : 'cascade');
   const [targetId, setTargetId] = useState<string | null>(null);
@@ -74,6 +75,8 @@ export function DeleteCategoryModal({
       ),
     onSuccess: () => {
       notifyOk('Category deleted');
+      // Drop the preview first so invalidate() doesn't refetch it for the deleted id (404).
+      qc.removeQueries({ queryKey: ['categories', 'delete-preview', id] });
       invalidate();
       onClose();
     },
