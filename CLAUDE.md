@@ -11,20 +11,13 @@ General-purpose e-commerce for Bangladesh. **Planning phase only — no code unt
 - User wants big visual/UI work delegated to a Sonnet/Haiku sub-agent with a precise spec. No Artifacts unless asked.
 - Old reference project: `~/webdev/baby-commerce` (lessons in `plan/09-baby-commerce-reuse.md`).
 
-## Resume state (last updated 2026-10-23, session 4, gate 6 done)
-- Gates 1–4 done (features, Q1–Q95 + S1–S36, 9 flowcharts, data model `plan/12-data-model.md`).
-- Gate 5 in progress. Round 5 Q96–Q99: static HTML mockups in `plan/mockups/` (file://, dark mode + EN/BN, mobile preview), name placeholder `ShopName`, Sonnet sub-agent in batches.
-- Q100–Q102: brand still open → A/B/C switcher on every page (`shared/brand-*.css`, `?brand=`); audit fixes applied in batch 2a.
-- Batch 2a done: foundation (`shared/core.js` = `Shop.*` API, `boot.js`, per-page `page-*.js`, `pages.css`), home/category/search/product pages. Cart in localStorage `shop.cart`.
-- Batch 2b done: cart, checkout, payment, order-success, track, login, account, event (+ `shared/flow.js`, `auth.js`, `order-ui.js`). Demo: `?user=1`, `cart.html?demo=1`, orders BD-100219/100248/100174 phone 01711000000. All data localStorage.
-- Round 5b Q103–Q110 decided: brand = B style + C colours (brand D), digits follow language (BN digits incl. prices; IDs/phones English), per-zone free delivery threshold, advance-payment rules Q106–Q108 (doc 12 updated, cod_advance_rules dropped), **launch = COD only** (online pay, advance, pre-order off; feature flags in settings), mockup Launch/Full toggle.
-- Batch 2c done: brand D default (`shared/brand-d.css`), BN digits (`Shop.digits/num`, MutationObserver), per-zone `freeAbove`, advance calc in `flow.js` (`Shop.calc`), Launch/Full toggle (`shop.phase`, default launch).
-- Batch 3 done (5 parallel Sonnet agents, contract `plan/mockups/admin/CONTRACT.md`, page list `admin/README.md`): 28 admin pages + `supplier/` + `affiliate/` portals. All 30 load headless with no JS errors (checked 2026-10-23). Admin data in-memory per group (`*-data.js`), not cross-linked. Linked from `plan/mockups/index.html`.
-- Gate 5 mockups essentially complete — awaiting owner review.
-- Session 4: Q111 = advance trigger %s ADDED (cap 100%/item; flow.js `Shop.calc`, doc 12, admin pages updated). Q112 = admin EN only. Repo on GitHub `Ijaj/bd-commerce` (main), first commit 41bbdf4.
-- Session 4 later: Q113 no-bold storefront typography; Q114–Q117 availability filter (In Stock/Pre-Order/Up-coming, all 3 always shown), `upcoming` products (wishlist only, `Shop.cart.add` refuses; demo p=538,316,53,20,296; admin product-edit?id=103), admin option editor (EN+BN rows, drag, fixed + Add option in header).
-- Gate 5 approved by owner. Gate 6 done: tech stack S-T1–S-T28 in doc 10, summary `plan/13-tech-stack.md` (TS monorepo pnpm+Turbo; Next.js shop plain CSS; Vite+React+Mantine admin; NestJS+Prisma+Postgres API; Kotlin Compose Android; self-hosted on owner PCs w/ Podman Compose + Cloudflare Tunnel; MinIO+imgproxy; BullMQ+Redis; SES).
-- **Next step:** gate 7 roadmap: phases (COD-only launch → online pay/advance/pre-order → rest), feature list per phase, build order. Ask owner, don't decide.
-- Open questions: Q118 (where supplier/affiliate portals live).
+## Resume state (last updated 2026-10-23, session 4 end)
+- Gates 1–7 done. Docs: features 01–07, decisions `plan/10-decisions-log.md` (Q1–Q120, S1–S36, S-T1–S-T28, R1–R25), flowcharts, data model `plan/12-data-model.md` (incl. 8b SR/B2B), mockups `plan/mockups/` (owner approved), tech stack `plan/13-tech-stack.md`, roadmap `plan/14-roadmap.md`.
+- Repo: GitHub `Ijaj/bd-commerce` (main). Commit + push after each step.
+- Session 4 decisions: Q111 advance %s summed (cap 100%), Q112 admin EN only, Q113 no bold in storefront (admin exempt), Q114–Q117 availability filter + upcoming products (wishlist only) + admin option editor, tech stack (TS monorepo pnpm+Turbo, Next.js shop plain CSS, Vite+React+Mantine admin, NestJS+Prisma+Postgres, Kotlin Compose Android, self-hosted owner PCs + Podman Compose + Cloudflare Tunnel, MinIO+imgproxy, BullMQ+Redis, SES), roadmap 4 phases (P1 COD launch, P2 payments, P3 growth, P4 Android), new **SR/B2B module in P1** (field SRs sell our stock to independent shops; approval, due ledger, memo, targets, commission on collected money), one partner portal app (`apps/portal`) for SR + supplier + affiliate.
+- **In progress at session end:** Sonnet agent building SR portal mockups (`plan/mockups/sr/`) + admin pages (sr-approvals, b2b-shops, sr-team, b2b-dues) + hub links. May be incomplete/uncommitted. **Next session first:** `git status` in repo; check those files exist, load headless for JS errors, screenshots in scratchpad if any; finish or re-spawn agent with same spec (spec = R10–R20, Q119–Q120, doc 12 §8b, match supplier/affiliate portal style, admin per CONTRACT.md). Then commit.
+- **Then:** owner reviews SR mockups → gate 8 coding starts with P1 slice 1 (foundation, see doc 14).
+- Open questions: none.
+- Owner prefs: ask every decision via AskUserQuestion, never decide; explain pros/cons when asked; local model (unsloth) was down this session.
 - Lesson: 6 parallel Sonnet agents hit the session usage limit once; resume stopped agents with SendMessage rather than respawning.
 - Untested in flowchart viewer: pinch zoom; Fit-all on the 32-node checkout flow renders small.
