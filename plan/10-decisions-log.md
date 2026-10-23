@@ -237,3 +237,12 @@ Note on S6: our order tracking covers status until the parcel is handed to the c
 | Q120 | SR commission = % of **money collected** in the month (payment at sale + due collections) |
 | R24 | P1 build order: **online shop first, SR module later in P1** (see doc 14) |
 | R25 | SR portal + admin B2B pages get **static mockups first** (Sonnet agent), owner reviews before gate 8 |
+
+## Coding phase (gate 8)
+| ID | Decision |
+|---|---|
+| C1 | SR portal + admin SR/B2B mockups **approved** by owner, no changes (2026-10-23) |
+| C2 | P1 step 1 built in **4 sub-steps**: 1a monorepo + Podman dev stack + CI; 1b Prisma + NestJS skeleton + OpenAPI client; 1c staff auth, 2FA, sessions, RBAC; 1d settings, flags, EN/BN helpers, maintenance. Commit + check-in after each |
+| C3 | Step 1 schema = **foundation tables only**; later steps add their own tables via migrations |
+| C4 | Git: **commit straight to main** until deploy-on-merge runner is live, then branches + PRs |
+| C5 | Runtime: **Node 24 LTS** |

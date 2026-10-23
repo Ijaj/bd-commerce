@@ -25,8 +25,8 @@ General-purpose e-commerce for Bangladesh ("we sell any and everything").
 4. [x] Data model draft (entities + relations, no code) — `12-data-model.md`
 5. [x] Mockups: home (web + Android), category page, product page, cart, checkout, account, event page, key admin screens
 6. [x] Tech stack decision (lightweight storefront + fast Android are hard requirements) — `13-tech-stack.md`
-7. [x] Phased roadmap / MVP cut — `14-roadmap.md` (SR portal mockups pending owner review before gate 8)
-8. [ ] Start coding
+7. [x] Phased roadmap / MVP cut — `14-roadmap.md` (SR mockups approved, C1)
+8. [ ] Start coding — in progress (C2–C5 in doc 10)
 
 ## Docs
 
