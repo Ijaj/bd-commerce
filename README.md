@@ -55,7 +55,7 @@ pnpm --filter @bdc/api build
 pnpm --filter @bdc/api cli seed-demo
 ```
 
-Creates 16 categories, 8 brands, 30 products and 58 variants (EN + BN names). Idempotent: it does nothing when a product with a `demo-` slug already exists. Refuses to run when `NODE_ENV=production`. It is not run on any database automatically.
+Creates 16 categories, 8 brands, 30 products and their variants (EN + BN names). Idempotent: it does nothing when a product with a `demo-` slug already exists. Refuses to run when `NODE_ENV=production`. It is not run on any database automatically.
 
 ### Settings and feature flags
 
@@ -137,7 +137,7 @@ Product descriptions (EN and BN) are HTML, sanitized on the server (`sanitize-ht
 
 - Stock is a ledger. Every adjustment writes a row, so `GET /admin/inventory/:variantId/movements` shows the history.
 - Each variant has on-hand, reserved and available quantities and an optional low-stock threshold.
-- `adjust` takes `mode: delta` (add or remove, may be negative) or `mode: set` (set on-hand to a value), plus an optional note. Stock changes that cannot be applied return 409 `Not enough stock`.
+- `adjust` takes `mode: delta` (add or remove, may be negative) or `mode: set` (set on-hand to a value), plus a required note. Setting stock to its current value still writes a ledger row (stocktake). The ledger is append-only: a database trigger blocks updates and deletes, and products or variants with stock history can only be archived or deactivated. Stock changes that cannot be applied return 409 `Not enough stock`.
 
 | Method | Path                                    | Permission                               |
 | ------ | --------------------------------------- | ---------------------------------------- |
@@ -147,6 +147,20 @@ Product descriptions (EN and BN) are HTML, sanitized on the server (`sanitize-ht
 | POST   | `/admin/inventory/:variantId/adjust`    | `inventory.adjust`                       |
 | PATCH  | `/admin/inventory/:variantId`           | `inventory.adjust` (low-stock threshold) |
 
+### Import / export
+
+Bulk product files, XLSX or CSV (UTF-8 with BOM so Excel keeps Bangla), one row per variant, grouped by `product_slug`. The column list lives in `apps/api/src/catalog/import-export/columns.ts`; the template download has two example rows. Prices are taka in the file (`1,250.50`), paisa in the database. Import is all-or-nothing: `preview` checks the file and lists errors by row and column, `import` writes everything in one transaction. Stock in the file becomes `import` ledger entries; categories and brands must already exist.
+
+| Method | Path                                      | Permission                                                     |
+| ------ | ----------------------------------------- | -------------------------------------------------------------- |
+| GET    | `/admin/products/export?format=xlsx\|csv` | `products.export` (cost column only with `products.view_cost`) |
+| GET    | `/admin/products/import-template`         | `products.import`                                              |
+| POST   | `/admin/products/import/preview`          | `products.import`                                              |
+| POST   | `/admin/products/import`                  | `products.import`                                              |
+
+## Admin app
+
+`apps/admin`: Vite + React 19 + Mantine 9, TanStack Router (file routes in `src/routes`) + TanStack Query, typed calls through `@bdc/api-client`. `pnpm --filter @bdc/admin dev` serves http://localhost:5173 and proxies `/v1` to the API (`API_URL`, default `http://localhost:4000`) so the session cookie is same-origin. Pages: login + 2FA setup/verify, settings, staff, roles, catalog (categories + attributes, brands, products + variants, inventory, import/export). Navigation hides what the signed-in staff lacks permission for.
 
 ## Permissions
 
