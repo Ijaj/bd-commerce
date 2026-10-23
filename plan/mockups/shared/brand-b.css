@@ -1,0 +1,59 @@
+/* Brand B (fonts: see ShopBoot.brands in boot.js) -- B "Deal marketplace": bold orange-red, dense, sharp corners, loud sale badges */
+:root {
+  --font-latin: "Poppins"; --font-bn: "Hind Siliguri";
+  --maxw: 1360px; --gap: 8px; --hd-pad: 9px; --sec-gap: 22px;
+  --r-sm: 3px; --r: 4px; --r-lg: 6px; --badge-r: 3px; --search-r: 4px; --chip-r: 0px; --chip-m: 0px;
+  --sh-1: 0 1px 0 rgba(0, 0, 0, .05); --sh-2: 0 6px 16px rgba(0, 0, 0, .2); --lift: -2px;
+
+  --primary: #c93400; --on-primary: #fff;
+  --accent: #ffc400; --on-accent: #231a00;
+  --bg: #f2f2f5; --surface: #fff; --surface-2: #ebebf0;
+  --text: #17171a; --muted: #5a5a66; --border: #dcdce3;
+  --success: #0a7d36; --on-success: #fff; --danger: #c8102e;
+  --sale: #e60023; --on-sale: #fff; --focus-flash: #fff;
+
+  --hdr-bg: linear-gradient(90deg, #b82e00, #d93a00); --hdr-fg: #fff; --util-bg: #17171a; --util-fg: #f0f0f4;
+  --search-bg: #fff; --lm-bg: #ffc400; --lm-fg: #b82e00;
+  --sl1: linear-gradient(115deg, #b82e00 0%, #d93a00 60%, #e0480a 100%);
+  --sl2: linear-gradient(115deg, #17171a 0%, #2a2a3d 60%, #3a3a58 100%);
+  --sl3: linear-gradient(115deg, #a3001b 0%, #c4001d 55%, #d81b3a 100%);
+  --ev0: linear-gradient(110deg, #7a0019, #d1001f 60%, #f2570f);
+  --ev1: linear-gradient(110deg, #3b0a6b, #5a14a0 60%, #7a1fb8);
+  --flash-bg: linear-gradient(120deg, #c4001d, #e0300f); --flash-fg: #fff; --cd-bg: #111114; --cd-fg: #ffe14d;
+  --cnt-ring: #c93400; --prog-end: var(--sale);
+  --foot-bg: #17171a; --foot-fg: #fff; --foot-muted: #b8b8c4;
+}
+:root[data-theme=dark] {
+  --primary: #ff6a33; --on-primary: #1a0800;
+  --accent: #ffc400; --on-accent: #231a00;
+  --bg: #0f0f12; --surface: #1a1a1f; --surface-2: #24242b;
+  --text: #f3f3f6; --muted: #a6a6b3; --border: #33333c;
+  --success: #3ddc84; --on-success: #05210f; --danger: #ff7a8a;
+  --sale: #e60023; --on-sale: #fff;
+  --hdr-bg: linear-gradient(90deg, #7a1f00, #a02800); --util-bg: #000; --search-bg: #1a1a1f; --cnt-ring: #8c2400; --util-fg: #e5e5ea;
+  --lm-fg: #7a1f00;
+  --flash-bg: linear-gradient(120deg, #8f0017, #b32408); --cd-bg: #000; --cd-fg: #ffd633;
+  --foot-bg: #060608; --foot-muted: #a6a6b3;
+}
+
+
+/* B personality: uppercase italic wordmark, angular badges, left-bar headings, tighter type */
+body { font-size: 13.5px; }
+.wm { font-weight: 800; font-style: italic; text-transform: uppercase; letter-spacing: -.03em; font-size: 24px; }
+.wm b { font-weight: 800; color: var(--accent); }
+.sec-head h2, .band-h h2 { text-transform: uppercase; font-weight: 800; font-size: 18px; letter-spacing: .01em; border-left: 5px solid var(--primary); padding-left: 10px; }
+.flash .band-h h2 { border-left-color: var(--accent); }
+.off { font-weight: 800; padding: 1px 7px 1px 5px; clip-path: polygon(0 0, 100% 0, calc(100% - 5px) 50%, 100% 100%, 0 100%); }
+.bdg { text-transform: uppercase; font-size: 11px; font-weight: 800; letter-spacing: .03em; }
+.price { font-size: 17px; }
+.card:hover, .tile:hover { border-color: var(--primary); }
+.chip { text-transform: uppercase; font-size: 12px; letter-spacing: .02em; }
+.search { border: 2px solid var(--accent); }
+.search button { border-radius: 0; text-transform: uppercase; letter-spacing: .03em; }
+.topbar { font-weight: 500; }
+.btn { text-transform: uppercase; letter-spacing: .03em; }
+.slide h2 { text-transform: uppercase; font-style: italic; font-weight: 800; }
+.event h2 { text-transform: uppercase; font-style: italic; }
+/* Bengali has no case/italic: undo the Latin-only treatments */
+html[lang=bn] .sec-head h2, html[lang=bn] .band-h h2, html[lang=bn] .bdg, html[lang=bn] .chip, html[lang=bn] .btn,
+html[lang=bn] .slide h2, html[lang=bn] .event h2, html[lang=bn] .search button, html[lang=bn] .ptabs a { text-transform: none; font-style: normal; letter-spacing: 0; }

@@ -1,0 +1,45 @@
+/* Brand A "Trust" (fonts: see ShopBoot.brands in boot.js): deep green + saffron, warm off-white, friendly medium radius, roomy-but-practical density */
+:root {
+  --font-latin: "Nunito Sans"; --font-bn: "Hind Siliguri";
+  --maxw: 1240px; --gap: 14px; --hd-pad: 14px; --sec-gap: 36px;
+  --r-sm: 6px; --r: 10px; --r-lg: 16px; --badge-r: 6px; --search-r: 10px; --chip-r: 0px; --chip-m: 0px;
+  --sh-1: 0 1px 2px rgba(60, 45, 10, .07); --sh-2: 0 8px 22px rgba(60, 45, 10, .14); --lift: -2px;
+
+  --primary: #0f6b4f; --on-primary: #fff;
+  --accent: #f2a516; --on-accent: #2a1c00;
+  --bg: #fbf7ef; --surface: #fff; --surface-2: #f3ecdc;
+  --text: #1d2a24; --muted: #5c6b63; --border: #e4dac4;
+  --success: #0f7a3d; --on-success: #fff; --danger: #b3261e;
+  --sale: #c0351f; --on-sale: #fff;
+
+  --hdr-bg: #0f6b4f; --hdr-fg: #fff; --util-bg: #0a4f3a; --util-fg: #e6f2ec;
+  --search-bg: #fff; --lm-bg: #f2a516; --lm-fg: #0a4f3a;
+  --sl1: linear-gradient(115deg, #0a4f3a 0%, #0f6b4f 55%, #1c8a66 100%);
+  --sl2: linear-gradient(115deg, #6e4200 0%, #8f5600 55%, #a56509 100%);
+  --sl3: linear-gradient(115deg, #7a2a14 0%, #9c3a1c 55%, #b04a22 100%);
+  --ev0: linear-gradient(110deg, #6b1d2a, #a3342c 60%, #c9561f);
+  --ev1: linear-gradient(110deg, #0a4f3a, #0f6b4f 55%, #26866a);
+  --flash-bg: linear-gradient(135deg, #fff1cc, #ffe2a0); --flash-fg: #3a2600; --cd-bg: #0f6b4f; --cd-fg: #fff;
+  --cnt-ring: var(--hdr-bg); --prog-end: var(--sale);
+  --foot-bg: #0a3d2e; --foot-fg: #fff; --foot-muted: #bcd6ca;
+}
+:root[data-theme=dark] {
+  --primary: #4cc79b; --on-primary: #04221a;
+  --accent: #f5b53d; --on-accent: #2a1c00;
+  --bg: #0d1813; --surface: #14241d; --surface-2: #1b3027;
+  --text: #e9f2ed; --muted: #9fb3a8; --border: #2a4237;
+  --success: #4ade80; --on-success: #04210f; --danger: #ff8a80;
+  --sale: #d63a22; --on-sale: #fff;
+  --hdr-bg: #0f3a2c; --hdr-fg: #fff; --util-bg: #0a2a20; --util-fg: #cfe3d9;
+  --search-bg: #0d1813; --search-bd: #2a4237;
+  --flash-bg: linear-gradient(135deg, #2b2412, #3a2f12); --flash-fg: #ffe2a0; --cd-bg: #4cc79b; --cd-fg: #04221a;
+  --foot-bg: #07120d; --foot-muted: #9db0a5;
+}
+
+
+/* A personality: friendly wordmark, saffron underline under every section heading */
+.wm { font-weight: 500; font-size: 23px; }
+.wm b { font-weight: 800; }
+.sec-head h2, .band-h h2 { position: relative; padding-bottom: 8px; }
+.sec-head h2::after, .band-h h2::after { content: ""; position: absolute; left: 0; bottom: 0; width: 38px; height: 3px; border-radius: 2px; background: var(--accent); }
+.chip { letter-spacing: .01em; }
