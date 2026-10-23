@@ -260,3 +260,4 @@ Note on S6: our order tracking covers status until the parcel is handed to the c
 | C17 | Staff session **hard cap 7 days** (re-login with password + 2FA weekly), on top of 8h idle |
 | C18 | 2FA reset traceability = **reset by / at on the staff row**; full audit_log stays out of P1 |
 | C19 | Settings + feature flags: **own DB tables**, defaults in code, cached in Redis (no Unleash/GrowthBook) |
+| C20 | Self-hosted deploy runner **moved from step 1 to step 9** (with production setup on owner PCs); GitHub CI tests every push meanwhile |
