@@ -1,6 +1,6 @@
 # bd-commerce — Session Handoff
 
-General-purpose e-commerce for Bangladesh. **Planning phase only — no code until all planning gates in `plan/README.md` are done.** Tech stack is decided last.
+General-purpose e-commerce for Bangladesh. Planning gates 1–7 done (`plan/README.md`); **coding phase (gate 8)** since 2026-10-23, following the roadmap in `plan/14-roadmap.md`. Coding decisions are C-numbers in `plan/10-decisions-log.md`.
 
 ## Standing rules for this project
 
