@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { ComingNext } from '~/components/ComingNext';
+import { ProductsList, validateProductsSearch } from '~/features/products/ProductsList';
 
 export const Route = createFileRoute('/_app/catalog/products/')({
-  component: () => <ComingNext title="Products" />,
+  validateSearch: validateProductsSearch,
+  component: () => <ProductsList search={Route.useSearch()} />,
 });

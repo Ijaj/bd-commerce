@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { ComingNext } from '~/components/ComingNext';
+import { ProductEditor } from '~/features/products/ProductEditor';
 
 export const Route = createFileRoute('/_app/catalog/products/$id')({
-  component: () => <ComingNext title="Product" />,
+  component: () => <ProductEditor id={Route.useParams().id} />,
 });
