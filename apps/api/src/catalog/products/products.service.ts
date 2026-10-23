@@ -11,6 +11,7 @@ import { ENV, type Env } from '../../config/env';
 import { Prisma } from '../../generated/prisma/client';
 import { imgproxyConfig, imgproxyUrl } from '../../media/imgproxy';
 import { PrismaService } from '../../prisma/prisma.service';
+import { CategoriesService } from '../categories/categories.service';
 import { sanitizeDescriptionHtml } from '../html/sanitize';
 import type {
   AttributeValueInput,
@@ -21,7 +22,7 @@ import type {
   ProductListView,
   UpdateProductDto,
 } from './products.dto';
-import { pickSlug, rethrowUnique, slugify } from './slug';
+import { pickSlug, rethrowReferenced, rethrowUnique, slugify } from './slug';
 import { VariantsService } from './variants.service';
 
 type Tx = Prisma.TransactionClient;
@@ -46,6 +47,7 @@ export class ProductsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly variants: VariantsService,
+    private readonly categories: CategoriesService,
     @Inject(ENV) env: Env,
   ) {
     this.imgproxy = imgproxyConfig(env);
@@ -298,19 +300,6 @@ export class ProductsService {
     }
   }
 
-  /** Attributes (with options) of the given categories and all their ancestors. */
-  private async inheritedAttributes(db: Db, categoryIds: string[]) {
-    const cats = await db.category.findMany({
-      where: { id: { in: categoryIds } },
-      select: { path: true },
-    });
-    const ids = [...new Set(cats.flatMap((c) => c.path.split('/').filter(Boolean)))];
-    return db.categoryAttribute.findMany({
-      where: { categoryId: { in: ids } },
-      include: { options: true },
-    });
-  }
-
   /** Replaces the product's attribute values after validating them against inherited attributes. */
   private async writeAttributes(
     tx: Tx,
@@ -318,7 +307,9 @@ export class ProductsService {
     categoryIds: string[],
     input: AttributeValueInput[],
   ) {
-    const defs = new Map((await this.inheritedAttributes(tx, categoryIds)).map((a) => [a.id, a]));
+    const defs = new Map(
+      (await this.categories.inheritedAttributes(categoryIds)).map((a) => [a.id, a]),
+    );
     const seen = new Set<string>();
     const rows: Prisma.ProductAttributeValueCreateManyInput[] = [];
     const bad = (m: string) => new BadRequestException(m);
@@ -546,7 +537,7 @@ export class ProductsService {
           await this.writeAttributes(tx, id, categoryIds, body.attributes);
         } else if (categoryChange) {
           // Drop values of attributes the new categories no longer inherit.
-          const valid = (await this.inheritedAttributes(tx, categoryIds)).map((a) => a.id);
+          const valid = (await this.categories.inheritedAttributes(categoryIds)).map((a) => a.id);
           await tx.productAttributeValue.deleteMany({
             where: { productId: id, attributeId: { notIn: valid } },
           });
@@ -597,10 +588,7 @@ export class ProductsService {
     }
     if (!p.primaryCategory.isActive) problems.push('Primary category is not active');
     const have = new Set(p.attributeValues.map((a) => a.attributeId));
-    const attrs = await this.inheritedAttributes(
-      this.prisma,
-      p.categories.map((c) => c.categoryId),
-    );
+    const attrs = await this.categories.inheritedAttributes(p.categories.map((c) => c.categoryId));
     for (const a of attrs) {
       if (a.isRequired && !have.has(a.id))
         problems.push(`Required attribute "${a.nameEn}" is missing`);
@@ -637,10 +625,17 @@ export class ProductsService {
     return this.detail(actor, id);
   }
 
-  /** Hard delete. Once orders exist (step 4), products with orders are archived instead. */
+  /**
+   * Hard delete, only without stock history (the ledger is append-only and restricts deletes).
+   * Once orders exist (step 4), products with orders are archived instead.
+   */
   async remove(id: string) {
     await this.mustExist(id);
-    await this.prisma.product.delete({ where: { id } });
+    const moved = await this.prisma.stockMovement.count({ where: { variant: { productId: id } } });
+    if (moved > 0) throw new ConflictException('Product has stock history; archive it instead');
+    await this.prisma.product
+      .delete({ where: { id } })
+      .catch((e) => rethrowReferenced(e, 'Product is still referenced; archive it instead'));
   }
 
   /** Copies a product as a draft: new slug, SKUs suffixed -COPY(-n), no stock. */
@@ -750,7 +745,7 @@ export class ProductsService {
               salePriceP: v.salePriceP,
               saleStartsAt: v.saleStartsAt,
               saleEndsAt: v.saleEndsAt,
-              costP: v.costP,
+              costP: actor.permissions.has('products.view_cost') ? v.costP : null,
               weightG: v.weightG,
               isActive: v.isActive,
               sort: v.sort,

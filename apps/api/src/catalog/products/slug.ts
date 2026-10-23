@@ -29,3 +29,11 @@ export function rethrowUnique(e: unknown, message: string): never {
   }
   throw e;
 }
+
+/** Turns a restricted-foreign-key failure (P2003) into a 409. */
+export function rethrowReferenced(e: unknown, message: string): never {
+  if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2003') {
+    throw new ConflictException(message);
+  }
+  throw e;
+}

@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   ConflictException,
-  ForbiddenException,
   Inject,
   Injectable,
   Logger,
@@ -18,6 +17,8 @@ import { ObjectStorage } from './object-storage';
 import { uuidv7 } from './uuid';
 
 export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+const MAX_PIXELS = 40_000_000;
+const MAX_FRAMES = 300;
 
 type Kind = 'jpeg' | 'png' | 'webp' | 'avif' | 'gif';
 
@@ -38,13 +39,6 @@ export class MediaService {
     private readonly storage: ObjectStorage,
     @Inject(ENV) private readonly env: Env,
   ) {}
-
-  /** Media upload is allowed with products.edit or categories.edit. */
-  assertCanManage({ permissions }: StaffAuthContext) {
-    if (!permissions.has('products.edit') && !permissions.has('categories.edit')) {
-      throw new ForbiddenException('Missing permission: products.edit or categories.edit');
-    }
-  }
 
   toDto(media: Media): MediaDto {
     const cfg = imgproxyConfig(this.env);
@@ -97,24 +91,23 @@ export class MediaService {
   }
 
   async remove(id: string): Promise<void> {
+    const inUse = new ConflictException('Image is in use by a product, brand or category');
     const media = await this.find(id);
-    const [images, brands, categories] = await Promise.all([
-      this.prisma.productImage.count({ where: { mediaId: id } }),
-      this.prisma.brand.count({ where: { logoMediaId: id } }),
-      this.prisma.category.count({
-        where: { OR: [{ imageMediaId: id }, { iconMediaId: id }, { bannerMediaId: id }] },
-      }),
-    ]);
-    if (images + brands + categories > 0) {
-      throw new ConflictException('Image is in use by a product, brand or category');
-    }
     try {
-      await this.prisma.media.delete({ where: { id } });
+      await this.prisma.$transaction(async (tx) => {
+        const [images, brands, categories] = await Promise.all([
+          tx.productImage.count({ where: { mediaId: id } }),
+          tx.brand.count({ where: { logoMediaId: id } }),
+          tx.category.count({
+            where: { OR: [{ imageMediaId: id }, { iconMediaId: id }, { bannerMediaId: id }] },
+          }),
+        ]);
+        if (images + brands + categories > 0) throw inUse;
+        await tx.media.delete({ where: { id } });
+      });
     } catch (err) {
-      // A product image was attached between the check and the delete (FK restrict).
-      if ((err as { code?: string }).code === 'P2003') {
-        throw new ConflictException('Image is in use by a product, brand or category');
-      }
+      // FK restrict: something started using the image after the count.
+      if ((err as { code?: string }).code === 'P2003') throw inUse;
       throw err;
     }
     await this.storage
@@ -132,48 +125,61 @@ export class MediaService {
 
   /** Detects the real format, applies EXIF rotation and re-encodes without metadata. */
   private async process(input: Buffer) {
+    const opts = { limitInputPixels: MAX_PIXELS, failOn: 'error' } as const;
     try {
-      const meta = await sharp(input, { animated: true }).metadata();
+      const meta = await sharp(input, { ...opts, animated: true }).metadata();
       const kind = detectKind(meta);
       if (!kind)
         throw new BadRequestException('Only JPEG, PNG, WebP, AVIF and GIF images are allowed');
-
-      const animated = (meta.pages ?? 1) > 1;
-      let body: Buffer;
-      if (animated) {
-        // Re-encoding would drop frames for some formats; animated files are kept as uploaded.
-        body = input;
-      } else {
-        const pipeline = sharp(input).rotate();
-        switch (kind) {
-          case 'jpeg':
-            pipeline.jpeg({ quality: 90, mozjpeg: true });
-            break;
-          case 'png':
-            pipeline.png();
-            break;
-          case 'webp':
-            pipeline.webp({ quality: 90 });
-            break;
-          case 'avif':
-            pipeline.avif({ quality: 70 });
-            break;
-          case 'gif':
-            pipeline.gif();
-            break;
-        }
-        body = await pipeline.toBuffer();
+      if (meta.width && meta.height && meta.width * (meta.pageHeight ?? meta.height) > MAX_PIXELS) {
+        throw tooLarge();
       }
-      const out = await sharp(body, { animated: true }).metadata();
+
+      const pages = meta.pages ?? 1;
+      if (pages > MAX_FRAMES) {
+        throw new BadRequestException(`Animation has too many frames (max ${MAX_FRAMES})`);
+      }
+      const animated = pages > 1;
+      if (animated && kind !== 'webp' && kind !== 'gif') {
+        throw new BadRequestException('Animated images must be GIF or WebP');
+      }
+
+      const pipeline = animated
+        ? sharp(input, { ...opts, animated: true })
+        : sharp(input, opts).rotate();
+      switch (kind) {
+        case 'jpeg':
+          pipeline.jpeg({ quality: 90, mozjpeg: true });
+          break;
+        case 'png':
+          pipeline.png();
+          break;
+        case 'webp':
+          pipeline.webp({ quality: 90 });
+          break;
+        case 'avif':
+          pipeline.avif({ quality: 70 });
+          break;
+        case 'gif':
+          pipeline.gif();
+          break;
+      }
+      const body = await pipeline.toBuffer();
+      const out = await sharp(body, { ...opts, animated: true }).metadata();
       const width = out.width;
       const height = out.pageHeight ?? out.height;
       if (!width || !height) throw new BadRequestException('Could not read image size');
       return { kind, body, width, height };
     } catch (err) {
       if (err instanceof BadRequestException) throw err;
+      if (/pixel limit/i.test(String((err as Error)?.message))) throw tooLarge();
       throw new BadRequestException('Invalid or unsupported image');
     }
   }
+}
+
+function tooLarge() {
+  return new BadRequestException('Image too large (max 40 megapixels)');
 }
 
 function detectKind(meta: sharp.Metadata): Kind | null {

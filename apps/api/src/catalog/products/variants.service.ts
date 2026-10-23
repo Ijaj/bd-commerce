@@ -6,10 +6,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import type { PermissionKey } from '../../auth/permissions';
-import type { Prisma } from '../../generated/prisma/client';
+import { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import type { VariantsPayload } from './products.dto';
-import { rethrowUnique } from './slug';
+import { rethrowReferenced, rethrowUnique } from './slug';
 
 type Tx = Prisma.TransactionClient;
 type Perms = Set<PermissionKey>;
@@ -25,10 +25,17 @@ export class VariantsService {
   async set(perms: Perms, productId: string, payload: VariantsPayload) {
     await this.prisma
       .$transaction((tx) => this.apply(tx, perms, productId, payload))
-      .catch((e) => rethrowUnique(e, 'SKU or option combination already exists'));
+      .catch((e) => {
+        if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2003') {
+          return rethrowReferenced(e, 'An option value or variant is still referenced');
+        }
+        return rethrowUnique(e, 'SKU or option combination already exists');
+      });
   }
 
   async apply(tx: Tx, perms: Perms, productId: string, payload: VariantsPayload) {
+    // Serialise concurrent edits of the same product's variants.
+    await tx.$queryRaw`SELECT id FROM products WHERE id = ${productId}::uuid FOR UPDATE`;
     const product = await tx.product.findUnique({
       where: { id: productId },
       include: {

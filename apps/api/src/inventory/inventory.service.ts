@@ -55,7 +55,8 @@ export class InventoryService {
     if (onHand < 0 || reserved < 0 || (row.fulfillment === 'stock' && reserved > onHand)) {
       throw new ConflictException('Not enough stock');
     }
-    if (input.qtyDelta === 0 && input.reservedDelta === 0) {
+    // A zero 'adjust' still gets a ledger row (stocktake confirmation).
+    if (input.qtyDelta === 0 && input.reservedDelta === 0 && input.reason !== 'adjust') {
       return { onHand, reserved, available: onHand - reserved };
     }
     await tx.inventory.update({
@@ -72,6 +73,7 @@ export class InventoryService {
         refId: input.refId,
         staffId: input.staffId,
         note: input.note,
+        at: new Date(),
       },
     });
     return { onHand, reserved, available: onHand - reserved };
@@ -149,7 +151,7 @@ export class InventoryService {
       this.prisma.stockMovement.count({ where: { variantId } }),
       this.prisma.stockMovement.findMany({
         where: { variantId },
-        orderBy: [{ at: 'desc' }, { id: 'desc' }],
+        orderBy: { id: 'desc' },
         skip: (query.page - 1) * query.pageSize,
         take: query.pageSize,
         include: { staff: { select: { id: true, name: true } } },

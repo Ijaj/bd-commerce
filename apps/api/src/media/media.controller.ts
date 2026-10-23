@@ -21,9 +21,10 @@ import {
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { CurrentStaff, StaffAuth } from '../auth/staff-auth.guard';
+import { CurrentStaff } from '../auth/staff-auth.guard';
 import type { StaffAuthContext } from '../auth/staff-auth.service';
 import { MediaDto, UpdateMediaDto, UploadMediaDto } from './media.dto';
+import { MediaAuth } from './media.guard';
 import { MAX_UPLOAD_BYTES, MediaService } from './media.service';
 
 @ApiTags('media')
@@ -33,7 +34,7 @@ export class MediaController {
 
   /** JPEG, PNG, WebP, AVIF or GIF up to 10 MB. Needs products.edit or categories.edit. */
   @Post()
-  @StaffAuth()
+  @MediaAuth()
   @UseInterceptors(
     FileInterceptor('file', {
       limits: { fileSize: MAX_UPLOAD_BYTES, files: 1 },
@@ -56,44 +57,30 @@ export class MediaController {
     @UploadedFile() file: { buffer: Buffer } | undefined,
     @Body() body: UploadMediaDto,
   ): Promise<MediaDto> {
-    this.media.assertCanManage(actor);
     if (!file) throw new BadRequestException('Attach an image in the "file" field');
     return this.media.upload(actor, file.buffer, body.alt);
   }
 
   @Get(':id')
-  @StaffAuth()
+  @MediaAuth()
   @ApiOkResponse({ type: MediaDto })
-  get(
-    @CurrentStaff() actor: StaffAuthContext,
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<MediaDto> {
-    this.media.assertCanManage(actor);
+  get(@Param('id', ParseUUIDPipe) id: string): Promise<MediaDto> {
     return this.media.get(id);
   }
 
   @Patch(':id')
-  @StaffAuth()
+  @MediaAuth()
   @ApiOkResponse({ type: MediaDto })
-  update(
-    @CurrentStaff() actor: StaffAuthContext,
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() body: UpdateMediaDto,
-  ): Promise<MediaDto> {
-    this.media.assertCanManage(actor);
+  update(@Param('id', ParseUUIDPipe) id: string, @Body() body: UpdateMediaDto): Promise<MediaDto> {
     return this.media.update(id, body.alt);
   }
 
   /** 409 while a product, brand or category still uses the image. */
   @Delete(':id')
   @HttpCode(204)
-  @StaffAuth()
+  @MediaAuth()
   @ApiNoContentResponse()
-  remove(
-    @CurrentStaff() actor: StaffAuthContext,
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<void> {
-    this.media.assertCanManage(actor);
+  remove(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
     return this.media.remove(id);
   }
 }

@@ -103,6 +103,59 @@ describe('media', () => {
     expect(await prisma.media.count()).toBe(0);
   });
 
+  /** Tiny animated WebP with `frames` frames and an EXIF copyright tag. */
+  function animatedWebp(frames: number) {
+    const frameBytes = 4 * 4 * 3;
+    const raw = Buffer.alloc(frameBytes * frames);
+    // distinct colour per frame, otherwise the encoder merges identical frames
+    for (let i = 0; i < frames; i++) raw.fill((i * 7) % 256, i * frameBytes, (i + 1) * frameBytes);
+    return sharp(raw, { raw: { width: 4, height: 4 * frames, channels: 3, pageHeight: 4 } })
+      .withExif({ IFD0: { Copyright: 'secret-owner' } })
+      .webp({ loop: 0, delay: new Array(frames).fill(100) })
+      .toBuffer();
+  }
+
+  it('rejects images over 40 megapixels', async () => {
+    const { agent } = await createOwner(app);
+    const big = await sharp({
+      create: { width: 8000, height: 6000, channels: 3, background: '#fff' },
+    })
+      .jpeg({ quality: 1 })
+      .toBuffer();
+    expect(big.length).toBeLessThan(10 * 1024 * 1024);
+    const res = await agent.post('/v1/admin/media').attach('file', big, 'big.jpg').expect(400);
+    expect(res.body.message).toContain('40 megapixels');
+    expect(await prisma.media.count()).toBe(0);
+  });
+
+  it('re-encodes animated WebP without metadata and caps frames', async () => {
+    const { agent } = await createOwner(app);
+    const input = await animatedWebp(3);
+    expect((await sharp(input).metadata()).exif).toBeDefined();
+    const res = await agent.post('/v1/admin/media').attach('file', input, 'a.webp').expect(201);
+    expect(res.body).toMatchObject({ mime: 'image/webp', width: 4, height: 4 });
+    const row = await prisma.media.findUniqueOrThrow({ where: { id: res.body.id } });
+    const stored = storage.objects.get(row.storageKey)?.body;
+    const meta = await sharp(stored, { animated: true }).metadata();
+    expect(meta.pages).toBe(3);
+    expect(meta.exif).toBeUndefined();
+    expect(stored?.toString('latin1')).not.toContain('secret-owner');
+
+    const tooMany = await agent
+      .post('/v1/admin/media')
+      .attach('file', await animatedWebp(301), 'a.webp')
+      .expect(400);
+    expect(tooMany.body.message).toContain('too many frames');
+  });
+
+  it('checks permissions before buffering the upload', async () => {
+    const viewer = await createStaffWith(app, ['products.view']);
+    const res = await viewer.agent
+      .post('/v1/admin/media')
+      .attach('file', Buffer.alloc(11 * 1024 * 1024), 'big.png');
+    expect(res.status).toBe(403);
+  });
+
   it('rejects files over 10 MB', async () => {
     const { agent } = await createOwner(app);
     const res = await agent

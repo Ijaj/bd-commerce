@@ -102,6 +102,14 @@ describe('inventory', () => {
     await expect(move(variantId, -1)).rejects.toMatchObject({ status: 409 });
     await expect(move(randomUUID(), 1)).rejects.toMatchObject({ status: 404 });
     expect(await prisma.stockMovement.count({ where: { variantId } })).toBe(2);
+
+    // zero moves leave no ledger row, except stocktake 'adjust'
+    await prisma.$transaction((tx) =>
+      inventory.move(tx, { variantId, qtyDelta: 0, reservedDelta: 0, reason: 'ship' }),
+    );
+    expect(await prisma.stockMovement.count({ where: { variantId } })).toBe(2);
+    await move(variantId, 0);
+    expect(await prisma.stockMovement.count({ where: { variantId } })).toBe(3);
   });
 
   it('allows reserving beyond on-hand for dropship products', async () => {
@@ -165,15 +173,16 @@ describe('inventory', () => {
       .expect(404);
 
     const movements = await agent.get(`/v1/admin/inventory/${v?.id}/movements`).expect(200);
-    expect(movements.body.total).toBe(2);
-    expect(movements.body.items.map((m: { qtyDelta: number }) => m.qtyDelta)).toEqual([-5, 12]);
-    expect(movements.body.items[0]).toMatchObject({
+    expect(movements.body.total).toBe(3);
+    expect(movements.body.items.map((m: { qtyDelta: number }) => m.qtyDelta)).toEqual([0, -5, 12]);
+    expect(movements.body.items[0]).toMatchObject({ reason: 'adjust', note: 'Same again' });
+    expect(movements.body.items[1]).toMatchObject({
       reason: 'adjust',
       note: 'Recount',
       staff: { name: 'Owner One' },
     });
     const paged = await agent
-      .get(`/v1/admin/inventory/${v?.id}/movements?page=2&pageSize=1`)
+      .get(`/v1/admin/inventory/${v?.id}/movements?page=3&pageSize=1`)
       .expect(200);
     expect(paged.body.items).toHaveLength(1);
     expect(paged.body.items[0].note).toBe('Opening stock');

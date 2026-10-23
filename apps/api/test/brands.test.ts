@@ -72,6 +72,25 @@ describe('brands', () => {
       .expect(400);
   });
 
+  it('keeps the logo media when the brand is deleted', async () => {
+    const { agent } = await createOwner(app);
+    const media = await prisma.media.create({
+      data: {
+        storageKey: `media/2026/10/${randomUUID()}.png`,
+        mime: 'image/png',
+        width: 10,
+        height: 10,
+        bytes: 100,
+      },
+    });
+    const brand = await agent
+      .post('/v1/admin/brands')
+      .send({ nameEn: 'Logo2', logoMediaId: media.id })
+      .expect(201);
+    await agent.delete(`/v1/admin/brands/${brand.body.id}`).expect(204);
+    expect(await prisma.media.count({ where: { id: media.id } })).toBe(1);
+  });
+
   it('patches name, slug and active', async () => {
     const { agent } = await createOwner(app);
     const a = await agent.post('/v1/admin/brands').send({ nameEn: 'Old' }).expect(201);

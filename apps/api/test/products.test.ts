@@ -458,6 +458,109 @@ describe('products', () => {
       .expect(200);
   });
 
+  it('refuses to delete a product with stock history', async () => {
+    const cat = await category();
+    const product = await createSimple(owner, cat.id);
+    await prisma.stockMovement.create({
+      data: { variantId: product.variants[0].id, qtyDelta: 3, reason: 'adjust' },
+    });
+    const res = await owner.delete(`${P}/${product.id}`).expect(409);
+    expect(res.body.message).toContain('stock history');
+    expect(await prisma.product.count()).toBe(1);
+    // zero-delta rows are still ledger rows and still block the delete
+    await owner.post(`${P}/${product.id}/archive`).expect(200);
+  });
+
+  it('deactivates a variant with stock history when its option value is removed', async () => {
+    const cat = await category();
+    const product = await createSimple(owner, cat.id);
+    const built = await owner.put(`${P}/${product.id}/variants`).send(matrix).expect(200);
+    const [red, blue] = built.body.options[0].values;
+    const [s, l] = built.body.options[1].values;
+    const bySku = (sku: string) => built.body.variants.find((v: { sku: string }) => v.sku === sku);
+    await prisma.stockMovement.create({
+      data: { variantId: bySku('M-BS').id, qtyDelta: 2, reason: 'adjust' },
+    });
+    // drop the Blue value entirely: both Blue variants leave the desired state
+    const res = await owner
+      .put(`${P}/${product.id}/variants`)
+      .send({
+        options: [
+          { position: 1, nameEn: 'Color', values: [{ id: red.id, valueEn: 'Red' }] },
+          {
+            position: 2,
+            nameEn: 'Size',
+            values: [
+              { id: s.id, valueEn: 'S' },
+              { id: l.id, valueEn: 'L' },
+            ],
+          },
+        ],
+        variants: [
+          {
+            id: bySku('M-RS').id,
+            sku: 'M-RS',
+            optionValueRefs: [red.id, s.id],
+            priceP: 1000,
+            isActive: true,
+          },
+          {
+            id: bySku('M-RL').id,
+            sku: 'M-RL',
+            optionValueRefs: [red.id, l.id],
+            priceP: 1200,
+            isActive: true,
+          },
+        ],
+      })
+      .expect(200);
+    expect(res.body.options[0].values.map((v: { id: string }) => v.id)).toEqual([red.id]);
+    expect(blue.id).toBeTruthy();
+    const retired = res.body.variants.find((v: { sku: string }) => v.sku === 'M-BS');
+    expect(retired).toMatchObject({ isActive: false, optionValueIds: [null, null] });
+    expect(res.body.variants.find((v: { sku: string }) => v.sku === 'M-BL')).toBeUndefined();
+    expect(await prisma.stockMovement.count()).toBe(1);
+  });
+
+  it('keeps option combinations unique under concurrent variant saves', async () => {
+    const cat = await category();
+    const product = await createSimple(owner, cat.id);
+    const body = (suffix: string) => ({
+      options: matrix.options,
+      variants: matrix.variants.map((v) => ({ ...v, sku: `${v.sku}-${suffix}` })),
+    });
+    const results = await Promise.all(
+      ['A', 'B'].map((x) => owner.put(`${P}/${product.id}/variants`).send(body(x))),
+    );
+    for (const r of results) expect([200, 409]).toContain(r.status);
+    const variants = await prisma.variant.findMany({
+      where: { productId: product.id, isActive: true },
+    });
+    const combos = variants.map((v) => `${v.optionValue1Id}/${v.optionValue2Id}`);
+    expect(new Set(combos).size).toBe(combos.length);
+    expect(variants).toHaveLength(4);
+    expect(await prisma.productOption.count({ where: { productId: product.id } })).toBe(2);
+  });
+
+  it('copies cost on duplicate only for staff who can see it', async () => {
+    const cat = await category();
+    const res = await owner
+      .post(P)
+      .send({
+        titleEn: 'Costly',
+        primaryCategoryId: cat.id,
+        variants: [simpleVariant('CC-1', 1000, { costP: 600 })],
+      })
+      .expect(201);
+    const plain = await createStaffWith(app, ['products.view', 'products.create']);
+    const c1 = await plain.agent.post(`${P}/${res.body.id}/duplicate`).expect(201);
+    expect(c1.body.variants[0]).not.toHaveProperty('costP');
+    const stored = await prisma.variant.findFirstOrThrow({ where: { sku: 'CC-1-COPY' } });
+    expect(stored.costP).toBeNull();
+    const c2 = await owner.post(`${P}/${res.body.id}/duplicate`).expect(201);
+    expect(c2.body.variants[0].costP).toBe(600);
+  });
+
   describe('permissions', () => {
     const base: PermissionKey[] = ['products.view', 'products.create', 'products.edit'];
 
