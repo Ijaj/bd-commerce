@@ -12,14 +12,10 @@ General-purpose e-commerce for Bangladesh. **Planning phase only — no code unt
 - User wants big visual/UI work delegated to a Sonnet/Haiku sub-agent with a precise spec. No Artifacts unless asked.
 - Old reference project: `~/webdev/baby-commerce` (lessons in `plan/09-baby-commerce-reuse.md`).
 
-## Resume state (last updated 2026-10-23, session 4 end)
-
-- Gates 1–7 done. Docs: features 01–07, decisions `plan/10-decisions-log.md` (Q1–Q120, S1–S36, S-T1–S-T28, R1–R25), flowcharts, data model `plan/12-data-model.md` (incl. 8b SR/B2B), mockups `plan/mockups/` (owner approved), tech stack `plan/13-tech-stack.md`, roadmap `plan/14-roadmap.md`.
+## Resume state (last updated 2026-10-23, session 5)
+- Gates 1–7 done; SR mockups approved (C1). **Gate 8 coding in progress.** Decisions C1–C8 in doc 10: step 1 in 4 sub-steps (1a stack/CI, 1b Prisma+Nest+OpenAPI, 1c staff auth/2FA/sessions/RBAC, 1d settings/flags/EN-BN/maintenance), foundation tables only, commit to main, Node 24, Garage (not MinIO), Biome, TypeScript 7 (fall back to 6.0 per app if a tool breaks).
+- **1a done** (e3dcc56, CI green): root pnpm/turbo/biome/tsconfig.base, `infra/dev` compose (Postgres 18, Redis 8, Garage v2.4.1, imgproxy v3.31.4), `pnpm stack:up|init|down|reset`, `.env.example`, `.github/workflows/ci.yml`. Verified S3 upload + signed imgproxy WebP.
+- **Next:** check in with owner, then 1b (apps/api NestJS + Prisma + OpenAPI client gen into packages/). Ask owner any tool choices first (AskUserQuestion).
 - Repo: GitHub `Ijaj/bd-commerce` (main). Commit + push after each step.
-- Session 4 decisions: Q111 advance %s summed (cap 100%), Q112 admin EN only, Q113 no bold in storefront (admin exempt), Q114–Q117 availability filter + upcoming products (wishlist only) + admin option editor, tech stack (TS monorepo pnpm+Turbo, Next.js shop plain CSS, Vite+React+Mantine admin, NestJS+Prisma+Postgres, Kotlin Compose Android, self-hosted owner PCs + Podman Compose + Cloudflare Tunnel, MinIO+imgproxy, BullMQ+Redis, SES), roadmap 4 phases (P1 COD launch, P2 payments, P3 growth, P4 Android), new **SR/B2B module in P1** (field SRs sell our stock to independent shops; approval, due ledger, memo, targets, commission on collected money), one partner portal app (`apps/portal`) for SR + supplier + affiliate.
-- **In progress at session end:** Sonnet agent building SR portal mockups (`plan/mockups/sr/`) + admin pages (sr-approvals, b2b-shops, sr-team, b2b-dues) + hub links. May be incomplete/uncommitted. **Next session first:** `git status` in repo; check those files exist, load headless for JS errors, screenshots in scratchpad if any; finish or re-spawn agent with same spec (spec = R10–R20, Q119–Q120, doc 12 §8b, match supplier/affiliate portal style, admin per CONTRACT.md). Then commit.
-- **Then:** owner reviews SR mockups → gate 8 coding starts with P1 slice 1 (foundation, see doc 14).
-- Open questions: none.
-- Owner prefs: ask every decision via AskUserQuestion, never decide; explain pros/cons when asked; local model (unsloth) was down this session.
-- Lesson: 6 parallel Sonnet agents hit the session usage limit once; resume stopped agents with SendMessage rather than respawning.
-- Untested in flowchart viewer: pinch zoom; Fit-all on the 32-node checkout flow renders small.
+- Owner prefs: ask every decision via AskUserQuestion, never decide; explain pros/cons when asked; local model (unsloth) was down sessions 4–5.
+- Lesson: resume stopped agents with SendMessage rather than respawning; stale agents from a previous session can still run and collide.
