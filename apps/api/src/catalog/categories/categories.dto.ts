@@ -142,12 +142,8 @@ export class ReorderDto extends createZodDto(
 ) {}
 
 export class DeleteCategoryDto extends createZodDto(
-  z
-    .object({ mode: z.enum(['move', 'cascade']), targetId: z.uuid().optional() })
-    .refine((v) => v.mode !== 'move' || v.targetId, {
-      message: 'targetId is required for mode "move"',
-      path: ['targetId'],
-    }),
+  // targetId may be left out in "move" mode when the category is empty (nothing to move).
+  z.object({ mode: z.enum(['move', 'cascade']), targetId: z.uuid().optional() }),
 ) {}
 
 export class DeletePreviewDto extends createZodDto(

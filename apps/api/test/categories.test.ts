@@ -542,6 +542,16 @@ describe('categories and attributes', () => {
       .expect(200);
   });
 
+  it('deletes an empty category without a move target, but not one with content', async () => {
+    const root = await mk('Root');
+    const empty = await mk('Empty', root.id);
+    await agent.delete(`/v1/admin/categories/${empty.id}`).send({ mode: 'move' }).expect(204);
+    await agent.delete(`/v1/admin/categories/${root.id}`).send({ mode: 'move' }).expect(204);
+    const full = await mk('Full');
+    await newProduct(full.id);
+    await agent.delete(`/v1/admin/categories/${full.id}`).send({ mode: 'move' }).expect(400);
+  });
+
   describe('attribute usage by products', () => {
     async function setup(type: 'select' | 'multiselect' = 'select') {
       const cat = await mk('Cat');

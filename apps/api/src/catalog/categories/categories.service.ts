@@ -331,8 +331,22 @@ export class CategoriesService {
     await this.treeTx(async (tx) => {
       const cat = await this.load(tx, id);
       if (input.mode === 'cascade') return this.removeCascade(tx, cat);
-      return this.removeMove(tx, cat, input.targetId as string);
+      if (input.targetId) return this.removeMove(tx, cat, input.targetId);
+      return this.removeEmpty(tx, cat);
     });
+  }
+
+  private async removeEmpty(tx: Tx, cat: Category) {
+    const [children, links] = await Promise.all([
+      tx.category.count({ where: { parentId: cat.id } }),
+      tx.productCategory.count({ where: { categoryId: cat.id } }),
+    ]);
+    if (children || links) {
+      throw new BadRequestException(
+        'This category has sub-categories or products; choose a category to move them to',
+      );
+    }
+    await tx.category.delete({ where: { id: cat.id } });
   }
 
   private async removeMove(tx: Tx, cat: Category, targetId: string) {
