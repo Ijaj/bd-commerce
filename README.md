@@ -29,6 +29,8 @@ pnpm stack:init    # first run only: Garage layout, dev key, buckets
 
 `pnpm check` (Biome lint + format), `pnpm fix`, `pnpm typecheck`, `pnpm test`, `pnpm build`.
 
+API tests use `TEST_DATABASE_URL` (migrated on start, e.g. `bdc_test`) and Redis db `TEST_REDIS_DB` (default 1). For parallel test runs from different worktrees or agents, give each run its own `TEST_DATABASE_URL` database and `TEST_REDIS_DB`.
+
 ## API
 
 `apps/api`: NestJS 11 + Prisma 7, compiled with SWC (TypeScript 7 type-check). `pnpm --filter @bdc/api dev` serves on `:4000`: `/health`, routes under `/v1`, Swagger UI at `/docs` (non-production).
@@ -46,9 +48,114 @@ pnpm --filter @bdc/api cli reset-2fa owner@example.com                    # last
 
 Dev mail (new-device alerts) lands in Mailpit: http://localhost:8025.
 
+### Demo catalog (dev only)
+
+```sh
+pnpm --filter @bdc/api build
+pnpm --filter @bdc/api cli seed-demo
+```
+
+Creates 16 categories, 8 brands, 30 products and 58 variants (EN + BN names). Idempotent: it does nothing when a product with a `demo-` slug already exists. Refuses to run when `NODE_ENV=production`. It is not run on any database automatically.
+
 ### Settings and feature flags
 
 Defined in `apps/api/src/settings/registry.ts` (key, Zod schema, default, public or not). Only admin overrides are stored (`settings` table, cached in Redis). Admin: `GET/PUT/DELETE /v1/admin/settings/:key`. Shop/apps: `GET /v1/public/site` (maintenance, announcement bar, flags). Maintenance mode answers 503 on every API route except admin, site status, health and docs.
+
+## Catalog
+
+Admin routes are under `/v1/admin`, cookie auth, and each needs the permission in brackets. Money is stored in paisa.
+
+### Categories
+
+- Up to 4 levels deep. Main (level 1) categories need an image; sub-categories may have an image, icon and banner.
+- Attributes belong to a category and are inherited by its sub-categories. Options are edited as one ordered list (`PUT .../options`), and array position becomes the sort order.
+- Deleting a category needs a mode. `move` re-homes its products into a `targetId` category (`categories.delete`). `cascade` deletes the category, its sub-categories and their products (`categories.delete_with_products`). `GET /:id/delete-preview` shows the impact first.
+
+| Method | Path                                       | Permission                                                        |
+| ------ | ------------------------------------------ | ----------------------------------------------------------------- |
+| GET    | `/admin/categories`                        | `categories.view`                                                 |
+| GET    | `/admin/categories/:id`                    | `categories.view`                                                 |
+| GET    | `/admin/categories/:id/delete-preview`     | `categories.view`                                                 |
+| POST   | `/admin/categories`                        | `categories.create`                                               |
+| PATCH  | `/admin/categories/:id`                    | `categories.edit`                                                 |
+| POST   | `/admin/categories/reorder`                | `categories.edit`                                                 |
+| DELETE | `/admin/categories/:id`                    | `categories.delete` or `categories.delete_with_products`, by mode |
+| POST   | `/admin/categories/:id/attributes`         | `categories.edit`                                                 |
+| POST   | `/admin/categories/:id/attributes/reorder` | `categories.edit`                                                 |
+| PATCH  | `/admin/attributes/:attrId`                | `categories.edit`                                                 |
+| DELETE | `/admin/attributes/:attrId`                | `categories.edit`                                                 |
+| PUT    | `/admin/attributes/:attrId/options`        | `categories.edit`                                                 |
+
+### Brands
+
+| Method | Path                             | Permission                                    |
+| ------ | -------------------------------- | --------------------------------------------- |
+| GET    | `/admin/brands`                  | `products.view`                               |
+| POST   | `/admin/brands`                  | `products.create`                             |
+| PATCH  | `/admin/brands/:id`              | `products.edit`                               |
+| DELETE | `/admin/brands/:id[?force=true]` | `products.delete` (409 while products use it) |
+
+### Products and variants
+
+- Up to 2 option types (for example size and colour). Each variant is one combination; a simple product has exactly 1 variant and no options.
+- Publishing validates the product. A failed publish returns 400 with a `problems` list.
+- Cost prices are returned only to staff with `products.view_cost`.
+
+| Method | Path                            | Permission                                                                           |
+| ------ | ------------------------------- | ------------------------------------------------------------------------------------ |
+| GET    | `/admin/products`               | `products.view` (filters: status, category, brand, stock, upcoming, preorder; paged) |
+| GET    | `/admin/products/:id`           | `products.view`                                                                      |
+| POST   | `/admin/products`               | `products.create`                                                                    |
+| PATCH  | `/admin/products/:id`           | `products.edit`                                                                      |
+| PUT    | `/admin/products/:id/variants`  | `products.edit`                                                                      |
+| PUT    | `/admin/products/:id/images`    | `products.edit`                                                                      |
+| POST   | `/admin/products/:id/publish`   | `products.publish`                                                                   |
+| POST   | `/admin/products/:id/unpublish` | `products.publish`                                                                   |
+| POST   | `/admin/products/:id/archive`   | `products.delete`                                                                    |
+| POST   | `/admin/products/:id/duplicate` | `products.create`                                                                    |
+| DELETE | `/admin/products/:id`           | `products.delete`                                                                    |
+
+### Descriptions (HTML)
+
+Product descriptions (EN and BN) are HTML, sanitized on the server (`sanitize-html`) on every write. Kept: headings, paragraphs, blockquotes, links, images, tables and YouTube iframes. Stripped: scripts, event handlers, `javascript:` and `data:` URLs, non-YouTube iframes, forms and embeds. The same sanitizer is exported for storefront reuse.
+
+### Images
+
+- Upload with `POST /admin/media` (multipart field `file`, optional `alt`). Accepts JPEG, PNG, WebP, AVIF and GIF up to 10 MB. EXIF metadata is stripped.
+- Originals are stored in Garage (S3).
+- imgproxy resizes on view: `url` is 600 px fit, WebP; `thumbUrl` is 160 px fill.
+- `DELETE /admin/media/:id` returns 409 while a product, brand or category still uses the image.
+
+| Method | Path               | Permission                           |
+| ------ | ------------------ | ------------------------------------ |
+| POST   | `/admin/media`     | `products.edit` or `categories.edit` |
+| GET    | `/admin/media/:id` | same as upload                       |
+| PATCH  | `/admin/media/:id` | same as upload                       |
+| DELETE | `/admin/media/:id` | same as upload                       |
+
+### Inventory
+
+- Stock is a ledger. Every adjustment writes a row, so `GET /admin/inventory/:variantId/movements` shows the history.
+- Each variant has on-hand, reserved and available quantities and an optional low-stock threshold.
+- `adjust` takes `mode: delta` (add or remove, may be negative) or `mode: set` (set on-hand to a value), plus an optional note. Stock changes that cannot be applied return 409 `Not enough stock`.
+
+| Method | Path                                    | Permission                               |
+| ------ | --------------------------------------- | ---------------------------------------- |
+| GET    | `/admin/inventory`                      | `inventory.view` (one row per variant)   |
+| GET    | `/admin/inventory/low-stock-count`      | `inventory.view`                         |
+| GET    | `/admin/inventory/:variantId/movements` | `inventory.view`                         |
+| POST   | `/admin/inventory/:variantId/adjust`    | `inventory.adjust`                       |
+| PATCH  | `/admin/inventory/:variantId`           | `inventory.adjust` (low-stock threshold) |
+
+
+## Permissions
+
+Defined in `apps/api/src/auth/permissions.ts` and synced to the database at startup. The Owner role has all of them.
+- **Staff:** `staff.view`, `staff.manage`, `roles.manage`
+- **Settings:** `settings.view`, `settings.manage`
+- **Products:** `products.view`, `products.create`, `products.edit`, `products.delete`, `products.publish`, `products.edit_price`, `products.view_cost`, `products.export`, `products.import`
+- **Categories:** `categories.view`, `categories.create`, `categories.edit`, `categories.delete`, `categories.set_home`, `categories.delete_with_products`
+- **Inventory:** `inventory.view`, `inventory.adjust`, `inventory.export`
 
 ## Packages
 
