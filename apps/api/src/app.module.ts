@@ -28,9 +28,10 @@ import { StaffModule } from './staff/staff.module';
     MediaModule,
     CategoriesModule,
     BrandsModule,
+    // Before ProductsModule so /admin/products/export|import-template win over /admin/products/:id.
+    ImportExportModule,
     ProductsModule,
     InventoryModule,
-    ImportExportModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_PIPE, useClass: ZodValidationPipe }],

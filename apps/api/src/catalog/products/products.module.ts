@@ -8,6 +8,6 @@ import { VariantsService } from './variants.service';
   imports: [AuthModule],
   controllers: [ProductsController],
   providers: [ProductsService, VariantsService],
-  exports: [ProductsService],
+  exports: [ProductsService, VariantsService],
 })
 export class ProductsModule {}

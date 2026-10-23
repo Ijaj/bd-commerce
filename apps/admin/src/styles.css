@@ -1,0 +1,23 @@
+.bdc-html-editor .ProseMirror table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 8px 0;
+}
+.bdc-html-editor .ProseMirror th,
+.bdc-html-editor .ProseMirror td {
+  border: 1px solid var(--mantine-color-default-border);
+  padding: 4px 8px;
+  min-width: 40px;
+  vertical-align: top;
+}
+.bdc-html-editor .ProseMirror th {
+  background: var(--mantine-color-default-hover);
+  text-align: left;
+}
+.bdc-html-editor .ProseMirror img,
+.bdc-html-editor .ProseMirror iframe {
+  max-width: 100%;
+}
+.bdc-html-editor .ProseMirror {
+  min-height: inherit;
+}

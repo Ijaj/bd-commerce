@@ -205,7 +205,7 @@ model Brand {
   createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
-  logo     Media?    @relation(fields: [logoMediaId], references: [id], onDelete: SetNull)
+  logo     Media?    @relation(fields: [logoMediaId], references: [id], onDelete: Restrict)
   products Product[]
 
   @@map("brands")
@@ -239,11 +239,11 @@ model Category {
   createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
-  parent          Category?           @relation("CategoryTree", fields: [parentId], references: [id])
+  parent          Category?           @relation("CategoryTree", fields: [parentId], references: [id], onDelete: Restrict)
   children        Category[]          @relation("CategoryTree")
-  image           Media?              @relation("CategoryImage", fields: [imageMediaId], references: [id], onDelete: SetNull)
-  icon            Media?              @relation("CategoryIcon", fields: [iconMediaId], references: [id], onDelete: SetNull)
-  banner          Media?              @relation("CategoryBanner", fields: [bannerMediaId], references: [id], onDelete: SetNull)
+  image           Media?              @relation("CategoryImage", fields: [imageMediaId], references: [id], onDelete: Restrict)
+  icon            Media?              @relation("CategoryIcon", fields: [iconMediaId], references: [id], onDelete: Restrict)
+  banner          Media?              @relation("CategoryBanner", fields: [bannerMediaId], references: [id], onDelete: Restrict)
   attributes      CategoryAttribute[]
   products        ProductCategory[]
   primaryProducts Product[]
@@ -477,8 +477,8 @@ model Variant {
   updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz
 
   product      Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
-  optionValue1 ProductOptionValue? @relation("VariantOption1", fields: [optionValue1Id], references: [id])
-  optionValue2 ProductOptionValue? @relation("VariantOption2", fields: [optionValue2Id], references: [id])
+  optionValue1 ProductOptionValue? @relation("VariantOption1", fields: [optionValue1Id], references: [id], onDelete: Restrict)
+  optionValue2 ProductOptionValue? @relation("VariantOption2", fields: [optionValue2Id], references: [id], onDelete: Restrict)
   images       ProductImage[]
   inventory    Inventory?
   movements    StockMovement[]
@@ -515,7 +515,7 @@ enum StockReason {
   @@map("stock_reason")
 }
 
-/// Append-only stock ledger: never updated or deleted.
+/// Append-only stock ledger: never updated or deleted (DB trigger blocks UPDATE/DELETE).
 model StockMovement {
   id            String      @id @default(uuid(7)) @db.Uuid
   variantId     String      @map("variant_id") @db.Uuid
@@ -528,7 +528,8 @@ model StockMovement {
   note          String?
   at            DateTime    @default(now()) @db.Timestamptz
 
-  variant Variant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  /// Restrict: a variant with ledger history can't be deleted (archive/deactivate instead).
+  variant Variant @relation(fields: [variantId], references: [id], onDelete: Restrict)
   staff   Staff?  @relation(fields: [staffId], references: [id])
 
   @@index([variantId, at])
