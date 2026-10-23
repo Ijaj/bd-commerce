@@ -29,6 +29,8 @@ Static HTML/CSS/JS, opens via `file://` (no build). Start at `login.html` (any c
 | Suppliers & POs | suppliers.html, purchase-orders.html | E |
 | Delivery & couriers | delivery.html | E |
 | Reports | reports.html | E |
+| SR approvals / B2B shops / SR team / B2B dues | sr-approvals.html, b2b-shops.html, sr-team.html, b2b-dues.html (data in shared/sr-data.js, CSS shared/sr.css) | SR module |
+| SR portal | ../sr/index.html | SR module |
 | Supplier portal / Affiliate portal | ../supplier/index.html, ../affiliate/index.html | E |
 
 ## Shared files (`shared/`)
