@@ -763,7 +763,6 @@ export interface components {
             schema: {
                 [key: string]: unknown;
             };
-            /** Format: date-time */
             updatedAt: string | null;
             updatedBy: {
                 /** Format: uuid */
@@ -843,7 +842,6 @@ export interface components {
             disabled: boolean;
             totpEnabled: boolean;
             sessionTimeoutMin: number | null;
-            /** Format: date-time */
             lastLoginAt: string | null;
             roles: {
                 /** Format: uuid */
@@ -869,7 +867,6 @@ export interface components {
                 disabled: boolean;
                 totpEnabled: boolean;
                 sessionTimeoutMin: number | null;
-                /** Format: date-time */
                 lastLoginAt: string | null;
                 roles: {
                     /** Format: uuid */
@@ -891,11 +888,10 @@ export interface components {
             id: string;
             name: string;
             email: string;
-            phone: string[];
+            phone: string | null;
             disabled: boolean;
             totpEnabled: boolean;
             sessionTimeoutMin: number | null;
-            /** Format: date-time */
             lastLoginAt: string | null;
             roles: {
                 /** Format: uuid */
@@ -921,7 +917,7 @@ export interface components {
             /** Format: uuid */
             id: string;
             name: string;
-            description: string[];
+            description: string | null;
             isSystem: boolean;
             permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export")[];
             staffCount: number;
@@ -944,7 +940,7 @@ export interface components {
             width: number;
             height: number;
             bytes: number;
-            alt: string[];
+            alt: string | null;
             url: string;
             thumbUrl: string;
             /** Format: date-time */
@@ -956,7 +952,6 @@ export interface components {
         CategoryListDto: {
             /** Format: uuid */
             id: string;
-            /** Format: uuid */
             parentId: string | null;
             level: number;
             path: string;
@@ -993,15 +988,14 @@ export interface components {
         CategoryDetailDto: {
             /** Format: uuid */
             id: string;
-            /** Format: uuid */
             parentId: string | null;
             level: number;
             path: string;
             nameEn: string;
-            nameBn: string[];
+            nameBn: string | null;
             slug: string;
-            descriptionEn: string[];
-            descriptionBn: string[];
+            descriptionEn: string | null;
+            descriptionBn: string | null;
             image: {
                 /** Format: uuid */
                 mediaId: string;
@@ -1017,13 +1011,13 @@ export interface components {
                 mediaId: string;
                 url: string;
             } | null;
-            chipColor: string[];
+            chipColor: string | null;
             sort: number;
             isActive: boolean;
             showOnHome: boolean;
             returnWindowDays: number | null;
-            seoTitle: string[];
-            seoDescription: string[];
+            seoTitle: string | null;
+            seoDescription: string | null;
             productCount: number;
             childCount: number;
             attributes: {
@@ -1082,18 +1076,14 @@ export interface components {
             primaryProductCount: number;
         };
         CreateCategoryDto: {
-            /** Format: uuid */
             parentId?: string | null;
             nameEn: string;
             nameBn?: string | null;
             slug?: string;
             descriptionEn?: string | null;
             descriptionBn?: string | null;
-            /** Format: uuid */
             imageMediaId?: string | null;
-            /** Format: uuid */
             iconMediaId?: string | null;
-            /** Format: uuid */
             bannerMediaId?: string | null;
             chipColor?: string | null;
             sort?: number;
@@ -1106,15 +1096,14 @@ export interface components {
         CategoryDto: {
             /** Format: uuid */
             id: string;
-            /** Format: uuid */
             parentId: string | null;
             level: number;
             path: string;
             nameEn: string;
-            nameBn: string[];
+            nameBn: string | null;
             slug: string;
-            descriptionEn: string[];
-            descriptionBn: string[];
+            descriptionEn: string | null;
+            descriptionBn: string | null;
             image: {
                 /** Format: uuid */
                 mediaId: string;
@@ -1130,13 +1119,13 @@ export interface components {
                 mediaId: string;
                 url: string;
             } | null;
-            chipColor: string[];
+            chipColor: string | null;
             sort: number;
             isActive: boolean;
             showOnHome: boolean;
             returnWindowDays: number | null;
-            seoTitle: string[];
-            seoDescription: string[];
+            seoTitle: string | null;
+            seoDescription: string | null;
             productCount: number;
             childCount: number;
         };
@@ -1146,18 +1135,14 @@ export interface components {
             sort: number;
         }[];
         UpdateCategoryDto: {
-            /** Format: uuid */
             parentId?: string | null;
             nameEn?: string;
             nameBn?: string | null;
             slug?: string;
             descriptionEn?: string | null;
             descriptionBn?: string | null;
-            /** Format: uuid */
             imageMediaId?: string | null;
-            /** Format: uuid */
             iconMediaId?: string | null;
-            /** Format: uuid */
             bannerMediaId?: string | null;
             chipColor?: string | null;
             sort?: number;
@@ -1191,10 +1176,10 @@ export interface components {
             categoryId: string;
             key: string;
             nameEn: string;
-            nameBn: string[];
+            nameBn: string | null;
             /** @enum {string} */
             type: "text" | "number" | "select" | "multiselect" | "boolean";
-            unit: string[];
+            unit: string | null;
             isFilterable: boolean;
             isRequired: boolean;
             sort: number;
@@ -1235,7 +1220,6 @@ export interface components {
             nameEn: string;
             nameBn: string | null;
             slug: string;
-            /** Format: uuid */
             logoMediaId: string | null;
             logoUrl: string | null;
             active: boolean;
@@ -1247,7 +1231,6 @@ export interface components {
             nameEn: string;
             nameBn?: string | null;
             slug?: string;
-            /** Format: uuid */
             logoMediaId?: string | null;
             active?: boolean;
         };
@@ -1255,11 +1238,10 @@ export interface components {
             /** Format: uuid */
             id: string;
             nameEn: string;
-            nameBn: string[];
+            nameBn: string | null;
             slug: string;
-            /** Format: uuid */
             logoMediaId: string | null;
-            logoUrl: string[];
+            logoUrl: string | null;
             active: boolean;
             productCount: number;
             /** Format: date-time */
@@ -1269,7 +1251,6 @@ export interface components {
             nameEn?: string;
             nameBn?: string | null;
             slug?: string;
-            /** Format: uuid */
             logoMediaId?: string | null;
             active?: boolean;
         };
@@ -1333,19 +1314,18 @@ export interface components {
             /** Format: uuid */
             id: string;
             titleEn: string;
-            titleBn: string[];
+            titleBn: string | null;
             slug: string;
-            shortDescriptionEn: string[];
-            shortDescriptionBn: string[];
-            descriptionHtmlEn: string[];
-            descriptionHtmlBn: string[];
-            youtubeUrl: string[];
+            shortDescriptionEn: string | null;
+            shortDescriptionBn: string | null;
+            descriptionHtmlEn: string | null;
+            descriptionHtmlBn: string | null;
+            youtubeUrl: string | null;
             /** @enum {string} */
             status: "draft" | "active" | "archived";
             /** @enum {string} */
             fulfillment: "stock" | "dropship";
             hasVariants: boolean;
-            /** Format: uuid */
             brandId: string | null;
             brand: {
                 /** Format: uuid */
@@ -1365,16 +1345,14 @@ export interface components {
             deliveryChargeOverrideP: number | null;
             returnWindowDays: number | null;
             isPreorder: boolean;
-            preorderExpectedDate: string[];
+            preorderExpectedDate: string | null;
             isUpcoming: boolean;
             advancePercent: number | null;
             isPinned: boolean;
             pinBoost: number;
-            seoTitle: string[];
-            seoDescription: string[];
-            /** Format: date-time */
+            seoTitle: string | null;
+            seoDescription: string | null;
             publishedAt: string | null;
-            /** Format: date-time */
             archivedAt: string | null;
             /** Format: date-time */
             createdAt: string;
@@ -1412,9 +1390,7 @@ export interface components {
                 priceP: number;
                 compareAtP: number | null;
                 salePriceP: number | null;
-                /** Format: date-time */
                 saleStartsAt: string | null;
-                /** Format: date-time */
                 saleEndsAt: string | null;
                 costP?: number | null;
                 weightG: number | null;
@@ -1430,7 +1406,6 @@ export interface components {
                 id: string;
                 /** Format: uuid */
                 mediaId: string;
-                /** Format: uuid */
                 variantId: string | null;
                 sort: number;
                 alt: string | null;
@@ -1447,7 +1422,6 @@ export interface components {
             descriptionHtmlEn?: string | null;
             descriptionHtmlBn?: string | null;
             youtubeUrl?: string | null;
-            /** Format: uuid */
             brandId?: string | null;
             /** Format: uuid */
             primaryCategoryId: string;
@@ -1458,7 +1432,6 @@ export interface components {
             deliveryChargeOverrideP?: number | null;
             returnWindowDays?: number | null;
             isPreorder?: boolean;
-            /** Format: date */
             preorderExpectedDate?: string | null;
             isUpcoming?: boolean;
             advancePercent?: number | null;
@@ -1497,9 +1470,7 @@ export interface components {
                 priceP: number;
                 compareAtP?: number | null;
                 salePriceP?: number | null;
-                /** Format: date-time */
                 saleStartsAt?: string | null;
-                /** Format: date-time */
                 saleEndsAt?: string | null;
                 costP?: number | null;
                 weightG?: number | null;
@@ -1510,7 +1481,6 @@ export interface components {
             images?: {
                 /** Format: uuid */
                 mediaId: string;
-                /** Format: uuid */
                 variantId?: string | null;
                 alt?: string | null;
             }[];
@@ -1524,7 +1494,6 @@ export interface components {
             descriptionHtmlEn?: string | null;
             descriptionHtmlBn?: string | null;
             youtubeUrl?: string | null;
-            /** Format: uuid */
             brandId?: string | null;
             /** Format: uuid */
             primaryCategoryId?: string;
@@ -1535,7 +1504,6 @@ export interface components {
             deliveryChargeOverrideP?: number | null;
             returnWindowDays?: number | null;
             isPreorder?: boolean;
-            /** Format: date */
             preorderExpectedDate?: string | null;
             isUpcoming?: boolean;
             advancePercent?: number | null;
@@ -1576,9 +1544,7 @@ export interface components {
                 priceP: number;
                 compareAtP?: number | null;
                 salePriceP?: number | null;
-                /** Format: date-time */
                 saleStartsAt?: string | null;
-                /** Format: date-time */
                 saleEndsAt?: string | null;
                 costP?: number | null;
                 weightG?: number | null;
@@ -1591,7 +1557,6 @@ export interface components {
             images: {
                 /** Format: uuid */
                 mediaId: string;
-                /** Format: uuid */
                 variantId?: string | null;
                 alt?: string | null;
             }[];
@@ -1636,7 +1601,7 @@ export interface components {
             /** Format: uuid */
             productId: string;
             productTitleEn: string;
-            productTitleBn: string[];
+            productTitleBn: string | null;
             /** @enum {string} */
             fulfillment: "stock" | "dropship";
             sku: string;
