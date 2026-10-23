@@ -3,11 +3,11 @@
   "private": true,
   "scripts": {
     "prisma:generate": "prisma generate",
-    "build": "prisma generate && rm -rf dist && swc src -d dist --strip-leading-paths",
+    "build": "rm -rf dist && swc src -d dist --strip-leading-paths",
     "dev": "prisma generate && swc src -d dist --strip-leading-paths && concurrently -k -n swc,api \"swc src -d dist --strip-leading-paths -w\" \"node --watch --enable-source-maps dist/main.js\"",
     "start": "node --enable-source-maps dist/main.js",
-    "typecheck": "prisma generate && tsc --noEmit",
-    "test": "prisma generate && vitest run",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "migrate:dev": "prisma migrate dev",
     "openapi": "pnpm build && node dist/openapi-emit.js ../../packages/api-client/openapi.json",
     "cli": "node --enable-source-maps dist/cli.js"
