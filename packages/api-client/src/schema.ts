@@ -276,6 +276,406 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/media": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["MediaController_upload"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/media/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["MediaController_get"];
+        put?: never;
+        post?: never;
+        delete: operations["MediaController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["MediaController_update"];
+        trace?: never;
+    };
+    "/v1/admin/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CategoriesController_list"];
+        put?: never;
+        post: operations["CategoriesController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/categories/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CategoriesController_get"];
+        put?: never;
+        post?: never;
+        delete: operations["CategoriesController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["CategoriesController_update"];
+        trace?: never;
+    };
+    "/v1/admin/categories/{id}/delete-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CategoriesController_deletePreview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/categories/reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CategoriesController_reorder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/categories/{id}/attributes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AttributesController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/categories/{id}/attributes/reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AttributesController_reorder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/attributes/{attrId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["AttributesController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["AttributesController_update"];
+        trace?: never;
+    };
+    "/v1/admin/attributes/{attrId}/options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["AttributesController_setOptions"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/brands": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["BrandsController_list"];
+        put?: never;
+        post: operations["BrandsController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/brands/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["BrandsController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["BrandsController_update"];
+        trace?: never;
+    };
+    "/v1/admin/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ProductsController_list"];
+        put?: never;
+        post: operations["ProductsController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/products/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ProductsController_detail"];
+        put?: never;
+        post?: never;
+        delete: operations["ProductsController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["ProductsController_update"];
+        trace?: never;
+    };
+    "/v1/admin/products/{id}/variants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["ProductsController_setVariants"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/products/{id}/images": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["ProductsController_setImages"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/products/{id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ProductsController_publish"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/products/{id}/unpublish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ProductsController_unpublish"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/products/{id}/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ProductsController_archive"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/products/{id}/duplicate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ProductsController_duplicate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/inventory": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["InventoryController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/inventory/low-stock-count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["InventoryController_lowStockCount"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/inventory/{variantId}/adjust": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["InventoryController_adjust"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/inventory/{variantId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["InventoryController_update"];
+        trace?: never;
+    };
+    "/v1/admin/inventory/{variantId}/movements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["InventoryController_movements"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -364,7 +764,7 @@ export interface components {
                 id: string;
                 name: string;
             }[];
-            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage")[];
+            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export")[];
         };
         ChangePasswordDto: {
             currentPassword: string;
@@ -445,13 +845,13 @@ export interface components {
             name: string;
             description: string | null;
             isSystem: boolean;
-            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage")[];
+            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export")[];
             staffCount: number;
         }[];
         CreateRoleDto: {
             name: string;
             description?: string;
-            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage")[];
+            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export")[];
         };
         RoleDto: {
             /** Format: uuid */
@@ -459,20 +859,734 @@ export interface components {
             name: string;
             description: string[];
             isSystem: boolean;
-            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage")[];
+            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export")[];
             staffCount: number;
         };
         UpdateRoleDto: {
             name?: string;
             description?: string | null;
-            permissions?: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage")[];
+            permissions?: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export")[];
         };
         PermissionListDto: {
             /** @enum {string} */
-            key: "staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage";
+            key: "staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export";
             group: string;
             description: string;
         }[];
+        MediaDto: {
+            /** Format: uuid */
+            id: string;
+            mime: string;
+            width: number;
+            height: number;
+            bytes: number;
+            alt: string[];
+            url: string;
+            thumbUrl: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        UpdateMediaDto: {
+            alt: string | null;
+        };
+        CategoryListDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            parentId: string | null;
+            level: number;
+            path: string;
+            nameEn: string;
+            nameBn: string | null;
+            slug: string;
+            descriptionEn: string | null;
+            descriptionBn: string | null;
+            image: {
+                /** Format: uuid */
+                mediaId: string;
+                url: string;
+            } | null;
+            icon: {
+                /** Format: uuid */
+                mediaId: string;
+                url: string;
+            } | null;
+            banner: {
+                /** Format: uuid */
+                mediaId: string;
+                url: string;
+            } | null;
+            chipColor: string | null;
+            sort: number;
+            isActive: boolean;
+            showOnHome: boolean;
+            returnWindowDays: number | null;
+            seoTitle: string | null;
+            seoDescription: string | null;
+            productCount: number;
+            childCount: number;
+        }[];
+        CategoryDetailDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            parentId: string | null;
+            level: number;
+            path: string;
+            nameEn: string;
+            nameBn: string[];
+            slug: string;
+            descriptionEn: string[];
+            descriptionBn: string[];
+            image: {
+                /** Format: uuid */
+                mediaId: string;
+                url: string;
+            } | null;
+            icon: {
+                /** Format: uuid */
+                mediaId: string;
+                url: string;
+            } | null;
+            banner: {
+                /** Format: uuid */
+                mediaId: string;
+                url: string;
+            } | null;
+            chipColor: string[];
+            sort: number;
+            isActive: boolean;
+            showOnHome: boolean;
+            returnWindowDays: number | null;
+            seoTitle: string[];
+            seoDescription: string[];
+            productCount: number;
+            childCount: number;
+            attributes: {
+                /** Format: uuid */
+                id: string;
+                /** Format: uuid */
+                categoryId: string;
+                key: string;
+                nameEn: string;
+                nameBn: string | null;
+                /** @enum {string} */
+                type: "text" | "number" | "select" | "multiselect" | "boolean";
+                unit: string | null;
+                isFilterable: boolean;
+                isRequired: boolean;
+                sort: number;
+                options: {
+                    /** Format: uuid */
+                    id: string;
+                    valueEn: string;
+                    valueBn: string | null;
+                    sort: number;
+                }[];
+            }[];
+            inheritedAttributes: {
+                /** Format: uuid */
+                id: string;
+                /** Format: uuid */
+                categoryId: string;
+                key: string;
+                nameEn: string;
+                nameBn: string | null;
+                /** @enum {string} */
+                type: "text" | "number" | "select" | "multiselect" | "boolean";
+                unit: string | null;
+                isFilterable: boolean;
+                isRequired: boolean;
+                sort: number;
+                options: {
+                    /** Format: uuid */
+                    id: string;
+                    valueEn: string;
+                    valueBn: string | null;
+                    sort: number;
+                }[];
+                inheritedFrom: {
+                    /** Format: uuid */
+                    id: string;
+                    nameEn: string;
+                };
+            }[];
+        };
+        DeletePreviewDto: {
+            subCategoryCount: number;
+            productCount: number;
+            primaryProductCount: number;
+        };
+        CreateCategoryDto: {
+            /** Format: uuid */
+            parentId?: string | null;
+            nameEn: string;
+            nameBn?: string | null;
+            slug?: string;
+            descriptionEn?: string | null;
+            descriptionBn?: string | null;
+            /** Format: uuid */
+            imageMediaId?: string | null;
+            /** Format: uuid */
+            iconMediaId?: string | null;
+            /** Format: uuid */
+            bannerMediaId?: string | null;
+            chipColor?: string | null;
+            sort?: number;
+            isActive?: boolean;
+            showOnHome?: boolean;
+            returnWindowDays?: number | null;
+            seoTitle?: string | null;
+            seoDescription?: string | null;
+        };
+        CategoryDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            parentId: string | null;
+            level: number;
+            path: string;
+            nameEn: string;
+            nameBn: string[];
+            slug: string;
+            descriptionEn: string[];
+            descriptionBn: string[];
+            image: {
+                /** Format: uuid */
+                mediaId: string;
+                url: string;
+            } | null;
+            icon: {
+                /** Format: uuid */
+                mediaId: string;
+                url: string;
+            } | null;
+            banner: {
+                /** Format: uuid */
+                mediaId: string;
+                url: string;
+            } | null;
+            chipColor: string[];
+            sort: number;
+            isActive: boolean;
+            showOnHome: boolean;
+            returnWindowDays: number | null;
+            seoTitle: string[];
+            seoDescription: string[];
+            productCount: number;
+            childCount: number;
+        };
+        ReorderDto: {
+            /** Format: uuid */
+            id: string;
+            sort: number;
+        }[];
+        UpdateCategoryDto: {
+            /** Format: uuid */
+            parentId?: string | null;
+            nameEn?: string;
+            nameBn?: string | null;
+            slug?: string;
+            descriptionEn?: string | null;
+            descriptionBn?: string | null;
+            /** Format: uuid */
+            imageMediaId?: string | null;
+            /** Format: uuid */
+            iconMediaId?: string | null;
+            /** Format: uuid */
+            bannerMediaId?: string | null;
+            chipColor?: string | null;
+            sort?: number;
+            isActive?: boolean;
+            showOnHome?: boolean;
+            returnWindowDays?: number | null;
+            seoTitle?: string | null;
+            seoDescription?: string | null;
+        };
+        DeleteCategoryDto: {
+            /** @enum {string} */
+            mode: "move" | "cascade";
+            /** Format: uuid */
+            targetId?: string;
+        };
+        CreateAttributeDto: {
+            key: string;
+            nameEn: string;
+            nameBn?: string | null;
+            /** @enum {string} */
+            type: "text" | "number" | "select" | "multiselect" | "boolean";
+            unit?: string | null;
+            isFilterable?: boolean;
+            isRequired?: boolean;
+            sort?: number;
+        };
+        AttributeDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            categoryId: string;
+            key: string;
+            nameEn: string;
+            nameBn: string[];
+            /** @enum {string} */
+            type: "text" | "number" | "select" | "multiselect" | "boolean";
+            unit: string[];
+            isFilterable: boolean;
+            isRequired: boolean;
+            sort: number;
+            options: {
+                /** Format: uuid */
+                id: string;
+                valueEn: string;
+                valueBn: string | null;
+                sort: number;
+            }[];
+        };
+        UpdateAttributeDto: {
+            nameEn?: string;
+            nameBn?: string | null;
+            /** @enum {string} */
+            type?: "text" | "number" | "select" | "multiselect" | "boolean";
+            unit?: string | null;
+            isFilterable?: boolean;
+            isRequired?: boolean;
+            sort?: number;
+        };
+        SetOptionsDto: {
+            /** Format: uuid */
+            id?: string;
+            valueEn: string;
+            valueBn?: string | null;
+        }[];
+        OptionListDto: {
+            /** Format: uuid */
+            id: string;
+            valueEn: string;
+            valueBn: string | null;
+            sort: number;
+        }[];
+        BrandListDto: {
+            /** Format: uuid */
+            id: string;
+            nameEn: string;
+            nameBn: string | null;
+            slug: string;
+            /** Format: uuid */
+            logoMediaId: string | null;
+            logoUrl: string | null;
+            active: boolean;
+            productCount: number;
+            /** Format: date-time */
+            createdAt: string;
+        }[];
+        CreateBrandDto: {
+            nameEn: string;
+            nameBn?: string | null;
+            slug?: string;
+            /** Format: uuid */
+            logoMediaId?: string | null;
+            active?: boolean;
+        };
+        BrandDto: {
+            /** Format: uuid */
+            id: string;
+            nameEn: string;
+            nameBn: string[];
+            slug: string;
+            /** Format: uuid */
+            logoMediaId: string | null;
+            logoUrl: string[];
+            active: boolean;
+            productCount: number;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        UpdateBrandDto: {
+            nameEn?: string;
+            nameBn?: string | null;
+            slug?: string;
+            /** Format: uuid */
+            logoMediaId?: string | null;
+            active?: boolean;
+        };
+        ProductListDto: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                titleEn: string;
+                titleBn: string | null;
+                slug: string;
+                /** @enum {string} */
+                status: "draft" | "active" | "archived";
+                brand: {
+                    /** Format: uuid */
+                    id: string;
+                    nameEn: string;
+                } | null;
+                primaryCategory: {
+                    /** Format: uuid */
+                    id: string;
+                    nameEn: string;
+                };
+                thumbnailUrl: string | null;
+                variantCount: number;
+                minP: number | null;
+                maxP: number | null;
+                totalAvailable: number;
+                /** Format: date-time */
+                updatedAt: string;
+            }[];
+            total: number;
+            page: number;
+            pageSize: number;
+        };
+        ProductDetailDto: {
+            /** Format: uuid */
+            id: string;
+            titleEn: string;
+            titleBn: string[];
+            slug: string;
+            shortDescriptionEn: string[];
+            shortDescriptionBn: string[];
+            descriptionHtmlEn: string[];
+            descriptionHtmlBn: string[];
+            youtubeUrl: string[];
+            /** @enum {string} */
+            status: "draft" | "active" | "archived";
+            /** @enum {string} */
+            fulfillment: "stock" | "dropship";
+            hasVariants: boolean;
+            /** Format: uuid */
+            brandId: string | null;
+            brand: {
+                /** Format: uuid */
+                id: string;
+                nameEn: string;
+            } | null;
+            /** Format: uuid */
+            primaryCategoryId: string;
+            categories: {
+                /** Format: uuid */
+                id: string;
+                nameEn: string;
+                nameBn: string | null;
+                isPrimary: boolean;
+            }[];
+            weightG: number | null;
+            deliveryChargeOverrideP: number | null;
+            returnWindowDays: number | null;
+            isPreorder: boolean;
+            preorderExpectedDate: string[];
+            isUpcoming: boolean;
+            advancePercent: number | null;
+            isPinned: boolean;
+            pinBoost: number;
+            seoTitle: string[];
+            seoDescription: string[];
+            /** Format: date-time */
+            publishedAt: string | null;
+            /** Format: date-time */
+            archivedAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            attributeValues: {
+                /** Format: uuid */
+                attributeId: string;
+                valueText: string | null;
+                valueNumber: number | null;
+                valueBool: boolean | null;
+                optionIds: string[];
+            }[];
+            options: {
+                /** Format: uuid */
+                id: string;
+                position: number;
+                nameEn: string;
+                nameBn: string | null;
+                values: {
+                    /** Format: uuid */
+                    id: string;
+                    valueEn: string;
+                    valueBn: string | null;
+                    swatchHex: string | null;
+                    sort: number;
+                }[];
+            }[];
+            variants: {
+                /** Format: uuid */
+                id: string;
+                sku: string;
+                barcode: string | null;
+                optionValueIds: (string | null)[];
+                priceP: number;
+                compareAtP: number | null;
+                salePriceP: number | null;
+                /** Format: date-time */
+                saleStartsAt: string | null;
+                /** Format: date-time */
+                saleEndsAt: string | null;
+                costP?: number | null;
+                weightG: number | null;
+                isActive: boolean;
+                sort: number;
+                onHand: number;
+                reserved: number;
+                available: number;
+                lowStockThreshold: number | null;
+            }[];
+            images: {
+                /** Format: uuid */
+                id: string;
+                /** Format: uuid */
+                mediaId: string;
+                /** Format: uuid */
+                variantId: string | null;
+                sort: number;
+                alt: string | null;
+                url: string;
+                thumbUrl: string;
+            }[];
+        };
+        CreateProductDto: {
+            titleEn: string;
+            titleBn?: string | null;
+            slug?: string;
+            shortDescriptionEn?: string | null;
+            shortDescriptionBn?: string | null;
+            descriptionHtmlEn?: string | null;
+            descriptionHtmlBn?: string | null;
+            youtubeUrl?: string | null;
+            /** Format: uuid */
+            brandId?: string | null;
+            /** Format: uuid */
+            primaryCategoryId: string;
+            categoryIds?: string[];
+            /** @enum {string} */
+            fulfillment?: "stock" | "dropship";
+            weightG?: number | null;
+            deliveryChargeOverrideP?: number | null;
+            returnWindowDays?: number | null;
+            isPreorder?: boolean;
+            /** Format: date */
+            preorderExpectedDate?: string | null;
+            isUpcoming?: boolean;
+            advancePercent?: number | null;
+            isPinned?: boolean;
+            pinBoost?: number;
+            seoTitle?: string | null;
+            seoDescription?: string | null;
+            attributes?: {
+                /** Format: uuid */
+                attributeId: string;
+                valueText?: string;
+                valueNumber?: number;
+                valueBool?: boolean;
+                optionIds?: string[];
+            }[];
+            /** @default [] */
+            options: {
+                position: 1 | 2;
+                nameEn: string;
+                nameBn?: string | null;
+                values: {
+                    /** Format: uuid */
+                    id?: string;
+                    valueEn: string;
+                    valueBn?: string | null;
+                    swatchHex?: string | null;
+                }[];
+            }[];
+            variants?: {
+                /** Format: uuid */
+                id?: string;
+                /** @default [] */
+                optionValueRefs: (string | number)[];
+                sku: string;
+                barcode?: string | null;
+                priceP: number;
+                compareAtP?: number | null;
+                salePriceP?: number | null;
+                /** Format: date-time */
+                saleStartsAt?: string | null;
+                /** Format: date-time */
+                saleEndsAt?: string | null;
+                costP?: number | null;
+                weightG?: number | null;
+                /** @default true */
+                isActive: boolean;
+                lowStockThreshold?: number | null;
+            }[];
+            images?: {
+                /** Format: uuid */
+                mediaId: string;
+                /** Format: uuid */
+                variantId?: string | null;
+                alt?: string | null;
+            }[];
+        };
+        UpdateProductDto: {
+            titleEn?: string;
+            titleBn?: string | null;
+            slug?: string;
+            shortDescriptionEn?: string | null;
+            shortDescriptionBn?: string | null;
+            descriptionHtmlEn?: string | null;
+            descriptionHtmlBn?: string | null;
+            youtubeUrl?: string | null;
+            /** Format: uuid */
+            brandId?: string | null;
+            /** Format: uuid */
+            primaryCategoryId?: string;
+            categoryIds?: string[];
+            /** @enum {string} */
+            fulfillment?: "stock" | "dropship";
+            weightG?: number | null;
+            deliveryChargeOverrideP?: number | null;
+            returnWindowDays?: number | null;
+            isPreorder?: boolean;
+            /** Format: date */
+            preorderExpectedDate?: string | null;
+            isUpcoming?: boolean;
+            advancePercent?: number | null;
+            isPinned?: boolean;
+            pinBoost?: number;
+            seoTitle?: string | null;
+            seoDescription?: string | null;
+            attributes?: {
+                /** Format: uuid */
+                attributeId: string;
+                valueText?: string;
+                valueNumber?: number;
+                valueBool?: boolean;
+                optionIds?: string[];
+            }[];
+        };
+        SetVariantsDto: {
+            /** @default [] */
+            options: {
+                position: 1 | 2;
+                nameEn: string;
+                nameBn?: string | null;
+                values: {
+                    /** Format: uuid */
+                    id?: string;
+                    valueEn: string;
+                    valueBn?: string | null;
+                    swatchHex?: string | null;
+                }[];
+            }[];
+            variants: {
+                /** Format: uuid */
+                id?: string;
+                /** @default [] */
+                optionValueRefs: (string | number)[];
+                sku: string;
+                barcode?: string | null;
+                priceP: number;
+                compareAtP?: number | null;
+                salePriceP?: number | null;
+                /** Format: date-time */
+                saleStartsAt?: string | null;
+                /** Format: date-time */
+                saleEndsAt?: string | null;
+                costP?: number | null;
+                weightG?: number | null;
+                /** @default true */
+                isActive: boolean;
+                lowStockThreshold?: number | null;
+            }[];
+        };
+        SetImagesDto: {
+            images: {
+                /** Format: uuid */
+                mediaId: string;
+                /** Format: uuid */
+                variantId?: string | null;
+                alt?: string | null;
+            }[];
+        };
+        InventoryListDto: {
+            items: {
+                /** Format: uuid */
+                variantId: string;
+                /** Format: uuid */
+                productId: string;
+                productTitleEn: string;
+                productTitleBn: string | null;
+                /** @enum {string} */
+                fulfillment: "stock" | "dropship";
+                sku: string;
+                optionLabels: {
+                    en: string;
+                    bn: string | null;
+                }[];
+                onHand: number;
+                reserved: number;
+                available: number;
+                lowStockThreshold: number | null;
+                isLow: boolean;
+            }[];
+            total: number;
+            page: number;
+            pageSize: number;
+        };
+        LowStockCountDto: {
+            count: number;
+        };
+        AdjustStockDto: {
+            /** @enum {string} */
+            mode: "delta" | "set";
+            qty: number;
+            note: string;
+        };
+        InventoryRowDto: {
+            /** Format: uuid */
+            variantId: string;
+            /** Format: uuid */
+            productId: string;
+            productTitleEn: string;
+            productTitleBn: string[];
+            /** @enum {string} */
+            fulfillment: "stock" | "dropship";
+            sku: string;
+            optionLabels: {
+                en: string;
+                bn: string | null;
+            }[];
+            onHand: number;
+            reserved: number;
+            available: number;
+            lowStockThreshold: number | null;
+            isLow: boolean;
+        };
+        UpdateInventoryDto: {
+            lowStockThreshold: number | null;
+        };
+        MovementListDto: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                qtyDelta: number;
+                reservedDelta: number;
+                /** @enum {string} */
+                reason: "po_receive" | "order_reserve" | "order_release" | "ship" | "return_restock" | "adjust" | "import" | "sr_reserve" | "sr_release" | "sr_ship";
+                refType: string | null;
+                refId: string | null;
+                note: string | null;
+                staff: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                } | null;
+                /** Format: date-time */
+                at: string;
+            }[];
+            total: number;
+            page: number;
+            pageSize: number;
+        };
     };
     responses: never;
     parameters: never;
@@ -921,6 +2035,829 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PermissionListDto"];
+                };
+            };
+        };
+    };
+    MediaController_upload: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                    alt?: string;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaDto"];
+                };
+            };
+        };
+    };
+    MediaController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaDto"];
+                };
+            };
+        };
+    };
+    MediaController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    MediaController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateMediaDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaDto"];
+                };
+            };
+        };
+    };
+    CategoriesController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryListDto"];
+                };
+            };
+        };
+    };
+    CategoriesController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCategoryDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryDto"];
+                };
+            };
+        };
+    };
+    CategoriesController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryDetailDto"];
+                };
+            };
+        };
+    };
+    CategoriesController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeleteCategoryDto"];
+            };
+        };
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CategoriesController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCategoryDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryDto"];
+                };
+            };
+        };
+    };
+    CategoriesController_deletePreview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeletePreviewDto"];
+                };
+            };
+        };
+    };
+    CategoriesController_reorder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReorderDto"];
+            };
+        };
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AttributesController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAttributeDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttributeDto"];
+                };
+            };
+        };
+    };
+    AttributesController_reorder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReorderDto"];
+            };
+        };
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AttributesController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                attrId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AttributesController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                attrId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAttributeDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttributeDto"];
+                };
+            };
+        };
+    };
+    AttributesController_setOptions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                attrId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetOptionsDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OptionListDto"];
+                };
+            };
+        };
+    };
+    BrandsController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BrandListDto"];
+                };
+            };
+        };
+    };
+    BrandsController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateBrandDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BrandDto"];
+                };
+            };
+        };
+    };
+    BrandsController_remove: {
+        parameters: {
+            query?: {
+                force?: "true" | "false";
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    BrandsController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateBrandDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BrandDto"];
+                };
+            };
+        };
+    };
+    ProductsController_list: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                q?: string;
+                status?: "draft" | "active" | "archived";
+                categoryId?: string;
+                brandId?: string;
+                fulfillment?: "stock" | "dropship";
+                isUpcoming?: "true" | "false";
+                isPreorder?: "true" | "false";
+                lowStock?: "true" | "false";
+                sort?: "createdAt" | "title" | "price";
+                order?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductListDto"];
+                };
+            };
+        };
+    };
+    ProductsController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateProductDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductDetailDto"];
+                };
+            };
+        };
+    };
+    ProductsController_detail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductDetailDto"];
+                };
+            };
+        };
+    };
+    ProductsController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ProductsController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateProductDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductDetailDto"];
+                };
+            };
+        };
+    };
+    ProductsController_setVariants: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetVariantsDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductDetailDto"];
+                };
+            };
+        };
+    };
+    ProductsController_setImages: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetImagesDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductDetailDto"];
+                };
+            };
+        };
+    };
+    ProductsController_publish: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductDetailDto"];
+                };
+            };
+        };
+    };
+    ProductsController_unpublish: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductDetailDto"];
+                };
+            };
+        };
+    };
+    ProductsController_archive: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductDetailDto"];
+                };
+            };
+        };
+    };
+    ProductsController_duplicate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductDetailDto"];
+                };
+            };
+        };
+    };
+    InventoryController_list: {
+        parameters: {
+            query?: {
+                q?: string;
+                lowStock?: "true" | "false";
+                categoryId?: string;
+                fulfillment?: "stock" | "dropship";
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventoryListDto"];
+                };
+            };
+        };
+    };
+    InventoryController_lowStockCount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LowStockCountDto"];
+                };
+            };
+        };
+    };
+    InventoryController_adjust: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                variantId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdjustStockDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventoryRowDto"];
+                };
+            };
+        };
+    };
+    InventoryController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                variantId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateInventoryDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventoryRowDto"];
+                };
+            };
+        };
+    };
+    InventoryController_movements: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path: {
+                variantId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MovementListDto"];
                 };
             };
         };
