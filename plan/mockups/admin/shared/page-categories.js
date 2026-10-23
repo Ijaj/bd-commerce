@@ -2,7 +2,9 @@
 (function () {
   var D = CatalogData, A = Admin, esc = A.esc;
   var COLORS = ['#4338ca', '#0f766e', '#be123c', '#a21caf', '#b45309', '#0369a1', '#15803d', '#475569'];
-  var sel = null, w = null, isNew = false, open = {}, dragId = null;
+  var sel = null, w = null, isNew = false, open = {}, dragId = null, odrag = null;
+  var TYPES = [['select', 'Select (one value)'], ['multiselect', 'Multi-select'], ['text', 'Text'], ['number', 'Number'], ['boolean', 'Yes / No']];
+  function isOpt(a) { return a.t === 'select' || a.t === 'multiselect'; }
   D.cats.forEach(function (c) { if (c.level < 2) open[c.id] = 1; });
 
   function height(id) { var c = D.byId[id], h = 0; c.children.forEach(function (k) { h = Math.max(h, height(k)); }); return h + 1; } // levels incl. self
@@ -34,10 +36,46 @@
     var n = D.cats.length; A.$('#tcount').textContent = n + ' categories · ' + D.products.length + ' products';
   }
 
+  /* ---------- option list editor (select / multiselect attributes) ---------- */
+  function optRow(r, i, j) {
+    return '<div class="c-opt-row' + (r.err ? ' err' : '') + '" data-or="' + i + '|' + j + '"><button type="button" class="c-opt-grip" data-ogrip="' + i + '|' + j + '" aria-label="Reorder option ' + (j + 1) + ' (drag, or use Up / Down arrow keys)" title="Drag to reorder · Up / Down arrows">⋮⋮</button>' +
+      '<input data-oi="' + i + '|' + j + '|en" value="' + esc(r.en) + '" placeholder="English" aria-label="Option ' + (j + 1) + ' English" autocomplete="off">' +
+      '<input data-oi="' + i + '|' + j + '|bn" lang="bn" value="' + esc(r.bn) + '" placeholder="বাংলা" aria-label="Option ' + (j + 1) + ' Bengali" autocomplete="off">' +
+      '<button type="button" class="a-btn ghost sm icon" data-orm="' + i + '|' + j + '" aria-label="Delete option ' + (j + 1) + '">✕</button>' + (r.err ? '<span class="a-err c-opt-err">' + esc(r.err) + '</span>' : '') + '</div>';
+  }
+  function optRows(a, i) { return a.o.length ? a.o.map(function (r, j) { return optRow(r, i, j); }).join('') : '<div class="c-opt-empty">No options yet. Add the values customers can pick or filter by.</div>'; }
+  function optEditor(a, i) {
+    return '<div class="c-opts" data-ob="' + i + '"><div class="c-opt-h"><span>Options (<span data-ocount>' + a.o.length + '</span>)</span><button type="button" class="a-btn sm" data-oadd="' + i + '">+ Add option</button></div><div class="c-opt-rows" data-orows="' + i + '">' + optRows(a, i) + '</div></div>';
+  }
+  function rOpts(i) { // only the rows below the header are redrawn, so the "+ Add option" button never moves
+    var a = w.attrs[i], rows = A.$('[data-orows="' + i + '"]'); if (!rows) return;
+    rows.innerHTML = optRows(a, i); A.$('[data-ob="' + i + '"] [data-ocount]').textContent = a.o.length;
+  }
+  function focusOpt(i, j, part) { var el = A.$('[data-oi="' + i + '|' + j + '|' + part + '"]'); if (el) { el.focus(); if (part !== 'grip') el.select(); } }
+  function addOpt(i) { w.attrs[i].o.push({ en: '', bn: '', err: '' }); rOpts(i); focusOpt(i, w.attrs[i].o.length - 1, 'en'); }
+  function moveOpt(i, from, to) { var o = w.attrs[i].o; to = Math.max(0, Math.min(o.length - 1, to)); if (from === to) return false; o.splice(to, 0, o.splice(from, 1)[0]); rOpts(i); return true; }
+  function gripFocus(i, j) { var g = A.$('[data-ogrip="' + i + '|' + j + '"]'); if (g) g.focus(); }
+  function checkOpts() { // drop empty rows, require EN + BN, flag duplicate EN; returns true when every option attribute is valid
+    var okAll = true, changed = false;
+    w.attrs.forEach(function (a) {
+      if (!a.n.trim() || !isOpt(a)) return;
+      var n0 = a.o.length; a.o = a.o.filter(function (r) { return r.en.trim() || r.bn.trim(); }); if (a.o.length !== n0) changed = true;
+      var groups = {};
+      a.o.forEach(function (r) {
+        var en = r.en.trim(), bn = r.bn.trim(); r.err = '';
+        if (!en) r.err = 'English name is required'; else if (!bn) r.err = 'Bengali name is required';
+        if (en) (groups[en.toLowerCase()] = groups[en.toLowerCase()] || []).push(r);
+      });
+      Object.keys(groups).forEach(function (k) { if (groups[k].length > 1) groups[k].forEach(function (r) { if (!r.err) r.err = 'Duplicate option “' + r.en.trim() + '” — each English name must be unique'; }); });
+      if (a.o.some(function (r) { return r.err; })) okAll = false;
+    });
+    return { ok: okAll, changed: changed };
+  }
+
   /* ---------- editor ---------- */
   function startEdit(id) {
     sel = id; isNew = false; var c = D.byId[id];
-    w = { name: c.name, bn: c.bn, slug: c.slug, parent: c.parent || '', color: c.color, image: c.image, attrs: c.attrs.map(function (a) { return { n: a.n, t: a.t, v: a.v.join(', '), f: a.f }; }), retMode: c.ret ? 'custom' : (c.retNone ? 'none' : 'inherit'), ret: c.ret || 7, sort: c.sort, hidden: c.hidden, slugEdited: true };
+    w = { name: c.name, bn: c.bn, slug: c.slug, parent: c.parent || '', color: c.color, image: c.image, attrs: c.attrs.map(function (a) { return { n: a.n, t: a.t, f: a.f, o: (a.o || a.v.map(function (x) { return { en: x, bn: '' }; })).map(function (x) { return { en: x.en, bn: x.bn, err: '' }; }) }; }), retMode: c.ret ? 'custom' : (c.retNone ? 'none' : 'inherit'), ret: c.ret || 7, sort: c.sort, hidden: c.hidden, slugEdited: true };
     rTree(); rEd();
   }
   function startNew(parent) {
@@ -57,8 +95,11 @@
       '<div class="a-field"><label>Image ' + (main ? '<span style="color:var(--danger)">* required for main categories</span>' : '<span class="c-sub">(optional for sub-categories)</span>') + '</label><div class="c-imgbox"><span class="c-thumb lg" style="--tc:' + w.color + '">' + (w.image ? (c ? c.emoji : '🖼️') : '∅') + '</span><div>' + '<button class="a-btn sm" data-img="1">' + A.icons.upload + ' ' + (w.image ? 'Replace image' : 'Upload image') + '</button> ' + (w.image ? '<button class="a-btn sm ghost" data-img="0">Remove</button>' : '') + '<div class="a-hint">Square, min 600×600. Shown as the category tile on the home page.</div></div></div><span class="a-err" hidden id="imgerr"></span></div>' +
       '<div class="a-field"><label>Chip colour</label><div class="c-swatches">' + COLORS.map(function (k) { return '<button type="button" data-color="' + k + '" class="' + (k === w.color ? 'on' : '') + '" style="background:' + k + '" aria-label="Colour ' + k + '"></button>'; }).join('') + '</div></div>' +
       '<div class="a-field"><label>Attributes defined at this category</label><span class="a-hint" style="margin-bottom:6px">Inherited by every sub-category and product below, and used as storefront filters.</span>' +
-      (w.attrs.length ? '<div class="c-attr c-sub" style="font-weight:700"><span>Name</span><span>Values (comma-separated)</span><span>Filter</span><span></span></div>' : '') +
-      w.attrs.map(function (a, i) { return '<div class="c-attr"><input data-at="' + i + '|n" value="' + esc(a.n) + '" placeholder="e.g. Material"><input data-at="' + i + '|v" value="' + esc(a.v) + '" placeholder="Cotton, Silk, Linen"><label class="a-switch" title="Use as storefront filter"><input type="checkbox" data-at="' + i + '|f"' + (a.f ? ' checked' : '') + '></label><button class="a-btn ghost sm icon" data-atrm="' + i + '" aria-label="Remove attribute">' + A.icons.x + '</button></div>'; }).join('') +
+      (w.attrs.length ? '<div class="c-attr c-sub" style="font-weight:700"><span>Name</span><span>Type</span><span>Filter</span><span></span></div>' : '') +
+      w.attrs.map(function (a, i) {
+        return '<div class="c-attr-blk"><div class="c-attr"><input data-at="' + i + '|n" value="' + esc(a.n) + '" placeholder="e.g. Material"><select data-at="' + i + '|t" aria-label="Attribute type">' + TYPES.map(function (t) { return '<option value="' + t[0] + '"' + (a.t === t[0] ? ' selected' : '') + '>' + t[1] + '</option>'; }).join('') + '</select>' +
+          '<label class="a-switch" title="Use as storefront filter"><input type="checkbox" data-at="' + i + '|f"' + (a.f ? ' checked' : '') + '></label><button class="a-btn ghost sm icon" data-atrm="' + i + '" aria-label="Remove attribute">' + A.icons.x + '</button></div>' + (isOpt(a) ? optEditor(a, i) : '') + '</div>';
+      }).join('') +
       '<div><button class="a-btn sm" id="addAt">' + A.icons.plus + ' Add attribute</button></div></div>' +
       '<div class="a-field"><label>Inherited from parent categories <span class="c-sub">(read-only)</span></label>' + (inh.length ? '<div class="c-inh">' + inh.map(function (a) { return '<span>' + esc(a.n) + ' <em>from ' + esc(a.from) + '</em></span>'; }).join('') + '</div>' : '<span class="c-sub">None' + (main ? ' — main categories have no parent.' : '.') + '</span>') + '</div>' +
       '<div class="c-2col"><div class="a-field"><label>Return window override</label><select data-w="retMode"><option value="inherit"' + (w.retMode === 'inherit' ? ' selected' : '') + '>Inherit (store default 7 days)</option><option value="custom"' + (w.retMode === 'custom' ? ' selected' : '') + '>Custom days</option><option value="none"' + (w.retMode === 'none' ? ' selected' : '') + '>Not returnable</option></select></div>' +
@@ -68,11 +109,17 @@
     A.applyPerms(ed);
   }
   function save() {
-    var ok = true; A.$$('#ed .a-err').forEach(function (e) { e.hidden = true; });
+    var co = checkOpts(), ok = true;
+    if (co.changed || !co.ok) rEd();
+    A.$$('#ed .a-err:not(.c-opt-err)').forEach(function (e) { e.hidden = true; });
     if (!w.name.trim()) { var e1 = A.$('[data-w=name]').closest('.a-field'); e1.classList.add('err'); var er = A.$('.a-err', e1); er.textContent = 'Name is required'; er.hidden = false; ok = false; }
     if (lvlOf() === 1 && !w.image) { var ie = A.$('#imgerr'); ie.textContent = 'Main categories need an image.'; ie.hidden = false; ok = false; }
+    if (!co.ok) { ok = false; var bad = A.$('.c-opt-row.err input'); if (bad) bad.focus({ preventScroll: true }); if (bad) bad.scrollIntoView({ block: 'center' }); }
     if (!ok) { A.toast('Please fix the highlighted fields', 'danger'); return; }
-    var attrs = w.attrs.filter(function (a) { return a.n.trim(); }).map(function (a) { return { n: a.n.trim(), t: 'select', v: a.v.split(',').map(function (s) { return s.trim(); }).filter(Boolean), f: a.f }; });
+    var attrs = w.attrs.filter(function (a) { return a.n.trim(); }).map(function (a) {
+      var o = isOpt(a) ? a.o.map(function (r) { return { en: r.en.trim(), bn: r.bn.trim() }; }) : [];   // options of non-select types are not stored
+      return { n: a.n.trim(), t: a.t, v: o.map(function (r) { return r.en; }), o: o, f: a.f };
+    });
     var c;
     if (isNew) {
       var maxN = Math.max.apply(null, D.cats.map(function (x) { return +x.id.slice(1); })) + 1;
@@ -140,7 +187,9 @@
       if ((b = t.closest('.c-node'))) { startEdit(b.dataset.id); return; }
       if ((b = t.closest('[data-color]'))) { w.color = b.dataset.color; rEd(); return; }
       if ((b = t.closest('[data-img]'))) { w.image = b.dataset.img === '1'; if (w.image) A.toast('Image uploaded (mock)', 'info'); rEd(); return; }
-      if (t.closest('#addAt')) { w.attrs.push({ n: '', t: 'select', v: '', f: true }); rEd(); var ins = A.$$('[data-at$="|n"]'); if (ins.length) ins[ins.length - 1].focus(); return; }
+      if (t.closest('#addAt')) { w.attrs.push({ n: '', t: 'select', o: [], f: true }); rEd(); var ins = A.$$('[data-at$="|n"]'); if (ins.length) ins[ins.length - 1].focus(); return; }
+      if ((b = t.closest('[data-oadd]'))) { addOpt(+b.dataset.oadd); return; }
+      if ((b = t.closest('[data-orm]'))) { var q = b.dataset.orm.split('|'), qi = +q[0], qj = +q[1]; w.attrs[qi].o.splice(qj, 1); rOpts(qi); if (w.attrs[qi].o.length) focusOpt(qi, Math.min(qj, w.attrs[qi].o.length - 1), 'en'); else A.$('[data-oadd="' + qi + '"]').focus(); return; }
       if ((b = t.closest('[data-atrm]'))) { w.attrs.splice(+b.dataset.atrm, 1); rEd(); return; }
       if (t.closest('#save')) save(); if (t.closest('#cancel')) { if (isNew) { w = null; isNew = false; rTree(); rEd(); } else startEdit(sel); }
     });
@@ -148,12 +197,42 @@
       var t = e.target;
       if (t.dataset.w && t.type !== 'checkbox' && t.tagName !== 'SELECT') { w[t.dataset.w] = t.value; if (t.dataset.w === 'name' && !w.slugEdited) { w.slug = D.slug(w.name); A.$('[data-w=slug]').value = w.slug; } if (t.dataset.w === 'slug') w.slugEdited = true; t.closest('.a-field') && t.closest('.a-field').classList.remove('err'); }
       else if (t.dataset.at) { var p = t.dataset.at.split('|'); w.attrs[+p[0]][p[1]] = t.type === 'checkbox' ? t.checked : t.value; }
+      else if (t.dataset.oi) { var o = t.dataset.oi.split('|'), r = w.attrs[+o[0]].o[+o[1]]; r[o[2]] = t.value; if (r.err) { r.err = ''; var row = t.closest('.c-opt-row'); row.classList.remove('err'); var er = A.$('.c-opt-err', row); if (er) er.remove(); } }
     });
+    /* option rows: Enter adds / moves to next row; Alt+Up/Down (or Up/Down on the handle) reorders; drag handle for mouse */
+    root.addEventListener('keydown', function (e) {
+      var t = e.target, o, i, j, n;
+      if (t.dataset && t.dataset.oi) {
+        o = t.dataset.oi.split('|'); i = +o[0]; j = +o[1];
+        if (e.key === 'Enter') { e.preventDefault(); n = w.attrs[i].o.length; if (j === n - 1) addOpt(i); else focusOpt(i, j + 1, 'en'); }
+        else if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) { e.preventDefault(); var to = j + (e.key === 'ArrowUp' ? -1 : 1); if (moveOpt(i, j, to)) focusOpt(i, to, o[2]); }
+      } else if (t.dataset && t.dataset.ogrip && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+        e.preventDefault(); o = t.dataset.ogrip.split('|'); i = +o[0]; j = +o[1]; var to2 = j + (e.key === 'ArrowUp' ? -1 : 1); if (moveOpt(i, j, to2)) gripFocus(i, to2);
+      }
+    });
+    root.addEventListener('mousedown', function (e) { var g = e.target.closest && e.target.closest('[data-ogrip]'); if (g) g.closest('.c-opt-row').draggable = true; });
+    root.addEventListener('dragstart', function (e) {
+      var r = e.target.closest && e.target.closest('.c-opt-row'); if (!r) return;
+      var p = r.dataset.or.split('|'); odrag = { i: +p[0], j: +p[1] }; r.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', r.dataset.or); } catch (x) { /* */ }
+    });
+    root.addEventListener('dragover', function (e) {
+      var r = e.target.closest && e.target.closest('.c-opt-row'); if (!r || !odrag) return;
+      var p = r.dataset.or.split('|'); if (+p[0] !== odrag.i) return; e.preventDefault();
+      A.$$('.c-opt-row.drop-before, .c-opt-row.drop-after').forEach(function (x) { x.classList.remove('drop-before', 'drop-after'); });
+      var bb = r.getBoundingClientRect(); r.classList.add(e.clientY < bb.top + bb.height / 2 ? 'drop-before' : 'drop-after');
+    });
+    root.addEventListener('drop', function (e) {
+      var r = e.target.closest && e.target.closest('.c-opt-row'); if (!r || !odrag) return;
+      var p = r.dataset.or.split('|'); if (+p[0] !== odrag.i) return; e.preventDefault();
+      var after = r.classList.contains('drop-after'), from = odrag.j, to = +p[1] + (after ? 1 : 0), i = odrag.i; odrag = null;
+      if (from < to) to--; moveOpt(i, from, to);
+    });
+    root.addEventListener('dragend', function () { odrag = null; A.$$('.c-opt-row').forEach(function (x) { x.classList.remove('dragging', 'drop-before', 'drop-after'); x.draggable = false; }); });
     root.addEventListener('change', function (e) {
       var t = e.target;
       if (t.dataset.w === 'hidden') w.hidden = !t.checked;
       else if (t.dataset.w) { w[t.dataset.w] = t.value; if (t.dataset.w === 'parent' || t.dataset.w === 'retMode') rEd(); }
-      else if (t.dataset.at) { var p = t.dataset.at.split('|'); w.attrs[+p[0]][p[1]] = t.type === 'checkbox' ? t.checked : t.value; }
+      else if (t.dataset.at) { var p = t.dataset.at.split('|'); w.attrs[+p[0]][p[1]] = t.type === 'checkbox' ? t.checked : t.value; if (p[1] === 't') rEd(); }   // option rows stay in memory while the type is non-select
     });
     /* drag & drop */
     root.addEventListener('dragstart', function (e) { var n = e.target.closest && e.target.closest('.c-node'); if (!n) return; dragId = n.dataset.id; n.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', dragId); } catch (x) { /* */ } });

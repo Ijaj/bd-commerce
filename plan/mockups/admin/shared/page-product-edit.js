@@ -10,16 +10,16 @@
     if (P) {
       S = { title: P.title, bn: P.bn, slug: P.slug, slugEdited: true, brand: P.brand, short: P.short, shortBn: P.shortBn, desc: P.desc, yt: '', cats: P.cats.slice(), primary: P.primary, open: {},
         attr: {}, opts: P.opts.map(function (o) { return { name: o.name, values: o.values.slice() }; }), price: P.price, old: P.old || '', fulfil: P.fulfil, supplier: P.supplier || '', supSku: P.supSku, cost: P.cost, route: P.route || 'direct',
-        weight: P.weight, delivery: '', advReq: P.advance > 0, advance: P.advance || '', preorder: P.preorder, preDate: P.preDate, preAdv: P.preorder ? 25 : '', retMode: 'inherit', retDays: 7, thr: 5,
+        weight: P.weight, delivery: '', advReq: P.advance > 0, advance: P.advance || '', preorder: P.preorder, upcoming: !!P.upcoming, preDate: P.preDate, preAdv: P.preorder ? 25 : '', retMode: 'inherit', retDays: 7, thr: 5,
         seoT: P.title + ' | ShopName', seoD: P.short, status: P.status, pubDate: P.created + 'T10:00', pin: P.pin, boost: P.boost, media: [] };
       S.media = [P.emoji, EMO[0], EMO[1]].map(function (e) { return { e: e }; });
       P.variants.forEach(function (v) { vrows[v.combo.length ? v.combo.join(' / ') : 'Default'] = { sku: v.sku, price: v.price, old: v.old || '', stock: v.stock, weight: v.weight, img: 0, active: v.active }; });
       P.cats.forEach(function (c) { D.ancestors(c).forEach(function (a) { S.open[a.id] = 1; }); });
       S.cats.forEach(function (c) { var o = D.byId[c]; if (o.attrs.length) S.open[o.id] = 1; });
-      var first = D.attrsFor(S.cats); first.forEach(function (a, i) { S.attr[a.n] = a.v[i % a.v.length]; });
+      var first = D.attrsFor(S.cats); first.forEach(function (a, i) { if (a.v.length) S.attr[a.n] = a.v[i % a.v.length]; });
     } else {
       S = { title: '', bn: '', slug: '', slugEdited: false, brand: '', short: '', shortBn: '', desc: '', yt: '', cats: [], primary: '', open: { c1: 1 }, attr: {}, opts: [], price: '', old: '', fulfil: 'stock', supplier: '', supSku: '', cost: '', route: 'direct',
-        weight: '', delivery: '', advReq: false, advance: '', preorder: false, preDate: '', preAdv: '', retMode: 'inherit', retDays: 7, thr: 5, seoT: '', seoD: '', status: 'draft', pubDate: '', pin: false, boost: 0, media: [] };
+        weight: '', delivery: '', advReq: false, advance: '', preorder: false, upcoming: false, preDate: '', preAdv: '', retMode: 'inherit', retDays: 7, thr: 5, seoT: '', seoD: '', status: 'draft', pubDate: '', pin: false, boost: 0, media: [] };
     }
   }
   var baseSku = function () { return P ? P.sku : 'BD-NEW-' + (S.slug ? S.slug.slice(0, 4).toUpperCase() : '001'); };
@@ -103,6 +103,9 @@
   function preCard() {
     return tpl({ id: 's-pre', h: 'Pre-order', b: '<div id="prebody"></div>' });
   }
+  function upCard() {
+    return tpl({ id: 's-up', h: 'Up-coming', b: '<div id="upbody"></div>' });
+  }
   function retCard() { return tpl({ id: 's-ret', h: 'Return window', b: '<div class="c-row-flex"><div class="a-field" style="margin:0"><select data-k="retMode" id="retMode"><option value="inherit">Inherit (category / store default)</option><option value="custom">Custom days</option><option value="none">Not returnable</option></select></div><div class="a-field" id="retDaysF" style="margin:0" hidden>' + '<div class="a-input-grp">' + inp('retDays', 'number', '7', ' min="1" max="60"') + '<span>days</span></div></div></div><p class="a-hint" id="retHint"></p>' }); }
   function seoCard() {
     return tpl({ id: 's-seo', h: 'SEO', b: fld('SEO title <span class="c-cnt" id="c1"></span>', inp('seoT', 'text', 'Page title', ' maxlength="70"')) + fld('Meta description <span class="c-cnt" id="c2"></span>', '<textarea data-k="seoD" rows="2" maxlength="180">' + esc(S.seoD) + '</textarea>') + '<div class="c-seo" id="snip"></div>' });
@@ -137,7 +140,9 @@
   function rAttrs() {
     var at = D.attrsFor(S.cats);
     A.$('#attrs').innerHTML = at.length ? '<div class="c-2col">' + at.map(function (a) {
-      return fld(esc(a.n) + ' <span class="c-sub">· from ' + esc(a.from) + '</span>', '<select data-attr="' + esc(a.n) + '"><option value="">—</option>' + a.v.map(function (v) { return '<option' + (S.attr[a.n] === v ? ' selected' : '') + '>' + esc(v) + '</option>'; }).join('') + '</select>');
+      var ctl = a.t === 'text' || a.t === 'number' ? '<input type="' + a.t + '" data-attr="' + esc(a.n) + '" value="' + esc(S.attr[a.n] || '') + '">' :
+        '<select data-attr="' + esc(a.n) + '"><option value="">—</option>' + (a.t === 'boolean' ? ['Yes', 'No'] : a.v).map(function (v) { return '<option' + (S.attr[a.n] === v ? ' selected' : '') + '>' + esc(v) + '</option>'; }).join('') + '</select>';
+      return fld(esc(a.n) + ' <span class="c-sub">· from ' + esc(a.from) + (a.t === 'multiselect' ? ' · multi-select' : '') + '</span>', ctl);
     }).join('') + '</div>' : '<div class="a-empty" style="padding:14px">Select a category to see its attributes (e.g. Colour, Material, RAM).</div>';
   }
   function validOpts() { return S.opts.filter(function (o) { return o.values.length; }); }
@@ -190,7 +195,15 @@
   function rPre() {
     var dis = !flags.preorder;
     A.$('#prebody').innerHTML = flagNote('preorder', 'Pre-orders') + '<div class="' + (dis ? 'c-disabled' : '') + '">' + sw('preorder', 'Sell as pre-order', S.preorder, dis) + '<div class="c-2col" style="margin-top:12px">' + fld('Expected availability date', inp('preDate', 'date', '', dis ? ' disabled' : '')) + fld('Advance % to reserve', '<div class="a-input-grp">' + inp('preAdv', 'number', '25', ' min="1" max="100"' + (dis ? ' disabled' : '')) + '<span>%</span></div>') + '</div></div>' +
+      (exNote.pre ? '<p class="a-hint c-exnote">' + A.icons.warn + ' ' + exNote.pre + '</p>' : '') +
       '<p class="a-hint" style="opacity:.8">Hidden at launch: the storefront shows no pre-order badge until <code>preorders_enabled</code> is switched on.</p>';
+  }
+  var exNote = { pre: '', up: '' };   // shown when one of pre-order / up-coming switches the other off
+  function rUp() {
+    var wl = P ? (P.wishlists || 0) : 0;
+    A.$('#upbody').innerHTML = sw('upcoming', 'Mark as up-coming', S.upcoming) + '<p class="a-hint" style="margin-top:6px">Visible to customers but cannot be ordered. Customers can only wishlist it.</p>' +
+      (exNote.up ? '<p class="a-hint c-exnote">' + A.icons.warn + ' ' + exNote.up + '</p>' : '') +
+      (S.upcoming ? '<div class="c-wishstat"><span>Wishlisted by <b>' + A.fmt.num(wl) + '</b> customers</span><small class="c-sub">Read-only demand signal. Use it to decide how much to stock before launch.</small></div>' : '');
   }
   function retEffective() {
     var days = 7, src = 'store default';
@@ -252,7 +265,17 @@
   function setK(el) {
     var k = el.dataset.k, v = el.type === 'checkbox' ? el.checked : el.value;
     S[k] = v;
-    if (k === 'title') { if (!S.slugEdited) { S.slug = D.slug(S.title); A.$('[data-k=slug]').value = S.slug; } if (!P && !S.seoTEdited) { S.seoT = S.title ? S.title + ' | ShopName' : ''; A.$('[data-k=seoT]').value = S.seoT; } rSeo(); rCheck(); }
+    if (k === 'upcoming') {   // up-coming and pre-order are mutually exclusive
+      exNote.up = ''; exNote.pre = '';
+      if (v && S.preorder) { S.preorder = false; exNote.up = 'Pre-order was turned off: a product cannot be both pre-order and up-coming.'; rPre(); }
+      rUp(); var us = A.$('[data-k=upcoming]'); if (us) us.focus();
+    }
+    else if (k === 'preorder') {
+      exNote.up = ''; exNote.pre = '';
+      if (v && S.upcoming) { S.upcoming = false; exNote.pre = 'Up-coming was turned off: a product cannot be both pre-order and up-coming.'; rUp(); }
+      rPre(); var ps = A.$('[data-k=preorder]'); if (ps) ps.focus();
+    }
+    else if (k === 'title') { if (!S.slugEdited) { S.slug = D.slug(S.title); A.$('[data-k=slug]').value = S.slug; } if (!P && !S.seoTEdited) { S.seoT = S.title ? S.title + ' | ShopName' : ''; A.$('[data-k=seoT]').value = S.seoT; } rSeo(); rCheck(); }
     else if (k === 'slug') { S.slugEdited = true; rSeo(); }
     else if (k === 'seoT') { S.seoTEdited = true; rSeo(); } else if (k === 'seoD' || k === 'short') { rSeo(); rCheck(); }
     else if (k === 'price' || k === 'old') { rDisc(); rCheck(); } else if (k === 'bn') rCheck();
@@ -337,10 +360,10 @@
   A.renderPage({
     active: 'products', title: isNew ? 'Add product' : 'Edit product', crumbs: [['Catalog'], ['Products', 'products.html'], [isNew ? 'New product' : P.sku]],
     actions: (isNew ? '' : '<a class="a-btn" href="../product.html" target="_blank" rel="noopener">' + A.icons.eye + ' View on store</a>') + '<a class="a-btn ghost" href="products.html">Back to list</a>',
-    body: '<div class="c-edit"><div>' + basic() + descCard() + mediaCard() + catCard() + attrCard() + varCard() + priceCard() + invCard() + delCard() + advCard() + preCard() + retCard() + seoCard() + '</div>' + sideCard() + '</div>' +
+    body: '<div class="c-edit"><div>' + basic() + descCard() + mediaCard() + catCard() + attrCard() + varCard() + priceCard() + invCard() + delCard() + advCard() + preCard() + upCard() + retCard() + seoCard() + '</div>' + sideCard() + '</div>' +
       '<div class="c-savebar"><span class="msg" id="sbmsg">' + (isNew ? 'New product · not saved yet' : 'No changes') + '</span><button class="a-btn ghost" id="discard">Discard</button><button class="a-btn" id="sdraft">Save</button><button class="a-btn primary" id="spub">Save &amp; publish</button></div>',
     onReady: function (root) {
-      setupEditor(root); wire(root); rMedia(); rCats(); rOpts(); rFul(); rAdv(); rPre(); rRet(); rSeo(); rDisc(); rCheck();
+      setupEditor(root); wire(root); rMedia(); rCats(); rOpts(); rFul(); rAdv(); rPre(); rUp(); rRet(); rSeo(); rDisc(); rCheck();
       A.$('[data-k=boost]').disabled = !S.pin; A.$('#retMode').value = S.retMode;
       A.$('#discard').onclick = function () { if (dirty) A.confirm('Discard all unsaved changes?', 'Discard', function () { location.reload(); }, true); else A.toast('Nothing to discard', 'info'); };
       A.$('#sdraft').onclick = function () { save(false); }; A.$('#spub').onclick = function () { save(true); };

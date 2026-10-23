@@ -22,7 +22,8 @@ General-purpose e-commerce for Bangladesh. **Planning phase only — no code unt
 - Batch 3 done (5 parallel Sonnet agents, contract `plan/mockups/admin/CONTRACT.md`, page list `admin/README.md`): 28 admin pages + `supplier/` + `affiliate/` portals. All 30 load headless with no JS errors (checked 2026-10-23). Admin data in-memory per group (`*-data.js`), not cross-linked. Linked from `plan/mockups/index.html`.
 - Gate 5 mockups essentially complete — awaiting owner review.
 - Session 4: Q111 = advance trigger %s ADDED (cap 100%/item; flow.js `Shop.calc`, doc 12, admin pages updated). Q112 = admin EN only. Repo on GitHub `Ijaj/bd-commerce` (main), first commit 41bbdf4.
+- Session 4 later: Q113 no-bold storefront typography; Q114–Q117 availability filter (In Stock/Pre-Order/Up-coming, all 3 always shown), `upcoming` products (wishlist only, `Shop.cart.add` refuses; demo p=538,316,53,20,296; admin product-edit?id=103), admin option editor (EN+BN rows, drag, fixed + Add option in header).
 - **Next step:** owner reviews admin + storefront mockups → tick gate 5 in `plan/README.md`, then gate 6 tech stack, gate 7 roadmap (mark launch phase per feature — owner: full plan, subset at launch, COD-only start).
-- Open questions: none.
+- Open questions: none. Admin stays bold (owner said no to admin typography change).
 - Lesson: 6 parallel Sonnet agents hit the session usage limit once; resume stopped agents with SendMessage rather than respawning.
 - Untested in flowchart viewer: pinch zoom; Fit-all on the 32-node checkout flow renders small.

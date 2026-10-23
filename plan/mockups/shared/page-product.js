@@ -1,4 +1,4 @@
-/* Product page: product.html?p=<id> | ?p=preorder | ?p=oos   (default product: id 10, a smartphone with flash price + 2 option types) */
+/* Product page: product.html?p=<id> | ?p=preorder | ?p=oos | ?p=538 (up-coming, Q114)   (default product: id 10, a smartphone with flash price + 2 option types) */
 (function () {
   'use strict';
   var Shop = window.Shop, $ = Shop.$, $$ = Shop.$$, X = Shop.X, XA = Shop.XA, LX = Shop.LX, icon = Shop.icon, t = Shop.t, esc = Shop.esc, fmt = Shop.formatBDT, D = Shop.data, fmtK = Shop.fmtK;
@@ -22,7 +22,8 @@
       days_ago: '{n} days ago', more_rev: 'Show more reviews', no_rev_f: 'No reviews match this filter.', star_f: '{n} star', rev_filter: 'Filter reviews', photos_lbl: 'Review photo',
       ask_t: 'Ask a question', ask_ph: 'Type your question about this product', ask_btn: 'Post question', q_pending: 'Waiting for an answer from the seller', q_lbl: 'Q', a_lbl: 'A', qa_h: 'Questions about this product', ask_posted: 'Question posted',
       related: 'You may also like', g_hint: 'Hover to zoom', g_video: 'Watch the video on YouTube', g_img: 'Image {n} of {m}', g_thumb: 'Show image {n}', opt_pick: 'Select {o}', color: 'Color',
-      added_toast: 'Added to cart', share: 'Share', wish_btn: 'Wishlist'
+      added_toast: 'Added to cart', share: 'Share', wish_btn: 'Wishlist',
+      up_note: 'This product is coming soon. Add it to your wishlist to show interest.', up_add: 'Add to wishlist', up_in: 'Wishlisted', up_stock: 'Up-coming'
     },
     bn: {
       in_stock: 'স্টকে আছে', only_left: 'মাত্র {n}টি বাকি - এখনই অর্ডার করুন', out_stock: 'স্টক নেই', sold_out: 'শেষ', qty: 'পরিমাণ', qty_dec: 'পরিমাণ কমান', qty_inc: 'পরিমাণ বাড়ান',
@@ -42,7 +43,8 @@
       days_ago: '{n} দিন আগে', more_rev: 'আরও রিভিউ দেখুন', no_rev_f: 'এই ফিল্টারে কোনো রিভিউ নেই।', star_f: '{n} স্টার', rev_filter: 'রিভিউ ফিল্টার', photos_lbl: 'রিভিউ ছবি',
       ask_t: 'প্রশ্ন করুন', ask_ph: 'এই পণ্য সম্পর্কে আপনার প্রশ্ন লিখুন', ask_btn: 'প্রশ্ন পোস্ট করুন', q_pending: 'বিক্রেতার উত্তরের অপেক্ষায়', q_lbl: 'প্র', a_lbl: 'উ', qa_h: 'এই পণ্য নিয়ে প্রশ্ন', ask_posted: 'প্রশ্ন পোস্ট হয়েছে',
       related: 'আপনার পছন্দ হতে পারে', g_hint: 'জুম করতে হোভার করুন', g_video: 'YouTube-এ ভিডিও দেখুন', g_img: 'ছবি {n} / {m}', g_thumb: 'ছবি {n} দেখান', opt_pick: '{o} নির্বাচন করুন', color: 'রং',
-      added_toast: 'কার্টে যোগ হয়েছে', share: 'শেয়ার', wish_btn: 'উইশলিস্ট'
+      added_toast: 'কার্টে যোগ হয়েছে', share: 'শেয়ার', wish_btn: 'উইশলিস্ট',
+      up_note: 'এই পণ্যটি শীঘ্রই আসছে। আগ্রহ জানাতে উইশলিস্টে যোগ করুন।', up_add: 'উইশলিস্টে যোগ করুন', up_in: 'উইশলিস্টে আছে', up_stock: 'আসছে শীঘ্রই'
     }
   });
 
@@ -124,7 +126,7 @@
       h += '<div class="opt-g"><div class="opt-l"><span id="ol-' + o.key + '" ' + LX(o.name.en, o.name.bn) + '</span>: <b ' + LX(curVal.en, curVal.bn) + '</b></div><div class="opt-v" role="radiogroup" aria-labelledby="ol-' + o.key + '">';
       o.vals.forEach(function (v) {
         var dis;
-        if (p.oos) dis = false;
+        if (p.oos || p.upcoming) dis = false;
         else if (which === 'a') dis = !d.options[1].vals.some(function (b) { return d.combo(d.keyOf(v.id, b.id)).stock > 0; });
         else dis = d.combo(d.keyOf(sel.a, v.id)).stock <= 0;
         var on = v.id === cur;
@@ -137,6 +139,7 @@
   }
   function stockHTML() {
     var c = combo();
+    if (p.upcoming) return '<p class="stock pre">' + icon('pkg', 16) + ' <span ' + X('up_stock') + '</span></p>';
     if (p.preorder) return '<p class="stock pre">' + icon('pkg', 16) + ' <span data-i18n="pre_exp" data-date="' + dateStr(d.preorderInfo.date) + '">' + t('pre_exp', { date: dateStr(d.preorderInfo.date) }) + '</span></p>';
     if (p.soon) return '<p class="stock pre">' + icon('pkg', 16) + ' <span ' + LX('Coming soon', 'শীঘ্রই আসছে') + '</span></p>';   // launch phase: pre-order is hidden, product is "coming soon"
     if (isOut()) return '<p class="stock out">' + icon('close', 16) + ' <span ' + X('out_stock') + '</span></p>';
@@ -149,13 +152,15 @@
       '<input id="qtyIn" name="qty" type="text" inputmode="numeric" value="' + qty + '" ' + XA('aria-label', 'qty') + '><button type="button" data-act="qp" ' + XA('aria-label', 'qty_inc') + (qty >= m ? ' disabled' : '') + '>' + icon('plus', 16) + '</button></div></div>';
   }
   function preHTML() {
+    if (p.upcoming) return '<div class="prebox">' + icon('info', 18) + '<div><p ' + X('up_note') + '</p></div></div>';
     if (!p.preorder) return '';
     var c = combo(), adv = Math.round(c.price * qty * d.preorderInfo.pct / 100);
     return '<div class="prebox">' + icon('info', 18) + '<div><b data-i18n="pre_adv" data-pct="' + d.preorderInfo.pct + '" data-amt="' + fmt(adv) + '">' + t('pre_adv', { pct: d.preorderInfo.pct, amt: fmt(adv) }) + '</b><p data-i18n="pre_rest" data-amt="' + fmt(c.price * qty - adv) + '">' + t('pre_rest', { amt: fmt(c.price * qty - adv) }) + '</p></div></div>';
   }
   function ctaButtons(cls) {
     var h;
-    if (isOut()) h = '<button class="btn btn-primary ' + cls + '" type="button" data-act="notify">' + icon('bell', 18) + ' <span ' + X('notify_me') + '</span></button>';
+    if (p.upcoming) { var wl = Shop.wish.has(p.id); h = '<button class="btn btn-primary ' + cls + '" type="button" data-act="upwish" aria-pressed="' + wl + '">' + icon('heart', 18) + ' <span ' + X(wl ? 'up_in' : 'up_add') + '</span></button>'; }
+    else if (isOut()) h = '<button class="btn btn-primary ' + cls + '" type="button" data-act="notify">' + icon('bell', 18) + ' <span ' + X('notify_me') + '</span></button>';
     else if (p.preorder) h = '<button class="btn btn-primary ' + cls + '" type="button" data-act="pre">' + icon('pkg', 18) + ' <span ' + X('pre_btn') + '</span></button>';
     else h = '<button class="btn btn-ghost ' + cls + '" type="button" data-act="add">' + icon('cart', 18) + ' <span ' + X('add_cart') + '</span></button><button class="btn btn-primary ' + cls + '" type="button" data-act="buy"><span ' + X('buy_now') + '</span></button>';
     return h;
@@ -168,7 +173,7 @@
   }
   function sbarHTML() {
     var out = isOut();
-    return '<button class="icon-btn sb-heart heart" type="button" data-id="' + p.id + '" aria-pressed="' + Shop.wish.has(p.id) + '" ' + XA('aria-label', 'add_wish') + '>' + icon('heart', 22) + '</button>' + ctaButtons('sb-btn');
+    return (p.upcoming ? '' : '<button class="icon-btn sb-heart heart" type="button" data-id="' + p.id + '" aria-pressed="' + Shop.wish.has(p.id) + '" ' + XA('aria-label', 'add_wish') + '>' + icon('heart', 22) + '</button>') + ctaButtons('sb-btn');
   }
   function deliveryHTML() {
     var dz = D.districts[zone], c = combo(), r = D.delivery(dz[2], p.weight * qty, c.price * qty);
@@ -189,9 +194,9 @@
     $('#pbox').innerHTML = priceHTML();
     $('#opts').innerHTML = optionsHTML();
     $('#stockline').innerHTML = stockHTML();
-    $('#qtyline').innerHTML = isOut() ? '' : qtyHTML();
+    $('#qtyline').innerHTML = isOut() || p.upcoming ? '' : qtyHTML();
     $('#prebox').innerHTML = preHTML();
-    $('#ctas').innerHTML = ctaButtons('lg') + (isOut() ? '' : '<button class="btn btn-ghost lg-icon heart" type="button" data-id="' + p.id + '" aria-pressed="' + Shop.wish.has(p.id) + '" ' + XA('aria-label', 'add_wish') + '>' + icon('heart', 20) + '</button>');
+    $('#ctas').innerHTML = ctaButtons('lg') + (isOut() || p.upcoming ? '' : '<button class="btn btn-ghost lg-icon heart" type="button" data-id="' + p.id + '" aria-pressed="' + Shop.wish.has(p.id) + '" ' + XA('aria-label', 'add_wish') + '>' + icon('heart', 20) + '</button>');
     $('#notifyline').innerHTML = notifyHTML();
     $('#sbarIn').innerHTML = sbarHTML();
     $('#dbody').innerHTML = deliveryHTML();
@@ -275,6 +280,7 @@
   }
 
   function addToCart(go) {
+    if (p.upcoming) return;
     var c = combo(), q = Math.max(1, Math.min(qty, maxQty() || 1));
     Shop.cart.add(pid, key(), q);
     var line = Shop.cart.lines().filter(function (l) { return l.id === pid && l.variant === c.key; })[0];
@@ -311,6 +317,7 @@
           var a = b.getAttribute('data-act');
           if (a === 'qm') { qty = Math.max(1, qty - 1); update(); $('[data-act=qm]:not([disabled]), #qtyIn').focus(); }
           else if (a === 'qp') { qty = Math.min(maxQty(), qty + 1); update(); var pl = $('[data-act=qp]:not([disabled])'); (pl || $('#qtyIn')).focus(); }
+          else if (a === 'upwish') { var wn = Shop.wish.toggle(pid); Shop.toast(t(wn ? 'wish_added' : 'wish_removed')); update(); var ub = $('#ctas [data-act=upwish]'); if (ub) ub.focus({ preventScroll: true }); }
           else if (a === 'add') addToCart();
           else if (a === 'buy') addToCart('checkout.html');
           else if (a === 'pre') addToCart();
@@ -361,6 +368,7 @@
       }
       bindGallery();
       Shop.on('lang', function () { update(); renderRevs(); });
+      if (p.upcoming) Shop.on('wish', update);   // keep the wishlist button in step with the gallery heart
     }
   });
 })();

@@ -200,6 +200,7 @@
     var ids = Shop.wish.get(), ps = ids.map(Shop.data.getProduct).filter(Boolean);
     var g = ps.length ? '<div class="grid wl-grid">' + ps.map(function (p) {
       var oos = p.oos;
+      if (p.upcoming) return '<div class="wl-i">' + Shop.card(p) + '<button class="btn btn-ghost btn-block btn-sm" type="button" disabled>' + icon('info', 15) + ' <span ' + X('upcoming') + '</span></button></div>';
       return '<div class="wl-i">' + Shop.card(p) + '<button class="btn btn-ghost btn-block btn-sm" type="button" data-wadd="' + p.id + '"' + (oos ? ' disabled' : '') + '>' + icon('cart', 15) + ' <span ' + X('w_add') + '</span></button></div>';
     }).join('') + '</div>' : empty('💝', 'w_empty', 'w_empty_s', '<a class="btn btn-primary" href="home.html" ' + X('start') + '</a>');
     return sectionHead('n_wishlist', ps.length ? '<span class="muted">' + T('w_n', { n: ps.length }) + '</span>' : '') + (user() ? '' : '<p class="alert" role="note">' + icon('user', 16) + ' <span ' + X('w_login') + '</span> <a class="link" href="account.html#dashboard" ' + X('login') + '</a></p>') + g;

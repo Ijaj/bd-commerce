@@ -8,14 +8,14 @@
   Shop.i18n({
     en: {
       filters: 'Filters', filter: 'Filter', sort: 'Sort', sort_by: 'Sort by', s_rel: 'Best match', s_new: 'Newest', s_pasc: 'Price: low to high', s_pdesc: 'Price: high to low', s_rated: 'Top rated', s_sold: 'Best selling',
-      f_price: 'Price (৳)', f_brand: 'Brand', f_rating: 'Customer rating', f_avail: 'Availability', f_disc: 'Discount', f_in_stock: 'In stock only',
+      f_price: 'Price (৳)', f_brand: 'Brand', f_rating: 'Customer rating', f_avail: 'Availability', f_disc: 'Discount', f_in_stock: 'In Stock', f_pre: 'Pre-Order', f_upc: 'Up-coming',
       f_any: 'Any', f_up: '{n} & up', f_off: '{n}% or more', f_min: 'Min', f_max: 'Max', f_go: 'Apply', clear_all: 'Clear all', clear_f: 'Clear filters',
       results_n: '{n} results', result_1: '1 result', show_n: 'Show {n} results', no_match: 'No products match these filters', no_match_s: 'Try removing a filter or widening the price range.',
       showing_of: 'Showing {a} of {b}', active_f: 'Active filters', close: 'Close', price_lbl: 'Price'
     },
     bn: {
       filters: 'ফিল্টার', filter: 'ফিল্টার', sort: 'সাজান', sort_by: 'সাজান', s_rel: 'সেরা মিল', s_new: 'নতুন', s_pasc: 'দাম: কম থেকে বেশি', s_pdesc: 'দাম: বেশি থেকে কম', s_rated: 'সর্বোচ্চ রেটিং', s_sold: 'সর্বাধিক বিক্রিত',
-      f_price: 'দাম (৳)', f_brand: 'ব্র্যান্ড', f_rating: 'গ্রাহক রেটিং', f_avail: 'স্টক', f_disc: 'ছাড়', f_in_stock: 'শুধু স্টকে আছে',
+      f_price: 'দাম (৳)', f_brand: 'ব্র্যান্ড', f_rating: 'গ্রাহক রেটিং', f_avail: 'প্রাপ্যতা', f_disc: 'ছাড়', f_in_stock: 'স্টকে আছে', f_pre: 'প্রি-অর্ডার', f_upc: 'আসছে শীঘ্রই',
       f_any: 'যেকোনো', f_up: '{n} ও তার বেশি', f_off: '{n}% বা বেশি', f_min: 'সর্বনিম্ন', f_max: 'সর্বোচ্চ', f_go: 'প্রয়োগ', clear_all: 'সব মুছুন', clear_f: 'ফিল্টার মুছুন',
       results_n: '{n}টি ফলাফল', result_1: '1টি ফলাফল', show_n: '{n}টি ফলাফল দেখুন', no_match: 'এই ফিল্টারে কোনো পণ্য মেলেনি', no_match_s: 'একটি ফিল্টার সরান বা দামের সীমা বাড়ান।',
       showing_of: '{b}টির মধ্যে {a}টি দেখানো হচ্ছে', active_f: 'সক্রিয় ফিল্টার', close: 'বন্ধ করুন', price_lbl: 'দাম'
@@ -24,11 +24,15 @@
   (function () { var en = {}, bn = {}; for (var k in Shop.data.attrs) { en['fa_' + k] = Shop.data.attrs[k].en; bn['fa_' + k] = Shop.data.attrs[k].bn; } Shop.i18n({ en: en, bn: bn }); })();
   var SORTS = [['rel', 's_rel'], ['new', 's_new'], ['pasc', 's_pasc'], ['pdesc', 's_pdesc'], ['rated', 's_rated'], ['sold', 's_sold']];
 
+  // Q114/Q115 availability buckets: In Stock = orderable now (not pre-order / up-coming / out of stock)
+  function availOf(p) { return p.upcoming ? 'up' : p.preorder ? 'pre' : p.oos ? 'out' : 'instock'; }
+  var AVAIL = [['instock', 'f_in_stock'], ['pre', 'f_pre'], ['up', 'f_upc']];
+
   function mount(host, cfg) {
     var items = cfg.items, pageSize = cfg.pageSize || 24, attrKeys = cfg.attrKeys || [], A = Shop.data.attrs;
-    var st = { min: null, max: null, brand: [], attr: {}, rating: 0, disc: 0, stock: false, sort: 'rel' }, shown = pageSize, view = [];
-    var pmin = Infinity, pmax = 0, brandCount = {};
-    items.forEach(function (p) { pmin = Math.min(pmin, p.price); pmax = Math.max(pmax, p.price); brandCount[p.brand] = (brandCount[p.brand] || 0) + 1; });
+    var st = { min: null, max: null, brand: [], attr: {}, rating: 0, disc: 0, avail: [], sort: 'rel' }, shown = pageSize, view = [];
+    var pmin = Infinity, pmax = 0, brandCount = {}, availCount = { instock: 0, pre: 0, up: 0, out: 0 };
+    items.forEach(function (p) { availCount[availOf(p)]++; pmin = Math.min(pmin, p.price); pmax = Math.max(pmax, p.price); brandCount[p.brand] = (brandCount[p.brand] || 0) + 1; });
     if (!items.length) { pmin = 0; }
 
     // ---- facet groups
@@ -37,6 +41,7 @@
       return '<label class="fopt' + (extra ? ' ' + extra.cls : '') + '"><input type="checkbox" name="' + name + '" value="' + esc(value) + '">' + (extra ? extra.pre : '') + '<span class="fo-l">' + labelHTML + '</span><em>' + count + '</em></label>';
     }
     var fh = '';
+    fh += grp('avail', 'f_avail', AVAIL.map(function (a) { return opt('avail', a[0], '<span ' + X(a[1]) + '</span>', availCount[a[0]]); }).join(''));
     fh += grp('price', 'f_price', '<div class="frow"><label><span class="sr-only" ' + X('f_min') + '</span><input type="number" name="price_min" inputmode="numeric" min="0" placeholder="' + Math.floor(pmin / 10) * 10 + '" ' + Shop.XA('aria-label', 'f_min') + '></label><span aria-hidden="true">-</span>' +
       '<label><span class="sr-only" ' + X('f_max') + '</span><input type="number" name="price_max" inputmode="numeric" min="0" placeholder="' + Math.ceil(pmax / 10) * 10 + '" ' + Shop.XA('aria-label', 'f_max') + '></label>' +
       '<button class="btn btn-sm btn-ghost" type="button" id="pgo" ' + X('f_go') + '</button></div><p class="fhint">' + formatBDT(pmin) + ' - ' + formatBDT(pmax) + '</p>');
@@ -54,7 +59,6 @@
         return opt('a_' + k, v[0], '<span ' + Shop.LX(v[0], v[1]) + '</span>', counts[v[0]], def.type === 'color' ? { cls: 'fsw', pre: '<i class="sw" style="--c:' + v[2] + '"></i>' } : null);
       }).join(''));
     });
-    fh += grp('avail', 'f_avail', '<label class="fopt fswitch"><input type="checkbox" name="stock"><span class="fo-l" ' + X('f_in_stock') + '</span></label>');
     fh += grp('disc', 'f_disc', [0, 10, 25, 50].map(function (n) {
       return '<label class="fopt"><input type="radio" name="disc" value="' + n + '"' + (n === 0 ? ' checked' : '') + '><span class="fo-l">' + (n ? '<span data-i18n="f_off" data-n="' + n + '">' + t('f_off', { n: n }) + '</span>' : '<span ' + X('f_any') + '</span>') + '</span></label>';
     }).join(''));
@@ -89,10 +93,10 @@
       attrKeys.forEach(function (k) { var a = $$('input[name=a_' + k + ']:checked', fform).map(function (i) { return i.value; }); if (a.length) st.attr[k] = a; });
       st.rating = +($('input[name=rating]:checked', fform) || { value: 0 }).value;
       st.disc = +($('input[name=disc]:checked', fform) || { value: 0 }).value;
-      st.stock = !!$('input[name=stock]', fform).checked;
+      st.avail = $$('input[name=avail]:checked', fform).map(function (i) { return i.value; });
     }
     function activeCount() {
-      return (st.min != null || st.max != null ? 1 : 0) + st.brand.length + Object.keys(st.attr).reduce(function (n, k) { return n + st.attr[k].length; }, 0) + (st.rating ? 1 : 0) + (st.disc ? 1 : 0) + (st.stock ? 1 : 0);
+      return (st.min != null || st.max != null ? 1 : 0) + st.brand.length + Object.keys(st.attr).reduce(function (n, k) { return n + st.attr[k].length; }, 0) + (st.rating ? 1 : 0) + (st.disc ? 1 : 0) + st.avail.length;
     }
     function match(p) {
       if (st.min != null && p.price < st.min) return false;
@@ -101,7 +105,7 @@
       for (var k in st.attr) if (st.attr[k].indexOf(p.attrs[k]) < 0) return false;
       if (st.rating && p.rating < st.rating) return false;
       if (st.disc && p.off < st.disc) return false;
-      if (st.stock && p.oos) return false;
+      if (st.avail.length && st.avail.indexOf(availOf(p)) < 0) return false;
       return true;
     }
     var cmp = {
@@ -125,7 +129,7 @@
         h += pill('a_' + k, v, '<span ' + X('fa_' + k) + '</span>: <span ' + Shop.LX(o[0], o[1]) + '</span>'); }); });
       if (st.rating) h += pill('rating', '', '<span class="star" aria-hidden="true">★</span> ' + t('f_up', { n: st.rating }));
       if (st.disc) h += pill('disc', '', t('f_off', { n: st.disc }));
-      if (st.stock) h += pill('stock', '', '<span ' + X('f_in_stock') + '</span>');
+      st.avail.forEach(function (a) { h += pill('avail', a, '<span ' + X('f_avail') + '</span>: <span ' + X(AVAIL.filter(function (x) { return x[0] === a; })[0][1]) + '</span>'); });
       if (h) h += '<button class="pill-clear" type="button" id="pclear" ' + X('clear_all') + '</button>';
       pillsEl.innerHTML = h;
       pillsEl.hidden = !h;
@@ -176,7 +180,6 @@
         var k = b.getAttribute('data-k'), v = b.getAttribute('data-v');
         if (k === 'price') { $('[name=price_min]', fform).value = ''; $('[name=price_max]', fform).value = ''; }
         else if (k === 'rating' || k === 'disc') { $('input[name=' + k + '][value="0"]', fform).checked = true; }
-        else if (k === 'stock') { $('input[name=stock]', fform).checked = false; }
         else { var i = $$('input[name=' + k + ']', fform).filter(function (x) { return x.value === v; })[0]; if (i) i.checked = false; }
         update();
       } else if (e.target.closest('#pclear, #fclear, #nmclear')) { clearAll(); }

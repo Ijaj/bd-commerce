@@ -45,12 +45,19 @@
   ];
   /* attributes defined at a category (inherited by all descendants) */
   var S = function (n, v, f) { return { n: n, t: 'select', v: v, f: f !== false }; };
+  var M = function (n, v, f) { var a = S(n, v, f); a.t = 'multiselect'; return a; };
+  // Bengali labels for the seeded option values (values not listed, e.g. 128GB / EU / Core i5, stay the same in BN)
+  var BNV = { 'No warranty': 'ওয়ারেন্টি নেই', '6 months': '৬ মাস', '1 year': '১ বছর', '2 years': '২ বছর', 'Bluetooth': 'ব্লুটুথ', 'Wired': 'তারযুক্ত', 'Up to 8h': '৮ ঘণ্টা পর্যন্ত', 'Up to 20h': '২০ ঘণ্টা পর্যন্ত', '30h+': '৩০+ ঘণ্টা',
+    'Black': 'কালো', 'White': 'সাদা', 'Red': 'লাল', 'Blue': 'নীল', 'Green': 'সবুজ', 'Yellow': 'হলুদ', 'Multi': 'বহুরঙা', 'Cotton': 'সুতি', 'Silk': 'সিল্ক', 'Polyester': 'পলিয়েস্টার', 'Leather': 'চামড়া', 'Linen': 'লিনেন',
+    'Jamdani': 'জামদানি', 'Muslin': 'মসলিন', 'Daily': 'দৈনন্দিন', 'Festive': 'উৎসব', 'Wedding': 'বিয়ে', 'Slim': 'স্লিম', 'Regular': 'রেগুলার', 'Relaxed': 'রিল্যাক্সড',
+    'Aluminium': 'অ্যালুমিনিয়াম', 'Stainless steel': 'স্টেইনলেস স্টিল', 'Ceramic': 'সিরামিক', 'Plastic': 'প্লাস্টিক', 'All': 'সব', 'Dry': 'শুষ্ক', 'Oily': 'তৈলাক্ত', 'Sensitive': 'সংবেদনশীল',
+    'Brightening': 'উজ্জ্বলকারী', 'Anti-ageing': 'বার্ধক্যরোধী', '0-1 yr': '০-১ বছর', '1-3 yrs': '১-৩ বছর', '3-6 yrs': '৩-৬ বছর', '6+ yrs': '৬+ বছর', 'Core i3': 'কোর i3', 'Core i5': 'কোর i5', 'Core i7': 'কোর i7' };
   var ATTR = {
     'Electronics': [S('Warranty', ['No warranty', '6 months', '1 year', '2 years'])],
     'Smartphones': [S('RAM', ['4GB', '6GB', '8GB', '12GB']), S('Storage', ['64GB', '128GB', '256GB', '512GB']), S('Network', ['4G', '5G'])],
-    'Earbuds & headphones': [S('Connectivity', ['Bluetooth', 'Wired', '2.4GHz']), S('Battery life', ['Up to 8h', 'Up to 20h', '30h+'], false)],
+    'Earbuds & headphones': [M('Connectivity', ['Bluetooth', 'Wired', '2.4GHz']), S('Battery life', ['Up to 8h', 'Up to 20h', '30h+'], false)],
     'Laptops': [S('Processor', ['Core i3', 'Core i5', 'Core i7', 'Ryzen 5', 'Ryzen 7']), S('Display size', ['14"', '15.6"', '16"'])],
-    'Fashion': [S('Colour', ['Black', 'White', 'Red', 'Blue', 'Green', 'Yellow', 'Multi']), S('Material', ['Cotton', 'Silk', 'Polyester', 'Leather', 'Linen'])],
+    'Fashion': [M('Colour', ['Black', 'White', 'Red', 'Blue', 'Green', 'Yellow', 'Multi']), S('Material', ['Cotton', 'Silk', 'Polyester', 'Leather', 'Linen'])],
     'Sarees': [S('Fabric', ['Jamdani', 'Cotton', 'Silk', 'Muslin']), S('Occasion', ['Daily', 'Festive', 'Wedding'])],
     'Men': [S('Fit', ['Slim', 'Regular', 'Relaxed'])],
     'Footwear': [S('Size standard', ['EU', 'UK'], false)],
@@ -67,7 +74,7 @@
     arr.forEach(function (r, i) {
       var c = { id: 'c' + (nid++), name: r[0], bn: r[1], slug: slug(r[0]), level: level, parent: parent ? parent.id : null, children: [], sort: i + 1,
         color: r[3] || (parent ? parent.color : '#4338ca'), emoji: r[4] || (parent ? parent.emoji : '🛍️'), image: level === 1 || R() < .3,
-        attrs: (ATTR[r[0]] || []).map(function (a) { return { n: a.n, t: a.t, v: a.v.slice(), f: a.f }; }), ret: RETURN[r[0]] || null, hidden: false };
+        attrs: (ATTR[r[0]] || []).map(function (a) { return { n: a.n, t: a.t, v: a.v.slice(), o: a.v.map(function (x) { return { en: x, bn: BNV[x] || x }; }), f: a.f }; }), ret: RETURN[r[0]] || null, hidden: false };
       cats.push(c); byId[c.id] = c; if (parent) parent.children.push(c.id);
       if (r[2]) build(r[2], c, level + 1);
     });
@@ -77,8 +84,8 @@
   function ancestors(id) { var o = [], c = byId[id]; while (c && c.parent) { c = byId[c.parent]; o.unshift(c); } return o; }
   function path(id) { var c = byId[id]; if (!c) return ''; return ancestors(id).map(function (a) { return a.name; }).concat(c.name).join(' › '); }
   function descendants(id) { var o = [], st = [id]; while (st.length) { var c = byId[st.pop()]; if (!c) continue; o.push(c.id); c.children.forEach(function (k) { st.push(k); }); } return o; }
-  function inheritedAttrs(id) { var o = []; ancestors(id).forEach(function (a) { a.attrs.forEach(function (at) { o.push({ n: at.n, v: at.v, from: a.name }); }); }); return o; }
-  function attrsFor(ids) { var seen = {}, o = []; ids.forEach(function (id) { var c = byId[id]; if (!c) return; ancestors(id).concat(c).forEach(function (a) { a.attrs.forEach(function (at) { var k = at.n + '|' + a.id; if (!seen[at.n]) { seen[at.n] = 1; o.push({ n: at.n, v: at.v, from: a.name }); } }); }); }); return o; }
+  function inheritedAttrs(id) { var o = []; ancestors(id).forEach(function (a) { a.attrs.forEach(function (at) { o.push({ n: at.n, t: at.t, v: at.v, from: a.name }); }); }); return o; }
+  function attrsFor(ids) { var seen = {}, o = []; ids.forEach(function (id) { var c = byId[id]; if (!c) return; ancestors(id).concat(c).forEach(function (a) { a.attrs.forEach(function (at) { var k = at.n + '|' + a.id; if (!seen[at.n]) { seen[at.n] = 1; o.push({ n: at.n, t: at.t, v: at.v, from: a.name }); } }); }); }); return o; }
 
   /* ---------- brands & suppliers ---------- */
   var brands = ['Samsung', 'Xiaomi', 'Apple', 'Lenovo', 'Anker', 'Realme', 'Ugreen', 'Asus', 'Logitech', 'Deshi Loom', 'Urban Nest', 'Apex', 'HomeChef', 'KitchenPro', 'Tangail Weavers', 'GlowLab', 'LittleOak'];
@@ -158,6 +165,9 @@
     p.shortBn = 'আসল ' + p.bn + ' – ক্যাশ অন ডেলিভারি।';
     products.push(p);
   }
+  // Q114: up-coming products (visible, cannot be ordered, wishlist only) with their wishlist demand; product id -> customers who wishlisted it
+  var UPC = { 103: 184, 111: 92, 120: 41, 127: 267 };
+  products.forEach(function (p) { p.upcoming = UPC[p.id] != null; p.wishlists = UPC[p.id] || 0; if (p.upcoming) { p.preorder = false; p.preDate = ''; } });
   var prodById = {}; products.forEach(function (p) { prodById[p.id] = p; });
   function recount() { cats.forEach(function (c) { var ids = {}; descendants(c.id).forEach(function (d) { ids[d] = 1; }); c.count = products.filter(function (p) { return p.cats.some(function (x) { return ids[x]; }); }).length; }); }
   recount();

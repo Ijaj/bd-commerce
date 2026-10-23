@@ -123,3 +123,27 @@
 .c-vt input,.c-vt select,.c-attr input:not([type=checkbox]),.c-bulkrow input{height:32px;padding:0 8px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font:inherit;box-sizing:border-box}
 .c-vt input:focus,.c-vt select:focus,.c-attr input:focus,.c-bulkrow input:focus{outline:0;border-color:var(--primary)}
 .c-bulkrow input{width:100%}
+/* attribute option list editor (categories page) */
+.c-attr-blk{border:1px solid var(--border);border-radius:4px;padding:8px;margin-bottom:8px;background:var(--surface)}
+.c-attr-blk .c-attr{margin-bottom:0}
+.c-attr select{height:32px;padding:0 8px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font:inherit;box-sizing:border-box}
+.c-opts{margin-top:8px;padding-top:8px;border-top:1px dashed var(--border)}
+.c-opt-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;font-size:12.5px;font-weight:600}
+.c-opt-row{display:grid;grid-template-columns:auto 1fr 1fr auto;gap:6px;align-items:center;margin-bottom:6px}
+.c-opt-row input{height:32px;min-width:0;padding:0 8px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font:inherit;box-sizing:border-box}
+.c-opt-row input[lang=bn]{font-family:'Noto Sans Bengali',sans-serif}
+.c-opt-row input:focus{outline:0;border-color:var(--primary)}
+.c-opt-row.err input{border-color:var(--danger)}
+.c-opt-err{grid-column:2 / -1}
+.c-opt-grip{width:24px;height:32px;padding:0;border:0;background:transparent;color:var(--muted);cursor:grab;font:inherit;letter-spacing:-2px;border-radius:4px}
+.c-opt-grip:hover,.c-opt-grip:focus-visible{color:var(--text);background:var(--surface-2)}
+.c-opt-row.dragging{opacity:.4}
+.c-opt-row.drop-before{box-shadow:0 -2px 0 var(--primary)}
+.c-opt-row.drop-after{box-shadow:0 2px 0 var(--primary)}
+.c-opt-empty{font-size:12px;color:var(--muted);padding:2px 0 4px}
+@media(max-width:640px){.c-opt-row{grid-template-columns:auto 1fr auto}.c-opt-row input[lang=bn]{grid-column:2;grid-row:2}.c-opt-row [data-orm]{grid-column:3;grid-row:1}.c-opt-err{grid-column:2 / -1}}
+/* up-coming products */
+.c-wishstat{display:flex;flex-direction:column;gap:2px;margin-top:12px;padding:10px 12px;border:1px solid var(--border);border-radius:4px;background:var(--surface-2);font-size:13.5px}
+.c-wishstat b{font-size:18px}
+.c-exnote{display:flex;gap:6px;align-items:flex-start;margin-top:8px;color:var(--text)}
+.c-exnote svg{flex:none;width:14px;height:14px;margin-top:1px}

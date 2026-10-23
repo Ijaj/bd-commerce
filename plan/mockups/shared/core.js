@@ -191,7 +191,7 @@
       just_for_you: 'Just for you', load_more: 'Load more', showing: 'Showing {n} products',
       flash: 'Flash Sale', ends_in: 'Ends in', cd_h: 'h', cd_m: 'm', cd_s: 's', sold: 'sold', almost: 'Almost gone',
       recent: 'Recently viewed', featured: 'Featured',
-      'new': 'New', hot: 'Hot', free_del: 'Free delivery', preorder: 'Pre-order', oos: 'Out of stock', add_wish: 'Add to wishlist', rm_wish: 'Remove from wishlist',
+      'new': 'New', hot: 'Hot', free_del: 'Free delivery', preorder: 'Pre-order', upcoming: 'Up-coming', oos: 'Out of stock', add_wish: 'Add to wishlist', rm_wish: 'Remove from wishlist',
       cta_shop: 'Shop now', prev: 'Previous slide', next: 'Next slide', goto: 'Go to slide {n}', slide_of: 'Slide {n} of {m}',
       pause: 'Pause slideshow', play: 'Play slideshow',
       h1_home: 'ShopName - online shopping in Bangladesh',
@@ -225,7 +225,7 @@
       just_for_you: 'আপনার জন্য', load_more: 'আরও দেখুন', showing: '{n}টি পণ্য দেখানো হচ্ছে',
       flash: 'ফ্ল্যাশ সেল', ends_in: 'শেষ হতে বাকি', cd_h: 'ঘ', cd_m: 'মি', cd_s: 'সে', sold: 'বিক্রি', almost: 'প্রায় শেষ',
       recent: 'সম্প্রতি দেখেছেন', featured: 'ফিচার্ড',
-      'new': 'নতুন', hot: 'হট', free_del: 'ফ্রি ডেলিভারি', preorder: 'প্রি-অর্ডার', oos: 'স্টক নেই', add_wish: 'উইশলিস্টে যোগ করুন', rm_wish: 'উইশলিস্ট থেকে সরান',
+      'new': 'নতুন', hot: 'হট', free_del: 'ফ্রি ডেলিভারি', preorder: 'প্রি-অর্ডার', upcoming: 'আসছে শীঘ্রই', oos: 'স্টক নেই', add_wish: 'উইশলিস্টে যোগ করুন', rm_wish: 'উইশলিস্ট থেকে সরান',
       cta_shop: 'এখনই কিনুন', prev: 'আগের স্লাইড', next: 'পরের স্লাইড', goto: 'স্লাইড {n}-এ যান', slide_of: 'স্লাইড {n} / {m}',
       pause: 'স্লাইডশো থামান', play: 'স্লাইডশো চালান',
       h1_home: 'ShopName - বাংলাদেশে অনলাইন শপিং',
@@ -495,6 +495,8 @@
     attrKeysFor(catBySlug[b.leaf]).forEach(function (k) { var o = ATTRS[k].opts; p.attrs[k] = o[Math.floor(r() * o.length)][0]; });
     return p;
   }
+  // Q114: up-coming products are visible but cannot be ordered (wishlist only); picked so some land on the default category page and one matches "phone"
+  var UPCOMING = { 538: 1, 316: 1, 53: 1, 20: 1, 296: 1 };
   function product(i) {
     if (pcache[i]) return pcache[i];
     var p;
@@ -505,6 +507,7 @@
       p = build(idx, i, i);
       if (i === 10) { p.oos = false; p.preorder = false; p.flash = true; p.old = 38990; p.off = Math.round((p.old - p.price) / p.old * 100); p.reviews = 148; p.sold = 2310; p.rating = 4.6; p.qa = 3; }
     }
+    if (UPCOMING[i]) { p.upcoming = true; p.preorder = false; p.oos = false; p.flash = false; p.old = 0; p.off = 0; p.advancePercent = 0; p.badges = ['upcoming']; }
     return (pcache[i] = p);
   }
   function getProduct(id) { id = +id; return (id >= 0 && id < N_PRODUCTS) || id === 9001 || id === 9002 ? product(id) : null; }
@@ -671,10 +674,13 @@
     get: function () { var c = store.getJSON('shop.cart', []); return Array.isArray(c) ? c : []; },
     save: function (c) { store.setJSON('shop.cart', c); Shop.emit('cart', c); },
     add: function (id, variant, qty) {
+      var pr = getProduct(id);
+      if (pr && pr.upcoming) return false;   // Q114: up-coming products cannot be ordered
       var c = cart.get(), v = variant || '', q = Math.max(1, qty | 0), hit = null;
       c.forEach(function (l) { if (l.id === +id && l.variant === v) hit = l; });
       if (hit) hit.qty += q; else c.push({ id: +id, variant: v, qty: q });
       cart.save(c);
+      return true;
     },
     setQty: function (id, variant, qty) {
       var c = cart.get();
@@ -740,7 +746,7 @@
       (p.oos ? '<span class="sr-only" ' + Shop.X('oos') + '</span>' : '') +
       '<div class="price-row"><span class="price">' + formatBDT(p.price) + '</span>' +
       (p.old ? '<s class="old">' + formatBDT(p.old) + '</s><span class="off">-' + p.off + '%</span>' : '') + '</div>' +
-      '<div class="meta"><span class="rate"><span class="star" aria-hidden="true">★</span> ' + p.rating.toFixed(1) + '</span><span aria-hidden="true">·</span><span>' + '<span ' + Shop.LX(fmtK(p.sold, 'en'), fmtK(p.sold, 'bn')) + '</span> <span ' + Shop.X('sold') + '</span></span></div>';
+      (p.upcoming ? '' : '<div class="meta"><span class="rate"><span class="star" aria-hidden="true">★</span> ' + p.rating.toFixed(1) + '</span><span aria-hidden="true">·</span><span>' + '<span ' + Shop.LX(fmtK(p.sold, 'en'), fmtK(p.sold, 'bn')) + '</span> <span ' + Shop.X('sold') + '</span></span></div>');
     if (o.progress) {
       h += '<div class="prog" aria-hidden="true"><i style="width:' + o.progress + '%"></i></div>' +
         '<div class="prog-l"><span>' + o.progress + '% <span ' + Shop.X('sold') + '</span></span>' + (o.progress >= 85 ? '<b ' + Shop.X('almost') + '</b>' : '') + '</div>';

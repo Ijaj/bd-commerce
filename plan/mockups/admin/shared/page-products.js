@@ -2,10 +2,10 @@
 (function () {
   var D = CatalogData, A = Admin, P = D.products, PER = 10;
   var st = { tab: 'all', q: '', cat: '', brand: '', ful: '', sup: '', min: '', max: '', page: 1, sel: {} };
-  var TABS = [['all', 'All'], ['active', 'Active'], ['draft', 'Draft'], ['oos', 'Out of stock'], ['low', 'Low stock'], ['pre', 'Pre-order'], ['archived', 'Archived']];
+  var TABS = [['all', 'All'], ['active', 'Active'], ['draft', 'Draft'], ['oos', 'Out of stock'], ['low', 'Low stock'], ['pre', 'Pre-order'], ['up', 'Up-coming'], ['archived', 'Archived']];
   function inTab(p, t) {
     return t === 'all' ? true : t === 'active' ? p.status === 'active' : t === 'draft' ? p.status === 'draft' : t === 'archived' ? p.status === 'archived' :
-      t === 'oos' ? (p.stock === 0 && p.status !== 'archived') : t === 'low' ? (p.low && p.status !== 'archived') : t === 'pre' ? p.preorder : true;
+      t === 'oos' ? (p.stock === 0 && p.status !== 'archived') : t === 'low' ? (p.low && p.status !== 'archived') : t === 'pre' ? p.preorder : t === 'up' ? p.upcoming : true;
   }
   function filtered(ignoreTab) {
     var q = st.q.toLowerCase(), ids = st.cat ? D.descendants(st.cat) : null;
@@ -37,8 +37,8 @@
       '<td class="num ' + low + '">' + p.stock + (p.low && p.stock ? ' <span class="a-badge warn">low</span>' : '') + (p.stock === 0 ? ' <span class="a-badge danger">out</span>' : '') + '</td>' +
       '<td class="num">' + A.fmt.num(p.sold) + '</td><td>' + stars(p.rating) + '</td><td>' + stBadge(p) + '</td>' +
       '<td>' + (p.fulfil === 'dropship' ? '<span class="a-badge info">Dropship</span>' : '<span class="a-badge muted">Stock</span>') + '</td>' +
-      '<td>' + (p.advance ? '<span class="a-badge warn" title="Requires advance payment (applies when advance payments are enabled)">Adv ' + p.advance + '%</span>' : '') + (p.preorder ? ' <span class="a-badge info">Pre-order</span>' : '') + '</td>' +
-      '<td class="act"><a class="a-btn ghost sm icon" href="product-edit.html?id=' + p.id + '" aria-label="Edit">' + A.icons.edit + '</a></td></tr>';
+      '<td>' + (p.advance ? '<span class="a-badge warn" title="Requires advance payment (applies when advance payments are enabled)">Adv ' + p.advance + '%</span>' : '') + (p.preorder ? ' <span class="a-badge info">Pre-order</span>' : '') + (p.upcoming ? ' <span class="a-badge warn" title="Visible but cannot be ordered; customers can only wishlist it">Up-coming</span>' : '') + '</td>' +
+      '<td class="num">' + (p.upcoming ? '<b title="Customers who wishlisted this product">' + A.fmt.num(p.wishlists) + '</b>' : '<span class="c-sub">—</span>') + '</td>' + '<td class="act"><a class="a-btn ghost sm icon" href="product-edit.html?id=' + p.id + '" aria-label="Edit">' + A.icons.edit + '</a></td></tr>';
   }
   function render() {
     var list = filtered(), pages = Math.max(1, Math.ceil(list.length / PER)); if (st.page > pages) st.page = pages;
@@ -47,8 +47,8 @@
     var n = Object.keys(st.sel).length;
     var bulk = A.$('#bulk'); bulk.hidden = !n; A.$('#bn', bulk).textContent = n + ' selected';
     var allOn = slice.length && slice.every(function (p) { return st.sel[p.id]; });
-    A.$('#tbl').innerHTML = '<div class="a-table-wrap"><table class="a-table"><thead><tr><th class="chk"><input type="checkbox" id="all"' + (allOn ? ' checked' : '') + ' aria-label="Select all"></th><th>Product</th><th>SKU</th><th>Category</th><th class="num">Price</th><th class="num">Stock</th><th class="num">Sold</th><th>Rating</th><th>Status</th><th>Fulfilment</th><th>Flags</th><th></th></tr></thead><tbody>' +
-      (slice.length ? slice.map(row).join('') : '<tr><td colspan="12"><div class="a-empty">' + A.icons.products + '<h3>No products match</h3><p>Try clearing some filters.</p></div></td></tr>') + '</tbody></table></div>' +
+    A.$('#tbl').innerHTML = '<div class="a-table-wrap"><table class="a-table"><thead><tr><th class="chk"><input type="checkbox" id="all"' + (allOn ? ' checked' : '') + ' aria-label="Select all"></th><th>Product</th><th>SKU</th><th>Category</th><th class="num">Price</th><th class="num">Stock</th><th class="num">Sold</th><th>Rating</th><th>Status</th><th>Fulfilment</th><th>Flags</th><th class="num">Wishlists</th><th></th></tr></thead><tbody>' +
+      (slice.length ? slice.map(row).join('') : '<tr><td colspan="13"><div class="a-empty">' + A.icons.products + '<h3>No products match</h3><p>Try clearing some filters.</p></div></td></tr>') + '</tbody></table></div>' +
       '<div class="a-pager"><span>' + (list.length ? ((st.page - 1) * PER + 1) + '–' + Math.min(list.length, st.page * PER) : 0) + ' of ' + list.length + ' products</span><div class="pg">' +
       '<button data-pg="' + (st.page - 1) + '"' + (st.page < 2 ? ' disabled' : '') + '>‹</button>' + Array.apply(null, Array(pages)).map(function (_, i) { return '<button data-pg="' + (i + 1) + '"' + (i + 1 === st.page ? ' class="on" aria-current="page"' : '') + '>' + (i + 1) + '</button>'; }).join('') +
       '<button data-pg="' + (st.page + 1) + '"' + (st.page >= pages ? ' disabled' : '') + '>›</button></div></div>';
