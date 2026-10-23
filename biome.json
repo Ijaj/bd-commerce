@@ -11,7 +11,8 @@
       "!plan",
       "!**/src/generated",
       "!packages/api-client/src/schema.ts",
-      "!packages/api-client/openapi.json"
+      "!packages/api-client/openapi.json",
+      "!pnpm-lock.yaml"
     ]
   },
   "formatter": {
