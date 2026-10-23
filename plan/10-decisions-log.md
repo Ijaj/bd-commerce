@@ -173,3 +173,4 @@ Note on S6: our order tracking covers status until the parcel is handed to the c
 | Q110 | Mockups get a demo "Launch / Full" phase toggle: Launch hides online payments, advance payment, pre-order |
 | Q111 | Several advance triggers on one item → their %s are **added together** (product % + risky-customer % + high-price %), capped at 100% of the item. Delivery fee part unchanged. Mockups + doc 12 updated |
 | Q112 | Admin panel is **English only** (no EN/BN toggle). Customer-facing output (SMS, invoices, storefront) still follows the shop language |
+| Q113 | Typography: **no bold text** except page titles (h1), current breadcrumb and logo. Product names (incl. product-page title), prices, filter titles, buttons, section headings, body copy all regular weight (bold hurts Bangla readability). Font choice to be updated later by owner. Storefront mockups updated; admin unchanged |
