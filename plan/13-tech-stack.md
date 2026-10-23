@@ -17,7 +17,7 @@ Decided 2026-10-23 (S-T1 – S-T28 in doc 10). Hard requirements: lightweight st
 ## Data & services
 - **PostgreSQL** — main DB; `jsonb` for `{en,bn}` text and flexible attributes; built-in full-text search at launch (English only, Q30).
 - **Redis** — BullMQ job queue (SMS, email, courier booking, image jobs, schedules), cache, rate limiting.
-- **MinIO + imgproxy** — product images (S3-compatible storage + on-the-fly resizing to WebP/AVIF), cached by Cloudflare.
+- **Garage + imgproxy** (C6) — product images (S3-compatible storage + on-the-fly resizing to WebP/AVIF), cached by Cloudflare.
 - **Sessions** — DB-backed; httpOnly secure cookie (web/admin), opaque token (Android). Instant logout/revoke, staff timeout (Q68).
 - **Email** — Amazon SES. **SMS** — provider TBD, swappable (Q75). **Couriers** — Steadfast + Pathao APIs (Q72).
 
@@ -27,7 +27,7 @@ Decided 2026-10-23 (S-T1 – S-T28 in doc 10). Hard requirements: lightweight st
 - **Postgres primary + streaming replica** on a second PC (manual promote). **Redis AOF (1s) + replica**.
 - **Power/ISP**: online UPS/IPS for PCs + router, 2 ISPs with failover.
 - **Backups**: local only for now (other PCs, same site). Not protected against fire/theft/flood at the site.
-- Example split (final at setup): PC1 shop + admin + API, PC2 Postgres primary + Redis, PC3 replicas + MinIO + monitoring.
+- Example split (final at setup): PC1 shop + admin + API, PC2 Postgres primary + Redis, PC3 replicas + Garage + monitoring.
 
 ## Ops
 - **CI/CD**: GitHub Actions runs tests; self-hosted runner on an owner PC builds images + restarts services with Podman on merge to `main`.

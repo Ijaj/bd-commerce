@@ -189,7 +189,7 @@ Note on S6: our order tracking covers status until the parcel is handed to the c
 | S-T9 | Admin app: **Vite + React SPA** + Mantine, data from NestJS API |
 | S-T10 | Repo: **monorepo, pnpm + Turborepo** (apps/shop, apps/admin, apps/api, shared packages) |
 | S-T11 | Hosting: **self-hosted on 2-3 owner PCs with public static IP** (details S-T13+) |
-| S-T12 | Images: **self-hosted MinIO + imgproxy** |
+| S-T12 | Images: **self-hosted MinIO + imgproxy** (superseded by C6: Garage) |
 | S-T13 | Edge: **Cloudflare Tunnel** in front (no open ports, IP hidden, DDoS + SSL + caching; free tier 100 MB upload limit) |
 | S-T14 | Run services with **Podman Compose per PC** (owner uses Podman, not Docker) |
 | S-T15 | Database: **Postgres primary + live streaming replica** on a second PC (manual promote) |
@@ -246,3 +246,6 @@ Note on S6: our order tracking covers status until the parcel is handed to the c
 | C3 | Step 1 schema = **foundation tables only**; later steps add their own tables via migrations |
 | C4 | Git: **commit straight to main** until deploy-on-merge runner is live, then branches + PRs |
 | C5 | Runtime: **Node 24 LTS** |
+| C6 | Image storage: **Garage** replaces MinIO (S-T12 superseded; MinIO community edition stopped shipping images, maintenance-only). RustFS considered (1.0 GA Sept 2026, too new). Code uses plain S3 API so a later swap = copy objects + config |
+| C7 | Lint/format: **Biome** (one tool, one config for the monorepo) |
+| C8 | **TypeScript 7.0** (native compiler). Fall back to 6.0 per app if a tool breaks |

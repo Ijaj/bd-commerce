@@ -8,7 +8,7 @@ Build order (R24). Each slice ends with tests (Vitest + Playwright where it touc
 
 | # | Slice | Contents |
 |---|---|---|
-| 1 | Foundation | Monorepo (pnpm + Turbo), CI + self-hosted runner, Podman dev stack (Postgres, Redis, MinIO, imgproxy), Prisma + migrations, NestJS skeleton + OpenAPI client gen, staff auth (sessions, 2FA, new-device alerts), RBAC, settings + feature flags, EN/BN + digit helpers, maintenance mode / announcement bar |
+| 1 | Foundation | Monorepo (pnpm + Turbo), CI + self-hosted runner, Podman dev stack (Postgres, Redis, Garage, imgproxy), Prisma + migrations, NestJS skeleton + OpenAPI client gen, staff auth (sessions, 2FA, new-device alerts), RBAC, settings + feature flags, EN/BN + digit helpers, maintenance mode / announcement bar |
 | 2 | Catalog | Categories tree + attributes (option editor), brands, products + variants, HTML descriptions, images pipeline, inventory + stock ledger, bulk import/export |
 | 3 | Storefront browse | Home (carousel, featured categories, weighted feed), category/search + filters + availability filter, product page, up-coming products, wishlist, recently viewed + similar, SEO + link previews, PWA, customer accounts (phone/email + password, OTP verify) |
 | 4 | Cart + checkout | Cart, guest + account COD checkout, guest OTP above ৳X, delivery zones + per-zone free threshold, orders + statuses, order SMS/email, guest order tracking |

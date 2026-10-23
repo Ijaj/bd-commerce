@@ -1,0 +1,60 @@
+# Local dev stack. Dev-only credentials; real ones come from SOPS at deploy (S-T28).
+name: bdc-dev
+
+services:
+  postgres:
+    image: docker.io/library/postgres:18-alpine
+    environment:
+      POSTGRES_USER: bdc
+      POSTGRES_PASSWORD: bdc_dev
+      POSTGRES_DB: bdc
+    ports: ["127.0.0.1:5432:5432"]
+    volumes:
+      - pg-data:/var/lib/postgresql
+      - ./postgres-init.sql:/docker-entrypoint-initdb.d/10-init.sql:ro,Z
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "bdc"]
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: docker.io/library/redis:8-alpine
+    command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec"]
+    ports: ["127.0.0.1:6379:6379"]
+    volumes: [redis-data:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 10
+
+  garage:
+    image: docker.io/dxflrs/garage:v2.4.1
+    ports:
+      - 127.0.0.1:3900:3900 # S3 API
+      - 127.0.0.1:3903:3903 # admin API
+    volumes:
+      - ./garage.toml:/etc/garage.toml:ro,Z
+      - garage-meta:/var/lib/garage/meta
+      - garage-data:/var/lib/garage/data
+
+  imgproxy:
+    image: docker.io/darthsim/imgproxy:v3.31.4
+    depends_on: [garage]
+    environment:
+      IMGPROXY_KEY: b5f421a20f346f54cc6e0592ad6c8c306e6ec5c65af76841bec9866ad067bb05
+      IMGPROXY_SALT: 318828f57681dcf2d56c6c188e0b663dfa168100ae71869f913bc1bdf1907d3a
+      IMGPROXY_USE_S3: "true"
+      IMGPROXY_S3_ENDPOINT: http://garage:3900
+      IMGPROXY_S3_REGION: garage
+      IMGPROXY_S3_ENDPOINT_USE_PATH_STYLE: "true"
+      AWS_ACCESS_KEY_ID: GK30eaaa5fc18c5caf9abb6b3c
+      AWS_SECRET_ACCESS_KEY: b9e70233a2e7160e36204070ad45eed4ec4877fde94320cb4c6b26a843f138db
+      IMGPROXY_ENABLE_WEBP_DETECTION: "true"
+      IMGPROXY_ENABLE_AVIF_DETECTION: "true"
+    ports: ["127.0.0.1:8080:8080"]
+
+volumes:
+  pg-data:
+  redis-data:
+  garage-meta:
+  garage-data:

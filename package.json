@@ -1,0 +1,25 @@
+{
+  "name": "bd-commerce",
+  "private": true,
+  "packageManager": "pnpm@11.18.0",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "check": "biome check .",
+    "fix": "biome check --write .",
+    "stack:up": "podman compose -f infra/dev/compose.yaml up -d",
+    "stack:down": "podman compose -f infra/dev/compose.yaml down",
+    "stack:init": "infra/dev/garage-init.sh",
+    "stack:reset": "podman compose -f infra/dev/compose.yaml down -v"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.6.2",
+    "turbo": "2.11.10",
+    "typescript": "7.0.2"
+  }
+}

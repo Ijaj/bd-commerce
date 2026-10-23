@@ -1,0 +1,18 @@
+# Single-node dev config. Production runs replication across owner PCs (C6).
+metadata_dir = "/var/lib/garage/meta"
+data_dir = "/var/lib/garage/data"
+db_engine = "sqlite"
+replication_factor = 1
+
+rpc_bind_addr = "[::]:3901"
+rpc_public_addr = "127.0.0.1:3901"
+rpc_secret = "237f0011f7029690ab12fbdea7745c9a54f60df1f545edd10b4408776dff469a"
+
+[s3_api]
+s3_region = "garage"
+api_bind_addr = "[::]:3900"
+root_domain = ".s3.garage.localhost"
+
+[admin]
+api_bind_addr = "[::]:3903"
+admin_token = "22c931e11b033467aaee28341bca47da"

@@ -2,3 +2,15 @@ node_modules/
 .DS_Store
 *.log
 *.original.md
+
+# build / tooling
+dist/
+.next/
+.turbo/
+coverage/
+*.tsbuildinfo
+
+# env (examples are committed)
+.env
+.env.*
+!.env.example
