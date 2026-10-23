@@ -11,7 +11,7 @@ General-purpose e-commerce for Bangladesh. **Planning phase only — no code unt
 - User wants big visual/UI work delegated to a Sonnet/Haiku sub-agent with a precise spec. No Artifacts unless asked.
 - Old reference project: `~/webdev/baby-commerce` (lessons in `plan/09-baby-commerce-reuse.md`).
 
-## Resume state (last updated 2026-10-23, session 3)
+## Resume state (last updated 2026-10-23, session 4)
 - Gates 1–4 done (features, Q1–Q95 + S1–S36, 9 flowcharts, data model `plan/12-data-model.md`).
 - Gate 5 in progress. Round 5 Q96–Q99: static HTML mockups in `plan/mockups/` (file://, dark mode + EN/BN, mobile preview), name placeholder `ShopName`, Sonnet sub-agent in batches.
 - Q100–Q102: brand still open → A/B/C switcher on every page (`shared/brand-*.css`, `?brand=`); audit fixes applied in batch 2a.
@@ -21,7 +21,8 @@ General-purpose e-commerce for Bangladesh. **Planning phase only — no code unt
 - Batch 2c done: brand D default (`shared/brand-d.css`), BN digits (`Shop.digits/num`, MutationObserver), per-zone `freeAbove`, advance calc in `flow.js` (`Shop.calc`), Launch/Full toggle (`shop.phase`, default launch).
 - Batch 3 done (5 parallel Sonnet agents, contract `plan/mockups/admin/CONTRACT.md`, page list `admin/README.md`): 28 admin pages + `supplier/` + `affiliate/` portals. All 30 load headless with no JS errors (checked 2026-10-23). Admin data in-memory per group (`*-data.js`), not cross-linked. Linked from `plan/mockups/index.html`.
 - Gate 5 mockups essentially complete — awaiting owner review.
-- **Next step:** owner reviews admin + storefront, answers Q111 (advance triggers: highest % vs sum) and Q112 (admin language EN-only vs EN+BN). Then tick gate 5 in `plan/README.md`, gate 6 tech stack, gate 7 roadmap (mark launch phase per feature — owner: full plan, subset at launch, COD-only start).
-- Open questions: Q111, Q112.
+- Session 4: Q111 = advance trigger %s ADDED (cap 100%/item; flow.js `Shop.calc`, doc 12, admin pages updated). Q112 = admin EN only. Repo on GitHub `Ijaj/bd-commerce` (main), first commit 41bbdf4.
+- **Next step:** owner reviews admin + storefront mockups → tick gate 5 in `plan/README.md`, then gate 6 tech stack, gate 7 roadmap (mark launch phase per feature — owner: full plan, subset at launch, COD-only start).
+- Open questions: none.
 - Lesson: 6 parallel Sonnet agents hit the session usage limit once; resume stopped agents with SendMessage rather than respawning.
 - Untested in flowchart viewer: pinch zoom; Fit-all on the 32-node checkout flow renders small.
