@@ -1,10 +1,20 @@
 import { createHmac } from 'node:crypto';
+import type { Env } from '../config/env';
 
 export interface ImgproxyConfig {
   url: string;
   key: string;
   salt: string;
   bucket: string;
+}
+
+export function imgproxyConfig(env: Env): ImgproxyConfig {
+  return {
+    url: env.IMGPROXY_URL,
+    key: env.IMGPROXY_KEY,
+    salt: env.IMGPROXY_SALT,
+    bucket: env.S3_BUCKET_PRODUCTS,
+  };
 }
 
 export interface ImgproxyOptions {
