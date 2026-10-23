@@ -11,7 +11,7 @@ General-purpose e-commerce for Bangladesh. **Planning phase only — no code unt
 - User wants big visual/UI work delegated to a Sonnet/Haiku sub-agent with a precise spec. No Artifacts unless asked.
 - Old reference project: `~/webdev/baby-commerce` (lessons in `plan/09-baby-commerce-reuse.md`).
 
-## Resume state (last updated 2026-10-23, session 4)
+## Resume state (last updated 2026-10-23, session 4, gate 6 done)
 - Gates 1–4 done (features, Q1–Q95 + S1–S36, 9 flowcharts, data model `plan/12-data-model.md`).
 - Gate 5 in progress. Round 5 Q96–Q99: static HTML mockups in `plan/mockups/` (file://, dark mode + EN/BN, mobile preview), name placeholder `ShopName`, Sonnet sub-agent in batches.
 - Q100–Q102: brand still open → A/B/C switcher on every page (`shared/brand-*.css`, `?brand=`); audit fixes applied in batch 2a.
@@ -23,7 +23,8 @@ General-purpose e-commerce for Bangladesh. **Planning phase only — no code unt
 - Gate 5 mockups essentially complete — awaiting owner review.
 - Session 4: Q111 = advance trigger %s ADDED (cap 100%/item; flow.js `Shop.calc`, doc 12, admin pages updated). Q112 = admin EN only. Repo on GitHub `Ijaj/bd-commerce` (main), first commit 41bbdf4.
 - Session 4 later: Q113 no-bold storefront typography; Q114–Q117 availability filter (In Stock/Pre-Order/Up-coming, all 3 always shown), `upcoming` products (wishlist only, `Shop.cart.add` refuses; demo p=538,316,53,20,296; admin product-edit?id=103), admin option editor (EN+BN rows, drag, fixed + Add option in header).
-- **Next step:** owner reviews admin + storefront mockups → tick gate 5 in `plan/README.md`, then gate 6 tech stack, gate 7 roadmap (mark launch phase per feature — owner: full plan, subset at launch, COD-only start).
-- Open questions: none. Admin stays bold (owner said no to admin typography change).
+- Gate 5 approved by owner. Gate 6 done: tech stack S-T1–S-T28 in doc 10, summary `plan/13-tech-stack.md` (TS monorepo pnpm+Turbo; Next.js shop plain CSS; Vite+React+Mantine admin; NestJS+Prisma+Postgres API; Kotlin Compose Android; self-hosted on owner PCs w/ Podman Compose + Cloudflare Tunnel; MinIO+imgproxy; BullMQ+Redis; SES).
+- **Next step:** gate 7 roadmap: phases (COD-only launch → online pay/advance/pre-order → rest), feature list per phase, build order. Ask owner, don't decide.
+- Open questions: Q118 (where supplier/affiliate portals live).
 - Lesson: 6 parallel Sonnet agents hit the session usage limit once; resume stopped agents with SendMessage rather than respawning.
 - Untested in flowchart viewer: pinch zoom; Fit-all on the 32-node checkout flow renders small.

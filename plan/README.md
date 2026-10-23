@@ -23,8 +23,8 @@ General-purpose e-commerce for Bangladesh ("we sell any and everything").
 3. [x] Flowcharts — animated: `flowcharts/index.html`, backup: `11-flowcharts.md` (generated from `flowcharts/flows.js` via `node flowcharts/to-md.mjs`; edit flows.js, never the md)
    Flowcharts: checkout, order lifecycle, return/refund, coupon evaluation, category management, RBAC, visitor tracking
 4. [x] Data model draft (entities + relations, no code) — `12-data-model.md`
-5. [ ] Mockups: home (web + Android), category page, product page, cart, checkout, account, event page, key admin screens
-6. [ ] Tech stack decision (lightweight storefront + fast Android are hard requirements)
+5. [x] Mockups: home (web + Android), category page, product page, cart, checkout, account, event page, key admin screens
+6. [x] Tech stack decision (lightweight storefront + fast Android are hard requirements) — `13-tech-stack.md`
 7. [ ] Phased roadmap / MVP cut
 8. [ ] Start coding
 

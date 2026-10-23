@@ -46,3 +46,6 @@ Round 3 (Q85–Q90) also answered → doc 10. **No open questions right now.**
 - **Q105** COD advance rule when order already has free delivery: advance = normal zone charge, a fixed ৳ amount, or a % of order?
 - **Q111** Advance payment: several triggers → highest % or add them? → **answered: add (capped 100%)**, see doc 10
 - **Q112** Admin panel language: EN only or EN + BN? → **answered: EN only**, see doc 10
+
+## Round 6 — raised by tech stack (open)
+- **Q118** Supplier portal + affiliate dashboard: built inside the admin app (Vite + React, separate login/roles) or inside the shop (Next.js), or their own small app?
