@@ -1121,6 +1121,14 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "force",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "requestBody": {
@@ -1164,6 +1172,14 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "force",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -1191,6 +1207,14 @@
             "in": "path",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "force",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
             }
           }
         ],
@@ -1366,6 +1390,263 @@
         ],
         "tags": [
           "brands"
+        ]
+      }
+    },
+    "/v1/admin/products/export": {
+      "get": {
+        "operationId": "ImportExportController_export",
+        "parameters": [
+          {
+            "name": "format",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "xlsx",
+              "type": "string",
+              "enum": [
+                "xlsx",
+                "csv"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "active",
+                "archived"
+              ]
+            }
+          },
+          {
+            "name": "categoryId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "type": "string"
+            }
+          },
+          {
+            "name": "brandId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "XLSX or CSV (UTF-8 with BOM) download",
+            "content": {
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "text/csv": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "import-export"
+        ]
+      }
+    },
+    "/v1/admin/products/import-template": {
+      "get": {
+        "operationId": "ImportExportController_template",
+        "parameters": [
+          {
+            "name": "format",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "xlsx",
+              "type": "string",
+              "enum": [
+                "xlsx",
+                "csv"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "XLSX or CSV template",
+            "content": {
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "text/csv": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "import-export"
+        ]
+      }
+    },
+    "/v1/admin/products/import/preview": {
+      "post": {
+        "operationId": "ImportExportController_preview",
+        "parameters": [
+          {
+            "name": "mode",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "upsert",
+              "type": "string",
+              "enum": [
+                "upsert",
+                "create_only"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportSummaryDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "import-export"
+        ]
+      }
+    },
+    "/v1/admin/products/import": {
+      "post": {
+        "operationId": "ImportExportController_import",
+        "parameters": [
+          {
+            "name": "mode",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "upsert",
+              "type": "string",
+              "enum": [
+                "upsert",
+                "create_only"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportSummaryDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation errors as {message, errors: [{row, column, message}], errorCount}; nothing written"
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "import-export"
         ]
       }
     },
@@ -4612,6 +4893,133 @@
             "type": "boolean"
           }
         }
+      },
+      "ImportSummaryDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "products": {
+            "type": "object",
+            "properties": {
+              "create": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "update": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "unchanged": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "create",
+              "update",
+              "unchanged"
+            ]
+          },
+          "variants": {
+            "type": "object",
+            "properties": {
+              "create": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "update": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "unchanged": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "create",
+              "update",
+              "unchanged"
+            ]
+          },
+          "stockMovements": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "row": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "column": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "row",
+                "column",
+                "message"
+              ]
+            }
+          },
+          "errorCount": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "row": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "column": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "row",
+                "column",
+                "message"
+              ]
+            }
+          }
+        },
+        "required": [
+          "rows",
+          "products",
+          "variants",
+          "stockMovements",
+          "errors",
+          "errorCount",
+          "warnings"
+        ]
       },
       "ProductListDto": {
         "type": "object",

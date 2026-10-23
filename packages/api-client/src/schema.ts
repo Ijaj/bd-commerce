@@ -468,6 +468,70 @@ export interface paths {
         patch: operations["BrandsController_update"];
         trace?: never;
     };
+    "/v1/admin/products/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ImportExportController_export"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/products/import-template": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ImportExportController_template"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/products/import/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ImportExportController_preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/products/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ImportExportController_import"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/products": {
         parameters: {
             query?: never;
@@ -1208,6 +1272,31 @@ export interface components {
             /** Format: uuid */
             logoMediaId?: string | null;
             active?: boolean;
+        };
+        ImportSummaryDto: {
+            rows: number;
+            products: {
+                create: number;
+                update: number;
+                unchanged: number;
+            };
+            variants: {
+                create: number;
+                update: number;
+                unchanged: number;
+            };
+            stockMovements: number;
+            errors: {
+                row: number;
+                column: string;
+                message: string;
+            }[];
+            errorCount: number;
+            warnings: {
+                row: number;
+                column: string;
+                message: string;
+            }[];
         };
         ProductListDto: {
             items: {
@@ -2334,7 +2423,9 @@ export interface operations {
     };
     AttributesController_remove: {
         parameters: {
-            query?: never;
+            query?: {
+                force?: boolean;
+            };
             header?: never;
             path: {
                 attrId: string;
@@ -2353,7 +2444,9 @@ export interface operations {
     };
     AttributesController_update: {
         parameters: {
-            query?: never;
+            query?: {
+                force?: boolean;
+            };
             header?: never;
             path: {
                 attrId: string;
@@ -2378,7 +2471,9 @@ export interface operations {
     };
     AttributesController_setOptions: {
         parameters: {
-            query?: never;
+            query?: {
+                force?: boolean;
+            };
             header?: never;
             path: {
                 attrId: string;
@@ -2486,6 +2581,119 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["BrandDto"];
                 };
+            };
+        };
+    };
+    ImportExportController_export: {
+        parameters: {
+            query?: {
+                format?: "xlsx" | "csv";
+                q?: string;
+                status?: "draft" | "active" | "archived";
+                categoryId?: string;
+                brandId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description XLSX or CSV (UTF-8 with BOM) download */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+                    "text/csv": string;
+                };
+            };
+        };
+    };
+    ImportExportController_template: {
+        parameters: {
+            query?: {
+                format?: "xlsx" | "csv";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description XLSX or CSV template */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+                    "text/csv": string;
+                };
+            };
+        };
+    };
+    ImportExportController_preview: {
+        parameters: {
+            query?: {
+                mode?: "upsert" | "create_only";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportSummaryDto"];
+                };
+            };
+        };
+    };
+    ImportExportController_import: {
+        parameters: {
+            query?: {
+                mode?: "upsert" | "create_only";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportSummaryDto"];
+                };
+            };
+            /** @description Validation errors as {message, errors: [{row, column, message}], errorCount}; nothing written */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
