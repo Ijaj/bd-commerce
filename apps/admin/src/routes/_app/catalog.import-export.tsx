@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { ComingNext } from '~/components/ComingNext';
+import { ImportExportPage } from '~/features/import-export/ImportExportPage';
 
 export const Route = createFileRoute('/_app/catalog/import-export')({
-  component: () => <ComingNext title="Import / Export" />,
+  component: ImportExportPage,
 });

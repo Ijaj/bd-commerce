@@ -1,6 +1,24 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { ComingNext } from '~/components/ComingNext';
+import { InventoryPage } from '~/features/inventory/InventoryPage';
+import { parseInventorySearch } from '~/features/inventory/search';
 
 export const Route = createFileRoute('/_app/catalog/inventory')({
-  component: () => <ComingNext title="Inventory" />,
+  validateSearch: parseInventorySearch,
+  component: InventoryRoute,
 });
+
+function InventoryRoute() {
+  const search = Route.useSearch();
+  const navigate = Route.useNavigate();
+  return (
+    <InventoryPage
+      search={search}
+      onSearch={(patch) =>
+        navigate({
+          search: (prev) => parseInventorySearch({ ...prev, ...patch }),
+          replace: true,
+        })
+      }
+    />
+  );
+}
