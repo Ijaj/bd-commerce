@@ -1,6 +1,7 @@
 import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { ALL_PERMISSIONS } from '../src/auth/permissions';
 import { MailService } from '../src/mail/mail.service';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { createApp, createOwner, resetDb, totpCode } from './helpers';
@@ -19,13 +20,7 @@ describe('staff auth', () => {
     expect(backupCodes).toHaveLength(10);
     const me = await agent.get('/v1/admin/auth/me').expect(200);
     expect(me.body.roles).toEqual([expect.objectContaining({ name: 'Owner' })]);
-    expect(me.body.permissions).toEqual([
-      'roles.manage',
-      'settings.manage',
-      'settings.view',
-      'staff.manage',
-      'staff.view',
-    ]);
+    expect(me.body.permissions).toEqual([...ALL_PERMISSIONS].sort());
   });
 
   it('blocks everything but 2FA endpoints until the second factor passes', async () => {

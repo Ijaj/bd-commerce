@@ -2,9 +2,15 @@ import { Module } from '@nestjs/common';
 import { APP_PIPE } from '@nestjs/core';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { AuthModule } from './auth/auth.module';
+import { BrandsModule } from './catalog/brands/brands.module';
+import { CategoriesModule } from './catalog/categories/categories.module';
+import { ImportExportModule } from './catalog/import-export/import-export.module';
+import { ProductsModule } from './catalog/products/products.module';
 import { EnvModule } from './config/env.module';
 import { HealthController } from './health/health.controller';
+import { InventoryModule } from './inventory/inventory.module';
 import { MailModule } from './mail/mail.module';
+import { MediaModule } from './media/media.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RedisModule } from './redis/redis.module';
 import { SettingsModule } from './settings/settings.module';
@@ -19,6 +25,12 @@ import { StaffModule } from './staff/staff.module';
     SettingsModule,
     AuthModule,
     StaffModule,
+    MediaModule,
+    CategoriesModule,
+    BrandsModule,
+    ProductsModule,
+    InventoryModule,
+    ImportExportModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_PIPE, useClass: ZodValidationPipe }],

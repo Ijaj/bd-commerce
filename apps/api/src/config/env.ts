@@ -9,6 +9,15 @@ const envSchema = z.object({
   SMTP_URL: z.url(),
   MAIL_FROM: z.string().min(3),
   ADMIN_ORIGIN: z.url(),
+  S3_ENDPOINT: z.url(),
+  S3_REGION: z.string().min(1),
+  S3_BUCKET_PRODUCTS: z.string().min(1),
+  S3_ACCESS_KEY_ID: z.string().min(1),
+  S3_SECRET_ACCESS_KEY: z.string().min(1),
+  /// Public base URL of imgproxy (signed URLs, s3:// sources).
+  IMGPROXY_URL: z.url(),
+  IMGPROXY_KEY: z.string().regex(/^[0-9a-f]+$/, 'hex'),
+  IMGPROXY_SALT: z.string().regex(/^[0-9a-f]+$/, 'hex'),
 });
 
 export type Env = z.infer<typeof envSchema>;

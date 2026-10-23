@@ -1,4 +1,4 @@
-// Tables follow plan/12-data-model.md. Step 1c: staff accounts, sessions, RBAC.
+// Tables follow plan/12-data-model.md. Step 1: staff, sessions, RBAC, settings. Step 2: catalog + inventory.
 
 generator client {
   provider     = "prisma-client"
@@ -39,6 +39,8 @@ model Staff {
   backupCodes StaffBackupCode[]
   roles       StaffRole[]
   settings    Setting[]
+  media       Media[]
+  stockMoves  StockMovement[]
 
   @@map("staff")
 }
@@ -150,4 +152,385 @@ model Setting {
   updatedBy Staff? @relation(fields: [updatedById], references: [id])
 
   @@map("settings")
+}
+
+// ---------------------------------------------------------------------------
+// Catalog (doc 12 §3). Bilingual text = `*_en` + optional `*_bn` (falls back to EN).
+// Money = integer paisa, columns end in `_p`.
+// ---------------------------------------------------------------------------
+
+/// Seller-ready (Q2): one row (us) now; marketplace later adds rows.
+model Seller {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  name      String
+  status    String   @default("active")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  products Product[]
+
+  @@map("sellers")
+}
+
+/// Uploaded files in Garage (S31). Resized on view by imgproxy, so no stored renditions.
+model Media {
+  id           String   @id @default(uuid(7)) @db.Uuid
+  storageKey   String   @unique @map("storage_key")
+  mime         String
+  width        Int
+  height       Int
+  bytes        Int
+  alt          String?
+  uploadedById String?  @map("uploaded_by_id") @db.Uuid
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  uploadedBy      Staff?         @relation(fields: [uploadedById], references: [id])
+  brandLogos      Brand[]
+  categoryImages  Category[]     @relation("CategoryImage")
+  categoryIcons   Category[]     @relation("CategoryIcon")
+  categoryBanners Category[]     @relation("CategoryBanner")
+  productImages   ProductImage[]
+
+  @@map("media")
+}
+
+model Brand {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  nameEn      String   @map("name_en")
+  nameBn      String?  @map("name_bn")
+  slug        String   @unique
+  logoMediaId String?  @map("logo_media_id") @db.Uuid
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  logo     Media?    @relation(fields: [logoMediaId], references: [id], onDelete: SetNull)
+  products Product[]
+
+  @@map("brands")
+}
+
+/// Category tree, max 4 levels (Q19). `path` = materialized ancestor ids incl. self,
+/// e.g. `/a/b/c/`, so "category + descendants" is one prefix query.
+model Category {
+  id               String   @id @default(uuid(7)) @db.Uuid
+  parentId         String?  @map("parent_id") @db.Uuid
+  level            Int
+  path             String
+  nameEn           String   @map("name_en")
+  nameBn           String?  @map("name_bn")
+  slug             String   @unique
+  descriptionEn    String?  @map("description_en")
+  descriptionBn    String?  @map("description_bn")
+  /// Required at level 1 (Q20), enforced in the service.
+  imageMediaId     String?  @map("image_media_id") @db.Uuid
+  iconMediaId      String?  @map("icon_media_id") @db.Uuid
+  bannerMediaId    String?  @map("banner_media_id") @db.Uuid
+  /// Chip colour under the image (Q15), hex like `#4f46e5`.
+  chipColor        String?  @map("chip_color")
+  sort             Int      @default(0)
+  isActive         Boolean  @default(true) @map("is_active")
+  showOnHome       Boolean  @default(false) @map("show_on_home")
+  /// Return window override (Q59); null = inherit.
+  returnWindowDays Int?     @map("return_window_days")
+  seoTitle         String?  @map("seo_title")
+  seoDescription   String?  @map("seo_description")
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  parent          Category?           @relation("CategoryTree", fields: [parentId], references: [id])
+  children        Category[]          @relation("CategoryTree")
+  image           Media?              @relation("CategoryImage", fields: [imageMediaId], references: [id], onDelete: SetNull)
+  icon            Media?              @relation("CategoryIcon", fields: [iconMediaId], references: [id], onDelete: SetNull)
+  banner          Media?              @relation("CategoryBanner", fields: [bannerMediaId], references: [id], onDelete: SetNull)
+  attributes      CategoryAttribute[]
+  products        ProductCategory[]
+  primaryProducts Product[]
+
+  @@index([parentId])
+  @@index([path])
+  @@map("categories")
+}
+
+enum AttributeType {
+  text
+  number
+  select
+  multiselect
+  boolean
+
+  @@map("attribute_type")
+}
+
+/// Category attributes (Q25): inherited by sub-categories, used as filters.
+model CategoryAttribute {
+  id           String        @id @default(uuid(7)) @db.Uuid
+  categoryId   String        @map("category_id") @db.Uuid
+  key          String
+  nameEn       String        @map("name_en")
+  nameBn       String?       @map("name_bn")
+  type         AttributeType
+  unit         String?
+  isFilterable Boolean       @default(true) @map("is_filterable")
+  isRequired   Boolean       @default(false) @map("is_required")
+  sort         Int           @default(0)
+  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime      @updatedAt @map("updated_at") @db.Timestamptz
+
+  category Category                @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  options  AttributeOption[]
+  values   ProductAttributeValue[]
+
+  @@unique([categoryId, key])
+  @@map("category_attributes")
+}
+
+/// Options of select/multiselect attributes (Q116 option editor).
+model AttributeOption {
+  id          String  @id @default(uuid(7)) @db.Uuid
+  attributeId String  @map("attribute_id") @db.Uuid
+  valueEn     String  @map("value_en")
+  valueBn     String? @map("value_bn")
+  sort        Int     @default(0)
+
+  attribute CategoryAttribute       @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+  values    ProductAttributeValue[]
+
+  @@index([attributeId])
+  @@map("attribute_options")
+}
+
+enum ProductStatus {
+  draft
+  active
+  archived
+
+  @@map("product_status")
+}
+
+enum Fulfillment {
+  stock
+  dropship
+
+  @@map("fulfillment")
+}
+
+model Product {
+  id                      String        @id @default(uuid(7)) @db.Uuid
+  sellerId                String        @map("seller_id") @db.Uuid
+  brandId                 String?       @map("brand_id") @db.Uuid
+  primaryCategoryId       String        @map("primary_category_id") @db.Uuid
+  titleEn                 String        @map("title_en")
+  titleBn                 String?       @map("title_bn")
+  slug                    String        @unique
+  shortDescriptionEn      String?       @map("short_description_en")
+  shortDescriptionBn      String?       @map("short_description_bn")
+  /// Sanitized on save and on render (Q28).
+  descriptionHtmlEn       String?       @map("description_html_en")
+  descriptionHtmlBn       String?       @map("description_html_bn")
+  youtubeUrl              String?       @map("youtube_url")
+  status                  ProductStatus @default(draft)
+  archivedAt              DateTime?     @map("archived_at") @db.Timestamptz
+  fulfillment             Fulfillment   @default(stock)
+  hasVariants             Boolean       @default(false) @map("has_variants")
+  weightG                 Int?          @map("weight_g")
+  deliveryChargeOverrideP Int?          @map("delivery_charge_override_p")
+  returnWindowDays        Int?          @map("return_window_days")
+  isPreorder              Boolean       @default(false) @map("is_preorder")
+  preorderExpectedDate    DateTime?     @map("preorder_expected_date") @db.Date
+  /// Visible, no cart/buy, wishlist only (Q114).
+  isUpcoming              Boolean       @default(false) @map("is_upcoming")
+  /// Requires advance X% (Q106, P2 flag).
+  advancePercent          Int?          @map("advance_percent")
+  /// Basis points override, unused in v1 (Q95).
+  vatRateBp               Int?          @map("vat_rate_bp")
+  isPinned                Boolean       @default(false) @map("is_pinned")
+  pinBoost                Int           @default(0) @map("pin_boost")
+  ratingAvg               Decimal       @default(0) @map("rating_avg") @db.Decimal(3, 2)
+  ratingCount             Int           @default(0) @map("rating_count")
+  soldCount               Int           @default(0) @map("sold_count")
+  viewCount               Int           @default(0) @map("view_count")
+  seoTitle                String?       @map("seo_title")
+  seoDescription          String?       @map("seo_description")
+  publishedAt             DateTime?     @map("published_at") @db.Timestamptz
+  createdAt               DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt               DateTime      @updatedAt @map("updated_at") @db.Timestamptz
+
+  seller          Seller                  @relation(fields: [sellerId], references: [id])
+  brand           Brand?                  @relation(fields: [brandId], references: [id], onDelete: SetNull)
+  primaryCategory Category                @relation(fields: [primaryCategoryId], references: [id])
+  categories      ProductCategory[]
+  attributeValues ProductAttributeValue[]
+  options         ProductOption[]
+  images          ProductImage[]
+  variants        Variant[]
+
+  @@index([status])
+  @@index([brandId])
+  @@index([primaryCategoryId])
+  @@map("products")
+}
+
+/// Product ↔ category, any level (Q21/Q22). The primary category is listed here too.
+model ProductCategory {
+  productId  String @map("product_id") @db.Uuid
+  categoryId String @map("category_id") @db.Uuid
+
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([productId, categoryId])
+  @@index([categoryId])
+  @@map("product_categories")
+}
+
+/// One row per value; multiselect = several rows.
+model ProductAttributeValue {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  productId   String   @map("product_id") @db.Uuid
+  attributeId String   @map("attribute_id") @db.Uuid
+  valueText   String?  @map("value_text")
+  valueNumber Decimal? @map("value_number") @db.Decimal(14, 4)
+  valueBool   Boolean? @map("value_bool")
+  optionId    String?  @map("option_id") @db.Uuid
+
+  product   Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  attribute CategoryAttribute @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+  option    AttributeOption?  @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([attributeId, optionId])
+  @@map("product_attribute_values")
+}
+
+/// Variant option types, max 2 per product (Q24), e.g. Color × Size.
+model ProductOption {
+  id        String  @id @default(uuid(7)) @db.Uuid
+  productId String  @map("product_id") @db.Uuid
+  /// 1 or 2
+  position  Int
+  nameEn    String  @map("name_en")
+  nameBn    String? @map("name_bn")
+
+  product Product              @relation(fields: [productId], references: [id], onDelete: Cascade)
+  values  ProductOptionValue[]
+
+  @@unique([productId, position])
+  @@map("product_options")
+}
+
+model ProductOptionValue {
+  id        String  @id @default(uuid(7)) @db.Uuid
+  optionId  String  @map("option_id") @db.Uuid
+  valueEn   String  @map("value_en")
+  valueBn   String? @map("value_bn")
+  swatchHex String? @map("swatch_hex")
+  sort      Int     @default(0)
+
+  option    ProductOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  variants1 Variant[]     @relation("VariantOption1")
+  variants2 Variant[]     @relation("VariantOption2")
+
+  @@index([optionId])
+  @@map("product_option_values")
+}
+
+/// variantId null = shared image for all variants.
+model ProductImage {
+  id        String  @id @default(uuid(7)) @db.Uuid
+  productId String  @map("product_id") @db.Uuid
+  variantId String? @map("variant_id") @db.Uuid
+  mediaId   String  @map("media_id") @db.Uuid
+  sort      Int     @default(0)
+  alt       String?
+
+  product Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant Variant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  media   Media    @relation(fields: [mediaId], references: [id])
+
+  @@index([productId])
+  @@map("product_images")
+}
+
+/// Every product has ≥1 variant; a simple product has one default variant (no option values).
+/// Price and stock always live here.
+model Variant {
+  id             String    @id @default(uuid(7)) @db.Uuid
+  productId      String    @map("product_id") @db.Uuid
+  sku            String    @unique
+  barcode        String?
+  optionValue1Id String?   @map("option_value_1_id") @db.Uuid
+  optionValue2Id String?   @map("option_value_2_id") @db.Uuid
+  priceP         Int       @map("price_p")
+  /// Old price shown struck through.
+  compareAtP     Int?      @map("compare_at_p")
+  salePriceP     Int?      @map("sale_price_p")
+  saleStartsAt   DateTime? @map("sale_starts_at") @db.Timestamptz
+  saleEndsAt     DateTime? @map("sale_ends_at") @db.Timestamptz
+  /// Last cost; admin-only (products.view_cost).
+  costP          Int?      @map("cost_p")
+  weightG        Int?      @map("weight_g")
+  isActive       Boolean   @default(true) @map("is_active")
+  sort           Int       @default(0)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  product      Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
+  optionValue1 ProductOptionValue? @relation("VariantOption1", fields: [optionValue1Id], references: [id])
+  optionValue2 ProductOptionValue? @relation("VariantOption2", fields: [optionValue2Id], references: [id])
+  images       ProductImage[]
+  inventory    Inventory?
+  movements    StockMovement[]
+
+  @@unique([productId, optionValue1Id, optionValue2Id])
+  @@map("variants")
+}
+
+/// One warehouse (Q60). Available = on_hand − reserved. Change only via stock_movements.
+model Inventory {
+  variantId         String   @id @map("variant_id") @db.Uuid
+  onHand            Int      @default(0) @map("on_hand")
+  reserved          Int      @default(0)
+  lowStockThreshold Int?     @map("low_stock_threshold")
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  variant Variant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@map("inventory")
+}
+
+enum StockReason {
+  po_receive
+  order_reserve
+  order_release
+  ship
+  return_restock
+  adjust
+  import
+  sr_reserve
+  sr_release
+  sr_ship
+
+  @@map("stock_reason")
+}
+
+/// Append-only stock ledger: never updated or deleted.
+model StockMovement {
+  id            String      @id @default(uuid(7)) @db.Uuid
+  variantId     String      @map("variant_id") @db.Uuid
+  qtyDelta      Int         @default(0) @map("qty_delta")
+  reservedDelta Int         @default(0) @map("reserved_delta")
+  reason        StockReason
+  refType       String?     @map("ref_type")
+  refId         String?     @map("ref_id")
+  staffId       String?     @map("staff_id") @db.Uuid
+  note          String?
+  at            DateTime    @default(now()) @db.Timestamptz
+
+  variant Variant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  staff   Staff?  @relation(fields: [staffId], references: [id])
+
+  @@index([variantId, at])
+  @@map("stock_movements")
 }
