@@ -48,4 +48,6 @@ Round 3 (Q85–Q90) also answered → doc 10. **No open questions right now.**
 - **Q112** Admin panel language: EN only or EN + BN? → **answered: EN only**, see doc 10
 
 ## Round 6 — raised by tech stack (open)
-- **Q118** Supplier portal + affiliate dashboard: built inside the admin app (Vite + React, separate login/roles) or inside the shop (Next.js), or their own small app?
+- **Q118** Supplier portal + affiliate dashboard: built inside the admin app (Vite + React, separate login/roles) or inside the shop (Next.js), or their own small app? → **answered: one partner portal app** (R-log, doc 10)
+- **Q119** SR-added buyer shops: usable immediately, or pending until staff approve? → **answered: usable now, flagged new**
+- **Q120** SR commission base: % of approved sales total, or % of money actually collected (dues paid)? → **answered: money collected**

@@ -206,3 +206,34 @@ Note on S6: our order tracking covers status until the parcel is handed to the c
 | S-T26 | Redis: **AOF persistence (fsync 1s) + replica** on second PC |
 | S-T27 | Testing: **Vitest** (unit + API vs test Postgres in Podman) + **Playwright** end-to-end for key flows |
 | S-T28 | Secrets: **SOPS + age** encrypted file in repo, passed as **Podman secrets** at deploy |
+
+## Roadmap (gate 7)
+| ID | Decision |
+|---|---|
+| R1 | **4 phases**: P1 COD-only launch (core shop + operations), P2 payments (online pay, advance, pre-orders), P3 growth/retention, P4 Android app |
+| R2 | Launch when P1 is feature-complete and tested; no fixed date |
+| R3 | Builders: owner + Claude only; build in thin, testable slices |
+| R4 | Go-live: soft launch (friends/family, limited ads, real COD orders) for a few weeks, then public |
+| R5 | P1 core confirmed (catalog, home, cart + COD checkout, orders, inventory, accounts with phone/email + password + OTP, staff/RBAC/2FA, settings, EN/BN, SEO, images, order SMS/email, maintenance/announcement, monitoring/backups). **Google/Facebook login moved to P3** |
+| R6 | P1 storefront extras: wishlist + up-coming, recently viewed + similar, reviews & Q&A, PWA. **New owner requirement: multi-store + SR dashboard in P1** (details being clarified, R9+) |
+| R7 | P1 promotions: product discounts, coupons, flash sales. **Events + page builder → P3** |
+| R8 | P1 operations: courier API (Steadfast + Pathao), call-confirmation queue, returns & refunds, bulk import/export |
+| R9 | Multi-store idea **cancelled** (no stores/branches). Single vendor + one warehouse stands (Q2, S27) |
+| R10 | **SR (sales representative) module in P1**: SRs are our field sales staff selling our stock to independent, unaffiliated shops, mostly bulk B2B. All SR sales are manual entries |
+| R11 | SR sale deducts from our central stock; buyer shop is not linked to the online shop |
+| R13 | SR fills a sale form first; staff with an "approve SR sales" permission approve/reject. Stock reserved on submit, deducted on approve |
+| R14 | Buyer shops saved as a **B2B customer list** (shop name, owner, phone, address, area) with sales history |
+| R15 | B2B price: **SR enters freely** per item; approver checks it |
+| R16 | Payment: SR records amount collected; unpaid balance goes to the shop's **due (baki) ledger**; later collections recorded against it; admin sees dues per shop and per SR |
+| R17 | SRs use a **mobile-first SR portal** (installable PWA), separate from admin; SR sees only own data |
+| R18 | SR portal P1: sale forms, **due collection entries** (staff confirm), **own performance summary**, **targets + commission** (admin-set per SR), **add new buyer shops** from the field |
+| R19 | B2B delivery: SR or own staff delivers from warehouse; marked delivered manually (no courier) |
+| R20 | Each approved SR sale gets a numbered **printable memo/invoice** (PDF/image, EN/BN, shareable on WhatsApp) |
+| R21 | P1 back-office: **invoice + labels (VAT/BIN)**, **suppliers + POs + dropship supplier portal**. Audit log and support tickets → P3 |
+| R22 | P1 marketing: **analytics + visitor tracking**, **abandoned cart email**. FB Pixel/CAPI/GA and product feeds → P3 |
+| R23 | P1 retention: **loyalty points**, **referral**, **affiliates + dashboard**. Store wallet → P3 (P1 refunds paid back manually, e.g. bKash/cash) |
+| Q118 | SR portal, supplier portal and affiliate dashboard live in **one mobile-first partner portal app** (`apps/portal`, Vite + React) with role-based sections |
+| Q119 | SR-added buyer shops are **usable immediately**, flagged "new" for staff review |
+| Q120 | SR commission = % of **money collected** in the month (payment at sale + due collections) |
+| R24 | P1 build order: **online shop first, SR module later in P1** (see doc 14) |
+| R25 | SR portal + admin B2B pages get **static mockups first** (Sonnet agent), owner reviews before gate 8 |

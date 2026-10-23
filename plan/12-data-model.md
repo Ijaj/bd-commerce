@@ -77,7 +77,7 @@ Entities + relations only. No code, no engine-specific types (tech stack is gate
 
 ### Inventory (one warehouse, Q60)
 - **inventory** — `variant_id → (1:1), on_hand, reserved, low_stock_threshold`. Available = on_hand − reserved.
-- **stock_movements** (ledger) — `variant_id →, qty_delta, reserved_delta, reason [po_receive/order_reserve/order_release/ship/return_restock/adjust/import], ref_type, ref_id, staff_id →, note, at`
+- **stock_movements** (ledger) — `variant_id →, qty_delta, reserved_delta, reason [po_receive/order_reserve/order_release/ship/return_restock/adjust/import/sr_reserve/sr_release/sr_ship], ref_type, ref_id, staff_id →, note, at`
 - Reserve on order placed, release on cancel/timeout (Q61, Q86). Dropship variants: no on_hand; stock confirmed by supplier per order.
 
 ## 4. Suppliers & purchasing (Q62, Q82, Q88)
@@ -185,6 +185,18 @@ Payment-method discounts (extra 10% with bKash) = auto coupon with `payment_meth
 - Order attribution on `orders.affiliate_id + attribution`; checkout code beats link.
 - **affiliate_commissions** — `affiliate_id →, order_id → (unique), base_p, commission_bp, amount_p, status [pending/approved/reversed/paid], available_at (after return window), payout_id →`
 - **affiliate_payouts** — `affiliate_id →, period (YYYY-MM), amount_p, method, reference, paid_by →staff, paid_at`
+
+## 8b. SR / B2B sales (R10–R20)
+
+SRs are staff (role "SR") using the partner portal (Q118). Buyer shops are independent, not online customers. All entries manual.
+- **sr_profiles** — `staff_id → (unique), area, commission_bp (nullable)`
+- **b2b_shops** — `name, owner_name, phone, address, area, created_by →staff, is_new, status [active/blocked], due_balance_p (cache), notes` (SR can add from field, R18; usable immediately, `is_new` flag for staff review, Q119)
+- **sr_sales** — `memo_no (unique), sr_staff_id →, b2b_shop_id →, status [submitted/approved/rejected/delivered/cancelled], total_p, paid_at_sale_p, due_p, submitted_at, approved_by →staff, approved_at, rejected_reason, delivered_by →staff, delivered_at, note` (R13: stock `sr_reserve` on submit, `sr_ship` on approve/deliver, `sr_release` on reject/cancel)
+- **sr_sale_items** — `sr_sale_id →, variant_id →, qty, unit_price_p (SR-entered, R15), line_total_p`
+- **b2b_ledger** — `b2b_shop_id →, sr_sale_id → (nullable), type [sale_due/collection/adjustment], amount_p (+due / −paid), method [cash/bkash/nagad/bank], recorded_by →staff, confirmed_by →staff, confirmed_at, note, at` (R16; SR collections need staff confirm, R18)
+- **sr_targets** — `sr_staff_id →, month (YYYY-MM), target_p` (R18)
+- **sr_commissions** — `sr_staff_id →, month, base_p, commission_bp, amount_p, status [pending/approved/paid], paid_at` (base = money collected in the month: payment at sale + confirmed due collections, Q120)
+- Memo: printable/shareable PDF/image per approved sale, EN/BN (R20). Delivery by SR/own staff, no courier (R19).
 
 ## 9. Delivery zones (Q50, Q85)
 
