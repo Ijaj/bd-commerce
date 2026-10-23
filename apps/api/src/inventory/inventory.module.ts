@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
+import { InventoryController } from './inventory.controller';
+import { InventoryService } from './inventory.service';
 
-// Stub created before step 2 agents started; owner fills it in.
 @Module({
   imports: [AuthModule],
-  controllers: [],
-  providers: [],
+  controllers: [InventoryController],
+  providers: [InventoryService],
+  exports: [InventoryService],
 })
 export class InventoryModule {}
