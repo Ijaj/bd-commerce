@@ -45,3 +45,12 @@ pnpm --filter @bdc/api cli reset-2fa owner@example.com                    # last
 ```
 
 Dev mail (new-device alerts) lands in Mailpit: http://localhost:8025.
+
+### Settings and feature flags
+
+Defined in `apps/api/src/settings/registry.ts` (key, Zod schema, default, public or not). Only admin overrides are stored (`settings` table, cached in Redis). Admin: `GET/PUT/DELETE /v1/admin/settings/:key`. Shop/apps: `GET /v1/public/site` (maintenance, announcement bar, flags). Maintenance mode answers 503 on every API route except admin, site status, health and docs.
+
+## Packages
+
+- `@bdc/api-client`: typed API client (`createApiClient({ baseUrl })`).
+- `@bdc/i18n`: EN/BN helpers: `formatPrice(paisa, lang)`, `formatNumber`, `toBnDigits`, `toEnDigits`, `pickText`. BN uses Bangla digits including prices (Q104), lakh grouping; never use them on order IDs, phones or tracking IDs.

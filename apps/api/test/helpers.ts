@@ -22,7 +22,7 @@ export async function createApp() {
 export async function resetDb(app: INestApplication) {
   const prisma = app.get(PrismaService);
   await prisma.$executeRawUnsafe(
-    'TRUNCATE staff, staff_sessions, staff_known_devices, staff_backup_codes, staff_roles, role_permissions CASCADE',
+    'TRUNCATE settings, staff, staff_sessions, staff_known_devices, staff_backup_codes, staff_roles, role_permissions CASCADE',
   );
   await prisma.role.deleteMany({ where: { isSystem: false } });
   await app.get<Redis>(REDIS).flushdb();

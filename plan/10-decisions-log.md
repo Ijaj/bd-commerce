@@ -257,3 +257,6 @@ Note on S6: our order tracking covers status until the parcel is handed to the c
 | C14 | 2FA recovery: **10 one-time backup codes** at setup + staff with manage-staff permission can **reset** another's 2FA (audit-logged); server CLI reset as last resort |
 | C15 | Staff password hashing: **Argon2id** (@node-rs/argon2) |
 | C16 | Default staff **idle timeout 8 hours** (admin setting, per-staff override) |
+| C17 | Staff session **hard cap 7 days** (re-login with password + 2FA weekly), on top of 8h idle |
+| C18 | 2FA reset traceability = **reset by / at on the staff row**; full audit_log stays out of P1 |
+| C19 | Settings + feature flags: **own DB tables**, defaults in code, cached in Redis (no Unleash/GrowthBook) |

@@ -20,6 +20,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SettingsController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/settings/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["SettingsController_set"];
+        post?: never;
+        delete: operations["SettingsController_reset"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/site": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SiteController_status"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/auth/login": {
         parameters: {
             query?: never;
@@ -240,6 +288,49 @@ export interface components {
             /** @enum {string} */
             redis: "up" | "down";
         };
+        SettingListDto: {
+            key: string;
+            group: string;
+            description: string;
+            public: boolean;
+            value: unknown;
+            default: unknown;
+            isDefault: boolean;
+            schema: {
+                [key: string]: unknown;
+            };
+            /** Format: date-time */
+            updatedAt: string | null;
+            updatedBy: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            } | null;
+        }[];
+        SetSettingDto: {
+            value: unknown;
+        };
+        SiteStatusDto: {
+            maintenance: {
+                enabled: boolean;
+                message: {
+                    en: string;
+                    bn: string;
+                };
+            };
+            announcement: {
+                text: {
+                    en: string;
+                    bn: string;
+                };
+                link: string | null;
+            } | null;
+            flags: {
+                online_payments_enabled: boolean;
+                advance_payments_enabled: boolean;
+                preorders_enabled: boolean;
+            };
+        };
         LoginDto: {
             /** Format: email */
             email: string;
@@ -273,7 +364,7 @@ export interface components {
                 id: string;
                 name: string;
             }[];
-            permissions: ("staff.view" | "staff.manage" | "roles.manage")[];
+            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage")[];
         };
         ChangePasswordDto: {
             currentPassword: string;
@@ -354,13 +445,13 @@ export interface components {
             name: string;
             description: string | null;
             isSystem: boolean;
-            permissions: ("staff.view" | "staff.manage" | "roles.manage")[];
+            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage")[];
             staffCount: number;
         }[];
         CreateRoleDto: {
             name: string;
             description?: string;
-            permissions: ("staff.view" | "staff.manage" | "roles.manage")[];
+            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage")[];
         };
         RoleDto: {
             /** Format: uuid */
@@ -368,17 +459,17 @@ export interface components {
             name: string;
             description: string[];
             isSystem: boolean;
-            permissions: ("staff.view" | "staff.manage" | "roles.manage")[];
+            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage")[];
             staffCount: number;
         };
         UpdateRoleDto: {
             name?: string;
             description?: string | null;
-            permissions?: ("staff.view" | "staff.manage" | "roles.manage")[];
+            permissions?: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage")[];
         };
         PermissionListDto: {
             /** @enum {string} */
-            key: "staff.view" | "staff.manage" | "roles.manage";
+            key: "staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage";
             group: string;
             description: string;
         }[];
@@ -414,6 +505,86 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HealthDto"];
+                };
+            };
+        };
+    };
+    SettingsController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SettingListDto"];
+                };
+            };
+        };
+    };
+    SettingsController_set: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetSettingDto"];
+            };
+        };
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SettingsController_reset: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SiteController_status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SiteStatusDto"];
                 };
             };
         };

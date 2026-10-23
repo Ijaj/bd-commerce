@@ -32,6 +32,117 @@
         ]
       }
     },
+    "/v1/admin/settings": {
+      "get": {
+        "operationId": "SettingsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingListDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "settings"
+        ]
+      }
+    },
+    "/v1/admin/settings/{key}": {
+      "put": {
+        "operationId": "SettingsController_set",
+        "parameters": [
+          {
+            "name": "key",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetSettingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "settings"
+        ]
+      },
+      "delete": {
+        "operationId": "SettingsController_reset",
+        "parameters": [
+          {
+            "name": "key",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "settings"
+        ]
+      }
+    },
+    "/v1/public/site": {
+      "get": {
+        "operationId": "SiteController_status",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteStatusDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "public"
+        ]
+      }
+    },
     "/v1/admin/auth/login": {
       "post": {
         "operationId": "StaffAuthController_login",
@@ -567,6 +678,167 @@
           "redis"
         ]
       },
+      "SettingListDto": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "type": "string"
+            },
+            "group": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "public": {
+              "type": "boolean"
+            },
+            "value": {},
+            "default": {},
+            "isDefault": {
+              "type": "boolean"
+            },
+            "schema": {
+              "type": "object",
+              "additionalProperties": {}
+            },
+            "updatedAt": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+              "nullable": true
+            },
+            "updatedBy": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name"
+              ],
+              "nullable": true
+            }
+          },
+          "required": [
+            "key",
+            "group",
+            "description",
+            "public",
+            "value",
+            "default",
+            "isDefault",
+            "schema",
+            "updatedAt",
+            "updatedBy"
+          ]
+        }
+      },
+      "SetSettingDto": {
+        "type": "object",
+        "properties": {
+          "value": {}
+        },
+        "required": [
+          "value"
+        ]
+      },
+      "SiteStatusDto": {
+        "type": "object",
+        "properties": {
+          "maintenance": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean"
+              },
+              "message": {
+                "type": "object",
+                "properties": {
+                  "en": {
+                    "type": "string"
+                  },
+                  "bn": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "en",
+                  "bn"
+                ]
+              }
+            },
+            "required": [
+              "enabled",
+              "message"
+            ]
+          },
+          "announcement": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "object",
+                "properties": {
+                  "en": {
+                    "type": "string"
+                  },
+                  "bn": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "en",
+                  "bn"
+                ]
+              },
+              "link": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "text",
+              "link"
+            ],
+            "nullable": true
+          },
+          "flags": {
+            "type": "object",
+            "properties": {
+              "online_payments_enabled": {
+                "type": "boolean"
+              },
+              "advance_payments_enabled": {
+                "type": "boolean"
+              },
+              "preorders_enabled": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "online_payments_enabled",
+              "advance_payments_enabled",
+              "preorders_enabled"
+            ]
+          }
+        },
+        "required": [
+          "maintenance",
+          "announcement",
+          "flags"
+        ]
+      },
       "LoginDto": {
         "type": "object",
         "properties": {
@@ -698,7 +970,9 @@
               "enum": [
                 "staff.view",
                 "staff.manage",
-                "roles.manage"
+                "roles.manage",
+                "settings.view",
+                "settings.manage"
               ]
             }
           }
@@ -1054,7 +1328,9 @@
                 "enum": [
                   "staff.view",
                   "staff.manage",
-                  "roles.manage"
+                  "roles.manage",
+                  "settings.view",
+                  "settings.manage"
                 ]
               }
             },
@@ -1094,7 +1370,9 @@
               "enum": [
                 "staff.view",
                 "staff.manage",
-                "roles.manage"
+                "roles.manage",
+                "settings.view",
+                "settings.manage"
               ]
             }
           }
@@ -1131,7 +1409,9 @@
               "enum": [
                 "staff.view",
                 "staff.manage",
-                "roles.manage"
+                "roles.manage",
+                "settings.view",
+                "settings.manage"
               ]
             }
           },
@@ -1171,7 +1451,9 @@
               "enum": [
                 "staff.view",
                 "staff.manage",
-                "roles.manage"
+                "roles.manage",
+                "settings.view",
+                "settings.manage"
               ]
             }
           }
@@ -1187,7 +1469,9 @@
               "enum": [
                 "staff.view",
                 "staff.manage",
-                "roles.manage"
+                "roles.manage",
+                "settings.view",
+                "settings.manage"
               ]
             },
             "group": {

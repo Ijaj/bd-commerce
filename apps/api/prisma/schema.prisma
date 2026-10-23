@@ -38,6 +38,7 @@ model Staff {
   devices     StaffKnownDevice[]
   backupCodes StaffBackupCode[]
   roles       StaffRole[]
+  settings    Setting[]
 
   @@map("staff")
 }
@@ -137,4 +138,16 @@ model StaffRole {
   @@id([staffId, roleId])
   @@index([roleId])
   @@map("staff_roles")
+}
+
+/// Admin-edited overrides only; keys, types and defaults live in code (src/settings/registry.ts, C19).
+model Setting {
+  key         String   @id
+  value       Json
+  updatedById String?  @map("updated_by_id") @db.Uuid
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  updatedBy Staff? @relation(fields: [updatedById], references: [id])
+
+  @@map("settings")
 }

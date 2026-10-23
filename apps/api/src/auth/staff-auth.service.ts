@@ -10,6 +10,7 @@ import { ENV, type Env } from '../config/env';
 import type { Staff, StaffSession } from '../generated/prisma/client';
 import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { SettingsService } from '../settings/settings.service';
 import { decrypt, encrypt, newBackupCode, newToken, normalizeBackupCode, sha256 } from './crypto';
 import { burnPasswordCheck, hashPassword, verifyPassword } from './password';
 import type { PermissionKey } from './permissions';
@@ -25,8 +26,6 @@ const MINUTE = 60_000;
 const PENDING_TTL_MS = 10 * MINUTE;
 /** Hard cap on a verified session regardless of activity. */
 export const SESSION_MAX_MS = 7 * 24 * 60 * MINUTE;
-/** C16 default; per-staff override in staff.session_timeout_min. Moves to settings in 1d. */
-const DEFAULT_IDLE_MIN = 8 * 60;
 const TOUCH_EVERY_MS = MINUTE;
 const MFA_MAX_ATTEMPTS = 5;
 const BACKUP_CODE_COUNT = 10;
@@ -54,6 +53,7 @@ export class StaffAuthService {
     private readonly rbac: RbacService,
     private readonly throttle: ThrottleService,
     private readonly mail: MailService,
+    private readonly settings: SettingsService,
     @Inject(ENV) private readonly env: Env,
   ) {}
 
@@ -109,7 +109,9 @@ export class StaffAuthService {
     if (staff.disabledAt) return null;
 
     if (plain.mfaVerifiedAt) {
-      const idleMs = (staff.sessionTimeoutMin ?? DEFAULT_IDLE_MIN) * MINUTE;
+      const idleMin =
+        staff.sessionTimeoutMin ?? (await this.settings.get('staff_session_timeout_min'));
+      const idleMs = idleMin * MINUTE;
       if (now - plain.lastSeenAt.getTime() > idleMs) {
         await this.revoke(plain.id);
         return null;

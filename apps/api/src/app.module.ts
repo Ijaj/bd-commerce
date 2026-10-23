@@ -7,10 +7,19 @@ import { HealthController } from './health/health.controller';
 import { MailModule } from './mail/mail.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RedisModule } from './redis/redis.module';
+import { SettingsModule } from './settings/settings.module';
 import { StaffModule } from './staff/staff.module';
 
 @Module({
-  imports: [EnvModule, PrismaModule, RedisModule, MailModule, AuthModule, StaffModule],
+  imports: [
+    EnvModule,
+    PrismaModule,
+    RedisModule,
+    MailModule,
+    SettingsModule,
+    AuthModule,
+    StaffModule,
+  ],
   controllers: [HealthController],
   providers: [{ provide: APP_PIPE, useClass: ZodValidationPipe }],
 })

@@ -19,7 +19,13 @@ describe('staff auth', () => {
     expect(backupCodes).toHaveLength(10);
     const me = await agent.get('/v1/admin/auth/me').expect(200);
     expect(me.body.roles).toEqual([expect.objectContaining({ name: 'Owner' })]);
-    expect(me.body.permissions).toEqual(['roles.manage', 'staff.manage', 'staff.view']);
+    expect(me.body.permissions).toEqual([
+      'roles.manage',
+      'settings.manage',
+      'settings.view',
+      'staff.manage',
+      'staff.view',
+    ]);
   });
 
   it('blocks everything but 2FA endpoints until the second factor passes', async () => {

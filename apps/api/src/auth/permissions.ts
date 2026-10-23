@@ -9,6 +9,11 @@ export const PERMISSIONS = {
     description: 'Create, edit, disable staff; assign roles; reset 2FA',
   },
   'roles.manage': { group: 'Staff', description: 'Create and edit roles' },
+  'settings.view': { group: 'Settings', description: 'View store settings and feature flags' },
+  'settings.manage': {
+    group: 'Settings',
+    description: 'Change store settings, feature flags, maintenance mode and announcement bar',
+  },
 } as const satisfies Record<string, { group: string; description: string }>;
 
 export type PermissionKey = keyof typeof PERMISSIONS;
