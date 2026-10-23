@@ -28,3 +28,9 @@ pnpm stack:init    # first run only: Garage layout, dev key, buckets
 ## Scripts
 
 `pnpm check` (Biome lint + format), `pnpm fix`, `pnpm typecheck`, `pnpm test`, `pnpm build`.
+
+## API
+
+`apps/api`: NestJS 11 + Prisma 7, compiled with SWC (TypeScript 7 type-check). `pnpm --filter @bdc/api dev` serves on `:4000`: `/health`, routes under `/v1`, Swagger UI at `/docs` (non-production).
+
+After changing API routes or schemas run `pnpm api:gen`. It rewrites `packages/api-client/openapi.json` and the generated types; CI fails if they are stale.

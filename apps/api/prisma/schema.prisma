@@ -1,0 +1,11 @@
+// Foundation tables arrive in step 1c (staff, roles, sessions) and 1d (settings, flags). See plan/12-data-model.md.
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}

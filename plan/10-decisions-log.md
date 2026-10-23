@@ -249,3 +249,7 @@ Note on S6: our order tracking covers status until the parcel is handed to the c
 | C6 | Image storage: **Garage** replaces MinIO (S-T12 superseded; MinIO community edition stopped shipping images, maintenance-only). RustFS considered (1.0 GA Sept 2026, too new). Code uses plain S3 API so a later swap = copy objects + config |
 | C7 | Lint/format: **Biome** (one tool, one config for the monorepo) |
 | C8 | **TypeScript 7.0** (native compiler). Fall back to 6.0 per app if a tool breaks |
+| C9 | API request validation: **Zod** (nestjs-zod); schemas shareable with frontends via packages/ |
+| C10 | API client: **openapi-typescript + openapi-fetch** (types only, tiny runtime) |
+| C11 | NestJS build: **SWC** builder; type-check separately with TS 7 `tsc --noEmit` |
+| C12 | API framework: **NestJS 11** (Nest 12 is ESM and nestjs-zod does not support it yet; upgrade later). ORM: **Prisma 7.10** stable (8.0 still rc) |

@@ -15,7 +15,8 @@
     "stack:up": "podman compose -f infra/dev/compose.yaml up -d",
     "stack:down": "podman compose -f infra/dev/compose.yaml down",
     "stack:init": "infra/dev/garage-init.sh",
-    "stack:reset": "podman compose -f infra/dev/compose.yaml down -v"
+    "stack:reset": "podman compose -f infra/dev/compose.yaml down -v",
+    "api:gen": "pnpm --filter @bdc/api openapi && pnpm --filter @bdc/api-client gen"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.2",
