@@ -38,8 +38,9 @@ export async function fetchSimilar(slug: string): Promise<ProductCard[]> {
 export async function fetchCategoryTree(): Promise<CategoryNode[]> {
   try {
     return (
-      (await apiGet<CategoryNode[]>('/v1/public/categories/tree', undefined, { revalidate: 300 })) ??
-      []
+      (await apiGet<CategoryNode[]>('/v1/public/categories/tree', undefined, {
+        revalidate: 300,
+      })) ?? []
     );
   } catch {
     return [];
