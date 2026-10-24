@@ -6621,6 +6621,2056 @@
           "b2b-admin"
         ]
       }
+    },
+    "/v1/admin/orders": {
+      "get": {
+        "operationId": "OrdersAdminController_list",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending_payment",
+                "processing",
+                "on_hold",
+                "partially_shipped",
+                "shipped",
+                "delivered",
+                "completed",
+                "cancelled"
+              ]
+            }
+          },
+          {
+            "name": "paymentStatus",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "unpaid",
+                "partially_paid",
+                "paid",
+                "partially_refunded",
+                "refunded",
+                "failed"
+              ]
+            }
+          },
+          {
+            "name": "call",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "not_needed",
+                "pending",
+                "confirmed",
+                "unreachable",
+                "cancelled"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minLength": 1,
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                },
+                {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                }
+              ]
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                },
+                {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                }
+              ]
+            }
+          },
+          {
+            "name": "risk",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "0",
+                "1"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 9007199254740991,
+              "default": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrdersAdminListDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "orders-admin"
+        ]
+      }
+    },
+    "/v1/admin/orders/{id}": {
+      "get": {
+        "operationId": "OrdersAdminController_detail",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrdersAdminDetailDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "orders-admin"
+        ]
+      }
+    },
+    "/v1/admin/orders/{id}/hold": {
+      "post": {
+        "operationId": "OrdersAdminController_hold",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrdersAdminReasonDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrdersAdminDetailDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "orders-admin"
+        ]
+      }
+    },
+    "/v1/admin/orders/{id}/resume": {
+      "post": {
+        "operationId": "OrdersAdminController_resume",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrdersAdminDetailDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "orders-admin"
+        ]
+      }
+    },
+    "/v1/admin/orders/{id}/cancel": {
+      "post": {
+        "operationId": "OrdersAdminController_cancel",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrdersAdminReasonDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrdersAdminDetailDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "orders-admin"
+        ]
+      }
+    },
+    "/v1/admin/orders/{id}/call": {
+      "post": {
+        "operationId": "OrdersAdminController_call",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrdersAdminCallOutcomeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrdersAdminDetailDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "orders-admin"
+        ]
+      }
+    },
+    "/v1/admin/call-queue": {
+      "get": {
+        "operationId": "CallQueueController_list",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "pending",
+              "type": "string",
+              "enum": [
+                "pending",
+                "done"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 9007199254740991,
+              "default": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrdersAdminListDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "orders-admin"
+        ]
+      }
+    },
+    "/v1/admin/call-queue/count": {
+      "get": {
+        "operationId": "CallQueueController_count",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrdersAdminCallCountDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "orders-admin"
+        ]
+      }
+    },
+    "/v1/admin/orders/{id}/shipments": {
+      "get": {
+        "operationId": "ShipmentsAdminController_forOrder",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShipmentOrderListDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "shipments-admin"
+        ]
+      },
+      "post": {
+        "operationId": "ShipmentsAdminController_create",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShipmentCreateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShipmentDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "shipments-admin"
+        ]
+      }
+    },
+    "/v1/admin/shipments": {
+      "get": {
+        "operationId": "ShipmentsAdminController_list",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "awaiting_supplier",
+                "supplier_confirmed",
+                "ready",
+                "booked",
+                "handed_over",
+                "in_transit",
+                "delivered",
+                "failed",
+                "returning",
+                "returned",
+                "cancelled"
+              ]
+            }
+          },
+          {
+            "name": "courier",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minLength": 1,
+              "maxLength": 40,
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minLength": 1,
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "newest",
+              "type": "string",
+              "enum": [
+                "newest",
+                "oldest"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 9007199254740991,
+              "default": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShipmentListDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "shipments-admin"
+        ]
+      }
+    },
+    "/v1/admin/shipments/{id}": {
+      "get": {
+        "operationId": "ShipmentsAdminController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShipmentDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "shipments-admin"
+        ]
+      }
+    },
+    "/v1/admin/shipments/{id}/cancel": {
+      "post": {
+        "operationId": "ShipmentsAdminController_cancel",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShipmentCancelDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShipmentDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "shipments-admin"
+        ]
+      }
+    },
+    "/v1/admin/shipments/{id}/book": {
+      "post": {
+        "operationId": "ShipmentsAdminController_book",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShipmentBookDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShipmentDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "shipments-admin"
+        ]
+      }
+    },
+    "/v1/admin/shipments/{id}/rebook": {
+      "post": {
+        "operationId": "ShipmentsAdminController_rebook",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShipmentRebookDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShipmentDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "shipments-admin"
+        ]
+      }
+    },
+    "/v1/admin/shipments/{id}/handover": {
+      "post": {
+        "operationId": "ShipmentsAdminController_handover",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShipmentDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "shipments-admin"
+        ]
+      }
+    },
+    "/v1/admin/shipments/{id}/sync": {
+      "post": {
+        "operationId": "ShipmentsAdminController_syncOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShipmentSyncResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "shipments-admin"
+        ]
+      }
+    },
+    "/v1/public/courier-webhooks/{code}": {
+      "post": {
+        "operationId": "CourierWebhookController_receive",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShipmentWebhookAckDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "courier-webhooks"
+        ]
+      }
+    },
+    "/v1/admin/orders/{id}/invoice": {
+      "post": {
+        "operationId": "DocumentsAdminController_issue",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DocIssueInvoiceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocInvoiceDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "ORDER_NOT_FOUND"
+          },
+          "409": {
+            "description": "INVOICE_NOT_AVAILABLE (cancelled order)"
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "admin documents"
+        ]
+      }
+    },
+    "/v1/admin/orders/{id}/invoices": {
+      "get": {
+        "operationId": "DocumentsAdminController_list",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocInvoiceListDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "admin documents"
+        ]
+      }
+    },
+    "/v1/admin/invoices/{id}": {
+      "get": {
+        "operationId": "DocumentsAdminController_detail",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocInvoiceDetailDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "INVOICE_NOT_FOUND"
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "admin documents"
+        ]
+      }
+    },
+    "/v1/admin/shipments/{id}/label": {
+      "get": {
+        "operationId": "DocumentsAdminController_label",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocLabelDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "SHIPMENT_NOT_FOUND"
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "admin documents"
+        ]
+      }
+    },
+    "/v1/admin/shipments/labels": {
+      "post": {
+        "operationId": "DocumentsAdminController_bulkLabels",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DocLabelsRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DocLabelDto"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "SHIPMENT_NOT_FOUND (lists missing ids)"
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "admin documents"
+        ]
+      }
+    },
+    "/v1/customer/orders/{orderNo}/invoice": {
+      "get": {
+        "operationId": "DocumentsCustomerController_invoice",
+        "parameters": [
+          {
+            "name": "orderNo",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocInvoiceDetailDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid customer session"
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "INVOICE_NOT_AVAILABLE"
+          }
+        },
+        "security": [
+          {
+            "bdc_cs": []
+          }
+        ],
+        "tags": [
+          "customer orders"
+        ]
+      }
+    },
+    "/v1/customer/returns": {
+      "post": {
+        "operationId": "CustomerReturnsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReturnCustomerCreateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnCustomerDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid customer session"
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_cs": []
+          }
+        ],
+        "tags": [
+          "customer returns"
+        ]
+      },
+      "get": {
+        "operationId": "CustomerReturnsController_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 9007199254740991,
+              "default": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 10,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnCustomerListDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid customer session"
+          }
+        },
+        "security": [
+          {
+            "bdc_cs": []
+          }
+        ],
+        "tags": [
+          "customer returns"
+        ]
+      }
+    },
+    "/v1/customer/returns/{returnNo}": {
+      "get": {
+        "operationId": "CustomerReturnsController_detail",
+        "parameters": [
+          {
+            "name": "returnNo",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnCustomerDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid customer session"
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_cs": []
+          }
+        ],
+        "tags": [
+          "customer returns"
+        ]
+      }
+    },
+    "/v1/admin/orders/{id}/returns": {
+      "post": {
+        "operationId": "ReturnsAdminController_createForOrder",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReturnAdminCreateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnAdminDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "returns-admin"
+        ]
+      }
+    },
+    "/v1/admin/returns": {
+      "get": {
+        "operationId": "ReturnsAdminController_list",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "requested",
+                "approved",
+                "rejected",
+                "pickup_booked",
+                "received",
+                "inspected",
+                "closed"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maxLength": 60,
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 9007199254740991,
+              "default": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnAdminListDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "returns-admin"
+        ]
+      }
+    },
+    "/v1/admin/returns/{id}": {
+      "get": {
+        "operationId": "ReturnsAdminController_detail",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnAdminDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "returns-admin"
+        ]
+      }
+    },
+    "/v1/admin/returns/{id}/approve": {
+      "post": {
+        "operationId": "ReturnsAdminController_approve",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReturnApproveDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnAdminDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "returns-admin"
+        ]
+      }
+    },
+    "/v1/admin/returns/{id}/reject": {
+      "post": {
+        "operationId": "ReturnsAdminController_reject",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReturnRejectDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnAdminDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "returns-admin"
+        ]
+      }
+    },
+    "/v1/admin/returns/{id}/pickup-booked": {
+      "post": {
+        "operationId": "ReturnsAdminController_pickupBooked",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReturnNoteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnAdminDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "returns-admin"
+        ]
+      }
+    },
+    "/v1/admin/returns/{id}/receive": {
+      "post": {
+        "operationId": "ReturnsAdminController_receive",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnAdminDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "returns-admin"
+        ]
+      }
+    },
+    "/v1/admin/returns/{id}/inspect": {
+      "post": {
+        "operationId": "ReturnsAdminController_inspect",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReturnInspectDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnAdminDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "returns-admin"
+        ]
+      }
+    },
+    "/v1/admin/returns/{id}/close": {
+      "post": {
+        "operationId": "ReturnsAdminController_close",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnAdminDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "returns-admin"
+        ]
+      }
+    },
+    "/v1/admin/returns/{id}/refund": {
+      "post": {
+        "operationId": "ReturnsAdminController_refundReturn",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReturnRefundDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnRefundDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "returns-admin"
+        ]
+      }
+    },
+    "/v1/admin/orders/{id}/refund": {
+      "post": {
+        "operationId": "ReturnsAdminController_refundOrder",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReturnOrderRefundDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnRefundDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "returns-admin"
+        ]
+      }
+    },
+    "/v1/admin/refunds": {
+      "get": {
+        "operationId": "ReturnsAdminController_listRefunds",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending_approval",
+                "approved",
+                "rejected",
+                "processing",
+                "done",
+                "failed"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 9007199254740991,
+              "default": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnRefundListDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "returns-admin"
+        ]
+      }
+    },
+    "/v1/admin/refunds/{id}": {
+      "get": {
+        "operationId": "ReturnsAdminController_refund",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnRefundDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "returns-admin"
+        ]
+      }
+    },
+    "/v1/admin/refunds/{id}/approve": {
+      "post": {
+        "operationId": "ReturnsAdminController_approveRefund",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnRefundDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "returns-admin"
+        ]
+      }
+    },
+    "/v1/admin/refunds/{id}/reject": {
+      "post": {
+        "operationId": "ReturnsAdminController_rejectRefund",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReturnRefundRejectDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnRefundDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "returns-admin"
+        ]
+      }
+    },
+    "/v1/admin/refunds/{id}/complete": {
+      "post": {
+        "operationId": "ReturnsAdminController_completeRefund",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReturnRefundCompleteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnRefundDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "returns-admin"
+        ]
+      }
     }
   },
   "info": {
@@ -7019,6 +9069,11 @@
                 "customers.manage",
                 "orders.view",
                 "orders.manage",
+                "orders.call",
+                "shipments.manage",
+                "returns.manage",
+                "refunds.manage",
+                "refunds.approve",
                 "delivery.manage",
                 "sr.portal",
                 "sr.approve",
@@ -7457,6 +9512,11 @@
                   "customers.manage",
                   "orders.view",
                   "orders.manage",
+                  "orders.call",
+                  "shipments.manage",
+                  "returns.manage",
+                  "refunds.manage",
+                  "refunds.approve",
                   "delivery.manage",
                   "sr.portal",
                   "sr.approve",
@@ -7531,6 +9591,11 @@
                 "customers.manage",
                 "orders.view",
                 "orders.manage",
+                "orders.call",
+                "shipments.manage",
+                "returns.manage",
+                "refunds.manage",
+                "refunds.approve",
                 "delivery.manage",
                 "sr.portal",
                 "sr.approve",
@@ -7602,6 +9667,11 @@
                 "customers.manage",
                 "orders.view",
                 "orders.manage",
+                "orders.call",
+                "shipments.manage",
+                "returns.manage",
+                "refunds.manage",
+                "refunds.approve",
                 "delivery.manage",
                 "sr.portal",
                 "sr.approve",
@@ -7682,6 +9752,11 @@
                 "customers.manage",
                 "orders.view",
                 "orders.manage",
+                "orders.call",
+                "shipments.manage",
+                "returns.manage",
+                "refunds.manage",
+                "refunds.approve",
                 "delivery.manage",
                 "sr.portal",
                 "sr.approve",
@@ -7732,6 +9807,11 @@
                 "customers.manage",
                 "orders.view",
                 "orders.manage",
+                "orders.call",
+                "shipments.manage",
+                "returns.manage",
+                "refunds.manage",
+                "refunds.approve",
                 "delivery.manage",
                 "sr.portal",
                 "sr.approve",
@@ -19815,6 +21895,4421 @@
           "entry",
           "dueBalanceP"
         ]
+      },
+      "OrdersAdminListDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "orderNo": {
+                  "type": "string"
+                },
+                "placedAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "pending_payment",
+                    "processing",
+                    "on_hold",
+                    "partially_shipped",
+                    "shipped",
+                    "delivered",
+                    "completed",
+                    "cancelled"
+                  ]
+                },
+                "paymentStatus": {
+                  "type": "string",
+                  "enum": [
+                    "unpaid",
+                    "partially_paid",
+                    "paid",
+                    "partially_refunded",
+                    "refunded",
+                    "failed"
+                  ]
+                },
+                "callStatus": {
+                  "type": "string",
+                  "enum": [
+                    "not_needed",
+                    "pending",
+                    "confirmed",
+                    "unreachable",
+                    "cancelled"
+                  ]
+                },
+                "riskScore": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "riskReasons": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "callNote": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "callAt": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "customer": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "phone": {
+                      "type": "string"
+                    },
+                    "isGuest": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "phone",
+                    "isGuest"
+                  ]
+                },
+                "shipPlaceText": {
+                  "type": "string"
+                },
+                "grandTotalP": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "codDueP": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "itemCount": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "shipmentSummary": {
+                  "type": "object",
+                  "properties": {
+                    "total": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "delivered": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "total",
+                    "delivered"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "orderNo",
+                "placedAt",
+                "status",
+                "paymentStatus",
+                "callStatus",
+                "riskScore",
+                "riskReasons",
+                "callNote",
+                "callAt",
+                "customer",
+                "shipPlaceText",
+                "grandTotalP",
+                "codDueP",
+                "itemCount",
+                "shipmentSummary"
+              ]
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "page": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize"
+        ]
+      },
+      "OrdersAdminDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "orderNo": {
+            "type": "string"
+          },
+          "placedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          },
+          "deliveredAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "completedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending_payment",
+              "processing",
+              "on_hold",
+              "partially_shipped",
+              "shipped",
+              "delivered",
+              "completed",
+              "cancelled"
+            ]
+          },
+          "paymentStatus": {
+            "type": "string",
+            "enum": [
+              "unpaid",
+              "partially_paid",
+              "paid",
+              "partially_refunded",
+              "refunded",
+              "failed"
+            ]
+          },
+          "paymentMethod": {
+            "type": "string"
+          },
+          "lang": {
+            "type": "string",
+            "enum": [
+              "en",
+              "bn"
+            ]
+          },
+          "platform": {
+            "type": "string"
+          },
+          "isPreorder": {
+            "type": "boolean"
+          },
+          "customerNote": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "cancelReason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "heldReason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "customer": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "name": {
+                "type": "string"
+              },
+              "phone": {
+                "type": "string"
+              },
+              "isGuest": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "phone",
+              "isGuest"
+            ]
+          },
+          "shipTo": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "phone": {
+                "type": "string"
+              },
+              "placeText": {
+                "type": "string"
+              },
+              "line": {
+                "type": "string"
+              },
+              "landmark": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "districtId": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "upazilaId": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "areaId": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "name",
+              "phone",
+              "placeText",
+              "line",
+              "landmark",
+              "districtId",
+              "upazilaId",
+              "areaId"
+            ]
+          },
+          "zone": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "nameEn": {
+                "type": "string"
+              },
+              "nameBn": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "nameEn",
+              "nameBn"
+            ]
+          },
+          "money": {
+            "type": "object",
+            "properties": {
+              "subtotalP": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "autoDiscountP": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "couponDiscountP": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "deliveryChargeP": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "deliveryDiscountP": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "grandTotalP": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "advanceRequiredP": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "paidP": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "refundedP": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "codDueP": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "subtotalP",
+              "autoDiscountP",
+              "couponDiscountP",
+              "deliveryChargeP",
+              "deliveryDiscountP",
+              "grandTotalP",
+              "advanceRequiredP",
+              "paidP",
+              "refundedP",
+              "codDueP"
+            ]
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "productId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "variantId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "titleSnapshot": {
+                  "type": "string"
+                },
+                "sku": {
+                  "type": "string"
+                },
+                "optionsText": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "image": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "alt": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "width": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "height": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "url320": {
+                          "type": "string"
+                        },
+                        "url640": {
+                          "type": "string"
+                        },
+                        "url1200": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "alt",
+                        "width",
+                        "height",
+                        "url320",
+                        "url640",
+                        "url1200"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "qty": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "qtyCancelled": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "qtyShipped": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "qtyReturned": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "unitPriceP": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "lineTotalP": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "id",
+                "productId",
+                "variantId",
+                "titleSnapshot",
+                "sku",
+                "optionsText",
+                "image",
+                "qty",
+                "qtyCancelled",
+                "qtyShipped",
+                "qtyReturned",
+                "unitPriceP",
+                "lineTotalP"
+              ]
+            }
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "fromStatus": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "pending_payment",
+                        "processing",
+                        "on_hold",
+                        "partially_shipped",
+                        "shipped",
+                        "delivered",
+                        "completed",
+                        "cancelled"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "toStatus": {
+                  "type": "string",
+                  "enum": [
+                    "pending_payment",
+                    "processing",
+                    "on_hold",
+                    "partially_shipped",
+                    "shipped",
+                    "delivered",
+                    "completed",
+                    "cancelled"
+                  ]
+                },
+                "actorType": {
+                  "type": "string"
+                },
+                "actorId": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "actorName": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "note": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                }
+              },
+              "required": [
+                "id",
+                "fromStatus",
+                "toStatus",
+                "actorType",
+                "actorId",
+                "actorName",
+                "note",
+                "at"
+              ]
+            }
+          },
+          "payments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "method": {
+                  "type": "string"
+                },
+                "purpose": {
+                  "type": "string"
+                },
+                "amountP": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "status": {
+                  "type": "string"
+                },
+                "paidAt": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "method",
+                "purpose",
+                "amountP",
+                "status",
+                "paidAt"
+              ]
+            }
+          },
+          "shipments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "shipmentNo": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "courierCode": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "consignmentId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "trackingUrl": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "codAmountP": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "orderItemId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "qty": {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "required": [
+                      "orderItemId",
+                      "qty"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "shipmentNo",
+                "status",
+                "courierCode",
+                "consignmentId",
+                "trackingUrl",
+                "codAmountP",
+                "items"
+              ]
+            }
+          },
+          "invoices": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "invoiceNo": {
+                  "type": "string"
+                },
+                "issuedAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                }
+              },
+              "required": [
+                "id",
+                "invoiceNo",
+                "issuedAt"
+              ]
+            }
+          },
+          "returns": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "returnNo": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "returnNo",
+                "status"
+              ]
+            }
+          },
+          "refunds": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "amountP": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "status": {
+                  "type": "string"
+                },
+                "method": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "amountP",
+                "status",
+                "method"
+              ]
+            }
+          },
+          "risk": {
+            "type": "object",
+            "properties": {
+              "score": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "reasons": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "score",
+              "reasons"
+            ]
+          },
+          "call": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "not_needed",
+                  "pending",
+                  "confirmed",
+                  "unreachable",
+                  "cancelled"
+                ]
+              },
+              "note": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "staffName": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "at": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "status",
+              "note",
+              "staffName",
+              "at"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "orderNo",
+          "placedAt",
+          "deliveredAt",
+          "completedAt",
+          "status",
+          "paymentStatus",
+          "paymentMethod",
+          "lang",
+          "platform",
+          "isPreorder",
+          "customerNote",
+          "cancelReason",
+          "heldReason",
+          "customer",
+          "shipTo",
+          "zone",
+          "money",
+          "items",
+          "history",
+          "payments",
+          "shipments",
+          "invoices",
+          "returns",
+          "refunds",
+          "risk",
+          "call"
+        ]
+      },
+      "OrdersAdminReasonDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "OrdersAdminCallOutcomeDto": {
+        "type": "object",
+        "properties": {
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "unreachable",
+              "cancelled"
+            ]
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        },
+        "required": [
+          "outcome"
+        ]
+      },
+      "OrdersAdminCallCountDto": {
+        "type": "object",
+        "properties": {
+          "pending": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "pending"
+        ]
+      },
+      "ShipmentOrderListDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "shipmentNo": {
+                  "type": "string"
+                },
+                "orderId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "orderNo": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "pending",
+                    "awaiting_supplier",
+                    "supplier_confirmed",
+                    "ready",
+                    "booked",
+                    "handed_over",
+                    "in_transit",
+                    "delivered",
+                    "failed",
+                    "returning",
+                    "returned",
+                    "cancelled"
+                  ]
+                },
+                "source": {
+                  "type": "string",
+                  "enum": [
+                    "warehouse",
+                    "supplier"
+                  ]
+                },
+                "courier": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "name"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "consignmentId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "trackingUrl": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "codAmountP": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "deliveryChargeShareP": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "weightG": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "note": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "recipient": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "phone": {
+                      "type": "string"
+                    },
+                    "placeText": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "phone",
+                    "placeText"
+                  ]
+                },
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "orderItemId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "qty": {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      },
+                      "titleSnapshot": {
+                        "type": "string"
+                      },
+                      "sku": {
+                        "type": "string"
+                      },
+                      "optionsText": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "orderItemId",
+                      "qty",
+                      "titleSnapshot",
+                      "sku",
+                      "optionsText"
+                    ]
+                  }
+                },
+                "packedAt": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "handedAt": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "deliveredAt": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                }
+              },
+              "required": [
+                "id",
+                "shipmentNo",
+                "orderId",
+                "orderNo",
+                "status",
+                "source",
+                "courier",
+                "consignmentId",
+                "trackingUrl",
+                "codAmountP",
+                "deliveryChargeShareP",
+                "weightG",
+                "note",
+                "recipient",
+                "items",
+                "packedAt",
+                "handedAt",
+                "deliveredAt",
+                "createdAt"
+              ]
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "ShipmentCreateDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "minItems": 1,
+            "maxItems": 200,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "orderItemId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "qty": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100000
+                }
+              },
+              "required": [
+                "orderItemId",
+                "qty"
+              ]
+            }
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "ShipmentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "shipmentNo": {
+            "type": "string"
+          },
+          "orderId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "orderNo": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "awaiting_supplier",
+              "supplier_confirmed",
+              "ready",
+              "booked",
+              "handed_over",
+              "in_transit",
+              "delivered",
+              "failed",
+              "returning",
+              "returned",
+              "cancelled"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "warehouse",
+              "supplier"
+            ]
+          },
+          "courier": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "code",
+                  "name"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "consignmentId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "trackingUrl": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "codAmountP": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "deliveryChargeShareP": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "weightG": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "recipient": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "phone": {
+                "type": "string"
+              },
+              "placeText": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "phone",
+              "placeText"
+            ]
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "orderItemId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "qty": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "titleSnapshot": {
+                  "type": "string"
+                },
+                "sku": {
+                  "type": "string"
+                },
+                "optionsText": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "orderItemId",
+                "qty",
+                "titleSnapshot",
+                "sku",
+                "optionsText"
+              ]
+            }
+          },
+          "packedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "handedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "deliveredAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          }
+        },
+        "required": [
+          "id",
+          "shipmentNo",
+          "orderId",
+          "orderNo",
+          "status",
+          "source",
+          "courier",
+          "consignmentId",
+          "trackingUrl",
+          "codAmountP",
+          "deliveryChargeShareP",
+          "weightG",
+          "note",
+          "recipient",
+          "items",
+          "packedAt",
+          "handedAt",
+          "deliveredAt",
+          "createdAt"
+        ]
+      },
+      "ShipmentListDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "shipmentNo": {
+                  "type": "string"
+                },
+                "orderId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "orderNo": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "pending",
+                    "awaiting_supplier",
+                    "supplier_confirmed",
+                    "ready",
+                    "booked",
+                    "handed_over",
+                    "in_transit",
+                    "delivered",
+                    "failed",
+                    "returning",
+                    "returned",
+                    "cancelled"
+                  ]
+                },
+                "source": {
+                  "type": "string",
+                  "enum": [
+                    "warehouse",
+                    "supplier"
+                  ]
+                },
+                "courier": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "name"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "consignmentId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "trackingUrl": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "codAmountP": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "deliveryChargeShareP": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "weightG": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "note": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "recipient": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "phone": {
+                      "type": "string"
+                    },
+                    "placeText": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "phone",
+                    "placeText"
+                  ]
+                },
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "orderItemId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "qty": {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      },
+                      "titleSnapshot": {
+                        "type": "string"
+                      },
+                      "sku": {
+                        "type": "string"
+                      },
+                      "optionsText": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "orderItemId",
+                      "qty",
+                      "titleSnapshot",
+                      "sku",
+                      "optionsText"
+                    ]
+                  }
+                },
+                "packedAt": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "handedAt": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "deliveredAt": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                }
+              },
+              "required": [
+                "id",
+                "shipmentNo",
+                "orderId",
+                "orderNo",
+                "status",
+                "source",
+                "courier",
+                "consignmentId",
+                "trackingUrl",
+                "codAmountP",
+                "deliveryChargeShareP",
+                "weightG",
+                "note",
+                "recipient",
+                "items",
+                "packedAt",
+                "handedAt",
+                "deliveredAt",
+                "createdAt"
+              ]
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "page": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize"
+        ]
+      },
+      "ShipmentDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "shipmentNo": {
+            "type": "string"
+          },
+          "orderId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "orderNo": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "awaiting_supplier",
+              "supplier_confirmed",
+              "ready",
+              "booked",
+              "handed_over",
+              "in_transit",
+              "delivered",
+              "failed",
+              "returning",
+              "returned",
+              "cancelled"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "warehouse",
+              "supplier"
+            ]
+          },
+          "courier": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "code",
+                  "name"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "consignmentId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "trackingUrl": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "codAmountP": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "deliveryChargeShareP": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "weightG": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "recipient": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "phone": {
+                "type": "string"
+              },
+              "placeText": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "phone",
+              "placeText"
+            ]
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "orderItemId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "qty": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "titleSnapshot": {
+                  "type": "string"
+                },
+                "sku": {
+                  "type": "string"
+                },
+                "optionsText": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "orderItemId",
+                "qty",
+                "titleSnapshot",
+                "sku",
+                "optionsText"
+              ]
+            }
+          },
+          "packedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "handedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "deliveredAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          },
+          "bookings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "attempt": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "courierCode": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "requested",
+                    "booked",
+                    "failed",
+                    "cancelled"
+                  ]
+                },
+                "consignmentId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "request": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {}
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "response": {
+                  "anyOf": [
+                    {},
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                }
+              },
+              "required": [
+                "id",
+                "attempt",
+                "courierCode",
+                "status",
+                "consignmentId",
+                "request",
+                "response",
+                "createdAt"
+              ]
+            }
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "bookingId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "rawStatus": {
+                  "type": "string"
+                },
+                "mappedStatus": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                }
+              },
+              "required": [
+                "id",
+                "bookingId",
+                "rawStatus",
+                "mappedStatus",
+                "at"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "shipmentNo",
+          "orderId",
+          "orderNo",
+          "status",
+          "source",
+          "courier",
+          "consignmentId",
+          "trackingUrl",
+          "codAmountP",
+          "deliveryChargeShareP",
+          "weightG",
+          "note",
+          "recipient",
+          "items",
+          "packedAt",
+          "handedAt",
+          "deliveredAt",
+          "createdAt",
+          "bookings",
+          "events"
+        ]
+      },
+      "ShipmentCancelDto": {
+        "type": "object",
+        "properties": {
+          "manualCancel": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ShipmentBookDto": {
+        "type": "object",
+        "properties": {
+          "courierCode": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          }
+        },
+        "required": [
+          "courierCode"
+        ]
+      },
+      "ShipmentRebookDto": {
+        "type": "object",
+        "properties": {
+          "courierCode": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "manualCancel": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ShipmentSyncResultDto": {
+        "type": "object",
+        "properties": {
+          "shipment": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "shipmentNo": {
+                "type": "string"
+              },
+              "orderId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "orderNo": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "pending",
+                  "awaiting_supplier",
+                  "supplier_confirmed",
+                  "ready",
+                  "booked",
+                  "handed_over",
+                  "in_transit",
+                  "delivered",
+                  "failed",
+                  "returning",
+                  "returned",
+                  "cancelled"
+                ]
+              },
+              "source": {
+                "type": "string",
+                "enum": [
+                  "warehouse",
+                  "supplier"
+                ]
+              },
+              "courier": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "code": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "code",
+                      "name"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "consignmentId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "trackingUrl": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "codAmountP": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "deliveryChargeShareP": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "weightG": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "note": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "recipient": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "placeText": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "phone",
+                  "placeText"
+                ]
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "orderItemId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "qty": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "titleSnapshot": {
+                      "type": "string"
+                    },
+                    "sku": {
+                      "type": "string"
+                    },
+                    "optionsText": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "orderItemId",
+                    "qty",
+                    "titleSnapshot",
+                    "sku",
+                    "optionsText"
+                  ]
+                }
+              },
+              "packedAt": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "handedAt": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "deliveredAt": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              }
+            },
+            "required": [
+              "id",
+              "shipmentNo",
+              "orderId",
+              "orderNo",
+              "status",
+              "source",
+              "courier",
+              "consignmentId",
+              "trackingUrl",
+              "codAmountP",
+              "deliveryChargeShareP",
+              "weightG",
+              "note",
+              "recipient",
+              "items",
+              "packedAt",
+              "handedAt",
+              "deliveredAt",
+              "createdAt"
+            ]
+          },
+          "rawStatus": {
+            "type": "string"
+          },
+          "mapped": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "changed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "shipment",
+          "rawStatus",
+          "mapped",
+          "changed"
+        ]
+      },
+      "ShipmentWebhookAckDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "const": true
+          }
+        },
+        "required": [
+          "ok"
+        ]
+      },
+      "DocIssueInvoiceDto": {
+        "type": "object",
+        "properties": {
+          "reissue": {
+            "type": "boolean"
+          }
+        }
+      },
+      "DocInvoiceDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "orderId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "orderNo": {
+            "type": "string"
+          },
+          "invoiceNo": {
+            "type": "string"
+          },
+          "issuedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          },
+          "vatRateBp": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "vatTotalP": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "grandTotalP": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "bin": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "isCurrent": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "orderId",
+          "orderNo",
+          "invoiceNo",
+          "issuedAt",
+          "vatRateBp",
+          "vatTotalP",
+          "grandTotalP",
+          "bin",
+          "isCurrent"
+        ]
+      },
+      "DocInvoiceListDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "orderId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "orderNo": {
+                  "type": "string"
+                },
+                "invoiceNo": {
+                  "type": "string"
+                },
+                "issuedAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                },
+                "vatRateBp": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "vatTotalP": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "grandTotalP": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "bin": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "isCurrent": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "id",
+                "orderId",
+                "orderNo",
+                "invoiceNo",
+                "issuedAt",
+                "vatRateBp",
+                "vatTotalP",
+                "grandTotalP",
+                "bin",
+                "isCurrent"
+              ]
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "DocInvoiceDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "orderId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "orderNo": {
+            "type": "string"
+          },
+          "invoiceNo": {
+            "type": "string"
+          },
+          "issuedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          },
+          "vatRateBp": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "vatTotalP": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "grandTotalP": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "bin": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "isCurrent": {
+            "type": "boolean"
+          },
+          "snapshot": {
+            "type": "object",
+            "properties": {
+              "lang": {
+                "type": "string",
+                "enum": [
+                  "en",
+                  "bn"
+                ]
+              },
+              "store": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "bin": {
+                    "type": "string"
+                  },
+                  "vatRateBp": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "name",
+                  "address",
+                  "phone",
+                  "email",
+                  "bin",
+                  "vatRateBp"
+                ]
+              },
+              "orderNo": {
+                "type": "string"
+              },
+              "orderDate": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              "paymentMethod": {
+                "type": "string"
+              },
+              "billTo": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "email": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "phone",
+                  "email"
+                ]
+              },
+              "shipTo": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "placeText": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "phone",
+                  "address",
+                  "placeText"
+                ]
+              },
+              "lines": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "titleSnapshot": {
+                      "type": "string"
+                    },
+                    "sku": {
+                      "type": "string"
+                    },
+                    "optionsText": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "qty": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "unitPriceP": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "lineTotalP": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "titleSnapshot",
+                    "sku",
+                    "optionsText",
+                    "qty",
+                    "unitPriceP",
+                    "lineTotalP"
+                  ]
+                }
+              },
+              "subtotalP": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "autoDiscountP": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "couponDiscountP": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "deliveryChargeP": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "deliveryDiscountP": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "grandTotalP": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "paidP": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "codDueP": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "vat": {
+                "type": "object",
+                "properties": {
+                  "rateBp": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "totalP": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "netP": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "rateBp",
+                  "totalP",
+                  "netP"
+                ]
+              }
+            },
+            "required": [
+              "lang",
+              "store",
+              "orderNo",
+              "orderDate",
+              "paymentMethod",
+              "billTo",
+              "shipTo",
+              "lines",
+              "subtotalP",
+              "autoDiscountP",
+              "couponDiscountP",
+              "deliveryChargeP",
+              "deliveryDiscountP",
+              "grandTotalP",
+              "paidP",
+              "codDueP",
+              "vat"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "orderId",
+          "orderNo",
+          "invoiceNo",
+          "issuedAt",
+          "vatRateBp",
+          "vatTotalP",
+          "grandTotalP",
+          "bin",
+          "isCurrent",
+          "snapshot"
+        ]
+      },
+      "DocLabelDto": {
+        "type": "object",
+        "properties": {
+          "shipmentNo": {
+            "type": "string"
+          },
+          "orderNo": {
+            "type": "string"
+          },
+          "barcodeValue": {
+            "type": "string"
+          },
+          "courier": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "code",
+                  "name"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "consignmentId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "store": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "phone": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "phone"
+            ]
+          },
+          "to": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "phone": {
+                "type": "string"
+              },
+              "address": {
+                "type": "string"
+              },
+              "placeText": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "phone",
+              "address",
+              "placeText"
+            ]
+          },
+          "codAmountP": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "weightG": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "itemsText": {
+            "type": "string"
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "printedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          }
+        },
+        "required": [
+          "shipmentNo",
+          "orderNo",
+          "barcodeValue",
+          "courier",
+          "consignmentId",
+          "store",
+          "to",
+          "codAmountP",
+          "weightG",
+          "itemsText",
+          "note",
+          "printedAt"
+        ]
+      },
+      "DocLabelsRequestDto": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "minItems": 1,
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        },
+        "required": [
+          "ids"
+        ]
+      },
+      "ReturnCustomerCreateDto": {
+        "type": "object",
+        "properties": {
+          "orderNo": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "items": {
+            "minItems": 1,
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "orderItemId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "qty": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 10000
+                },
+                "reason": {
+                  "type": "string",
+                  "enum": [
+                    "wrong_item",
+                    "damaged",
+                    "defective",
+                    "not_as_described",
+                    "change_of_mind",
+                    "other"
+                  ]
+                },
+                "note": {
+                  "type": "string",
+                  "maxLength": 500
+                }
+              },
+              "required": [
+                "orderItemId",
+                "qty",
+                "reason"
+              ]
+            }
+          },
+          "mediaIds": {
+            "maxItems": 10,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        },
+        "required": [
+          "orderNo",
+          "items"
+        ]
+      },
+      "ReturnCustomerDto": {
+        "type": "object",
+        "properties": {
+          "returnNo": {
+            "type": "string"
+          },
+          "orderNo": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "requested",
+              "approved",
+              "rejected",
+              "pickup_booked",
+              "received",
+              "inspected",
+              "closed"
+            ]
+          },
+          "fault": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "ours",
+                  "customer"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "returnShippingP": {
+            "type": "number"
+          },
+          "rejectReason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "requestedAt": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "orderItemId": {
+                  "type": "string"
+                },
+                "titleSnapshot": {
+                  "type": "string"
+                },
+                "sku": {
+                  "type": "string"
+                },
+                "optionsText": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "qty": {
+                  "type": "number"
+                },
+                "reason": {
+                  "type": "string",
+                  "enum": [
+                    "wrong_item",
+                    "damaged",
+                    "defective",
+                    "not_as_described",
+                    "change_of_mind",
+                    "other"
+                  ]
+                },
+                "note": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "orderItemId",
+                "titleSnapshot",
+                "sku",
+                "optionsText",
+                "qty",
+                "reason",
+                "note"
+              ]
+            }
+          },
+          "mediaIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "refunds": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "amountP": {
+                  "type": "number"
+                },
+                "method": {
+                  "type": "string",
+                  "enum": [
+                    "original",
+                    "wallet"
+                  ]
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "pending_approval",
+                    "approved",
+                    "rejected",
+                    "processing",
+                    "done",
+                    "failed"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "amountP",
+                "method",
+                "status"
+              ]
+            }
+          }
+        },
+        "required": [
+          "returnNo",
+          "orderNo",
+          "status",
+          "fault",
+          "returnShippingP",
+          "rejectReason",
+          "requestedAt",
+          "items",
+          "mediaIds",
+          "refunds"
+        ]
+      },
+      "ReturnCustomerListDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "returnNo": {
+                  "type": "string"
+                },
+                "orderNo": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "requested",
+                    "approved",
+                    "rejected",
+                    "pickup_booked",
+                    "received",
+                    "inspected",
+                    "closed"
+                  ]
+                },
+                "fault": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "ours",
+                        "customer"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "returnShippingP": {
+                  "type": "number"
+                },
+                "rejectReason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "requestedAt": {
+                  "type": "string"
+                },
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "orderItemId": {
+                        "type": "string"
+                      },
+                      "titleSnapshot": {
+                        "type": "string"
+                      },
+                      "sku": {
+                        "type": "string"
+                      },
+                      "optionsText": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "qty": {
+                        "type": "number"
+                      },
+                      "reason": {
+                        "type": "string",
+                        "enum": [
+                          "wrong_item",
+                          "damaged",
+                          "defective",
+                          "not_as_described",
+                          "change_of_mind",
+                          "other"
+                        ]
+                      },
+                      "note": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "orderItemId",
+                      "titleSnapshot",
+                      "sku",
+                      "optionsText",
+                      "qty",
+                      "reason",
+                      "note"
+                    ]
+                  }
+                },
+                "mediaIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "refunds": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "amountP": {
+                        "type": "number"
+                      },
+                      "method": {
+                        "type": "string",
+                        "enum": [
+                          "original",
+                          "wallet"
+                        ]
+                      },
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "pending_approval",
+                          "approved",
+                          "rejected",
+                          "processing",
+                          "done",
+                          "failed"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "amountP",
+                      "method",
+                      "status"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "returnNo",
+                "orderNo",
+                "status",
+                "fault",
+                "returnShippingP",
+                "rejectReason",
+                "requestedAt",
+                "items",
+                "mediaIds",
+                "refunds"
+              ]
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "limit"
+        ]
+      },
+      "ReturnAdminCreateDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "minItems": 1,
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "orderItemId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "qty": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 10000
+                },
+                "reason": {
+                  "type": "string",
+                  "enum": [
+                    "wrong_item",
+                    "damaged",
+                    "defective",
+                    "not_as_described",
+                    "change_of_mind",
+                    "other"
+                  ]
+                },
+                "note": {
+                  "type": "string",
+                  "maxLength": 500
+                }
+              },
+              "required": [
+                "orderItemId",
+                "qty",
+                "reason"
+              ]
+            }
+          },
+          "mediaIds": {
+            "maxItems": 10,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "windowOverride": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "ReturnAdminDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "returnNo": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "requested",
+              "approved",
+              "rejected",
+              "pickup_booked",
+              "received",
+              "inspected",
+              "closed"
+            ]
+          },
+          "fault": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "ours",
+                  "customer"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "returnShippingP": {
+            "type": "number"
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "rejectReason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "staffId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "requestedAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "order": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "orderNo": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "paymentStatus": {
+                "type": "string"
+              },
+              "deliveredAt": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "paidP": {
+                "type": "number"
+              },
+              "refundedP": {
+                "type": "number"
+              },
+              "customerName": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "customerPhone": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "orderNo",
+              "status",
+              "paymentStatus",
+              "deliveredAt",
+              "paidP",
+              "refundedP",
+              "customerName",
+              "customerPhone"
+            ]
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "orderItemId": {
+                  "type": "string"
+                },
+                "titleSnapshot": {
+                  "type": "string"
+                },
+                "sku": {
+                  "type": "string"
+                },
+                "optionsText": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "imageMediaId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "unitPriceP": {
+                  "type": "number"
+                },
+                "qty": {
+                  "type": "number"
+                },
+                "reason": {
+                  "type": "string",
+                  "enum": [
+                    "wrong_item",
+                    "damaged",
+                    "defective",
+                    "not_as_described",
+                    "change_of_mind",
+                    "other"
+                  ]
+                },
+                "note": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "condition": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "resellable",
+                        "damaged"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "restock": {
+                  "type": "boolean"
+                },
+                "refundValueP": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id",
+                "orderItemId",
+                "titleSnapshot",
+                "sku",
+                "optionsText",
+                "imageMediaId",
+                "unitPriceP",
+                "qty",
+                "reason",
+                "note",
+                "condition",
+                "restock",
+                "refundValueP"
+              ]
+            }
+          },
+          "mediaIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "refunds": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "orderId": {
+                  "type": "string"
+                },
+                "returnId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "amountP": {
+                  "type": "number"
+                },
+                "method": {
+                  "type": "string",
+                  "enum": [
+                    "original",
+                    "wallet"
+                  ]
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "pending_approval",
+                    "approved",
+                    "rejected",
+                    "processing",
+                    "done",
+                    "failed"
+                  ]
+                },
+                "needsApproval": {
+                  "type": "boolean"
+                },
+                "requestedBy": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "requestedByName": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "approvedBy": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "approvedByName": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "approvedAt": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "providerRef": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "note": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "doneAt": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "orderItemId": {
+                        "type": "string"
+                      },
+                      "qty": {
+                        "type": "number"
+                      },
+                      "amountP": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "orderItemId",
+                      "qty",
+                      "amountP"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "orderId",
+                "returnId",
+                "amountP",
+                "method",
+                "status",
+                "needsApproval",
+                "requestedBy",
+                "requestedByName",
+                "approvedBy",
+                "approvedByName",
+                "approvedAt",
+                "providerRef",
+                "note",
+                "doneAt",
+                "createdAt",
+                "items"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "returnNo",
+          "status",
+          "fault",
+          "returnShippingP",
+          "note",
+          "rejectReason",
+          "staffId",
+          "requestedAt",
+          "updatedAt",
+          "order",
+          "items",
+          "mediaIds",
+          "refunds"
+        ]
+      },
+      "ReturnAdminListDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "returnNo": {
+                  "type": "string"
+                },
+                "orderId": {
+                  "type": "string"
+                },
+                "orderNo": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "requested",
+                    "approved",
+                    "rejected",
+                    "pickup_booked",
+                    "received",
+                    "inspected",
+                    "closed"
+                  ]
+                },
+                "fault": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "ours",
+                        "customer"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "itemCount": {
+                  "type": "number"
+                },
+                "customerName": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "customerPhone": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "requestedAt": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "returnNo",
+                "orderId",
+                "orderNo",
+                "status",
+                "fault",
+                "itemCount",
+                "customerName",
+                "customerPhone",
+                "requestedAt"
+              ]
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize"
+        ]
+      },
+      "ReturnApproveDto": {
+        "type": "object",
+        "properties": {
+          "fault": {
+            "type": "string",
+            "enum": [
+              "ours",
+              "customer"
+            ]
+          },
+          "returnShippingP": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000000
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        },
+        "required": [
+          "fault"
+        ]
+      },
+      "ReturnRejectDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "ReturnNoteDto": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        }
+      },
+      "ReturnInspectDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "minItems": 1,
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "returnItemId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "condition": {
+                  "type": "string",
+                  "enum": [
+                    "resellable",
+                    "damaged"
+                  ]
+                },
+                "restock": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "returnItemId",
+                "condition",
+                "restock"
+              ]
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "ReturnRefundDto": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "original",
+              "wallet"
+            ]
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        },
+        "required": [
+          "method"
+        ]
+      },
+      "ReturnRefundDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "orderId": {
+            "type": "string"
+          },
+          "returnId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "amountP": {
+            "type": "number"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "original",
+              "wallet"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending_approval",
+              "approved",
+              "rejected",
+              "processing",
+              "done",
+              "failed"
+            ]
+          },
+          "needsApproval": {
+            "type": "boolean"
+          },
+          "requestedBy": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "requestedByName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "approvedBy": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "approvedByName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "approvedAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "providerRef": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "doneAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "orderItemId": {
+                  "type": "string"
+                },
+                "qty": {
+                  "type": "number"
+                },
+                "amountP": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "orderItemId",
+                "qty",
+                "amountP"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "orderId",
+          "returnId",
+          "amountP",
+          "method",
+          "status",
+          "needsApproval",
+          "requestedBy",
+          "requestedByName",
+          "approvedBy",
+          "approvedByName",
+          "approvedAt",
+          "providerRef",
+          "note",
+          "doneAt",
+          "createdAt",
+          "items"
+        ]
+      },
+      "ReturnOrderRefundDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "orderItemId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "qty": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 10000
+                }
+              },
+              "required": [
+                "orderItemId",
+                "qty"
+              ]
+            }
+          },
+          "amountP": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000000
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "original",
+              "wallet"
+            ]
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        },
+        "required": [
+          "method",
+          "note"
+        ]
+      },
+      "ReturnRefundListDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "orderId": {
+                  "type": "string"
+                },
+                "returnId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "amountP": {
+                  "type": "number"
+                },
+                "method": {
+                  "type": "string",
+                  "enum": [
+                    "original",
+                    "wallet"
+                  ]
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "pending_approval",
+                    "approved",
+                    "rejected",
+                    "processing",
+                    "done",
+                    "failed"
+                  ]
+                },
+                "needsApproval": {
+                  "type": "boolean"
+                },
+                "requestedBy": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "requestedByName": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "approvedBy": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "approvedByName": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "approvedAt": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "providerRef": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "note": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "doneAt": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "orderItemId": {
+                        "type": "string"
+                      },
+                      "qty": {
+                        "type": "number"
+                      },
+                      "amountP": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "orderItemId",
+                      "qty",
+                      "amountP"
+                    ]
+                  }
+                },
+                "orderNo": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "orderId",
+                "returnId",
+                "amountP",
+                "method",
+                "status",
+                "needsApproval",
+                "requestedBy",
+                "requestedByName",
+                "approvedBy",
+                "approvedByName",
+                "approvedAt",
+                "providerRef",
+                "note",
+                "doneAt",
+                "createdAt",
+                "items",
+                "orderNo"
+              ]
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize"
+        ]
+      },
+      "ReturnRefundRejectDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "ReturnRefundCompleteDto": {
+        "type": "object",
+        "properties": {
+          "providerRef": {
+            "type": "string",
+            "maxLength": 120
+          }
+        }
       }
     }
   }
