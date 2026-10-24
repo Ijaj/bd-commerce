@@ -1,6 +1,7 @@
 import { randomBytes } from 'node:crypto';
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type { Response } from 'express';
+import { ENV, type Env } from '../config/env';
 import { PrismaService } from '../prisma/prisma.service';
 import { SettingsService } from '../settings/settings.service';
 import type { SrSaleDetailView } from './sr.dto';
@@ -100,6 +101,7 @@ export class SrMemoService {
     private readonly prisma: PrismaService,
     private readonly sales: SrSalesService,
     private readonly settings: SettingsService,
+    @Inject(ENV) private readonly env: Env,
   ) {}
 
   async render(sale: SrSaleDetailView, lang: Lang): Promise<string> {
@@ -156,7 +158,7 @@ export class SrMemoService {
         data: { memoToken: token, memoTokenAt: new Date() },
       });
     }
-    const origin = (process.env.PUBLIC_API_URL ?? 'http://localhost:4000').replace(/\/+$/, '');
+    const origin = this.env.PUBLIC_API_URL.replace(/\/+$/, '');
     return { token, url: `${origin}/v1/public/memo/${token}` };
   }
 

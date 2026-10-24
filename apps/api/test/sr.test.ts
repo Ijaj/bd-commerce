@@ -212,8 +212,9 @@ describe('SR / B2B', () => {
       });
       expect(tooMuch.status).toBe(400);
       expect(tooMuch.body.code).toBe('PAID_EXCEEDS_TOTAL');
-      // free item (price 0) is allowed
-      expect((await submit(srA.agent, shopId, v, { qty: 1, unitPriceP: 0 })).status).toBe(201);
+      // C46: unit price must be at least 1 taka
+      expect((await submit(srA.agent, shopId, v, { qty: 1, unitPriceP: 99 })).status).toBe(400);
+      expect((await submit(srA.agent, shopId, v, { qty: 1, unitPriceP: 100 })).status).toBe(201);
 
       const dup = await srA.agent.post('/v1/portal/sr/sales').send({
         b2bShopId: shopId,
@@ -778,7 +779,7 @@ describe('SR / B2B', () => {
         await srA.agent.post('/v1/portal/sr/sales').send({
           b2bShopId: shopId,
           deliveryBy: 'sr',
-          items: [{ variantId: v, qty: 1, unitPriceP: 1 }],
+          items: [{ variantId: v, qty: 1, unitPriceP: 100 }],
         })
       ).body;
       await srA.agent.post(`/v1/portal/sr/sales/${sub.id}/deliver`).expect(409);
@@ -787,7 +788,7 @@ describe('SR / B2B', () => {
         .send({
           b2bShopId: shopId,
           deliveryBy: 'drone',
-          items: [{ variantId: v, qty: 1, unitPriceP: 1 }],
+          items: [{ variantId: v, qty: 1, unitPriceP: 100 }],
         })
         .expect(400);
     });
@@ -1093,13 +1094,295 @@ describe('SR / B2B', () => {
     it('rate limits the public memo endpoint per IP', async () => {
       const request = (await import('supertest')).default;
       const codes: number[] = [];
-      for (let i = 0; i < 32; i++) {
+      for (let i = 0; i < 62; i++) {
         codes.push(
           (await request(app.getHttpServer()).get(`/v1/public/memo/${'B'.repeat(43)}`)).status,
         );
       }
-      expect(codes.slice(0, 30).every((c) => c === 404)).toBe(true);
-      expect(codes.slice(30)).toEqual([429, 429]);
+      expect(codes.slice(0, 60).every((c) => c === 404)).toBe(true);
+      expect(codes.slice(60)).toEqual([429, 429]);
+    });
+  });
+
+  describe('wave 4: commission adjustments, review fixes, admin gaps', () => {
+    const month = monthKey(new Date());
+    const monthAfter = (n: number) => {
+      const [y, m] = month.split('-').map(Number) as [number, number];
+      const d = new Date(Date.UTC(y, m - 1 + n, 15, 6));
+      return { key: monthKey(d), at: d };
+    };
+
+    async function approved(agent: Agent, paid: number, opts: { at?: Date; shopId?: string } = {}) {
+      const v = await makeVariant(20);
+      const shopId = opts.shopId ?? (await makeShop(agent));
+      const res = await submit(agent, shopId, v, {
+        qty: 1,
+        unitPriceP: paid + 50_000,
+        paidAtSaleP: paid,
+      });
+      expect(res.status).toBe(201);
+      await admin.agent.post(`/v1/admin/sr/sales/${res.body.id}/approve`).expect(200);
+      if (opts.at) {
+        await prisma.srSale.update({ where: { id: res.body.id }, data: { approvedAt: opts.at } });
+      }
+      return { id: res.body.id as string, shopId, v };
+    }
+
+    const compute = async (m: string) =>
+      (await admin.agent.post(`/v1/admin/sr/commissions/compute?month=${m}`).expect(200)).body;
+
+    it('reversing a sale in a locked commission month creates an adjustment applied by a later run', async () => {
+      const sale1 = await approved(srA.agent, 100_000); // commission 1,000
+      const first = await compute(month);
+      expect(first.items[0].amountP).toBe(1000);
+      await admin.agent.post(`/v1/admin/sr/commissions/${first.items[0].id}/approve`).expect(200);
+      await admin.agent.post(`/v1/admin/sr/commissions/${first.items[0].id}/paid`).expect(200);
+
+      await admin.agent
+        .post(`/v1/admin/sr/sales/${sale1.id}/reverse`)
+        .send({ reason: 'returned' })
+        .expect(200);
+      const open = (
+        await admin.agent
+          .get(`/v1/admin/sr/commission-adjustments?srId=${srA.id}&applied=false`)
+          .expect(200)
+      ).body;
+      expect(open.total).toBe(1);
+      expect(open.items[0]).toMatchObject({
+        amountP: -1000,
+        srSaleId: sale1.id,
+        sr: { id: srA.id },
+        appliedTo: null,
+      });
+      expect(open.items[0].memoNo).toMatch(/^SR-/);
+      await srA.agent.get('/v1/admin/sr/commission-adjustments').expect(403);
+
+      // next month earns 500: the deduction takes it to 0 and carries the remaining 500
+      const next = monthAfter(1);
+      await approved(srA.agent, 50_000, { at: next.at });
+      const second = await compute(next.key);
+      const row = second.items.find((i: { sr: { id: string } }) => i.sr.id === srA.id);
+      expect(row).toMatchObject({ baseP: 50_000, amountP: 0, adjustmentP: -500 });
+      expect(row.adjustments).toHaveLength(1);
+      expect(
+        (
+          await admin.agent.get('/v1/admin/sr/commission-adjustments?applied=false').expect(200)
+        ).body.items.map((a: { amountP: number }) => a.amountP),
+      ).toEqual([-500]);
+      // same result when run again
+      const again = (await compute(next.key)).items.find(
+        (i: { sr: { id: string } }) => i.sr.id === srA.id,
+      );
+      expect(again).toMatchObject({ id: row.id, amountP: 0, adjustmentP: -500 });
+      expect(
+        (await admin.agent.get('/v1/admin/sr/commission-adjustments?applied=false').expect(200))
+          .body.total,
+      ).toBe(1);
+
+      // the month after: 1,000 earned, remaining 500 deducted
+      const later = monthAfter(2);
+      await approved(srA.agent, 100_000, { at: later.at });
+      const third = (await compute(later.key)).items.find(
+        (i: { sr: { id: string } }) => i.sr.id === srA.id,
+      );
+      expect(third).toMatchObject({ amountP: 500, adjustmentP: -500 });
+      expect(
+        (await admin.agent.get('/v1/admin/sr/commission-adjustments?applied=false').expect(200))
+          .body.total,
+      ).toBe(0);
+      const listed = (
+        await admin.agent.get(`/v1/admin/sr/commissions?month=${later.key}`).expect(200)
+      ).body;
+      expect(listed.items[0].adjustments).toHaveLength(1);
+      // the paid row of the original month never changed
+      const paidRow = await prisma.srCommission.findFirstOrThrow({
+        where: { month, srStaffId: srA.id },
+      });
+      expect(paidRow).toMatchObject({ amountP: 1000, status: 'paid' });
+    });
+
+    it('no adjustment while the month is still pending, or when nothing was paid at sale', async () => {
+      const a = await approved(srA.agent, 100_000);
+      await compute(month); // pending
+      await admin.agent
+        .post(`/v1/admin/sr/sales/${a.id}/reverse`)
+        .send({ reason: 'x' })
+        .expect(200);
+      expect(await prisma.srCommissionAdjustment.count()).toBe(0);
+      const row = await prisma.srCommission.findFirstOrThrow({ where: { srStaffId: srA.id } });
+      await admin.agent.post(`/v1/admin/sr/commissions/${row.id}/approve`).expect(200);
+      const b = await approved(srA.agent, 0);
+      await admin.agent
+        .post(`/v1/admin/sr/sales/${b.id}/reverse`)
+        .send({ reason: 'x' })
+        .expect(200);
+      expect(await prisma.srCommissionAdjustment.count()).toBe(0);
+    });
+
+    it('collections cannot be confirmed by whoever recorded them', async () => {
+      const both = await actor(['sr.portal', 'sr.approve'], true);
+      const v = await makeVariant(5);
+      const shopId = await makeShop(both.agent);
+      const s = (await submit(both.agent, shopId, v, { qty: 1, unitPriceP: 100_000 })).body;
+      await admin.agent.post(`/v1/admin/sr/sales/${s.id}/approve`).expect(200);
+      const col = (
+        await both.agent
+          .post('/v1/portal/sr/collections')
+          .send({ b2bShopId: shopId, amountP: 1000, method: 'cash' })
+          .expect(201)
+      ).body;
+      const res = await both.agent.post(`/v1/admin/b2b/ledger/${col.id}/confirm`).expect(403);
+      expect(res.body.code).toBe('SELF_CONFIRM');
+      await admin.agent.post(`/v1/admin/b2b/ledger/${col.id}/confirm`).expect(200);
+    });
+
+    it('refuses a shop balance outside the int range instead of wrapping', async () => {
+      const shopId = await makeShop();
+      const adj = (amountP: number) =>
+        admin.agent.post(`/v1/admin/b2b/shops/${shopId}/adjust`).send({ amountP, note: 'x' });
+      await adj(2_000_000_000).expect(200);
+      const over = await adj(2_000_000_000).expect(409);
+      expect(over.body.code).toBe('LEDGER_OVERFLOW');
+      expect(await shopDue(shopId)).toBe(2_000_000_000);
+      expect(await prisma.b2bLedger.count({ where: { b2bShopId: shopId } })).toBe(1);
+    });
+
+    it('keeps staff notes away from SRs', async () => {
+      const shopId = await makeShop();
+      await admin.agent
+        .patch(`/v1/admin/b2b/shops/${shopId}`)
+        .send({ notes: 'slow payer' })
+        .expect(200);
+      const one = (await srA.agent.get(`/v1/portal/sr/shops/${shopId}`).expect(200)).body;
+      const list = (await srB.agent.get('/v1/portal/sr/shops').expect(200)).body.items[0];
+      const created = (
+        await srA.agent
+          .post('/v1/portal/sr/shops')
+          .send({ name: 'N', phone: '01800000000', address: 'x' })
+          .expect(201)
+      ).body;
+      for (const shop of [one, list, created]) expect(shop).not.toHaveProperty('notes');
+      expect((await admin.agent.get(`/v1/admin/b2b/shops/${shopId}`).expect(200)).body.notes).toBe(
+        'slow payer',
+      );
+    });
+
+    it('caps the number of open submitted sales per SR', async () => {
+      const v = await makeVariant(10);
+      const shopId = await makeShop();
+      await prisma.srSale.createMany({
+        data: Array.from({ length: 50 }, (_, i) => ({
+          memoNo: `SR-TEST-${i}`,
+          srStaffId: srA.id,
+          b2bShopId: shopId,
+          totalP: 100,
+          dueP: 100,
+        })),
+      });
+      const res = await submit(srA.agent, shopId, v, { qty: 1 });
+      expect(res.status).toBe(409);
+      expect(res.body.code).toBe('TOO_MANY_OPEN_SALES');
+      expect((await submit(srB.agent, shopId, v, { qty: 1 })).status).toBe(201);
+    });
+
+    it('public memo keeps working in maintenance mode', async () => {
+      const request = (await import('supertest')).default;
+      const v = await makeVariant(5);
+      const shopId = await makeShop();
+      const sale = (await submit(srA.agent, shopId, v, { qty: 1 })).body;
+      await admin.agent.post(`/v1/admin/sr/sales/${sale.id}/approve`).expect(200);
+      const link = (await srA.agent.post(`/v1/portal/sr/sales/${sale.id}/memo-link`).expect(200))
+        .body;
+      await prisma.setting.upsert({
+        where: { key: 'maintenance_mode' },
+        create: {
+          key: 'maintenance_mode',
+          value: { enabled: true, message: { en: 'x', bn: 'x' } },
+        },
+        update: { value: { enabled: true, message: { en: 'x', bn: 'x' } } },
+      });
+      await app
+        .get<import('ioredis').default>((await import('../src/redis/redis.module')).REDIS)
+        .flushdb();
+      await request(app.getHttpServer()).get('/v1/public/categories/tree').expect(503);
+      await request(app.getHttpServer()).get(`/v1/public/memo/${link.token}`).expect(200);
+    });
+
+    it('filters admin sales by month and lists SRs for filters', async () => {
+      const v = await makeVariant(10);
+      const shopId = await makeShop();
+      const old = (await submit(srA.agent, shopId, v, { qty: 1 })).body;
+      await submit(srA.agent, shopId, v, { qty: 1 });
+      const prev = monthAfter(-1);
+      await prisma.srSale.update({ where: { id: old.id }, data: { submittedAt: prev.at } });
+      const get = async (m: string) =>
+        (await admin.agent.get(`/v1/admin/sr/sales?month=${m}`).expect(200)).body;
+      expect((await get(month)).total).toBe(1);
+      expect((await get(prev.key)).items.map((i: { id: string }) => i.id)).toEqual([old.id]);
+      await admin.agent.get('/v1/admin/sr/sales?month=2026-99').expect(400);
+
+      const list = (await admin.agent.get('/v1/admin/sr/list').expect(200)).body;
+      expect(list.map((r: { staffId: string }) => r.staffId).sort()).toEqual(
+        [srA.id, srB.id].sort(),
+      );
+      expect(list[0]).toHaveProperty('name');
+      await srA.agent.get('/v1/admin/sr/list').expect(403);
+    });
+
+    it('ages dues oldest-first against collections', async () => {
+      const day = 86_400_000;
+      const { shopId } = await approved(srA.agent, 0); // 50,000 due, today
+      const row = (amountP: number, daysAgo: number, extra: object = {}) => ({
+        b2bShopId: shopId,
+        type: 'sale_due' as const,
+        amountP,
+        recordedById: srA.id,
+        at: new Date(Date.now() - daysAgo * day),
+        ...extra,
+      });
+      await prisma.b2bLedger.createMany({
+        data: [
+          row(300_000, 100),
+          row(200_000, 45),
+          row(-250_000, 10, {
+            type: 'collection',
+            confirmedById: admin.id,
+            confirmedAt: new Date(Date.now() - 10 * day),
+          }),
+          // pending and rejected collections do not count
+          row(-999, 5, { type: 'collection' }),
+          row(-998, 5, {
+            type: 'collection',
+            rejectedById: admin.id,
+            rejectedAt: new Date(),
+            rejectReason: 'x',
+          }),
+        ],
+      });
+      const res = (await admin.agent.get('/v1/admin/b2b/dues').expect(200)).body;
+      expect(res.items).toHaveLength(1);
+      const item = res.items.find((i: { shop: { id: string } }) => i.shop.id === shopId);
+      // 250,000 of collections clear the 100-day-old 300,000 first
+      expect(item.buckets).toEqual({ d0_30: 50_000, d31_60: 200_000, d61_90: 0, d90plus: 50_000 });
+      expect(item.dueP).toBe(300_000);
+      expect(item.srs.map((s: { id: string }) => s.id)).toEqual([srA.id]);
+      expect(item.lastCollectionAt).not.toBeNull();
+      expect(res.totals.dueP).toBe(
+        res.items.reduce((s: number, i: { dueP: number }) => s + i.dueP, 0),
+      );
+
+      // as of 50 days ago only the old due existed
+      const asOf = new Date(Date.now() - 50 * day).toISOString().slice(0, 10);
+      const past = (await admin.agent.get(`/v1/admin/b2b/dues?asOf=${asOf}`).expect(200)).body;
+      expect(past.items).toHaveLength(1);
+      expect(past.items[0]).toMatchObject({
+        dueP: 300_000,
+        buckets: { d31_60: 300_000 },
+        lastCollectionAt: null,
+      });
+
+      await admin.agent.get('/v1/admin/b2b/dues?asOf=yesterday').expect(400);
+      await srA.agent.get('/v1/admin/b2b/dues').expect(403);
     });
   });
 });

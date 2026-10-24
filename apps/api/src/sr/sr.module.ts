@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
 import { InventoryModule } from '../inventory/inventory.module';
 import { StorefrontModule } from '../storefront/storefront.module';
+import { B2bDuesService } from './b2b-dues.service';
 import { B2bLedgerService } from './b2b-ledger.service';
 import {
   B2bAdminController,
@@ -20,6 +21,7 @@ import { SrStatsService } from './sr-stats.service';
   controllers: [SrPortalController, SrAdminController, SrPublicMemoController, B2bAdminController],
   providers: [
     B2bLedgerService,
+    B2bDuesService,
     SrShopsService,
     SrSalesService,
     SrStatsService,

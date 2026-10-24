@@ -4,9 +4,14 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import type { Prisma } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { SettingsService } from '../settings/settings.service';
-import type { SrCommissionView, SrUpdateProfileDto } from './sr.dto';
+import type {
+  SrCommissionAdjustmentsQueryDto,
+  SrCommissionView,
+  SrUpdateProfileDto,
+} from './sr.dto';
 import { commissionOf, monthKey, monthRange, srError } from './sr.util';
 
 export interface MonthStats {
@@ -28,7 +33,16 @@ type CommissionRow = {
   status: string;
   paidAt: Date | null;
   sr: { id: string; name: string };
+  adjustments: { id: string; amountP: number; reason: string; srSaleId: string | null }[];
 };
+
+const commissionInclude = {
+  sr: { select: { id: true, name: true } },
+  adjustments: {
+    select: { id: true, amountP: true, reason: true, srSaleId: true },
+    orderBy: { id: 'asc' },
+  },
+} satisfies Prisma.SrCommissionInclude;
 
 function toCommissionView(c: CommissionRow): SrCommissionView {
   return {
@@ -38,6 +52,8 @@ function toCommissionView(c: CommissionRow): SrCommissionView {
     baseP: c.baseP,
     commissionBp: c.commissionBp,
     amountP: c.amountP,
+    adjustmentP: c.adjustments.reduce((sum, a) => sum + a.amountP, 0),
+    adjustments: c.adjustments,
     status: c.status as SrCommissionView['status'],
     paidAt: c.paidAt?.toISOString() ?? null,
   };
@@ -241,7 +257,7 @@ export class SrStatsService {
     monthRange(month);
     const rows = await this.prisma.srCommission.findMany({
       where: { month },
-      include: { sr: { select: { id: true, name: true } } },
+      include: commissionInclude,
       orderBy: { sr: { name: 'asc' } },
     });
     return { month, items: rows.map(toCommissionView) };
@@ -287,15 +303,113 @@ export class SrStatsService {
           continue;
         }
         const baseP = base.get(srStaffId) ?? 0;
-        const data = { baseP, commissionBp: bp, amountP: commissionOf(baseP, bp) };
-        await tx.srCommission.upsert({
+        const grossP = commissionOf(baseP, bp);
+        const data = { baseP, commissionBp: bp, amountP: grossP };
+        const row = await tx.srCommission.upsert({
           where: { srStaffId_month: { srStaffId, month } },
           create: { srStaffId, month, ...data },
           update: data,
         });
+        const net = await this.applyAdjustments(tx, srStaffId, row.id, grossP);
+        if (net !== grossP) {
+          await tx.srCommission.update({ where: { id: row.id }, data: { amountP: net } });
+        }
       }
     });
     return { ...(await this.listCommissions(month)), skipped };
+  }
+
+  /**
+   * C48: deducts the SR's unapplied adjustments from this row, oldest first, never taking the
+   * amount below 0. An adjustment that does not fit is split: the part that fits is applied and
+   * the remainder stays open for the next run. Earlier applications to this row are released
+   * first, so re-running compute gives the same result.
+   */
+  private async applyAdjustments(
+    tx: Prisma.TransactionClient,
+    srStaffId: string,
+    commissionId: string,
+    grossP: number,
+  ): Promise<number> {
+    await tx.srCommissionAdjustment.updateMany({
+      where: { appliedToId: commissionId },
+      data: { appliedToId: null },
+    });
+    const open = await tx.srCommissionAdjustment.findMany({
+      where: { srStaffId, appliedToId: null },
+      orderBy: { id: 'asc' },
+    });
+    let remaining = grossP;
+    for (const adj of open) {
+      if (remaining <= 0) break;
+      const need = -adj.amountP;
+      if (need <= remaining) {
+        await tx.srCommissionAdjustment.update({
+          where: { id: adj.id },
+          data: { appliedToId: commissionId },
+        });
+        remaining -= need;
+      } else {
+        await tx.srCommissionAdjustment.update({
+          where: { id: adj.id },
+          data: { appliedToId: commissionId, amountP: -remaining },
+        });
+        await tx.srCommissionAdjustment.create({
+          data: {
+            srStaffId,
+            srSaleId: adj.srSaleId,
+            amountP: -(need - remaining),
+            reason: adj.reason,
+          },
+        });
+        remaining = 0;
+      }
+    }
+    return remaining;
+  }
+
+  async listAdjustments(q: SrCommissionAdjustmentsQueryDto) {
+    const where: Prisma.SrCommissionAdjustmentWhereInput = {};
+    if (q.srId) where.srStaffId = q.srId;
+    if (q.applied) where.appliedToId = q.applied === 'true' ? { not: null } : null;
+    const [total, rows] = await Promise.all([
+      this.prisma.srCommissionAdjustment.count({ where }),
+      this.prisma.srCommissionAdjustment.findMany({
+        where,
+        orderBy: { id: 'desc' },
+        skip: (q.page - 1) * q.pageSize,
+        take: q.pageSize,
+        include: {
+          sr: { select: { id: true, name: true } },
+          sale: { select: { memoNo: true } },
+          appliedTo: { select: { id: true, month: true } },
+        },
+      }),
+    ]);
+    return {
+      items: rows.map((r) => ({
+        id: r.id,
+        sr: r.sr,
+        srSaleId: r.srSaleId,
+        memoNo: r.sale?.memoNo ?? null,
+        amountP: r.amountP,
+        reason: r.reason,
+        appliedTo: r.appliedTo,
+        createdAt: r.createdAt.toISOString(),
+      })),
+      total,
+      page: q.page,
+      pageSize: q.pageSize,
+    };
+  }
+
+  /** Light SR list for admin filters. */
+  async srList() {
+    const rows = await this.prisma.srProfile.findMany({
+      select: { staffId: true, staff: { select: { name: true } } },
+      orderBy: { staff: { name: 'asc' } },
+    });
+    return rows.map((r) => ({ staffId: r.staffId, name: r.staff.name }));
   }
 
   async approveCommission(id: string): Promise<SrCommissionView> {
@@ -333,7 +447,7 @@ export class SrStatsService {
     }
     const row = await this.prisma.srCommission.findUniqueOrThrow({
       where: { id },
-      include: { sr: { select: { id: true, name: true } } },
+      include: commissionInclude,
     });
     return toCommissionView(row);
   }

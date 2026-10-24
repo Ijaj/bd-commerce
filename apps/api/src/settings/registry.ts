@@ -110,6 +110,18 @@ export const SETTINGS = {
     default: { guestOtpAboveP: 500000, maxQtyPerLine: 10 },
     public: true,
   },
+  guest_orders: {
+    group: 'Checkout',
+    description:
+      'Abuse limits (C44). Guests: open orders per phone and daily order value per phone (paisa). Everyone: placed orders per IP per hour.',
+    schema: z.object({
+      maxOpenPerPhone: z.number().int().min(1).max(100),
+      dailyCapP: z.number().int().min(0),
+      perIpPerHour: z.number().int().min(1).max(1000),
+    }),
+    default: { maxOpenPerPhone: 3, dailyCapP: 2_000_000, perIpPerHour: 5 },
+    public: false,
+  },
   sr_default_commission_bp: {
     group: 'SR / B2B',
     description: 'SR commission in basis points of money collected (Q120), unless set per SR.',

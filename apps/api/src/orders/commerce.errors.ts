@@ -20,7 +20,9 @@ export type CommerceErrorCode =
   | 'LOCATION_TAKEN'
   | 'LOCATION_INVALID'
   | 'TOO_MANY_REQUESTS'
-  | 'GUEST_REQUIRED';
+  | 'GUEST_REQUIRED'
+  | 'TOO_MANY_ORDERS'
+  | 'GUEST_LIMIT';
 
 /** Error with a stable machine-readable `code` next to the human `message`. */
 export class CommerceError extends HttpException {

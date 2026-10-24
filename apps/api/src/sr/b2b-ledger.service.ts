@@ -1,9 +1,14 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import type { LedgerType } from '../generated/prisma/client';
 import { Prisma } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import type { B2bAdjustDto, B2bLedgerView, SrCreateCollectionDto } from './sr.dto';
-import { srError } from './sr.util';
+import { MAX_MONEY_P, srError } from './sr.util';
 
 const ledgerInclude = {
   shop: { select: { name: true } },
@@ -53,16 +58,22 @@ export class B2bLedgerService {
     return row;
   }
 
-  /** due = sale_due + adjustments + confirmed collections (collections are negative). */
+  /**
+   * due = sale_due + adjustments + reversals + confirmed collections (collections are negative).
+   * Summed as bigint so a runaway ledger errors out instead of wrapping around int4.
+   */
   async recompute(tx: Prisma.TransactionClient, shopId: string): Promise<number> {
-    const [row] = await tx.$queryRaw<{ due: number }[]>`
-      UPDATE b2b_shops SET due_balance_p = (
-        SELECT coalesce(sum(amount_p), 0)::int FROM b2b_ledger
-        WHERE b2b_shop_id = ${shopId}::uuid AND (type <> 'collection' OR confirmed_at IS NOT NULL)
-      ), updated_at = now()
-      WHERE id = ${shopId}::uuid
-      RETURNING due_balance_p AS due`;
-    return row?.due ?? 0;
+    const [sum] = await tx.$queryRaw<{ due: bigint }[]>`
+      SELECT coalesce(sum(amount_p), 0)::bigint AS due FROM b2b_ledger
+      WHERE b2b_shop_id = ${shopId}::uuid AND (type <> 'collection' OR confirmed_at IS NOT NULL)`;
+    const due = Number(sum?.due ?? 0);
+    if (Math.abs(due) > MAX_MONEY_P) {
+      throw srError(ConflictException, 'LEDGER_OVERFLOW', 'Shop balance is out of range');
+    }
+    await tx.$executeRaw`
+      UPDATE b2b_shops SET due_balance_p = ${due}::int, updated_at = now()
+      WHERE id = ${shopId}::uuid`;
+    return due;
   }
 
   /** Caller holds the shop lock. `confirmedById` set = counts at once (sale dues, adjustments). */
@@ -131,11 +142,14 @@ export class B2bLedgerService {
     return this.prisma.$transaction(async (tx) => {
       const found = await tx.b2bLedger.findUnique({
         where: { id: ledgerId },
-        select: { b2bShopId: true, type: true },
+        select: { b2bShopId: true, type: true, recordedById: true },
       });
       if (!found) throw new NotFoundException('Ledger entry not found');
       if (found.type !== 'collection') {
         throw srError(ConflictException, 'NOT_A_COLLECTION', 'Only collections need confirming');
+      }
+      if (found.recordedById === staffId) {
+        throw srError(ForbiddenException, 'SELF_CONFIRM', 'You cannot confirm your own collection');
       }
       await this.lockShop(tx, found.b2bShopId);
       // The trigger allows exactly this update: confirmed_* from null, nothing else.

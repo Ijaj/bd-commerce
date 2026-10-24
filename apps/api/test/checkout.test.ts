@@ -1,8 +1,10 @@
 import type { INestApplication } from '@nestjs/common';
+import type Redis from 'ioredis';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { MailService } from '../src/mail/mail.service';
 import { PrismaService } from '../src/prisma/prisma.service';
+import { REDIS } from '../src/redis/redis.module';
 import { SmsService } from '../src/sms/sms.service';
 import {
   addToCart,
@@ -468,21 +470,38 @@ describe('checkout', () => {
       expect(res.body.code).toBe('ADDRESS_INVALID');
     });
 
-    it('links earlier guest orders when the same phone signs up (Q94)', async () => {
+    it('links only OTP-verified guest orders when the same phone signs up (Q94, C45)', async () => {
       const { variant } = await makeProduct(app, { stock: 5 });
       const g = guest();
       await addToCart(g, variant.id);
-      const placed = await placeGuest(g, { guest: { name: 'Karim', phone: '01712345678' } });
-      expect(placed.status).toBe(200);
-      expect((await prisma.order.findFirstOrThrow()).customerId).toBeNull();
+      const unverified = await placeGuest(g, { guest: { name: 'Karim', phone: '01712345678' } });
+      expect(unverified.status).toBe(200);
 
+      // Now every guest order needs the SMS code.
+      const { agent } = await createOwner(app);
+      await setCheckout(agent, { guestOtpAboveP: 0, maxQtyPerLine: 10 });
+      await addToCart(g, variant.id);
+      await g.post('/v1/checkout/otp').send({ phone: '01712345678' }).expect(200);
+      const verified = await placeGuest(g, {
+        guest: { name: 'Karim', phone: '01712345678' },
+        otpCode: lastOtp(app),
+      });
+      expect(verified.status).toBe(200);
+
+      // Same phone, so skip the 60 s resend cooldown of the code sent above.
+      await app.get<Redis>(REDIS).del('cust-otp:cooldown:01712345678');
       const other = guest();
       await signupCustomer(app, other, '01712345678');
-      expect((await prisma.order.findFirstOrThrow()).customerId).not.toBeNull();
+      const linked = await prisma.order.findMany({ where: { customerId: { not: null } } });
+      expect(linked.map((o) => o.orderNo)).toEqual([verified.body.orderNo]);
       const list = await other.get('/v1/customer/orders').expect(200);
       expect(list.body.items.map((o: { orderNo: string }) => o.orderNo)).toEqual([
-        placed.body.orderNo,
+        verified.body.orderNo,
       ]);
+      expect(
+        (await prisma.order.findUniqueOrThrow({ where: { orderNo: unverified.body.orderNo } }))
+          .customerId,
+      ).toBeNull();
       void PASSWORD;
     });
   });

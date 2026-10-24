@@ -9,6 +9,8 @@ const envSchema = z.object({
   SMTP_URL: z.url(),
   MAIL_FROM: z.string().min(3),
   ADMIN_ORIGIN: z.url(),
+  /// Public origin of this API, used to build share links (SR memo links).
+  PUBLIC_API_URL: z.url().default('http://localhost:4000'),
   S3_ENDPOINT: z.url(),
   S3_REGION: z.string().min(1),
   S3_BUCKET_PRODUCTS: z.string().min(1),

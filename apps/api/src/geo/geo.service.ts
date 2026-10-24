@@ -13,7 +13,8 @@ export class GeoService {
   constructor(private readonly prisma: PrismaService) {}
 
   divisions() {
-    return this.prisma.division.findMany({ orderBy: { nameEn: 'asc' } });
+    // Dataset order (by id) is the administrative order; it does not move when a name is respelled.
+    return this.prisma.division.findMany({ orderBy: { id: 'asc' } });
   }
 
   districts(divisionId?: number) {

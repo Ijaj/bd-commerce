@@ -15,9 +15,15 @@ export const OTP_RESEND_SEC = 60;
 const OTP_MAX_ATTEMPTS = 5;
 const PHONE_PER_HOUR = 5;
 const IP_PER_HOUR = 20;
-/** Wrong guesses across all codes of one phone+purpose before it locks for a day. */
-const FAIL_LOCK_AFTER = 10;
-const FAIL_LOCK_SEC = 24 * 3600;
+/**
+ * Wrong guesses across all codes of one phone+purpose (C49): locked for an hour after 10, for a day
+ * after 30. The counter itself lives 24 h from the first miss.
+ */
+const FAIL_LOCK_SHORT_AFTER = 10;
+const FAIL_LOCK_SHORT_SEC = 3600;
+const FAIL_LOCK_LONG_AFTER = 30;
+const FAIL_LOCK_LONG_SEC = 24 * 3600;
+const FAIL_WINDOW_SEC = 24 * 3600;
 const KEEP_ROWS_MS = 24 * 3600_000;
 const HOUR_SEC = 3600;
 const SHOP_NAME = 'bd-commerce';
@@ -112,15 +118,25 @@ export class OtpService {
     return { sentTo: maskPhone(phone), expiresInSec: OTP_TTL_SEC, resendInSec: OTP_RESEND_SEC };
   }
 
+  private async recordFailure(failKey: string, lockKey: string) {
+    const n = await this.redis.incr(failKey);
+    if (n === 1) await this.redis.expire(failKey, FAIL_WINDOW_SEC);
+    if (n === FAIL_LOCK_SHORT_AFTER) await this.redis.set(lockKey, '1', 'EX', FAIL_LOCK_SHORT_SEC);
+    if (n === FAIL_LOCK_LONG_AFTER) await this.redis.set(lockKey, '1', 'EX', FAIL_LOCK_LONG_SEC);
+  }
+
   /** Checks and consumes the newest code. Wrong guesses count against the code; 5 kill it. */
   async consume(phone: string, purpose: OtpPurpose, code: string) {
     // Wrong guesses add up across codes, so asking for a fresh code does not reset the budget.
     const failKey = `cust-otp:fail:${phone}:${purpose}`;
-    if (await this.throttle.isBlocked(failKey, FAIL_LOCK_AFTER)) {
+    const lockKey = `cust-otp:lock:${phone}:${purpose}`;
+    const lockedFor = await this.redis.ttl(lockKey);
+    if (lockedFor > 0) {
       throw new CustomerError(
         HttpStatus.TOO_MANY_REQUESTS,
         'TOO_MANY_ATTEMPTS',
-        'Too many wrong codes. Try again tomorrow.',
+        'Too many wrong codes. Try again later.',
+        { retryAfterSec: lockedFor },
       );
     }
     const otp = await this.prisma.otpCode.findFirst({
@@ -128,7 +144,7 @@ export class OtpService {
       orderBy: { createdAt: 'desc' },
     });
     if (!otp) {
-      await this.throttle.hit(failKey, FAIL_LOCK_SEC);
+      await this.recordFailure(failKey, lockKey);
       throw new CustomerError(HttpStatus.BAD_REQUEST, 'OTP_INVALID', 'Invalid code.');
     }
     if (otp.expiresAt.getTime() <= Date.now()) {
@@ -149,7 +165,7 @@ export class OtpService {
     const a = Buffer.from(this.hash(phone, purpose, code));
     const b = Buffer.from(otp.codeHash);
     if (a.length !== b.length || !timingSafeEqual(a, b)) {
-      await this.throttle.hit(failKey, FAIL_LOCK_SEC);
+      await this.recordFailure(failKey, lockKey);
       throw new CustomerError(HttpStatus.BAD_REQUEST, 'OTP_INVALID', 'Invalid code.');
     }
     const used = await this.prisma.otpCode.updateMany({
@@ -159,6 +175,6 @@ export class OtpService {
     if (used.count !== 1) {
       throw new CustomerError(HttpStatus.BAD_REQUEST, 'OTP_INVALID', 'Invalid code.');
     }
-    await this.throttle.clear(failKey);
+    await this.redis.del(failKey, lockKey);
   }
 }

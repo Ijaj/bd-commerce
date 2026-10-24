@@ -5,7 +5,7 @@ import type { CartIdentity } from '../cart/cart-identity.service';
 import { OtpService } from '../customers/otp.service';
 import { normalizePhone } from '../customers/phone';
 import { DeliveryService } from '../delivery/delivery.service';
-import type { DeliveryZone } from '../generated/prisma/client';
+import type { DeliveryZone, Prisma } from '../generated/prisma/client';
 import { GeoService, type PlaceNames } from '../geo/geo.service';
 import { InventoryService } from '../inventory/inventory.service';
 import { CommerceError } from '../orders/commerce.errors';
@@ -159,14 +159,74 @@ export class CheckoutService {
         'This order is already being placed.',
       );
     }
+    const ipKey = await this.takeIpSlot(meta.ip);
     try {
       const result = await this.placeOnce(who, input, meta);
       await this.redis.set(idemKey, JSON.stringify(result), 'EX', IDEMPOTENCY_TTL_SEC);
       return result;
     } catch (e) {
-      // A failed attempt must not block the customer's retry with the same key.
+      // A failed attempt must not block the customer's retry with the same key, nor use up its slot.
       await this.redis.del(idemKey);
+      await this.redis.decr(ipKey);
       throw e;
+    }
+  }
+
+  /** C44: placed orders per IP per hour, for guests and customers alike. Taken up front, given back on failure. */
+  private async takeIpSlot(ip: string | undefined) {
+    const { perIpPerHour } = await this.settings.get('guest_orders');
+    const key = `orders:ip:${ip ?? 'unknown'}`;
+    const n = await this.redis.incr(key);
+    if (n === 1) await this.redis.expire(key, 3600);
+    if (n > perIpPerHour) {
+      await this.redis.decr(key);
+      throw new CommerceError(
+        HttpStatus.TOO_MANY_REQUESTS,
+        'TOO_MANY_ORDERS',
+        'Too many orders from this network. Try again later.',
+      );
+    }
+    return key;
+  }
+
+  /** C44: a guest phone may have few open orders and a capped order value per day. */
+  private async assertGuestLimits(
+    db: Prisma.TransactionClient,
+    phone: string,
+    grandTotalP: number,
+  ) {
+    const limits = await this.settings.get('guest_orders');
+    const open = await db.order.count({
+      where: {
+        customerId: null,
+        guestPhone: phone,
+        status: { notIn: ['delivered', 'completed', 'cancelled'] },
+      },
+    });
+    if (open >= limits.maxOpenPerPhone) {
+      throw new CommerceError(
+        HttpStatus.TOO_MANY_REQUESTS,
+        'GUEST_LIMIT',
+        'This phone already has the maximum number of open orders. Sign up or wait for delivery.',
+        { reason: 'open_orders' },
+      );
+    }
+    const today = await db.order.aggregate({
+      _sum: { grandTotalP: true },
+      where: {
+        customerId: null,
+        guestPhone: phone,
+        status: { not: 'cancelled' },
+        placedAt: { gte: new Date(Date.now() - 24 * 3600_000) },
+      },
+    });
+    if ((today._sum.grandTotalP ?? 0) + grandTotalP > limits.dailyCapP) {
+      throw new CommerceError(
+        HttpStatus.TOO_MANY_REQUESTS,
+        'GUEST_LIMIT',
+        'Daily order value limit reached for guests. Sign up to order more.',
+        { reason: 'daily_cap' },
+      );
     }
   }
 
@@ -228,6 +288,9 @@ export class CheckoutService {
     this.assertBuyable(found?.lines ?? []);
     const pre = this.price(zone, found?.lines ?? []);
 
+    // Before the OTP is spent: a refused order must not burn the code.
+    if (guestPhone) await this.assertGuestLimits(this.prisma, guestPhone, pre.grandTotalP);
+
     let otpVerified = false;
     if (await this.otpRequired(who, pre.grandTotalP)) {
       if (!input.otpCode) {
@@ -254,6 +317,11 @@ export class CheckoutService {
         const lines = await this.cart.lines(tx, cartId);
         this.assertBuyable(lines);
         const money = this.price(zone, lines);
+        if (guestPhone) {
+          // Serialises this phone's orders so two carts cannot both slip under the limits.
+          await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`guest-orders:${guestPhone}`}))`;
+          await this.assertGuestLimits(tx, guestPhone, money.grandTotalP);
+        }
         // The total can have grown since the pre-check (price or cart change): ask for the OTP then.
         if (!otpVerified && (await this.otpRequired(who, money.grandTotalP))) {
           throw new CommerceError(

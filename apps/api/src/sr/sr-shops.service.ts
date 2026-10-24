@@ -6,6 +6,7 @@ import type {
   B2bShopsQueryDto,
   B2bUpdateShopDto,
   SrCreateShopDto,
+  SrPortalShopView,
   SrShopsQueryDto,
   SrShopView,
 } from './sr.dto';
@@ -32,6 +33,12 @@ export function toShopView(s: ShopRow): SrShopView {
   };
 }
 
+/** SR-facing shop: staff notes stay internal (L7). */
+export function toPortalShop(s: SrShopView): SrPortalShopView {
+  const { notes: _notes, ...rest } = s;
+  return rest;
+}
+
 function search(q: string | undefined): Prisma.B2bShopWhereInput {
   if (!q) return {};
   return {
@@ -53,10 +60,11 @@ export class SrShopsService {
 
   /** Shops are shared: every SR sees and can sell to every shop (R14, Q119). */
   async portalList(q: SrShopsQueryDto) {
-    return this.list(search(q.q), q.page, q.pageSize);
+    const page = await this.list(search(q.q), q.page, q.pageSize);
+    return { ...page, items: page.items.map(toPortalShop) };
   }
 
-  async create(srStaffId: string, dto: SrCreateShopDto): Promise<SrShopView> {
+  async create(srStaffId: string, dto: SrCreateShopDto): Promise<SrPortalShopView> {
     const shop = await this.prisma.b2bShop.create({
       data: {
         name: dto.name,
@@ -69,12 +77,12 @@ export class SrShopsService {
       },
       include: shopInclude,
     });
-    return toShopView(shop);
+    return toPortalShop(toShopView(shop));
   }
 
   async portalDetail(id: string, srStaffId: string) {
     const shop = await this.get(id);
-    return { ...shop, ledger: await this.ledger.ownEntries(id, srStaffId) };
+    return { ...toPortalShop(shop), ledger: await this.ledger.ownEntries(id, srStaffId) };
   }
 
   async adminList(q: B2bShopsQueryDto) {

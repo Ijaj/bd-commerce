@@ -16,7 +16,10 @@ import type {
   SrSaleListView,
   SrSalesQueryDto,
 } from './sr.dto';
-import { MAX_MONEY_P, memoNumber, srError } from './sr.util';
+import { commissionOf, MAX_MONEY_P, memoNumber, monthKey, monthRange, srError } from './sr.util';
+
+/** Cap on one SR's sales waiting for approval. */
+const MAX_OPEN_SALES = 50;
 
 const listInclude = {
   shop: { select: { id: true, name: true, phone: true } },
@@ -138,6 +141,15 @@ export class SrSalesService {
       if (!shop) throw new NotFoundException('Shop not found');
       if (shop.status === 'blocked') {
         throw srError(ConflictException, 'SHOP_BLOCKED', 'This shop is blocked');
+      }
+
+      const open = await tx.srSale.count({ where: { srStaffId, status: 'submitted' } });
+      if (open >= MAX_OPEN_SALES) {
+        throw srError(
+          ConflictException,
+          'TOO_MANY_OPEN_SALES',
+          `You already have ${MAX_OPEN_SALES} sales waiting for approval`,
+        );
       }
 
       const variants = await tx.variant.findMany({
@@ -301,7 +313,14 @@ export class SrSalesService {
     await this.prisma.$transaction(async (tx) => {
       const sale = await tx.srSale.findUnique({
         where: { id },
-        select: { status: true, srStaffId: true, b2bShopId: true, memoNo: true },
+        select: {
+          status: true,
+          srStaffId: true,
+          b2bShopId: true,
+          memoNo: true,
+          approvedAt: true,
+          paidAtSaleP: true,
+        },
       });
       if (!sale) throw new NotFoundException('Sale not found');
       if (sale.status !== 'approved' && sale.status !== 'delivered') {
@@ -341,6 +360,8 @@ export class SrSalesService {
         });
       }
 
+      await this.adjustLockedCommission(tx, id, sale, reason);
+
       const items = await tx.srSaleItem.findMany({ where: { srSaleId: id } });
       if (sale.status === 'approved') await this.stock(tx, items, 'sr_release', -1, id, staffId);
       else await this.restock(tx, items, id, staffId);
@@ -366,6 +387,10 @@ export class SrSalesService {
     if (q.status) where.status = q.status;
     if (q.srId) where.srStaffId = q.srId;
     if (q.shopId) where.b2bShopId = q.shopId;
+    if (q.month) {
+      const { start, end } = monthRange(q.month);
+      where.submittedAt = { gte: start, lt: end };
+    }
     return this.list(where, q.page, q.pageSize);
   }
 
@@ -390,6 +415,35 @@ export class SrSalesService {
       }),
     ]);
     return { items: rows.map(toListView), total, page, pageSize };
+  }
+
+  /**
+   * C48: the reversed sale's month already has an approved or paid commission, so record a
+   * deduction for the SR's next commission run. Amount = payment-at-sale x that row's rate,
+   * rounded down; collections are not traced back to sales, so they are not part of it.
+   */
+  private async adjustLockedCommission(
+    tx: Prisma.TransactionClient,
+    saleId: string,
+    sale: { srStaffId: string; approvedAt: Date | null; paidAtSaleP: number; memoNo: string },
+    reason: string,
+  ) {
+    if (!sale.approvedAt || sale.paidAtSaleP <= 0) return;
+    const row = await tx.srCommission.findUnique({
+      where: { srStaffId_month: { srStaffId: sale.srStaffId, month: monthKey(sale.approvedAt) } },
+      select: { status: true, commissionBp: true },
+    });
+    if (!row || row.status === 'pending') return;
+    const amountP = commissionOf(sale.paidAtSaleP, row.commissionBp);
+    if (amountP <= 0) return;
+    await tx.srCommissionAdjustment.create({
+      data: {
+        srStaffId: sale.srStaffId,
+        srSaleId: saleId,
+        amountP: -amountP,
+        reason: `${sale.memoNo} reversed: ${reason}`,
+      },
+    });
   }
 
   private async restock(

@@ -9,8 +9,8 @@ import { normalizePhone } from './phone';
 const MAX_ADDRESSES = 10;
 
 type WithPlace = CustomerAddress & {
-  upazila: { nameEn: string };
-  district: { nameEn: string };
+  upazila: { nameEn: string; nameBn: string };
+  district: { nameEn: string; nameBn: string };
 };
 
 @Injectable()
@@ -33,6 +33,7 @@ export class AddressesService {
       landmark: a.landmark,
       isDefault: a.isDefault,
       placeText: `${a.upazila.nameEn}, ${a.district.nameEn}`,
+      placeTextBn: `${a.upazila.nameBn}, ${a.district.nameBn}`,
     };
   }
 

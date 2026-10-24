@@ -21,6 +21,19 @@ describe('geo', () => {
     expect(res.headers['cache-control']).toBe('public, max-age=86400');
   });
 
+  it('returns divisions in stable id order with one spelling of Chattogram', async () => {
+    const res = await request(app.getHttpServer()).get('/v1/public/geo/divisions').expect(200);
+    const ids = res.body.map((d: { id: number }) => d.id);
+    expect(ids).toEqual([...ids].sort((a: number, b: number) => a - b));
+    const names = res.body.map((d: { nameEn: string }) => d.nameEn);
+    expect(names).toContain('Chattogram');
+    expect(names).not.toContain('Chattagram');
+    const districts = await request(app.getHttpServer())
+      .get('/v1/public/geo/districts')
+      .expect(200);
+    expect(districts.body.map((d: { nameEn: string }) => d.nameEn)).toContain('Chattogram');
+  });
+
   it('lists 64 districts, filtered by division', async () => {
     const all = await request(app.getHttpServer()).get('/v1/public/geo/districts').expect(200);
     expect(all.body).toHaveLength(64);

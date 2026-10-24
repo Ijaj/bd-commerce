@@ -19,21 +19,28 @@ import type { Request, Response } from 'express';
 import type Redis from 'ioredis';
 import { CurrentStaff, StaffAuth } from '../auth/staff-auth.guard';
 import type { StaffAuthContext } from '../auth/staff-auth.service';
+import { clientIp } from '../common/client-ip';
 import { REDIS } from '../redis/redis.module';
+import { B2bDuesService } from './b2b-dues.service';
 import { B2bLedgerService } from './b2b-ledger.service';
 import {
   B2bAdjustDto,
   B2bAdjustResultDto,
   B2bCollectionsQueryDto,
+  B2bDuesDto,
+  B2bDuesQueryDto,
   B2bLedgerPageDto,
   B2bLedgerQueryDto,
   B2bLedgerRowDto,
   B2bShopsQueryDto,
   B2bUpdateShopDto,
   SrAdminSalesQueryDto,
+  SrCommissionAdjustmentPageDto,
+  SrCommissionAdjustmentsQueryDto,
   SrCommissionComputeDto,
   SrCommissionDto,
   SrCommissionListDto,
+  SrListItemDto,
   SrMemoLinkDto,
   SrMemoLinkQueryDto,
   SrMemoQueryDto,
@@ -171,6 +178,20 @@ export class SrAdminController {
 
   // ---- numbers, targets, commissions -------------------------------------
 
+  @Get('list')
+  @StaffAuth('b2b.view')
+  @ApiOkResponse({ type: [SrListItemDto] })
+  srList() {
+    return this.stats.srList();
+  }
+
+  @Get('commission-adjustments')
+  @StaffAuth('sr.manage')
+  @ApiOkResponse({ type: SrCommissionAdjustmentPageDto })
+  adjustments(@Query() q: SrCommissionAdjustmentsQueryDto) {
+    return this.stats.listAdjustments(q);
+  }
+
   @Get('summary')
   @StaffAuth('b2b.view')
   @ApiOkResponse({ type: SrSummaryDto })
@@ -225,6 +246,8 @@ export class SrAdminController {
   }
 }
 
+const MEMO_LIMIT_PER_MIN = 60; // C50
+
 /** Unauthenticated memo page behind an unguessable token (C38). */
 @ApiTags('sr-public')
 @Controller('public/memo')
@@ -243,13 +266,10 @@ export class SrPublicMemoController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    // Only Cloudflare Tunnel reaches the API, so its client-IP header is trusted (as for staff).
-    const cfIp = req.headers['cf-connecting-ip'];
-    const ip = (typeof cfIp === 'string' ? cfIp : undefined) ?? req.ip ?? 'unknown';
-    const key = `memo:ip:${ip}`;
+    const key = `memo:ip:${clientIp(req) ?? 'unknown'}`;
     const hits = await this.redis.incr(key);
     if (hits === 1) await this.redis.expire(key, 60);
-    if (hits > 30) {
+    if (hits > MEMO_LIMIT_PER_MIN) {
       res.setHeader('Retry-After', '60');
       throw new HttpException('Too many requests', 429);
     }
@@ -266,7 +286,16 @@ export class B2bAdminController {
   constructor(
     private readonly shops: SrShopsService,
     private readonly ledger: B2bLedgerService,
+    private readonly dues: B2bDuesService,
   ) {}
+
+  /** Dues ageing per shop (0-30, 31-60, 61-90, 90+ days), oldest-first against collections. */
+  @Get('dues')
+  @StaffAuth('b2b.view')
+  @ApiOkResponse({ type: B2bDuesDto })
+  duesAgeing(@Query() q: B2bDuesQueryDto) {
+    return this.dues.dues(q.asOf);
+  }
 
   @Get('shops')
   @StaffAuth('b2b.view')

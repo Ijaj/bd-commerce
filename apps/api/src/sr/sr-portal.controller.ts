@@ -27,12 +27,12 @@ import {
   SrPortalMeDto,
   SrPortalProductDto,
   SrPortalProductsQueryDto,
+  SrPortalShopDto,
+  SrPortalShopPageDto,
   SrSaleDetailDto,
   SrSalePageDto,
   SrSalesQueryDto,
   SrShopDetailDto,
-  SrShopDto,
-  SrShopPageDto,
   SrShopsQueryDto,
 } from './sr.dto';
 import { SrMemoService, sendHtml } from './sr-memo.service';
@@ -77,14 +77,14 @@ export class SrPortalController {
   }
 
   @Get('shops')
-  @ApiOkResponse({ type: SrShopPageDto })
+  @ApiOkResponse({ type: SrPortalShopPageDto })
   async shopList(@CurrentStaff() ctx: StaffAuthContext, @Query() q: SrShopsQueryDto) {
     await this.sr(ctx);
     return this.shops.portalList(q);
   }
 
   @Post('shops')
-  @ApiCreatedResponse({ type: SrShopDto })
+  @ApiCreatedResponse({ type: SrPortalShopDto })
   async createShop(@CurrentStaff() ctx: StaffAuthContext, @Body() body: SrCreateShopDto) {
     return this.shops.create(await this.sr(ctx), body);
   }

@@ -206,7 +206,7 @@ describe('customer hardening', () => {
       );
     });
 
-    it('locks a phone for the day after 10 wrong guesses across different codes', async () => {
+    it('locks a phone for an hour after 10 wrong guesses across different codes', async () => {
       const phone = '01712345678';
       const a = guest();
       const attempt = (code: string) =>
@@ -221,7 +221,37 @@ describe('customer hardening', () => {
       await a.post('/v1/customer/auth/otp').send({ phone, purpose: 'signup' }).expect(200);
       const locked = await attempt(lastOtp(app)).expect(429);
       expect(locked.body.code).toBe('TOO_MANY_ATTEMPTS');
+      expect(locked.body.retryAfterSec).toBeGreaterThan(3500);
+      expect(locked.body.retryAfterSec).toBeLessThanOrEqual(3600);
       expect(await prisma.customer.count()).toBe(0);
+
+      // Once the hour is over the phone may try again, and a right code works and clears the count.
+      await redis.del(`cust-otp:lock:${phone}:signup`);
+      await attempt(lastOtp(app)).expect(200);
+      expect(await redis.get(`cust-otp:fail:${phone}:signup`)).toBeNull();
+    });
+
+    it('locks for a day at 30 wrong guesses, and a new code does not reset the count', async () => {
+      const phone = '01712345678';
+      const a = guest();
+      await a.post('/v1/customer/auth/otp').send({ phone, purpose: 'signup' }).expect(200);
+      const right = lastOtp(app);
+      const wrong = right === '000000' ? '000001' : '000000';
+      await redis.set(`cust-otp:fail:${phone}:signup`, '29', 'EX', 86_400);
+      await a
+        .post('/v1/customer/auth/signup')
+        .send({ name: 'R', phone, password: PASSWORD, code: wrong })
+        .expect(400);
+      await skipCooldown(phone);
+      await a.post('/v1/customer/auth/otp').send({ phone, purpose: 'signup' }).expect(200);
+      const res = await a
+        .post('/v1/customer/auth/signup')
+        .send({ name: 'R', phone, password: PASSWORD, code: lastOtp(app) })
+        .expect(429);
+      expect(res.body.code).toBe('TOO_MANY_ATTEMPTS');
+      expect(res.body.retryAfterSec).toBeGreaterThan(80_000);
+      // The lock is per purpose: password reset for the same number is not affected.
+      expect(await redis.exists(`cust-otp:lock:${phone}:reset`)).toBe(0);
     });
 
     it('a correct code clears the failure count', async () => {

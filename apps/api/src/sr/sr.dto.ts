@@ -119,15 +119,21 @@ export type SrSaleListView = z.infer<typeof saleView>;
 export type SrSaleDetailView = z.infer<typeof saleDetailView>;
 export type B2bLedgerView = z.infer<typeof ledgerView>;
 
+const portalShopView = shopView.omit({ notes: true });
+export type SrPortalShopView = z.infer<typeof portalShopView>;
+
 export class SrShopDto extends createZodDto(shopView) {}
 export class SrShopPageDto extends createZodDto(pageOf(shopView)) {}
+/** SR-facing shop: no staff notes. */
+export class SrPortalShopDto extends createZodDto(portalShopView) {}
+export class SrPortalShopPageDto extends createZodDto(pageOf(portalShopView)) {}
 export class SrSaleDto extends createZodDto(saleView) {}
 export class SrSalePageDto extends createZodDto(pageOf(saleView)) {}
 export class SrSaleDetailDto extends createZodDto(saleDetailView) {}
 export class B2bLedgerRowDto extends createZodDto(ledgerView) {}
 export class B2bLedgerPageDto extends createZodDto(pageOf(ledgerView)) {}
 export class SrShopDetailDto extends createZodDto(
-  shopView.extend({
+  portalShopView.extend({
     /** Portal: only this SR's own entries. Admin uses the ledger endpoint instead. */
     ledger: z.array(ledgerView),
   }),
@@ -201,7 +207,7 @@ export class SrCreateSaleDto extends createZodDto(
         z.object({
           variantId: z.uuid(),
           qty: z.number().int().min(1).max(100_000),
-          unitPriceP: moneyP,
+          unitPriceP: z.number().int().min(100).max(MAX_MONEY_P),
         }),
       )
       .min(1)
@@ -246,6 +252,8 @@ export class SrAdminSalesQueryDto extends createZodDto(
     status: z.enum(SALE_STATUSES).optional(),
     srId: z.uuid().optional(),
     shopId: z.uuid().optional(),
+    /** YYYY-MM, by submission date (Dhaka time). */
+    month: month.optional(),
     page,
     pageSize,
   }),
@@ -362,7 +370,18 @@ const commissionView = z.object({
   month: z.string(),
   baseP: z.number().int(),
   commissionBp: z.number().int(),
+  /** Final amount: base x rate minus applied adjustments (never below 0). */
   amountP: z.number().int(),
+  /** Sum of adjustments applied to this row (<= 0). */
+  adjustmentP: z.number().int(),
+  adjustments: z.array(
+    z.object({
+      id: z.uuid(),
+      amountP: z.number().int(),
+      reason: z.string(),
+      srSaleId: z.uuid().nullable(),
+    }),
+  ),
   status: z.enum(['pending', 'approved', 'paid']),
   paidAt: iso.nullable(),
 });
@@ -382,4 +401,69 @@ export class SrCommissionComputeDto extends createZodDto(
 
 export class B2bAdjustResultDto extends createZodDto(
   z.object({ entry: ledgerView, dueBalanceP: z.number().int() }),
+) {}
+
+const adjustmentView = z.object({
+  id: z.uuid(),
+  sr: nameRef,
+  srSaleId: z.uuid().nullable(),
+  memoNo: z.string().nullable(),
+  /** Negative = deduction. */
+  amountP: z.number().int(),
+  reason: z.string(),
+  appliedTo: z.object({ id: z.uuid(), month: z.string() }).nullable(),
+  createdAt: iso,
+});
+export type SrAdjustmentView = z.infer<typeof adjustmentView>;
+export class SrCommissionAdjustmentPageDto extends createZodDto(pageOf(adjustmentView)) {}
+export class SrCommissionAdjustmentsQueryDto extends createZodDto(
+  z.object({
+    srId: z.uuid().optional(),
+    applied: z.enum(['true', 'false']).optional(),
+    page,
+    pageSize,
+  }),
+) {}
+
+export class SrListItemDto extends createZodDto(
+  z.object({ staffId: z.uuid(), name: z.string() }),
+) {}
+
+// ---- dues ageing ---------------------------------------------------------
+
+export class B2bDuesQueryDto extends createZodDto(
+  z.object({
+    asOf: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, 'asOf must be YYYY-MM-DD')
+      .optional(),
+  }),
+) {}
+
+const buckets = z.object({
+  d0_30: z.number().int(),
+  d31_60: z.number().int(),
+  d61_90: z.number().int(),
+  d90plus: z.number().int(),
+});
+export type B2bBuckets = z.infer<typeof buckets>;
+export class B2bDuesDto extends createZodDto(
+  z.object({
+    asOf: z.string(),
+    totals: buckets.extend({ dueP: z.number().int() }),
+    items: z.array(
+      z.object({
+        shop: z.object({
+          id: z.uuid(),
+          name: z.string(),
+          phone: z.string(),
+          area: z.string().nullable(),
+        }),
+        dueP: z.number().int(),
+        buckets,
+        lastCollectionAt: iso.nullable(),
+        srs: z.array(nameRef),
+      }),
+    ),
+  }),
 ) {}

@@ -214,6 +214,7 @@ describe('customer orders, tracking and addresses', () => {
         landmark: 'Blue gate',
         isDefault: true,
         placeText: 'Gulshan, Dhaka',
+        placeTextBn: 'গুলশান, ঢাকা',
       });
       const second = await a
         .post('/v1/customer/addresses')

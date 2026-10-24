@@ -168,11 +168,11 @@ export class CustomerAuthService {
     return { customer: updated, token: await this.startSession(customer.id, meta) };
   }
 
-  /** Q94: guest orders placed with this customer's verified phone join the account. */
+  /** Q94/C45: only guest orders whose phone was OTP-verified at checkout join the account. */
   async linkGuestOrders(customer: Customer) {
     if (!customer.phone || !customer.phoneVerifiedAt) return;
     await this.prisma.order.updateMany({
-      where: { customerId: null, guestPhone: customer.phone },
+      where: { customerId: null, guestPhone: customer.phone, guestOtpVerifiedAt: { not: null } },
       data: { customerId: customer.id },
     });
   }

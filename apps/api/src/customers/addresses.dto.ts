@@ -43,6 +43,8 @@ export class AddressDto extends createZodDto(
     isDefault: z.boolean(),
     /// "Upazila, District" in English
     placeText: z.string(),
+    /// The same in Bangla
+    placeTextBn: z.string(),
   }),
 ) {}
 

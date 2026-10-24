@@ -2,8 +2,14 @@ import { HttpStatus, Injectable, type NestMiddleware } from '@nestjs/common';
 import type { NextFunction, Request, Response } from 'express';
 import { SettingsService } from './settings.service';
 
-/** Paths that keep working in maintenance mode: admin, the site-status endpoint, health and docs. */
-const OPEN = [/^\/v1\/admin(\/|$)/, /^\/v1\/public\/site$/, /^\/health$/, /^\/docs/];
+/** Paths that keep working in maintenance mode: admin, the site-status endpoint, SR memo links, health and docs. */
+const OPEN = [
+  /^\/v1\/admin(\/|$)/,
+  /^\/v1\/public\/site$/,
+  /^\/v1\/public\/memo\//, // B2B records shared by link
+  /^\/health$/,
+  /^\/docs/,
+];
 
 /** While maintenance_mode is on, every other API route (customer-facing) answers 503. */
 @Injectable()
