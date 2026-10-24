@@ -16,6 +16,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { RedisModule } from './redis/redis.module';
 import { SettingsModule } from './settings/settings.module';
 import { SmsModule } from './sms/sms.module';
+import { SrModule } from './sr/sr.module';
 import { StaffModule } from './staff/staff.module';
 import { StorefrontModule } from './storefront/storefront.module';
 
@@ -38,6 +39,7 @@ import { StorefrontModule } from './storefront/storefront.module';
     SmsModule,
     CustomersModule,
     StorefrontModule,
+    SrModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_PIPE, useClass: ZodValidationPipe }],
