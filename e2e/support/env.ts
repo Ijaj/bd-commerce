@@ -7,6 +7,8 @@ export const ADMIN_PORT = 5180;
 export const ADMIN_URL = `http://localhost:${ADMIN_PORT}`;
 export const SHOP_PORT = 3180;
 export const SHOP_URL = `http://localhost:${SHOP_PORT}`;
+export const PORTAL_PORT = 5190;
+export const PORTAL_URL = `http://localhost:${PORTAL_PORT}`;
 export const API_URL = `http://localhost:${API_PORT}`;
 export const DB_NAME = 'bdc_e2e';
 export const DATABASE_URL = `postgresql://bdc:bdc_dev@localhost:5432/${DB_NAME}`;
@@ -30,6 +32,9 @@ export function apiEnv(): NodeJS.ProcessEnv {
     DATABASE_URL,
     REDIS_URL,
     ADMIN_ORIGIN: ADMIN_URL,
+    // Lets the e2e read SMS codes (GET /v1/test/last-sms) and builds memo links on the e2e origin.
+    E2E_EXPOSE_OTP: '1',
+    PUBLIC_API_URL: API_URL,
   };
 }
 

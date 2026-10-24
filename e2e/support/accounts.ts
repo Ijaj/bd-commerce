@@ -42,8 +42,15 @@ export async function enterPin(page: Page, code: string) {
   await page.keyboard.type(code, { delay: 30 });
 }
 
-/** Login (first time): completes 2FA setup and acknowledges the backup codes. */
-export async function loginAndSetup2fa(page: Page, account: Account): Promise<Account> {
+/**
+ * Login (first time): completes 2FA setup and acknowledges the backup codes. `done` is the heading
+ * the app shows afterwards (the admin dashboard by default; the portal shows its own home).
+ */
+export async function loginAndSetup2fa(
+  page: Page,
+  account: Account,
+  done: string | RegExp = 'Dashboard',
+): Promise<Account> {
   await submitLogin(page, account.email, account.password);
   await expect(page.getByRole('heading', { name: 'Set up two-factor' })).toBeVisible();
   const secret = (await page.locator('code').first().textContent())?.trim();
@@ -53,7 +60,7 @@ export async function loginAndSetup2fa(page: Page, account: Account): Promise<Ac
   const backupCodes = (await page.locator('code').allInnerTexts()).map((c) => c.trim());
   await page.getByLabel('I saved these codes somewhere safe').check();
   await page.getByRole('button', { name: 'Continue' }).click();
-  await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: done })).toBeVisible();
   return { ...account, secret, backupCodes };
 }
 

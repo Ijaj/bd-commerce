@@ -2,6 +2,7 @@
 // Used as a Playwright webServer; the build bakes API_URL into the /v1 rewrite, so it must run
 // with the same env as `next start`.
 import { execFileSync, spawn } from 'node:child_process';
+import { rmSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { API_URL, SHOP_PORT, SHOP_URL } from './env.ts';
 
@@ -15,6 +16,10 @@ for (let i = 0; ; i++) {
   if (i > 300) throw new Error(`API did not become healthy at ${API_URL}`);
   await new Promise((r) => setTimeout(r, 1000));
 }
+
+// The data cache (ISR fetch cache) survives builds and would serve product/variant ids from a
+// previous run's database for up to a minute after the e2e DB is recreated.
+rmSync(resolve(root, 'apps/shop/.next/cache'), { recursive: true, force: true });
 
 if (!process.env.E2E_SKIP_BUILD) {
   execFileSync('pnpm', ['--filter', './apps/shop', 'exec', 'next', 'build'], {
