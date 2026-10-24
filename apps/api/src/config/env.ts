@@ -24,6 +24,19 @@ const envSchema = z.object({
   OTP_SECRET: z.string().min(16).optional(),
   /// Only `dev` exists (Mailpit / test outbox) until the SMS gateway is chosen (Q75).
   SMS_PROVIDER: z.enum(['dev']).default('dev'),
+  /// Courier credentials (C51). All optional: a courier without keys can't book (NOT_CONFIGURED); `fake` needs none.
+  STEADFAST_BASE_URL: z.url().default('https://portal.packzy.com/api/v1'),
+  STEADFAST_API_KEY: z.string().optional(),
+  STEADFAST_SECRET_KEY: z.string().optional(),
+  /// Shared secret Steadfast sends as Bearer token on webhooks.
+  STEADFAST_WEBHOOK_TOKEN: z.string().optional(),
+  PATHAO_BASE_URL: z.url().default('https://api-hermes.pathao.com'),
+  PATHAO_CLIENT_ID: z.string().optional(),
+  PATHAO_CLIENT_SECRET: z.string().optional(),
+  PATHAO_USERNAME: z.string().optional(),
+  PATHAO_PASSWORD: z.string().optional(),
+  PATHAO_STORE_ID: z.string().optional(),
+  PATHAO_WEBHOOK_SECRET: z.string().optional(),
   /// e2e only: serves GET /v1/test/last-sms. Refused when NODE_ENV=production.
   E2E_EXPOSE_OTP: z.enum(['0', '1']).default('0'),
   /// Trust `cf-connecting-ip` (API reachable only through the Cloudflare Tunnel) when the peer is local.

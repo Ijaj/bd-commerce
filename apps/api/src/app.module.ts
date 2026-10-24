@@ -8,13 +8,17 @@ import { ImportExportModule } from './catalog/import-export/import-export.module
 import { ProductsModule } from './catalog/products/products.module';
 import { EnvModule } from './config/env.module';
 import { CustomersModule } from './customers/customers.module';
+import { DocumentsModule } from './documents/documents.module';
 import { HealthController } from './health/health.controller';
 import { InventoryModule } from './inventory/inventory.module';
 import { MailModule } from './mail/mail.module';
 import { MediaModule } from './media/media.module';
+import { OrdersAdminModule } from './orders-admin/orders-admin.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RedisModule } from './redis/redis.module';
+import { ReturnsModule } from './returns/returns.module';
 import { SettingsModule } from './settings/settings.module';
+import { ShipmentsModule } from './shipments/shipments.module';
 import { SmsModule } from './sms/sms.module';
 import { SrModule } from './sr/sr.module';
 import { StaffModule } from './staff/staff.module';
@@ -40,6 +44,10 @@ import { StorefrontModule } from './storefront/storefront.module';
     CustomersModule,
     StorefrontModule,
     SrModule,
+    OrdersAdminModule,
+    ShipmentsModule,
+    DocumentsModule,
+    ReturnsModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_PIPE, useClass: ZodValidationPipe }],

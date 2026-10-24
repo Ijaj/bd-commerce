@@ -926,6 +926,14 @@ model Order {
   paidP               Int           @default(0) @map("paid_p")
   refundedP           Int           @default(0) @map("refunded_p")
   codDueP             Int           @map("cod_due_p")
+  // Call-confirmation queue (C53, Q53/Q54): flagged orders wait for an optional staff call; never blocks.
+  riskScore           Int           @default(0) @map("risk_score")
+  /// string[] of reason codes: velocity_phone | velocity_ip | velocity_device | cod_high | first_guest
+  riskReasons         Json          @default("[]") @map("risk_reasons")
+  callStatus          CallStatus    @default(not_needed) @map("call_status")
+  callNote            String?       @map("call_note")
+  callStaffId         String?       @map("call_staff_id") @db.Uuid
+  callAt              DateTime?     @map("call_at") @db.Timestamptz
   // Checks
   guestOtpVerifiedAt  DateTime?     @map("guest_otp_verified_at") @db.Timestamptz
   placedAt            DateTime      @default(now()) @map("placed_at") @db.Timestamptz
@@ -934,12 +942,17 @@ model Order {
   createdAt           DateTime      @default(now()) @map("created_at") @db.Timestamptz
   updatedAt           DateTime      @updatedAt @map("updated_at") @db.Timestamptz
 
-  customer Customer?            @relation(fields: [customerId], references: [id])
-  zone     DeliveryZone         @relation(fields: [zoneId], references: [id])
-  items    OrderItem[]
-  history  OrderStatusHistory[]
-  payments Payment[]
+  customer  Customer?            @relation(fields: [customerId], references: [id])
+  zone      DeliveryZone         @relation(fields: [zoneId], references: [id])
+  items     OrderItem[]
+  history   OrderStatusHistory[]
+  payments  Payment[]
+  shipments Shipment[]
+  invoices  Invoice[]
+  returns   Return[]
+  refunds   Refund[]
 
+  @@index([callStatus, placedAt])
   @@index([customerId])
   @@index([guestPhone])
   @@index([status, placedAt])
@@ -968,9 +981,12 @@ model OrderItem {
   returnWindowDays Int?    @map("return_window_days")
   lineTotalP       Int     @map("line_total_p")
 
-  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
-  variant Variant @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  order         Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product       Product        @relation(fields: [productId], references: [id], onDelete: Restrict)
+  variant       Variant        @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  shipmentItems ShipmentItem[]
+  returnItems   ReturnItem[]
+  refundItems   RefundItem[]
 
   @@index([orderId])
   @@index([variantId])
@@ -1013,6 +1029,325 @@ model Payment {
 
   @@index([orderId])
   @@map("payments")
+}
+
+// ---------------------------------------------------------------------------
+// Step 5 order operations (doc 12 §6–7, C51–C54). Staff actor columns are plain uuids (no FK),
+// like orders.call_staff_id. Numbers: shipment_no SHP-YYMM-NNNNN, invoice_no INV-YYMM-NNNNN,
+// return_no RET-YYMM-NNNNN, from sequences shipment_no_seq / invoice_no_seq / return_no_seq.
+// ---------------------------------------------------------------------------
+
+enum CallStatus {
+  not_needed
+  pending
+  confirmed
+  unreachable
+  cancelled
+
+  @@map("call_status")
+}
+
+enum ShipmentSource {
+  warehouse
+  supplier
+
+  @@map("shipment_source")
+}
+
+enum ShipmentStatus {
+  pending
+  awaiting_supplier
+  supplier_confirmed
+  ready
+  booked
+  handed_over
+  in_transit
+  delivered
+  failed
+  returning
+  returned
+  cancelled
+
+  @@map("shipment_status")
+}
+
+enum BookingStatus {
+  requested
+  booked
+  failed
+  cancelled
+
+  @@map("booking_status")
+}
+
+model Courier {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  /// Adapter key: steadfast | pathao | fake
+  code      String   @unique
+  name      String
+  isActive  Boolean  @default(true) @map("is_active")
+  /// Non-secret config only; API keys come from env.
+  config    Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  shipments Shipment[]
+  bookings  CourierBooking[]
+
+  @@map("couriers")
+}
+
+model Shipment {
+  id                   String         @id @default(uuid(7)) @db.Uuid
+  orderId              String         @map("order_id") @db.Uuid
+  shipmentNo           String         @unique @map("shipment_no")
+  sellerId             String         @map("seller_id") @db.Uuid
+  source               ShipmentSource @default(warehouse)
+  supplierId           String?        @map("supplier_id") @db.Uuid
+  status               ShipmentStatus @default(pending)
+  weightG              Int?           @map("weight_g")
+  /// Cash the courier collects. Whole delivery charge sits on the first shipment sent (Q92).
+  codAmountP           Int            @default(0) @map("cod_amount_p")
+  deliveryChargeShareP Int            @default(0) @map("delivery_charge_share_p")
+  courierId            String?        @map("courier_id") @db.Uuid
+  consignmentId        String?        @map("consignment_id")
+  trackingUrl          String?        @map("tracking_url")
+  note                 String?
+  packedAt             DateTime?      @map("packed_at") @db.Timestamptz
+  handedAt             DateTime?      @map("handed_at") @db.Timestamptz
+  deliveredAt          DateTime?      @map("delivered_at") @db.Timestamptz
+  createdAt            DateTime       @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt            DateTime       @updatedAt @map("updated_at") @db.Timestamptz
+
+  order    Order            @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  courier  Courier?         @relation(fields: [courierId], references: [id])
+  items    ShipmentItem[]
+  bookings CourierBooking[]
+
+  @@index([orderId])
+  @@index([status])
+  @@index([consignmentId])
+  @@map("shipments")
+}
+
+model ShipmentItem {
+  id          String @id @default(uuid(7)) @db.Uuid
+  shipmentId  String @map("shipment_id") @db.Uuid
+  orderItemId String @map("order_item_id") @db.Uuid
+  qty         Int
+
+  shipment  Shipment  @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Restrict)
+
+  @@unique([shipmentId, orderItemId])
+  @@index([orderItemId])
+  @@map("shipment_items")
+}
+
+model CourierBooking {
+  id            String        @id @default(uuid(7)) @db.Uuid
+  shipmentId    String        @map("shipment_id") @db.Uuid
+  courierId     String        @map("courier_id") @db.Uuid
+  /// warehouse | supplier (pickup point)
+  pickup        String        @default("warehouse")
+  /// delivery | return (return pickups for step-5 returns)
+  direction     String        @default("delivery")
+  request       Json?
+  response      Json?
+  consignmentId String?       @map("consignment_id")
+  status        BookingStatus @default(requested)
+  attempt       Int           @default(1)
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz
+
+  shipment Shipment             @relation(fields: [shipmentId], references: [id], onDelete: Restrict)
+  courier  Courier              @relation(fields: [courierId], references: [id])
+  events   CourierStatusEvent[]
+
+  @@index([shipmentId])
+  @@index([consignmentId])
+  @@map("courier_bookings")
+}
+
+model CourierStatusEvent {
+  id           String   @id @default(uuid(7)) @db.Uuid
+  bookingId    String   @map("booking_id") @db.Uuid
+  rawStatus    String   @map("raw_status")
+  mappedStatus String?  @map("mapped_status")
+  payload      Json?
+  at           DateTime @default(now()) @db.Timestamptz
+
+  booking CourierBooking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId, at])
+  @@map("courier_status_events")
+}
+
+model Invoice {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  orderId     String   @map("order_id") @db.Uuid
+  invoiceNo   String   @unique @map("invoice_no")
+  issuedAt    DateTime @default(now()) @map("issued_at") @db.Timestamptz
+  /// VAT-inclusive prices (Q95): vat_total_p is the VAT portion inside grand_total_p.
+  vatRateBp   Int      @map("vat_rate_bp")
+  vatTotalP   Int      @map("vat_total_p")
+  grandTotalP Int      @map("grand_total_p")
+  binSnapshot String?  @map("bin_snapshot")
+  /// Frozen print data (store info, bill-to, lines) so reprints match the first issue.
+  snapshot    Json
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@map("invoices")
+}
+
+enum ReturnStatus {
+  requested
+  approved
+  rejected
+  pickup_booked
+  received
+  inspected
+  closed
+
+  @@map("return_status")
+}
+
+enum ReturnFault {
+  ours
+  customer
+
+  @@map("return_fault")
+}
+
+enum ReturnReason {
+  wrong_item
+  damaged
+  defective
+  not_as_described
+  change_of_mind
+  other
+
+  @@map("return_reason")
+}
+
+enum ReturnCondition {
+  resellable
+  damaged
+
+  @@map("return_condition")
+}
+
+enum RefundMethod {
+  original
+  wallet
+
+  @@map("refund_method")
+}
+
+enum RefundStatus {
+  pending_approval
+  approved
+  rejected
+  processing
+  done
+  failed
+
+  @@map("refund_status")
+}
+
+model Return {
+  id              String       @id @default(uuid(7)) @db.Uuid
+  returnNo        String       @unique @map("return_no")
+  orderId         String       @map("order_id") @db.Uuid
+  customerId      String?      @map("customer_id") @db.Uuid
+  status          ReturnStatus @default(requested)
+  /// Decides who pays return shipping (Q87): ours = we pay, customer = customer pays.
+  fault           ReturnFault?
+  returnShippingP Int          @default(0) @map("return_shipping_p")
+  pickupBookingId String?      @map("pickup_booking_id") @db.Uuid
+  staffId         String?      @map("staff_id") @db.Uuid
+  note            String?
+  rejectReason    String?      @map("reject_reason")
+  requestedAt     DateTime     @default(now()) @map("requested_at") @db.Timestamptz
+  updatedAt       DateTime     @updatedAt @map("updated_at") @db.Timestamptz
+
+  order   Order         @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  items   ReturnItem[]
+  media   ReturnMedia[]
+  refunds Refund[]
+
+  @@index([orderId])
+  @@index([status])
+  @@map("returns")
+}
+
+model ReturnItem {
+  id          String           @id @default(uuid(7)) @db.Uuid
+  returnId    String           @map("return_id") @db.Uuid
+  orderItemId String           @map("order_item_id") @db.Uuid
+  qty         Int
+  reason      ReturnReason
+  note        String?
+  condition   ReturnCondition?
+  restock     Boolean          @default(false)
+
+  return    Return    @relation(fields: [returnId], references: [id], onDelete: Cascade)
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Restrict)
+
+  @@index([returnId])
+  @@index([orderItemId])
+  @@map("return_items")
+}
+
+model ReturnMedia {
+  id       String @id @default(uuid(7)) @db.Uuid
+  returnId String @map("return_id") @db.Uuid
+  mediaId  String @map("media_id") @db.Uuid
+
+  return Return @relation(fields: [returnId], references: [id], onDelete: Cascade)
+
+  @@index([returnId])
+  @@map("return_media")
+}
+
+model Refund {
+  id            String       @id @default(uuid(7)) @db.Uuid
+  orderId       String       @map("order_id") @db.Uuid
+  returnId      String?      @map("return_id") @db.Uuid
+  amountP       Int          @map("amount_p")
+  method        RefundMethod
+  status        RefundStatus @default(pending_approval)
+  needsApproval Boolean      @default(false) @map("needs_approval")
+  requestedBy   String?      @map("requested_by") @db.Uuid
+  approvedBy    String?      @map("approved_by") @db.Uuid
+  approvedAt    DateTime?    @map("approved_at") @db.Timestamptz
+  providerRef   String?      @map("provider_ref")
+  note          String?
+  doneAt        DateTime?    @map("done_at") @db.Timestamptz
+  createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz
+
+  order  Order        @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  return Return?      @relation(fields: [returnId], references: [id])
+  items  RefundItem[]
+
+  @@index([orderId])
+  @@index([returnId])
+  @@index([status])
+  @@map("refunds")
+}
+
+model RefundItem {
+  id          String @id @default(uuid(7)) @db.Uuid
+  refundId    String @map("refund_id") @db.Uuid
+  orderItemId String @map("order_item_id") @db.Uuid
+  qty         Int
+  amountP     Int    @map("amount_p")
+
+  refund    Refund    @relation(fields: [refundId], references: [id], onDelete: Cascade)
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Restrict)
+
+  @@index([refundId])
+  @@map("refund_items")
 }
 
 // ---------------------------------------------------------------------------

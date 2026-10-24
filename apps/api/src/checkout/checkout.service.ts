@@ -10,6 +10,7 @@ import { GeoService, type PlaceNames } from '../geo/geo.service';
 import { InventoryService } from '../inventory/inventory.service';
 import { CommerceError } from '../orders/commerce.errors';
 import { OrderNotifyService } from '../orders/order-notify.service';
+import { RiskService } from '../orders/risk.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { REDIS } from '../redis/redis.module';
 import { SettingsService } from '../settings/settings.service';
@@ -60,6 +61,7 @@ export class CheckoutService {
     private readonly otp: OtpService,
     private readonly settings: SettingsService,
     private readonly notify: OrderNotifyService,
+    private readonly risk: RiskService,
     @Inject(REDIS) private readonly redis: Redis,
   ) {}
 
@@ -412,6 +414,7 @@ export class CheckoutService {
             status: 'initiated',
           },
         });
+        await this.risk.assess(tx, order.id);
 
         // Sorted so two orders sharing variants lock rows in the same order (no deadlock).
         const reserving = lines

@@ -122,6 +122,45 @@ export const SETTINGS = {
     default: { maxOpenPerPhone: 3, dailyCapP: 2_000_000, perIpPerHour: 5 },
     public: false,
   },
+  store_info: {
+    group: 'Orders',
+    description:
+      'Store details printed on invoices and labels. VAT is included in prices (Q95): vatRateBp is basis points (1500 = 15%), bin is the Business Identification Number.',
+    schema: z.object({
+      name: z.string().max(120),
+      address: z.string().max(300),
+      phone: z.string().max(30),
+      email: z.string().max(120),
+      bin: z.string().max(40),
+      vatRateBp: z.number().int().min(0).max(10000),
+    }),
+    default: { name: 'bd-commerce', address: '', phone: '', email: '', bin: '', vatRateBp: 1500 },
+    public: false,
+  },
+  call_queue: {
+    group: 'Orders',
+    description:
+      'Which orders enter the call-confirmation queue (C53, Q54). codAboveP: COD total at or above (paisa). Velocity: that many orders from the same phone / IP within the window flags the order. firstGuest: flag first-time guest orders.',
+    schema: z.object({
+      codAboveP: z.number().int().min(0),
+      velocityCount: z.number().int().min(2).max(100),
+      velocityWindowHours: z.number().int().min(1).max(168),
+      firstGuest: z.boolean(),
+    }),
+    default: { codAboveP: 500000, velocityCount: 3, velocityWindowHours: 24, firstGuest: true },
+    public: false,
+  },
+  returns: {
+    group: 'Orders',
+    description:
+      'Default return window in days (Q59; products/categories may override) and refund amount (paisa) above which a second staff member with refunds.approve must approve.',
+    schema: z.object({
+      windowDays: z.number().int().min(0).max(365),
+      refundApprovalAboveP: z.number().int().min(0),
+    }),
+    default: { windowDays: 7, refundApprovalAboveP: 300000 },
+    public: false,
+  },
   sr_default_commission_bp: {
     group: 'SR / B2B',
     description: 'SR commission in basis points of money collected (Q120), unless set per SR.',

@@ -61,6 +61,15 @@ export const PERMISSIONS = {
   // Step 4: orders + delivery.
   'orders.view': { group: 'Orders', description: 'View orders' },
   'orders.manage': { group: 'Orders', description: 'Change order status, hold, cancel' },
+  // Step 5: order operations.
+  'orders.call': { group: 'Orders', description: 'Work the call-confirmation queue' },
+  'shipments.manage': {
+    group: 'Orders',
+    description: 'Create shipments, book couriers, print invoices and labels',
+  },
+  'returns.manage': { group: 'Orders', description: 'Handle return requests and receive returns' },
+  'refunds.manage': { group: 'Orders', description: 'Create refunds below the approval threshold' },
+  'refunds.approve': { group: 'Orders', description: 'Approve refunds above the threshold' },
   'delivery.manage': {
     group: 'Settings',
     description: 'Manage delivery zones, charges and zone locations',
