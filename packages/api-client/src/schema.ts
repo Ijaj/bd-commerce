@@ -1716,6 +1716,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/sr/list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SrAdminController_srList"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/sr/commission-adjustments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SrAdminController_adjustments"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/sr/summary": {
         parameters: {
             query?: never;
@@ -1820,6 +1852,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["SrPublicMemoController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/b2b/dues": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["B2bAdminController_duesAgeing"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2959,6 +3007,7 @@ export interface components {
             landmark: string | null;
             isDefault: boolean;
             placeText: string;
+            placeTextBn: string;
         }[];
         CreateAddressDto: {
             label?: string | null;
@@ -2983,6 +3032,7 @@ export interface components {
             landmark: string | null;
             isDefault: boolean;
             placeText: string;
+            placeTextBn: string;
         };
         UpdateAddressDto: {
             label?: string | null;
@@ -3783,7 +3833,7 @@ export interface components {
             priceP: number;
             available: number;
         };
-        SrShopPageDto: {
+        SrPortalShopPageDto: {
             items: {
                 /** Format: uuid */
                 id: string;
@@ -3796,7 +3846,6 @@ export interface components {
                 /** @enum {string} */
                 status: "active" | "blocked";
                 dueBalanceP: number;
-                notes: string | null;
                 createdBy: {
                     /** Format: uuid */
                     id: string;
@@ -3816,7 +3865,7 @@ export interface components {
             address: string;
             area?: string | null;
         };
-        SrShopDto: {
+        SrPortalShopDto: {
             /** Format: uuid */
             id: string;
             name: string;
@@ -3828,7 +3877,6 @@ export interface components {
             /** @enum {string} */
             status: "active" | "blocked";
             dueBalanceP: number;
-            notes: string | null;
             createdBy: {
                 /** Format: uuid */
                 id: string;
@@ -3849,7 +3897,6 @@ export interface components {
             /** @enum {string} */
             status: "active" | "blocked";
             dueBalanceP: number;
-            notes: string | null;
             createdBy: {
                 /** Format: uuid */
                 id: string;
@@ -4141,6 +4188,36 @@ export interface components {
             area?: string | null;
             commissionBp?: number | null;
         };
+        SrListItemDto: {
+            /** Format: uuid */
+            staffId: string;
+            name: string;
+        };
+        SrCommissionAdjustmentPageDto: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                sr: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                };
+                srSaleId: string | null;
+                memoNo: string | null;
+                amountP: number;
+                reason: string;
+                appliedTo: {
+                    /** Format: uuid */
+                    id: string;
+                    month: string;
+                } | null;
+                /** Format: date-time */
+                createdAt: string;
+            }[];
+            total: number;
+            page: number;
+            pageSize: number;
+        };
         SrSummaryDto: {
             month: string;
             items: {
@@ -4185,6 +4262,14 @@ export interface components {
                 baseP: number;
                 commissionBp: number;
                 amountP: number;
+                adjustmentP: number;
+                adjustments: {
+                    /** Format: uuid */
+                    id: string;
+                    amountP: number;
+                    reason: string;
+                    srSaleId: string | null;
+                }[];
                 /** @enum {string} */
                 status: "pending" | "approved" | "paid";
                 paidAt: string | null;
@@ -4204,6 +4289,14 @@ export interface components {
                 baseP: number;
                 commissionBp: number;
                 amountP: number;
+                adjustmentP: number;
+                adjustments: {
+                    /** Format: uuid */
+                    id: string;
+                    amountP: number;
+                    reason: string;
+                    srSaleId: string | null;
+                }[];
                 /** @enum {string} */
                 status: "pending" | "approved" | "paid";
                 paidAt: string | null;
@@ -4222,9 +4315,96 @@ export interface components {
             baseP: number;
             commissionBp: number;
             amountP: number;
+            adjustmentP: number;
+            adjustments: {
+                /** Format: uuid */
+                id: string;
+                amountP: number;
+                reason: string;
+                srSaleId: string | null;
+            }[];
             /** @enum {string} */
             status: "pending" | "approved" | "paid";
             paidAt: string | null;
+        };
+        B2bDuesDto: {
+            asOf: string;
+            totals: {
+                d0_30: number;
+                d31_60: number;
+                d61_90: number;
+                d90plus: number;
+                dueP: number;
+            };
+            items: {
+                shop: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                    phone: string;
+                    area: string | null;
+                };
+                dueP: number;
+                buckets: {
+                    d0_30: number;
+                    d31_60: number;
+                    d61_90: number;
+                    d90plus: number;
+                };
+                lastCollectionAt: string | null;
+                srs: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                }[];
+            }[];
+        };
+        SrShopPageDto: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+                ownerName: string | null;
+                phone: string;
+                address: string;
+                area: string | null;
+                isNew: boolean;
+                /** @enum {string} */
+                status: "active" | "blocked";
+                dueBalanceP: number;
+                notes: string | null;
+                createdBy: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                };
+                /** Format: date-time */
+                createdAt: string;
+            }[];
+            total: number;
+            page: number;
+            pageSize: number;
+        };
+        SrShopDto: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            ownerName: string | null;
+            phone: string;
+            address: string;
+            area: string | null;
+            isNew: boolean;
+            /** @enum {string} */
+            status: "active" | "blocked";
+            dueBalanceP: number;
+            notes: string | null;
+            createdBy: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            };
+            /** Format: date-time */
+            createdAt: string;
         };
         B2bUpdateShopDto: {
             name?: string;
@@ -7303,7 +7483,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SrShopPageDto"];
+                    "application/json": components["schemas"]["SrPortalShopPageDto"];
                 };
             };
         };
@@ -7326,7 +7506,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SrShopDto"];
+                    "application/json": components["schemas"]["SrPortalShopDto"];
                 };
             };
         };
@@ -7559,6 +7739,7 @@ export interface operations {
                 status?: "submitted" | "approved" | "rejected" | "delivered" | "cancelled" | "reversed";
                 srId?: string;
                 shopId?: string;
+                month?: string;
                 page?: number;
                 pageSize?: number;
             };
@@ -7803,6 +7984,49 @@ export interface operations {
             };
         };
     };
+    SrAdminController_srList: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrListItemDto"][];
+                };
+            };
+        };
+    };
+    SrAdminController_adjustments: {
+        parameters: {
+            query?: {
+                srId?: string;
+                applied?: "true" | "false";
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrCommissionAdjustmentPageDto"];
+                };
+            };
+        };
+    };
     SrAdminController_summary: {
         parameters: {
             query?: {
@@ -7974,6 +8198,27 @@ export interface operations {
                 };
                 content: {
                     "text/html": string;
+                };
+            };
+        };
+    };
+    B2bAdminController_duesAgeing: {
+        parameters: {
+            query?: {
+                asOf?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["B2bDuesDto"];
                 };
             };
         };

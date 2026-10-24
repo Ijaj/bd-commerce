@@ -238,6 +238,7 @@ describe('AddressesManager', () => {
     landmark: null,
     isDefault: true,
     placeText: 'Gulshan, Dhaka',
+    placeTextBn: 'গুলশান, ঢাকা',
   };
 
   beforeEach(() => {

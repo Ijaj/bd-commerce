@@ -5,7 +5,7 @@ type S = components['schemas'];
 
 export type SrMe = S['SrPortalMeDto'];
 export type SrProduct = S['SrPortalProductDto'];
-export type SrShop = S['SrShopDto'];
+export type SrShop = S['SrPortalShopDto'];
 export type SrShopDetail = S['SrShopDetailDto'];
 export type SrLedgerRow = S['B2bLedgerRowDto'];
 export type SrSaleSummary = S['SrSalePageDto']['items'][number];

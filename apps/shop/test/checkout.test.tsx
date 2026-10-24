@@ -265,6 +265,7 @@ describe('CheckoutForm (logged in)', () => {
     landmark: null,
     isDefault: true,
     placeText: 'Gulshan, Dhaka',
+    placeTextBn: 'গুলশান, ঢাকা',
   };
 
   it('preselects the default saved address, quotes it and places with addressId', async () => {

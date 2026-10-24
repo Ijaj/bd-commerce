@@ -11,8 +11,13 @@ const config: NextConfig = {
   // The API serves imgproxy URLs as-is (already WebP, signed), so next/image is not used.
   images: { unoptimized: true },
   // Same-origin API for client components: the httpOnly bdc_cs cookie then works without CORS.
+  // Only the customer-facing API goes through the shop origin; /v1/admin and /v1/portal stay off it
+  // so a shop-side XSS can't reach staff endpoints (security review L1).
   async rewrites() {
-    return [{ source: '/v1/:path*', destination: `${API_URL}/v1/:path*` }];
+    return ['customer', 'cart', 'checkout', 'public'].map((area) => ({
+      source: `/v1/${area}/:path*`,
+      destination: `${API_URL}/v1/${area}/:path*`,
+    }));
   },
   // PWA (C28): the worker must never be served stale, or fixes cannot reach installed shops.
   async headers() {
