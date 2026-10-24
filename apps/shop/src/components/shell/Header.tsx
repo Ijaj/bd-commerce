@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { HeaderAccount, HeaderWishlist } from '~/features/account/HeaderLinks';
 import { SearchBox } from '~/features/browse/SearchBox';
+import { CartCount } from '~/features/cart/CartCount';
 import { dict, type Lang } from '~/i18n';
 import { href } from '~/i18n/routing';
 import { Icon } from '../Icon';
@@ -11,7 +12,6 @@ import { ThemeToggle } from './ThemeToggle';
 
 /**
  * Sticky header. Desktop: logo, search, wishlist/cart/account. Mobile: logo + toggles + cart, then search.
- * Counts are placeholders (0, hidden); the cart and wishlist agents replace the `*Count` slots.
  */
 export function Header({ lang }: { lang: Lang }) {
   const d = dict(lang).shell;
@@ -41,9 +41,7 @@ export function Header({ lang }: { lang: Lang }) {
           <Link href={href(lang, '/cart')} aria-label={d.cart}>
             <Icon name="cart" size={24} />
             <span className={s.lbl}>{d.cart}</span>
-            <span className={s.cnt} id="cart-count" hidden>
-              0
-            </span>
+            <CartCount lang={lang} />
           </Link>
           <HeaderAccount lang={lang} />
         </div>
@@ -57,6 +55,7 @@ export function Header({ lang }: { lang: Lang }) {
           <ThemeToggle lang={lang} />
           <Link className={s.cartM} href={href(lang, '/cart')} aria-label={d.cart}>
             <Icon name="cart" size={22} />
+            <CartCount lang={lang} />
           </Link>
         </div>
         <div className={`wrap ${s.r2}`}>

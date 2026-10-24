@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession } from '~/features/account/session';
+import { CartCount } from '~/features/cart/CartCount';
 import { dict, type Lang } from '~/i18n';
 import { href, stripLang } from '~/i18n/routing';
 import { Icon, type IconName } from '../Icon';
@@ -40,6 +41,7 @@ export function BottomNav({ lang }: { lang: Lang }) {
         >
           <Icon name={it.icon} size={22} />
           <span>{it.key === 'account' && !me ? d.shell.login : d.nav[it.key]}</span>
+          {it.key === 'cart' ? <CartCount lang={lang} className={s.badge} /> : null}
         </Link>
       ))}
     </nav>

@@ -36,3 +36,19 @@
     display: grid;
   }
 }
+
+.badge {
+  position: absolute;
+  top: 3px;
+  left: calc(50% + 4px);
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 10.5px;
+  line-height: 1;
+}

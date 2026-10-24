@@ -1323,9 +1323,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["TrackController_track"];
+        get?: never;
         put?: never;
-        post?: never;
+        post: operations["TrackController_track"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1492,6 +1492,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/portal/sr/sales/{id}/deliver": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["SrPortalController_deliver"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/portal/sr/sales/{id}/memo-link": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["SrPortalController_memoLink"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/portal/sr/sales/{id}/memo": {
         parameters: {
             query?: never;
@@ -1598,6 +1630,38 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["SrAdminController_deliver"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/sr/sales/{id}/reverse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["SrAdminController_reverse"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/sr/sales/{id}/memo-link": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["SrAdminController_memoLink"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1748,6 +1812,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/public/memo/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SrPublicMemoController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/b2b/shops": {
         parameters: {
             query?: never;
@@ -1822,6 +1902,22 @@ export interface paths {
         get: operations["B2bAdminController_collections"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/b2b/ledger/{id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["B2bAdminController_reject"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3574,6 +3670,10 @@ export interface components {
                 at: string;
             }[];
         };
+        OrderTrackRequestDto: {
+            orderNo: string;
+            phone: string;
+        };
         OrderTrackDto: {
             orderNo: string;
             /** @enum {string} */
@@ -3764,7 +3864,7 @@ export interface components {
                 b2bShopId: string;
                 shopName: string;
                 /** @enum {string} */
-                type: "sale_due" | "collection" | "adjustment";
+                type: "sale_due" | "collection" | "adjustment" | "reversal";
                 amountP: number;
                 method: string | null;
                 srSaleId: string | null;
@@ -3781,6 +3881,14 @@ export interface components {
                     name: string;
                 } | null;
                 confirmedAt: string | null;
+                rejected: boolean;
+                rejectedBy: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                } | null;
+                rejectedAt: string | null;
+                rejectReason: string | null;
                 note: string | null;
                 /** Format: date-time */
                 at: string;
@@ -3792,7 +3900,7 @@ export interface components {
                 id: string;
                 memoNo: string;
                 /** @enum {string} */
-                status: "submitted" | "approved" | "rejected" | "delivered" | "cancelled";
+                status: "submitted" | "approved" | "rejected" | "delivered" | "cancelled" | "reversed";
                 totalP: number;
                 paidAtSaleP: number;
                 dueP: number;
@@ -3812,6 +3920,15 @@ export interface components {
                     id: string;
                     name: string;
                 } | null;
+                /** @enum {string} */
+                deliveryBy: "sr" | "staff";
+                reversedAt: string | null;
+                reversedBy: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                } | null;
+                reverseReason: string | null;
                 shop: {
                     /** Format: uuid */
                     id: string;
@@ -3840,6 +3957,11 @@ export interface components {
             }[];
             /** @default 0 */
             paidAtSaleP: number;
+            /**
+             * @default staff
+             * @enum {string}
+             */
+            deliveryBy: "sr" | "staff";
             note?: string | null;
         };
         SrSaleDetailDto: {
@@ -3847,7 +3969,7 @@ export interface components {
             id: string;
             memoNo: string;
             /** @enum {string} */
-            status: "submitted" | "approved" | "rejected" | "delivered" | "cancelled";
+            status: "submitted" | "approved" | "rejected" | "delivered" | "cancelled" | "reversed";
             totalP: number;
             paidAtSaleP: number;
             dueP: number;
@@ -3867,6 +3989,15 @@ export interface components {
                 id: string;
                 name: string;
             } | null;
+            /** @enum {string} */
+            deliveryBy: "sr" | "staff";
+            reversedAt: string | null;
+            reversedBy: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            } | null;
+            reverseReason: string | null;
             shop: {
                 /** Format: uuid */
                 id: string;
@@ -3894,6 +4025,10 @@ export interface components {
                 lineTotalP: number;
             }[];
         };
+        SrMemoLinkDto: {
+            token: string;
+            url: string;
+        };
         SrCreateCollectionDto: {
             /** Format: uuid */
             b2bShopId: string;
@@ -3909,7 +4044,7 @@ export interface components {
             b2bShopId: string;
             shopName: string;
             /** @enum {string} */
-            type: "sale_due" | "collection" | "adjustment";
+            type: "sale_due" | "collection" | "adjustment" | "reversal";
             amountP: number;
             method: string | null;
             srSaleId: string | null;
@@ -3926,6 +4061,14 @@ export interface components {
                 name: string;
             } | null;
             confirmedAt: string | null;
+            rejected: boolean;
+            rejectedBy: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            } | null;
+            rejectedAt: string | null;
+            rejectReason: string | null;
             note: string | null;
             /** Format: date-time */
             at: string;
@@ -3938,7 +4081,7 @@ export interface components {
                 b2bShopId: string;
                 shopName: string;
                 /** @enum {string} */
-                type: "sale_due" | "collection" | "adjustment";
+                type: "sale_due" | "collection" | "adjustment" | "reversal";
                 amountP: number;
                 method: string | null;
                 srSaleId: string | null;
@@ -3955,6 +4098,14 @@ export interface components {
                     name: string;
                 } | null;
                 confirmedAt: string | null;
+                rejected: boolean;
+                rejectedBy: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                } | null;
+                rejectedAt: string | null;
+                rejectReason: string | null;
                 note: string | null;
                 /** Format: date-time */
                 at: string;
@@ -4098,7 +4249,7 @@ export interface components {
                 b2bShopId: string;
                 shopName: string;
                 /** @enum {string} */
-                type: "sale_due" | "collection" | "adjustment";
+                type: "sale_due" | "collection" | "adjustment" | "reversal";
                 amountP: number;
                 method: string | null;
                 srSaleId: string | null;
@@ -4115,6 +4266,14 @@ export interface components {
                     name: string;
                 } | null;
                 confirmedAt: string | null;
+                rejected: boolean;
+                rejectedBy: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                } | null;
+                rejectedAt: string | null;
+                rejectReason: string | null;
                 note: string | null;
                 /** Format: date-time */
                 at: string;
@@ -6932,15 +7091,16 @@ export interface operations {
     };
     TrackController_track: {
         parameters: {
-            query: {
-                orderNo: string;
-                phone: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrderTrackRequestDto"];
+            };
+        };
         responses: {
             200: {
                 headers: {
@@ -7195,7 +7355,7 @@ export interface operations {
     SrPortalController_saleList: {
         parameters: {
             query?: {
-                status?: "submitted" | "approved" | "rejected" | "delivered" | "cancelled";
+                status?: "submitted" | "approved" | "rejected" | "delivered" | "cancelled" | "reversed";
                 page?: number;
                 pageSize?: number;
             };
@@ -7280,6 +7440,50 @@ export interface operations {
             };
         };
     };
+    SrPortalController_deliver: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrSaleDetailDto"];
+                };
+            };
+        };
+    };
+    SrPortalController_memoLink: {
+        parameters: {
+            query?: {
+                rotate?: "1" | "true";
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrMemoLinkDto"];
+                };
+            };
+        };
+    };
     SrPortalController_memoHtml: {
         parameters: {
             query?: {
@@ -7352,7 +7556,7 @@ export interface operations {
     SrAdminController_list: {
         parameters: {
             query?: {
-                status?: "submitted" | "approved" | "rejected" | "delivered" | "cancelled";
+                status?: "submitted" | "approved" | "rejected" | "delivered" | "cancelled" | "reversed";
                 srId?: string;
                 shopId?: string;
                 page?: number;
@@ -7458,6 +7662,54 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SrSaleDetailDto"];
+                };
+            };
+        };
+    };
+    SrAdminController_reverse: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SrRejectSaleDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrSaleDetailDto"];
+                };
+            };
+        };
+    };
+    SrAdminController_memoLink: {
+        parameters: {
+            query?: {
+                rotate?: "1" | "true";
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrMemoLinkDto"];
                 };
             };
         };
@@ -7702,6 +7954,30 @@ export interface operations {
             };
         };
     };
+    SrPublicMemoController_get: {
+        parameters: {
+            query?: {
+                lang?: "en" | "bn";
+            };
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Printable memo (HTML) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/html": string;
+                };
+            };
+        };
+    };
     B2bAdminController_list: {
         parameters: {
             query?: {
@@ -7826,7 +8102,7 @@ export interface operations {
     B2bAdminController_collections: {
         parameters: {
             query?: {
-                status?: "pending" | "confirmed" | "all";
+                status?: "pending" | "confirmed" | "rejected" | "all";
                 page?: number;
                 pageSize?: number;
             };
@@ -7842,6 +8118,31 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["B2bLedgerPageDto"];
+                };
+            };
+        };
+    };
+    B2bAdminController_reject: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SrRejectSaleDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["B2bLedgerRowDto"];
                 };
             };
         };

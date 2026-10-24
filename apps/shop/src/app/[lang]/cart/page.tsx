@@ -1,20 +1,27 @@
 import type { Metadata } from 'next';
-import { ComingSoon } from '~/components/States';
+import { type CartNotice, CartView } from '~/features/cart/CartView';
+import { cartCookie, getCart } from '~/features/cart/server';
 import { dict } from '~/i18n';
 import { alternatesFor } from '~/i18n/routing';
 import { type LangProps, routeParams } from '~/lib/lang';
 
-// PLACEHOLDER: replace this page's body (keep routeParams + alternatesFor).
 export async function generateMetadata({ params }: LangProps): Promise<Metadata> {
   const { lang } = await routeParams(params);
   return {
     title: dict(lang).pages.cart,
     alternates: alternatesFor(lang, '/cart'),
-    robots: { index: false },
+    robots: { index: false, follow: false },
   };
 }
 
-export default async function Page({ params }: LangProps) {
+const NOTICES: CartNotice[] = ['changed', 'stock', 'empty'];
+
+export default async function Page({
+  params,
+  searchParams,
+}: LangProps & { searchParams: Promise<{ notice?: string }> }) {
   const { lang } = await routeParams(params);
-  return <ComingSoon lang={lang} title={dict(lang).pages.cart} />;
+  const { notice } = await searchParams;
+  const cart = await getCart(await cartCookie());
+  return <CartView lang={lang} initial={cart} notice={NOTICES.find((n) => n === notice)} />;
 }

@@ -3512,7 +3512,7 @@
             "in": "query",
             "schema": {
               "minimum": 0,
-              "maximum": 9007199254740991,
+              "maximum": 2000000000,
               "type": "integer"
             }
           },
@@ -3522,7 +3522,7 @@
             "in": "query",
             "schema": {
               "minimum": 0,
-              "maximum": 9007199254740991,
+              "maximum": 2000000000,
               "type": "integer"
             }
           },
@@ -4502,30 +4502,19 @@
       }
     },
     "/v1/public/track": {
-      "get": {
+      "post": {
         "operationId": "TrackController_track",
-        "parameters": [
-          {
-            "name": "orderNo",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "minLength": 3,
-              "maxLength": 20,
-              "type": "string"
-            }
-          },
-          {
-            "name": "phone",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "minLength": 5,
-              "maxLength": 30,
-              "type": "string"
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderTrackRequestDto"
+              }
             }
           }
-        ],
+        },
         "responses": {
           "200": {
             "description": "",
@@ -4923,7 +4912,8 @@
                 "approved",
                 "rejected",
                 "delivered",
-                "cancelled"
+                "cancelled",
+                "reversed"
               ]
             }
           },
@@ -5061,6 +5051,88 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SrSaleDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "sr-portal"
+        ]
+      }
+    },
+    "/v1/portal/sr/sales/{id}/deliver": {
+      "post": {
+        "operationId": "SrPortalController_deliver",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SrSaleDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "sr-portal"
+        ]
+      }
+    },
+    "/v1/portal/sr/sales/{id}/memo-link": {
+      "post": {
+        "operationId": "SrPortalController_memoLink",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "rotate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1",
+                "true"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SrMemoLinkDto"
                 }
               }
             }
@@ -5222,7 +5294,8 @@
                 "approved",
                 "rejected",
                 "delivered",
-                "cancelled"
+                "cancelled",
+                "reversed"
               ]
             }
           },
@@ -5426,6 +5499,98 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SrSaleDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "sr-admin"
+        ]
+      }
+    },
+    "/v1/admin/sr/sales/{id}/reverse": {
+      "post": {
+        "operationId": "SrAdminController_reverse",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SrRejectSaleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SrSaleDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "sr-admin"
+        ]
+      }
+    },
+    "/v1/admin/sr/sales/{id}/memo-link": {
+      "post": {
+        "operationId": "SrAdminController_memoLink",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "rotate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1",
+                "true"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SrMemoLinkDto"
                 }
               }
             }
@@ -5851,6 +6016,49 @@
         ]
       }
     },
+    "/v1/public/memo/{token}": {
+      "get": {
+        "operationId": "SrPublicMemoController_get",
+        "parameters": [
+          {
+            "name": "token",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lang",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "en",
+              "type": "string",
+              "enum": [
+                "en",
+                "bn"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Printable memo (HTML)",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "sr-public"
+        ]
+      }
+    },
     "/v1/admin/b2b/shops": {
       "get": {
         "operationId": "B2bAdminController_list",
@@ -6139,6 +6347,7 @@
               "enum": [
                 "pending",
                 "confirmed",
+                "rejected",
                 "all"
               ]
             }
@@ -6173,6 +6382,51 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/B2bLedgerPageDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "b2b-admin"
+        ]
+      }
+    },
+    "/v1/admin/b2b/ledger/{id}/reject": {
+      "post": {
+        "operationId": "B2bAdminController_reject",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SrRejectSaleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/B2bLedgerRowDto"
                 }
               }
             }
@@ -15766,6 +16020,25 @@
           "history"
         ]
       },
+      "OrderTrackRequestDto": {
+        "type": "object",
+        "properties": {
+          "orderNo": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 20
+          },
+          "phone": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 30
+          }
+        },
+        "required": [
+          "orderNo",
+          "phone"
+        ]
+      },
       "OrderTrackDto": {
         "type": "object",
         "properties": {
@@ -16642,7 +16915,8 @@
                   "enum": [
                     "sale_due",
                     "collection",
-                    "adjustment"
+                    "adjustment",
+                    "reversal"
                   ]
                 },
                 "amountP": {
@@ -16730,6 +17004,51 @@
                     }
                   ]
                 },
+                "rejected": {
+                  "type": "boolean"
+                },
+                "rejectedBy": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "rejectedAt": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "rejectReason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
                 "note": {
                   "type": [
                     "string",
@@ -16755,6 +17074,10 @@
                 "confirmed",
                 "confirmedBy",
                 "confirmedAt",
+                "rejected",
+                "rejectedBy",
+                "rejectedAt",
+                "rejectReason",
                 "note",
                 "at"
               ]
@@ -16800,7 +17123,8 @@
                     "approved",
                     "rejected",
                     "delivered",
-                    "cancelled"
+                    "cancelled",
+                    "reversed"
                   ]
                 },
                 "totalP": {
@@ -16907,6 +17231,55 @@
                     }
                   ]
                 },
+                "deliveryBy": {
+                  "type": "string",
+                  "enum": [
+                    "sr",
+                    "staff"
+                  ]
+                },
+                "reversedAt": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "reversedBy": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "reverseReason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
                 "shop": {
                   "type": "object",
                   "properties": {
@@ -16965,6 +17338,10 @@
                 "rejectedReason",
                 "deliveredAt",
                 "deliveredBy",
+                "deliveryBy",
+                "reversedAt",
+                "reversedBy",
+                "reverseReason",
                 "shop",
                 "sr",
                 "itemCount"
@@ -17038,6 +17415,14 @@
             "minimum": 0,
             "maximum": 2000000000
           },
+          "deliveryBy": {
+            "default": "staff",
+            "type": "string",
+            "enum": [
+              "sr",
+              "staff"
+            ]
+          },
           "note": {
             "anyOf": [
               {
@@ -17073,7 +17458,8 @@
               "approved",
               "rejected",
               "delivered",
-              "cancelled"
+              "cancelled",
+              "reversed"
             ]
           },
           "totalP": {
@@ -17178,6 +17564,55 @@
               {
                 "type": "null"
               }
+            ]
+          },
+          "deliveryBy": {
+            "type": "string",
+            "enum": [
+              "sr",
+              "staff"
+            ]
+          },
+          "reversedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reversedBy": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reverseReason": {
+            "type": [
+              "string",
+              "null"
             ]
           },
           "shop": {
@@ -17301,10 +17736,29 @@
           "rejectedReason",
           "deliveredAt",
           "deliveredBy",
+          "deliveryBy",
+          "reversedAt",
+          "reversedBy",
+          "reverseReason",
           "shop",
           "sr",
           "itemCount",
           "items"
+        ]
+      },
+      "SrMemoLinkDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "token",
+          "url"
         ]
       },
       "SrCreateCollectionDto": {
@@ -17368,7 +17822,8 @@
             "enum": [
               "sale_due",
               "collection",
-              "adjustment"
+              "adjustment",
+              "reversal"
             ]
           },
           "amountP": {
@@ -17456,6 +17911,51 @@
               }
             ]
           },
+          "rejected": {
+            "type": "boolean"
+          },
+          "rejectedBy": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rejectedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rejectReason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "note": {
             "type": [
               "string",
@@ -17481,6 +17981,10 @@
           "confirmed",
           "confirmedBy",
           "confirmedAt",
+          "rejected",
+          "rejectedBy",
+          "rejectedAt",
+          "rejectReason",
           "note",
           "at"
         ]
@@ -17511,7 +18015,8 @@
                   "enum": [
                     "sale_due",
                     "collection",
-                    "adjustment"
+                    "adjustment",
+                    "reversal"
                   ]
                 },
                 "amountP": {
@@ -17599,6 +18104,51 @@
                     }
                   ]
                 },
+                "rejected": {
+                  "type": "boolean"
+                },
+                "rejectedBy": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "rejectedAt": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "rejectReason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
                 "note": {
                   "type": [
                     "string",
@@ -17624,6 +18174,10 @@
                 "confirmed",
                 "confirmedBy",
                 "confirmedAt",
+                "rejected",
+                "rejectedBy",
+                "rejectedAt",
+                "rejectReason",
                 "note",
                 "at"
               ]
@@ -18310,7 +18864,8 @@
                 "enum": [
                   "sale_due",
                   "collection",
-                  "adjustment"
+                  "adjustment",
+                  "reversal"
                 ]
               },
               "amountP": {
@@ -18398,6 +18953,51 @@
                   }
                 ]
               },
+              "rejected": {
+                "type": "boolean"
+              },
+              "rejectedBy": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "name": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "rejectedAt": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "rejectReason": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
               "note": {
                 "type": [
                   "string",
@@ -18423,6 +19023,10 @@
               "confirmed",
               "confirmedBy",
               "confirmedAt",
+              "rejected",
+              "rejectedBy",
+              "rejectedAt",
+              "rejectReason",
               "note",
               "at"
             ]
