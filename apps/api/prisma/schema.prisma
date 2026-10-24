@@ -34,8 +34,8 @@ model Staff {
   createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz
 
-  totpResetBy     Staff?             @relation("TotpReset", fields: [totpResetById], references: [id])
-  totpResets      Staff[]            @relation("TotpReset")
+  totpResetBy     Staff?                   @relation("TotpReset", fields: [totpResetById], references: [id])
+  totpResets      Staff[]                  @relation("TotpReset")
   sessions        StaffSession[]
   devices         StaffKnownDevice[]
   backupCodes     StaffBackupCode[]
@@ -44,14 +44,15 @@ model Staff {
   media           Media[]
   stockMoves      StockMovement[]
   srProfile       SrProfile?
-  srSales         SrSale[]           @relation("SrSaleSr")
-  srApprovals     SrSale[]           @relation("SrSaleApprover")
-  srDeliveries    SrSale[]           @relation("SrSaleDeliverer")
+  srSales         SrSale[]                 @relation("SrSaleSr")
+  srApprovals     SrSale[]                 @relation("SrSaleApprover")
+  srDeliveries    SrSale[]                 @relation("SrSaleDeliverer")
   b2bShopsCreated B2bShop[]
-  ledgerRecorded  B2bLedger[]        @relation("LedgerRecordedBy")
-  ledgerConfirmed B2bLedger[]        @relation("LedgerConfirmedBy")
-  ledgerRejected  B2bLedger[]        @relation("LedgerRejectedBy")
-  srReversals     SrSale[]           @relation("SrSaleReverser")
+  ledgerRecorded  B2bLedger[]              @relation("LedgerRecordedBy")
+  ledgerConfirmed B2bLedger[]              @relation("LedgerConfirmedBy")
+  ledgerRejected  B2bLedger[]              @relation("LedgerRejectedBy")
+  srReversals     SrSale[]                 @relation("SrSaleReverser")
+  srCommissionAdj SrCommissionAdjustment[] @relation("SrCommissionAdjSr")
   srTargets       SrTarget[]
   srCommissions   SrCommission[]
   purchaseOrders  PurchaseOrder[]
@@ -1102,13 +1103,14 @@ model SrSale {
   memoTokenAt    DateTime?    @map("memo_token_at") @db.Timestamptz
   note           String?
 
-  sr          Staff        @relation("SrSaleSr", fields: [srStaffId], references: [id])
-  reversedBy  Staff?       @relation("SrSaleReverser", fields: [reversedById], references: [id])
-  shop        B2bShop      @relation(fields: [b2bShopId], references: [id])
-  approvedBy  Staff?       @relation("SrSaleApprover", fields: [approvedById], references: [id])
-  deliveredBy Staff?       @relation("SrSaleDeliverer", fields: [deliveredById], references: [id])
-  items       SrSaleItem[]
-  ledger      B2bLedger[]
+  sr                    Staff                    @relation("SrSaleSr", fields: [srStaffId], references: [id])
+  reversedBy            Staff?                   @relation("SrSaleReverser", fields: [reversedById], references: [id])
+  shop                  B2bShop                  @relation(fields: [b2bShopId], references: [id])
+  approvedBy            Staff?                   @relation("SrSaleApprover", fields: [approvedById], references: [id])
+  deliveredBy           Staff?                   @relation("SrSaleDeliverer", fields: [deliveredById], references: [id])
+  items                 SrSaleItem[]
+  ledger                B2bLedger[]
+  commissionAdjustments SrCommissionAdjustment[]
 
   @@index([srStaffId, submittedAt])
   @@index([b2bShopId])
@@ -1197,10 +1199,31 @@ model SrCommission {
   status       String    @default("pending")
   paidAt       DateTime? @map("paid_at") @db.Timestamptz
 
-  sr Staff @relation(fields: [srStaffId], references: [id])
+  sr          Staff                    @relation(fields: [srStaffId], references: [id])
+  adjustments SrCommissionAdjustment[]
 
   @@unique([srStaffId, month])
   @@map("sr_commissions")
+}
+
+/// Commission correction (C48), e.g. a reversed sale whose commission was already approved/paid.
+/// Unapplied rows (appliedToId null) are deducted by the SR's next commission run.
+model SrCommissionAdjustment {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  srStaffId   String   @map("sr_staff_id") @db.Uuid
+  srSaleId    String?  @map("sr_sale_id") @db.Uuid
+  /// Negative = deduction.
+  amountP     Int      @map("amount_p")
+  reason      String
+  appliedToId String?  @map("applied_to_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  sr        Staff         @relation("SrCommissionAdjSr", fields: [srStaffId], references: [id])
+  sale      SrSale?       @relation(fields: [srSaleId], references: [id])
+  appliedTo SrCommission? @relation(fields: [appliedToId], references: [id])
+
+  @@index([srStaffId, appliedToId])
+  @@map("sr_commission_adjustments")
 }
 
 // ---------------------------------------------------------------------------

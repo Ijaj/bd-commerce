@@ -288,3 +288,6 @@ Note on S6: our order tracking covers status until the parcel is handed to the c
 | C45 | Q94 refined: auto-link **only OTP-verified guest orders** to the account that verifies the phone |
 | C46 | SR unit price: **any price ≥ ৳1** (approver review is the control) |
 | C47 | SR paid-at-sale cash: **approval = confirmation** (approver checks cash at approve time) |
+| C48 | Reversing an SR sale whose commission is already approved/paid → **negative commission adjustment, auto-deducted in the SR's next commission run** (listed for staff) |
+| C49 | OTP wrong-code lockout **escalating, per purpose**: 1 h after 10 wrong codes, 24 h after 30 |
+| C50 | Public SR memo link limit **60 requests/min per IP** |
