@@ -723,4 +723,383 @@ describe('SR / B2B', () => {
       expect(out.items[0]).toMatchObject({ commissionBp: 300, amountP: 3_000 });
     });
   });
+
+  describe('wave 3: delivery choice, reject collection, reverse, public memo', () => {
+    const month = monthKey(new Date());
+
+    async function approvedSale(
+      over: {
+        qty?: number;
+        unitPriceP?: number;
+        paidAtSaleP?: number;
+        deliveryBy?: 'sr' | 'staff';
+      } = {},
+      stock = 50,
+    ) {
+      const v = await makeVariant(stock);
+      const shopId = await makeShop();
+      const res = await srA.agent.post('/v1/portal/sr/sales').send({
+        b2bShopId: shopId,
+        items: [{ variantId: v, qty: over.qty ?? 10, unitPriceP: over.unitPriceP ?? 40_000 }],
+        paidAtSaleP: over.paidAtSaleP ?? 0,
+        ...(over.deliveryBy && { deliveryBy: over.deliveryBy }),
+      });
+      expect(res.status).toBe(201);
+      await admin.agent.post(`/v1/admin/sr/sales/${res.body.id}/approve`).expect(200);
+      return { v, shopId, id: res.body.id as string };
+    }
+
+    it('delivery defaults to staff; an SR delivers only own sales they chose to deliver', async () => {
+      const staffSale = await approvedSale();
+      const own = await approvedSale({ deliveryBy: 'sr' });
+      expect((await srA.agent.get(`/v1/portal/sr/sales/${staffSale.id}`)).body.deliveryBy).toBe(
+        'staff',
+      );
+      expect((await srA.agent.get(`/v1/portal/sr/sales/${own.id}`)).body.deliveryBy).toBe('sr');
+
+      const refused = await srA.agent
+        .post(`/v1/portal/sr/sales/${staffSale.id}/deliver`)
+        .expect(403);
+      expect(refused.body.code).toBe('DELIVERY_BY_STAFF');
+      await srB.agent.post(`/v1/portal/sr/sales/${own.id}/deliver`).expect(404);
+
+      const done = await srA.agent.post(`/v1/portal/sr/sales/${own.id}/deliver`).expect(200);
+      expect(done.body).toMatchObject({ status: 'delivered', deliveredBy: { id: srA.id } });
+      expect(await level(own.v)).toMatchObject({ onHand: 40, reserved: 0 });
+      await srA.agent.post(`/v1/portal/sr/sales/${own.id}/deliver`).expect(409);
+
+      // staff can deliver either kind
+      await admin.agent.post(`/v1/admin/sr/sales/${staffSale.id}/deliver`).expect(200);
+
+      // not before approval
+      const v = await makeVariant(5);
+      const shopId = await makeShop();
+      const sub = (
+        await srA.agent.post('/v1/portal/sr/sales').send({
+          b2bShopId: shopId,
+          deliveryBy: 'sr',
+          items: [{ variantId: v, qty: 1, unitPriceP: 1 }],
+        })
+      ).body;
+      await srA.agent.post(`/v1/portal/sr/sales/${sub.id}/deliver`).expect(409);
+      await srA.agent
+        .post('/v1/portal/sr/sales')
+        .send({
+          b2bShopId: shopId,
+          deliveryBy: 'drone',
+          items: [{ variantId: v, qty: 1, unitPriceP: 1 }],
+        })
+        .expect(400);
+    });
+
+    it('rejecting a pending collection: reason, never counted, SR sees it', async () => {
+      const { shopId } = await approvedSale({ qty: 1, unitPriceP: 100_000 });
+      const col = (
+        await srA.agent
+          .post('/v1/portal/sr/collections')
+          .send({ b2bShopId: shopId, amountP: 60_000, method: 'cash' })
+          .expect(201)
+      ).body;
+      expect((await srA.agent.get('/v1/portal/sr/me')).body.month.pendingCollectionP).toBe(60_000);
+      // pending blocks collecting more than the rest
+      await srA.agent
+        .post('/v1/portal/sr/collections')
+        .send({ b2bShopId: shopId, amountP: 60_000, method: 'cash' })
+        .expect(409);
+
+      await srA.agent
+        .post(`/v1/admin/b2b/ledger/${col.id}/reject`)
+        .send({ reason: 'x' })
+        .expect(403);
+      await admin.agent.post(`/v1/admin/b2b/ledger/${col.id}/reject`).send({}).expect(400);
+      const rej = await admin.agent
+        .post(`/v1/admin/b2b/ledger/${col.id}/reject`)
+        .send({ reason: 'No such payment' })
+        .expect(200);
+      expect(rej.body).toMatchObject({
+        confirmed: false,
+        rejected: true,
+        rejectReason: 'No such payment',
+        rejectedBy: { id: admin.id },
+      });
+
+      expect(await shopDue(shopId)).toBe(100_000);
+      expect((await admin.agent.get('/v1/admin/b2b/collections').expect(200)).body.total).toBe(0);
+      const listed = (
+        await admin.agent.get('/v1/admin/b2b/collections?status=rejected').expect(200)
+      ).body;
+      expect(listed.items.map((r: { id: string }) => r.id)).toEqual([col.id]);
+      const mine = (await srA.agent.get('/v1/portal/sr/collections').expect(200)).body.items[0];
+      expect(mine).toMatchObject({
+        rejected: true,
+        rejectReason: 'No such payment',
+        confirmed: false,
+      });
+      const me = (await srA.agent.get('/v1/portal/sr/me')).body.month;
+      expect(me).toMatchObject({ pendingCollectionP: 0, collectedP: 0, dueOutstandingP: 100_000 });
+
+      // resolved once: no confirm after reject, no reject after confirm
+      expect(
+        (await admin.agent.post(`/v1/admin/b2b/ledger/${col.id}/confirm`).expect(409)).body.code,
+      ).toBe('ALREADY_REJECTED');
+      expect(
+        (
+          await admin.agent
+            .post(`/v1/admin/b2b/ledger/${col.id}/reject`)
+            .send({ reason: 'again' })
+            .expect(409)
+        ).body.code,
+      ).toBe('ALREADY_REJECTED');
+      const col2 = (
+        await srA.agent
+          .post('/v1/portal/sr/collections')
+          .send({ b2bShopId: shopId, amountP: 100_000, method: 'cash' })
+          .expect(201)
+      ).body;
+      await admin.agent.post(`/v1/admin/b2b/ledger/${col2.id}/confirm`).expect(200);
+      expect(
+        (
+          await admin.agent
+            .post(`/v1/admin/b2b/ledger/${col2.id}/reject`)
+            .send({ reason: 'late' })
+            .expect(409)
+        ).body.code,
+      ).toBe('ALREADY_CONFIRMED');
+      expect(await shopDue(shopId)).toBe(0);
+
+      // not a collection
+      const dueRow = await prisma.b2bLedger.findFirstOrThrow({ where: { type: 'sale_due' } });
+      expect(
+        (
+          await admin.agent
+            .post(`/v1/admin/b2b/ledger/${dueRow.id}/reject`)
+            .send({ reason: 'x' })
+            .expect(409)
+        ).body.code,
+      ).toBe('NOT_A_COLLECTION');
+
+      // commission ignores the rejected one
+      const out = (
+        await admin.agent.post(`/v1/admin/sr/commissions/compute?month=${month}`).expect(200)
+      ).body;
+      expect(out.items[0]).toMatchObject({ baseP: 100_000 });
+
+      // the database refuses to touch a resolved row
+      await expect(
+        prisma.$executeRaw`UPDATE b2b_ledger SET reject_reason = 'edited' WHERE id = ${col.id}::uuid`,
+      ).rejects.toThrow();
+      await expect(
+        prisma.$executeRaw`UPDATE b2b_ledger SET confirmed_at = now(), confirmed_by_id = ${admin.id}::uuid WHERE id = ${col.id}::uuid`,
+      ).rejects.toThrow();
+    });
+
+    it('reverses an approved sale: due cancelled, reservation released', async () => {
+      const { v, shopId, id } = await approvedSale({ paidAtSaleP: 100_000 });
+      expect(await shopDue(shopId)).toBe(300_000);
+      expect(await level(v)).toMatchObject({ onHand: 50, reserved: 10 });
+
+      await srA.agent.post(`/v1/admin/sr/sales/${id}/reverse`).send({ reason: 'x' }).expect(403);
+      await admin.agent.post(`/v1/admin/sr/sales/${id}/reverse`).send({}).expect(400);
+      const res = await admin.agent
+        .post(`/v1/admin/sr/sales/${id}/reverse`)
+        .send({ reason: 'Shop refused' })
+        .expect(200);
+      expect(res.body).toMatchObject({
+        status: 'reversed',
+        reverseReason: 'Shop refused',
+        reversedBy: { id: admin.id },
+      });
+      expect(await shopDue(shopId)).toBe(0);
+      const rows = await prisma.b2bLedger.findMany({
+        where: { b2bShopId: shopId },
+        orderBy: { id: 'asc' },
+      });
+      expect(rows.map((r) => [r.type, r.amountP])).toEqual([
+        ['sale_due', 300_000],
+        ['reversal', -300_000],
+      ]);
+      expect(await ledgerSum(shopId)).toBe(0);
+      expect(await level(v)).toMatchObject({ onHand: 50, reserved: 0 });
+      const moves = await prisma.stockMovement.findMany({
+        where: { variantId: v, refId: id },
+        orderBy: { id: 'asc' },
+      });
+      expect(moves.map((m) => m.reason)).toEqual(['sr_reserve', 'sr_release']);
+
+      // final: no second reverse, no deliver, no approve
+      await admin.agent
+        .post(`/v1/admin/sr/sales/${id}/reverse`)
+        .send({ reason: 'again' })
+        .expect(409);
+      await admin.agent.post(`/v1/admin/sr/sales/${id}/deliver`).expect(409);
+      await srA.agent.post(`/v1/portal/sr/sales/${id}/cancel`).expect(409);
+    });
+
+    it('reverses a delivered sale: goods back on hand; collected money becomes credit', async () => {
+      const { v, shopId, id } = await approvedSale({ qty: 10, unitPriceP: 10_000 });
+      await admin.agent.post(`/v1/admin/sr/sales/${id}/deliver`).expect(200);
+      expect(await level(v)).toMatchObject({ onHand: 40, reserved: 0 });
+      const col = (
+        await srA.agent
+          .post('/v1/portal/sr/collections')
+          .send({ b2bShopId: shopId, amountP: 30_000, method: 'cash' })
+          .expect(201)
+      ).body;
+      await admin.agent.post(`/v1/admin/b2b/ledger/${col.id}/confirm`).expect(200);
+      expect(await shopDue(shopId)).toBe(70_000);
+
+      await admin.agent
+        .post(`/v1/admin/sr/sales/${id}/reverse`)
+        .send({ reason: 'Returned' })
+        .expect(200);
+      expect(await level(v)).toMatchObject({ onHand: 50, reserved: 0 });
+      const moves = await prisma.stockMovement.findMany({
+        where: { variantId: v, refId: id },
+        orderBy: { id: 'asc' },
+      });
+      expect(moves.map((m) => [m.reason, m.qtyDelta, m.reservedDelta])).toEqual([
+        ['sr_reserve', 0, 10],
+        ['sr_ship', -10, -10],
+        ['return_restock', 10, 0],
+      ]);
+      // the 300 already paid stays a collection: the shop is now in credit
+      expect(await shopDue(shopId)).toBe(-30_000);
+      expect(await ledgerSum(shopId)).toBe(-30_000);
+      // credit can't be "collected" again
+      await srA.agent
+        .post('/v1/portal/sr/collections')
+        .send({ b2bShopId: shopId, amountP: 1, method: 'cash' })
+        .expect(409);
+    });
+
+    it('a fully paid sale reverses without a ledger row; reversed sales leave summaries and pending commission', async () => {
+      const { shopId, id } = await approvedSale({
+        qty: 1,
+        unitPriceP: 100_000,
+        paidAtSaleP: 100_000,
+      });
+      const keep = await approvedSale({ qty: 1, unitPriceP: 50_000, paidAtSaleP: 50_000 });
+      const first = (
+        await admin.agent.post(`/v1/admin/sr/commissions/compute?month=${month}`).expect(200)
+      ).body;
+      expect(first.items[0]).toMatchObject({ baseP: 150_000 });
+      const meBefore = (await srA.agent.get('/v1/portal/sr/me')).body.month;
+      expect(meBefore).toMatchObject({ soldP: 150_000, collectedP: 150_000 });
+
+      await admin.agent
+        .post(`/v1/admin/sr/sales/${id}/reverse`)
+        .send({ reason: 'void' })
+        .expect(200);
+      expect(await prisma.b2bLedger.count({ where: { b2bShopId: shopId } })).toBe(0);
+      const meAfter = (await srA.agent.get('/v1/portal/sr/me')).body.month;
+      expect(meAfter).toMatchObject({ soldP: 50_000, collectedP: 50_000 });
+
+      // pending commission recomputes without it
+      const second = (
+        await admin.agent.post(`/v1/admin/sr/commissions/compute?month=${month}`).expect(200)
+      ).body;
+      expect(second.items[0]).toMatchObject({ baseP: 50_000, id: first.items[0].id });
+
+      // once approved, a later reversal does not touch it
+      await admin.agent.post(`/v1/admin/sr/commissions/${first.items[0].id}/approve`).expect(200);
+      await admin.agent
+        .post(`/v1/admin/sr/sales/${keep.id}/reverse`)
+        .send({ reason: 'void 2' })
+        .expect(200);
+      const third = (
+        await admin.agent.post(`/v1/admin/sr/commissions/compute?month=${month}`).expect(200)
+      ).body;
+      expect(third.skipped).toBe(1);
+      expect(third.items[0]).toMatchObject({ baseP: 50_000, status: 'approved' });
+    });
+
+    it('cannot reverse a submitted, rejected or cancelled sale', async () => {
+      const v = await makeVariant(10);
+      const shopId = await makeShop();
+      const sale = (await submit(srA.agent, shopId, v, { qty: 1 })).body;
+      await admin.agent
+        .post(`/v1/admin/sr/sales/${sale.id}/reverse`)
+        .send({ reason: 'x' })
+        .expect(409);
+      await admin.agent
+        .post(`/v1/admin/sr/sales/${sale.id}/reject`)
+        .send({ reason: 'x' })
+        .expect(200);
+      await admin.agent
+        .post(`/v1/admin/sr/sales/${sale.id}/reverse`)
+        .send({ reason: 'x' })
+        .expect(409);
+      await admin.agent
+        .post(`/v1/admin/sr/sales/${randomUUID()}/reverse`)
+        .send({ reason: 'x' })
+        .expect(404);
+    });
+
+    it('public memo link: create, reuse, rotate, headers, revocation', async () => {
+      const request = (await import('supertest')).default;
+      const pub = () => request(app.getHttpServer());
+      const v = await makeVariant(10);
+      const shopId = await makeShop();
+      const sale = (await submit(srA.agent, shopId, v, { qty: 1, unitPriceP: 25_000 })).body;
+      const early = await srA.agent.post(`/v1/portal/sr/sales/${sale.id}/memo-link`).expect(409);
+      expect(early.body.code).toBe('NOT_APPROVED');
+      await admin.agent.post(`/v1/admin/sr/sales/${sale.id}/approve`).expect(200);
+
+      await srB.agent.post(`/v1/portal/sr/sales/${sale.id}/memo-link`).expect(404);
+      const link = (await srA.agent.post(`/v1/portal/sr/sales/${sale.id}/memo-link`).expect(200))
+        .body;
+      expect(link.token).toMatch(/^[A-Za-z0-9_-]{43}$/);
+      expect(link.url).toBe(`http://localhost:4000/v1/public/memo/${link.token}`);
+      const again = (await srA.agent.post(`/v1/portal/sr/sales/${sale.id}/memo-link`).expect(200))
+        .body;
+      expect(again.token).toBe(link.token);
+      expect(
+        (await admin.agent.post(`/v1/admin/sr/sales/${sale.id}/memo-link`).expect(200)).body.token,
+      ).toBe(link.token);
+
+      const page = await pub().get(`/v1/public/memo/${link.token}`).expect(200);
+      expect(page.headers['content-type']).toMatch(/text\/html/);
+      expect(page.headers['x-robots-tag']).toContain('noindex');
+      expect(page.headers['referrer-policy']).toBe('no-referrer');
+      expect(page.headers['content-security-policy']).toContain("default-src 'none'");
+      expect(page.text).toContain(sale.memoNo);
+      expect((await pub().get(`/v1/public/memo/${link.token}?lang=bn`).expect(200)).text).toContain(
+        'বিক্রয় মেমো',
+      );
+
+      await pub()
+        .get(`/v1/public/memo/${'A'.repeat(43)}`)
+        .expect(404);
+      await pub().get('/v1/public/memo/short').expect(404);
+
+      // rotating revokes the old link
+      const next = (
+        await srA.agent.post(`/v1/portal/sr/sales/${sale.id}/memo-link?rotate=1`).expect(200)
+      ).body;
+      expect(next.token).not.toBe(link.token);
+      await pub().get(`/v1/public/memo/${link.token}`).expect(404);
+      await pub().get(`/v1/public/memo/${next.token}`).expect(200);
+
+      // reversed sales stop resolving; no new link either
+      await admin.agent
+        .post(`/v1/admin/sr/sales/${sale.id}/reverse`)
+        .send({ reason: 'void' })
+        .expect(200);
+      await pub().get(`/v1/public/memo/${next.token}`).expect(404);
+      await srA.agent.post(`/v1/portal/sr/sales/${sale.id}/memo-link`).expect(409);
+      await srA.agent.get(`/v1/portal/sr/sales/${sale.id}/memo`).expect(409);
+    });
+
+    it('rate limits the public memo endpoint per IP', async () => {
+      const request = (await import('supertest')).default;
+      const codes: number[] = [];
+      for (let i = 0; i < 32; i++) {
+        codes.push(
+          (await request(app.getHttpServer()).get(`/v1/public/memo/${'B'.repeat(43)}`)).status,
+        );
+      }
+      expect(codes.slice(0, 30).every((c) => c === 404)).toBe(true);
+      expect(codes.slice(30)).toEqual([429, 429]);
+    });
+  });
 });

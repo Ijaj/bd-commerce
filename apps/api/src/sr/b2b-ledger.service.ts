@@ -10,6 +10,7 @@ const ledgerInclude = {
   sale: { select: { memoNo: true } },
   recordedBy: { select: { id: true, name: true } },
   confirmedBy: { select: { id: true, name: true } },
+  rejectedBy: { select: { id: true, name: true } },
 } satisfies Prisma.B2bLedgerInclude;
 
 type LedgerRow = Prisma.B2bLedgerGetPayload<{ include: typeof ledgerInclude }>;
@@ -28,6 +29,10 @@ export function toLedgerView(r: LedgerRow): B2bLedgerView {
     confirmed: r.confirmedAt !== null,
     confirmedBy: r.confirmedBy,
     confirmedAt: r.confirmedAt?.toISOString() ?? null,
+    rejected: r.rejectedAt !== null,
+    rejectedBy: r.rejectedBy,
+    rejectedAt: r.rejectedAt?.toISOString() ?? null,
+    rejectReason: r.rejectReason,
     note: r.note,
     at: r.at.toISOString(),
   };
@@ -99,7 +104,8 @@ export class B2bLedgerService {
       const [bal] = await tx.$queryRaw<{ due: number; pending: number }[]>`
         SELECT s.due_balance_p AS due,
           coalesce((SELECT -sum(l.amount_p) FROM b2b_ledger l
-            WHERE l.b2b_shop_id = s.id AND l.type = 'collection' AND l.confirmed_at IS NULL), 0)::int AS pending
+            WHERE l.b2b_shop_id = s.id AND l.type = 'collection'
+              AND l.confirmed_at IS NULL AND l.rejected_at IS NULL), 0)::int AS pending
         FROM b2b_shops s WHERE s.id = ${dto.b2bShopId}::uuid`;
       const open = (bal?.due ?? 0) - (bal?.pending ?? 0);
       if (dto.amountP > open) {
@@ -134,12 +140,10 @@ export class B2bLedgerService {
       await this.lockShop(tx, found.b2bShopId);
       // The trigger allows exactly this update: confirmed_* from null, nothing else.
       const done = await tx.b2bLedger.updateMany({
-        where: { id: ledgerId, confirmedAt: null },
+        where: { id: ledgerId, confirmedAt: null, rejectedAt: null },
         data: { confirmedById: staffId, confirmedAt: new Date() },
       });
-      if (done.count === 0) {
-        throw srError(ConflictException, 'ALREADY_CONFIRMED', 'Collection is already confirmed');
-      }
+      if (done.count === 0) await this.alreadyResolved(tx, ledgerId);
       await this.recompute(tx, found.b2bShopId);
       const row = await tx.b2bLedger.findUniqueOrThrow({
         where: { id: ledgerId },
@@ -147,6 +151,41 @@ export class B2bLedgerService {
       });
       return toLedgerView(row);
     });
+  }
+
+  /** Staff turns down a pending collection; it never counts (C43). */
+  async reject(ledgerId: string, staffId: string, reason: string): Promise<B2bLedgerView> {
+    return this.prisma.$transaction(async (tx) => {
+      const found = await tx.b2bLedger.findUnique({
+        where: { id: ledgerId },
+        select: { b2bShopId: true, type: true },
+      });
+      if (!found) throw new NotFoundException('Ledger entry not found');
+      if (found.type !== 'collection') {
+        throw srError(ConflictException, 'NOT_A_COLLECTION', 'Only collections can be rejected');
+      }
+      await this.lockShop(tx, found.b2bShopId);
+      const done = await tx.b2bLedger.updateMany({
+        where: { id: ledgerId, confirmedAt: null, rejectedAt: null },
+        data: { rejectedById: staffId, rejectedAt: new Date(), rejectReason: reason },
+      });
+      if (done.count === 0) await this.alreadyResolved(tx, ledgerId);
+      const row = await tx.b2bLedger.findUniqueOrThrow({
+        where: { id: ledgerId },
+        include: ledgerInclude,
+      });
+      return toLedgerView(row);
+    });
+  }
+
+  private async alreadyResolved(tx: Prisma.TransactionClient, ledgerId: string): Promise<never> {
+    const row = await tx.b2bLedger.findUniqueOrThrow({
+      where: { id: ledgerId },
+      select: { rejectedAt: true },
+    });
+    throw row.rejectedAt
+      ? srError(ConflictException, 'ALREADY_REJECTED', 'Collection is already rejected')
+      : srError(ConflictException, 'ALREADY_CONFIRMED', 'Collection is already confirmed');
   }
 
   async adjust(shopId: string, staffId: string, dto: B2bAdjustDto) {
@@ -172,11 +211,16 @@ export class B2bLedgerService {
     return this.page({ b2bShopId: shopId }, page, pageSize);
   }
 
-  /** Staff queue: collections waiting for confirmation (default) or already confirmed. */
-  async collections(status: 'pending' | 'confirmed' | 'all', page: number, pageSize: number) {
+  /** Staff queue: collections waiting for confirmation (default), confirmed or rejected. */
+  async collections(
+    status: 'pending' | 'confirmed' | 'rejected' | 'all',
+    page: number,
+    pageSize: number,
+  ) {
     const where: Prisma.B2bLedgerWhereInput = { type: 'collection' };
-    if (status === 'pending') where.confirmedAt = null;
+    if (status === 'pending') Object.assign(where, { confirmedAt: null, rejectedAt: null });
     if (status === 'confirmed') where.confirmedAt = { not: null };
+    if (status === 'rejected') where.rejectedAt = { not: null };
     return this.page(where, page, pageSize);
   }
 

@@ -3,18 +3,23 @@ import {
   Controller,
   Get,
   HttpCode,
+  HttpException,
+  Inject,
   Param,
   ParseUUIDPipe,
   Patch,
   Post,
   Put,
   Query,
+  Req,
   Res,
 } from '@nestjs/common';
 import { ApiOkResponse, ApiProduces, ApiTags } from '@nestjs/swagger';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
+import type Redis from 'ioredis';
 import { CurrentStaff, StaffAuth } from '../auth/staff-auth.guard';
 import type { StaffAuthContext } from '../auth/staff-auth.service';
+import { REDIS } from '../redis/redis.module';
 import { B2bLedgerService } from './b2b-ledger.service';
 import {
   B2bAdjustDto,
@@ -29,6 +34,8 @@ import {
   SrCommissionComputeDto,
   SrCommissionDto,
   SrCommissionListDto,
+  SrMemoLinkDto,
+  SrMemoLinkQueryDto,
   SrMemoQueryDto,
   SrMonthQueryDto,
   SrMonthRequiredQueryDto,
@@ -103,6 +110,27 @@ export class SrAdminController {
   @ApiOkResponse({ type: SrSaleDetailDto })
   deliver(@CurrentStaff() ctx: StaffAuthContext, @Param('id', ParseUUIDPipe) id: string) {
     return this.sales.deliver(ctx.staff.id, id);
+  }
+
+  /** Staff undo of an approved or delivered sale (C43). */
+  @Post('sales/:id/reverse')
+  @HttpCode(200)
+  @StaffAuth('sr.approve')
+  @ApiOkResponse({ type: SrSaleDetailDto })
+  reverse(
+    @CurrentStaff() ctx: StaffAuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: SrRejectSaleDto,
+  ) {
+    return this.sales.reverse(ctx.staff.id, id, body.reason);
+  }
+
+  @Post('sales/:id/memo-link')
+  @HttpCode(200)
+  @StaffAuth('b2b.view')
+  @ApiOkResponse({ type: SrMemoLinkDto })
+  async memoLink(@Param('id', ParseUUIDPipe) id: string, @Query() q: SrMemoLinkQueryDto) {
+    return this.memo.link(id, q.rotate !== undefined);
   }
 
   @Get('sales/:id/memo')
@@ -197,6 +225,41 @@ export class SrAdminController {
   }
 }
 
+/** Unauthenticated memo page behind an unguessable token (C38). */
+@ApiTags('sr-public')
+@Controller('public/memo')
+export class SrPublicMemoController {
+  constructor(
+    private readonly memo: SrMemoService,
+    @Inject(REDIS) private readonly redis: Redis,
+  ) {}
+
+  @Get(':token')
+  @ApiProduces('text/html')
+  @ApiOkResponse({ description: 'Printable memo (HTML)', schema: { type: 'string' } })
+  async get(
+    @Param('token') token: string,
+    @Query() q: SrMemoQueryDto,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    // Only Cloudflare Tunnel reaches the API, so its client-IP header is trusted (as for staff).
+    const cfIp = req.headers['cf-connecting-ip'];
+    const ip = (typeof cfIp === 'string' ? cfIp : undefined) ?? req.ip ?? 'unknown';
+    const key = `memo:ip:${ip}`;
+    const hits = await this.redis.incr(key);
+    if (hits === 1) await this.redis.expire(key, 60);
+    if (hits > 30) {
+      res.setHeader('Retry-After', '60');
+      throw new HttpException('Too many requests', 429);
+    }
+    const html = await this.memo.byToken(token, q.lang);
+    res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+    res.setHeader('Referrer-Policy', 'no-referrer');
+    return sendHtml(res, html);
+  }
+}
+
 @ApiTags('b2b-admin')
 @Controller('admin/b2b')
 export class B2bAdminController {
@@ -251,6 +314,19 @@ export class B2bAdminController {
   @ApiOkResponse({ type: B2bLedgerPageDto })
   collections(@Query() q: B2bCollectionsQueryDto) {
     return this.ledger.collections(q.status, q.page, q.pageSize);
+  }
+
+  /** Pending collections only; the reason is shown to the SR (C43). */
+  @Post('ledger/:id/reject')
+  @HttpCode(200)
+  @StaffAuth('sr.approve')
+  @ApiOkResponse({ type: B2bLedgerRowDto })
+  reject(
+    @CurrentStaff() ctx: StaffAuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: SrRejectSaleDto,
+  ) {
+    return this.ledger.reject(id, ctx.staff.id, body.reason);
   }
 
   @Post('ledger/:id/confirm')

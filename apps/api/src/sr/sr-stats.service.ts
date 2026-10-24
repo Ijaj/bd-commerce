@@ -178,10 +178,10 @@ export class SrStatsService {
         SELECT coalesce(sum(l.amount_p), 0) AS due
         FROM b2b_ledger l
         LEFT JOIN sr_sales s ON s.id = l.sr_sale_id
-        WHERE (l.type = 'sale_due' AND s.sr_staff_id = ${srStaffId}::uuid)
+        WHERE (l.type IN ('sale_due', 'reversal') AND s.sr_staff_id = ${srStaffId}::uuid)
            OR (l.type = 'collection' AND l.recorded_by_id = ${srStaffId}::uuid AND l.confirmed_at IS NOT NULL)`,
       this.prisma.b2bLedger.aggregate({
-        where: { recordedById: srStaffId, type: 'collection', confirmedAt: null },
+        where: { recordedById: srStaffId, type: 'collection', confirmedAt: null, rejectedAt: null },
         _sum: { amountP: true },
       }),
     ]);

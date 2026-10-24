@@ -1,4 +1,5 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { randomBytes } from 'node:crypto';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import type { Response } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 import { SettingsService } from '../settings/settings.service';
@@ -49,6 +50,7 @@ const T = {
   },
 } as const;
 
+const TOKEN_RE = /^[A-Za-z0-9_-]{43}$/;
 const BN_DIGITS = '০১২৩৪৫৬৭৮৯';
 
 /** Headers are set only on success so error responses stay JSON. */
@@ -127,6 +129,49 @@ export class SrMemoService {
 
   async forSale(id: string, lang: Lang) {
     return this.render(await this.sales.detail(id), lang);
+  }
+
+  /**
+   * Share link for an approved or delivered sale (C38). The token is the capability: 32 random
+   * bytes, stored on the sale. `rotate` replaces it, which revokes the old link.
+   */
+  async link(saleId: string, rotate: boolean): Promise<{ token: string; url: string }> {
+    const sale = await this.prisma.srSale.findUnique({
+      where: { id: saleId },
+      select: { status: true, memoToken: true },
+    });
+    if (!sale) throw new NotFoundException('Sale not found');
+    if (sale.status !== 'approved' && sale.status !== 'delivered') {
+      throw srError(
+        ConflictException,
+        'NOT_APPROVED',
+        'Memo is available once the sale is approved',
+      );
+    }
+    let token = sale.memoToken;
+    if (!token || rotate) {
+      token = randomBytes(32).toString('base64url');
+      await this.prisma.srSale.update({
+        where: { id: saleId },
+        data: { memoToken: token, memoTokenAt: new Date() },
+      });
+    }
+    const origin = (process.env.PUBLIC_API_URL ?? 'http://localhost:4000').replace(/\/+$/, '');
+    return { token, url: `${origin}/v1/public/memo/${token}` };
+  }
+
+  /** Public render by token; unknown, revoked or reversed all look the same (404). */
+  async byToken(token: string, lang: Lang): Promise<string> {
+    const sale = TOKEN_RE.test(token)
+      ? await this.prisma.srSale.findUnique({
+          where: { memoToken: token },
+          select: { id: true, status: true },
+        })
+      : null;
+    if (!sale || (sale.status !== 'approved' && sale.status !== 'delivered')) {
+      throw new NotFoundException('Memo not found');
+    }
+    return this.forSale(sale.id, lang);
   }
 }
 

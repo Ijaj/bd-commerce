@@ -21,6 +21,8 @@ import {
   SrCreateCollectionDto,
   SrCreateSaleDto,
   SrCreateShopDto,
+  SrMemoLinkDto,
+  SrMemoLinkQueryDto,
   SrMemoQueryDto,
   SrPortalMeDto,
   SrPortalProductDto,
@@ -116,6 +118,27 @@ export class SrPortalController {
   @ApiOkResponse({ type: SrSaleDetailDto })
   async cancel(@CurrentStaff() ctx: StaffAuthContext, @Param('id', ParseUUIDPipe) id: string) {
     return this.sales.cancel(await this.sr(ctx), id);
+  }
+
+  /** Own sale only; delivery must have been chosen as SR (C42). */
+  @Post('sales/:id/deliver')
+  @HttpCode(200)
+  @ApiOkResponse({ type: SrSaleDetailDto })
+  async deliver(@CurrentStaff() ctx: StaffAuthContext, @Param('id', ParseUUIDPipe) id: string) {
+    return this.sales.deliver(await this.sr(ctx), id, true);
+  }
+
+  /** Creates (or returns) the public share link of an own approved sale; `?rotate=1` replaces it. */
+  @Post('sales/:id/memo-link')
+  @HttpCode(200)
+  @ApiOkResponse({ type: SrMemoLinkDto })
+  async memoLink(
+    @CurrentStaff() ctx: StaffAuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query() q: SrMemoLinkQueryDto,
+  ) {
+    await this.sales.portalGet(await this.sr(ctx), id);
+    return this.memo.link(id, q.rotate !== undefined);
   }
 
   /** Printable HTML memo of the caller's own approved sale. */

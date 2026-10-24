@@ -21,6 +21,7 @@ export const SALE_STATUSES = [
   'rejected',
   'delivered',
   'cancelled',
+  'reversed',
 ] as const;
 export const COLLECTION_METHODS = ['cash', 'bkash', 'nagad', 'bank'] as const;
 
@@ -79,6 +80,11 @@ const saleView = z.object({
   rejectedReason: z.string().nullable(),
   deliveredAt: iso.nullable(),
   deliveredBy: nameRef.nullable(),
+  /** Who hands the goods over (C42). */
+  deliveryBy: z.enum(['sr', 'staff']),
+  reversedAt: iso.nullable(),
+  reversedBy: nameRef.nullable(),
+  reverseReason: z.string().nullable(),
   shop: z.object({ id: z.uuid(), name: z.string(), phone: z.string() }),
   sr: nameRef,
   itemCount: z.number().int(),
@@ -89,7 +95,7 @@ const ledgerView = z.object({
   id: z.uuid(),
   b2bShopId: z.uuid(),
   shopName: z.string(),
-  type: z.enum(['sale_due', 'collection', 'adjustment']),
+  type: z.enum(['sale_due', 'collection', 'adjustment', 'reversal']),
   /** + adds due, - pays it (collections are negative). */
   amountP: z.number().int(),
   method: z.string().nullable(),
@@ -99,6 +105,11 @@ const ledgerView = z.object({
   confirmed: z.boolean(),
   confirmedBy: nameRef.nullable(),
   confirmedAt: iso.nullable(),
+  /** Rejected collections never count anywhere (C43). */
+  rejected: z.boolean(),
+  rejectedBy: nameRef.nullable(),
+  rejectedAt: iso.nullable(),
+  rejectReason: z.string().nullable(),
   note: z.string().nullable(),
   at: iso,
 });
@@ -196,7 +207,20 @@ export class SrCreateSaleDto extends createZodDto(
       .min(1)
       .max(100),
     paidAtSaleP: moneyP.default(0),
+    deliveryBy: z.enum(['sr', 'staff']).default('staff'),
     note: z.string().trim().max(500).nullable().optional(),
+  }),
+) {}
+
+export class SrMemoLinkQueryDto extends createZodDto(
+  z.object({ rotate: z.enum(['1', 'true']).optional() }),
+) {}
+
+export class SrMemoLinkDto extends createZodDto(
+  z.object({
+    token: z.string(),
+    /** Public share URL (PUBLIC_API_URL origin + /v1/public/memo/<token>). */
+    url: z.string(),
   }),
 ) {}
 
@@ -262,7 +286,7 @@ export class B2bLedgerQueryDto extends createZodDto(z.object({ page, pageSize })
 
 export class B2bCollectionsQueryDto extends createZodDto(
   z.object({
-    status: z.enum(['pending', 'confirmed', 'all']).default('pending'),
+    status: z.enum(['pending', 'confirmed', 'rejected', 'all']).default('pending'),
     page,
     pageSize,
   }),

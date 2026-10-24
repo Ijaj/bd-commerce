@@ -23,6 +23,7 @@ const listInclude = {
   sr: { select: { id: true, name: true } },
   approvedBy: { select: { id: true, name: true } },
   deliveredBy: { select: { id: true, name: true } },
+  reversedBy: { select: { id: true, name: true } },
   _count: { select: { items: true } },
 } satisfies Prisma.SrSaleInclude;
 
@@ -61,6 +62,10 @@ function toListView(s: ListRow): SrSaleListView {
     rejectedReason: s.rejectedReason,
     deliveredAt: s.deliveredAt?.toISOString() ?? null,
     deliveredBy: s.deliveredBy,
+    deliveryBy: s.deliveryBy,
+    reversedAt: s.reversedAt?.toISOString() ?? null,
+    reversedBy: s.reversedBy,
+    reverseReason: s.reverseReason,
     shop: s.shop,
     sr: s.sr,
     itemCount: s._count.items,
@@ -96,6 +101,7 @@ type Line = { variantId: string; qty: number };
  *   reject / cancel   sr_release  reserved -qty            (only while submitted)
  *   approve           no stock change; writes the sale_due ledger row
  *   deliver           sr_ship     on_hand -qty, reserved -qty
+ *   reverse           approved: sr_release; delivered: return_restock (on_hand +qty)
  */
 @Injectable()
 export class SrSalesService {
@@ -167,6 +173,7 @@ export class SrSalesService {
           totalP,
           paidAtSaleP: dto.paidAtSaleP,
           dueP: totalP - dto.paidAtSaleP,
+          deliveryBy: dto.deliveryBy,
           note: dto.note ?? null,
           submittedAt: now,
           items: {
@@ -257,10 +264,20 @@ export class SrSalesService {
     return this.detail(id);
   }
 
-  /** Goods left the warehouse (R19): reserved stock becomes shipped. */
-  async deliver(staffId: string, id: string): Promise<SrSaleDetailView> {
+  /**
+   * Goods left the warehouse (R19): reserved stock becomes shipped. Staff can mark any approved
+   * sale; an SR only their own sale that they chose to deliver themselves (C42).
+   */
+  async deliver(staffId: string, id: string, asSr = false): Promise<SrSaleDetailView> {
     await this.prisma.$transaction(async (tx) => {
-      await this.assertExists(tx, id);
+      const sale = await tx.srSale.findFirst({
+        where: asSr ? { id, srStaffId: staffId } : { id },
+        select: { deliveryBy: true },
+      });
+      if (!sale) throw new NotFoundException('Sale not found');
+      if (asSr && sale.deliveryBy !== 'sr') {
+        throw srError(ForbiddenException, 'DELIVERY_BY_STAFF', 'Staff deliver this sale');
+      }
       const done = await tx.srSale.updateMany({
         where: { id, status: 'approved' },
         data: { status: 'delivered', deliveredById: staffId, deliveredAt: new Date() },
@@ -270,6 +287,63 @@ export class SrSalesService {
       }
       const items = await tx.srSaleItem.findMany({ where: { srSaleId: id } });
       await this.stock(tx, items, 'sr_ship', -1, id, staffId);
+    });
+    return this.detail(id);
+  }
+
+  /**
+   * Staff undoes an approved or delivered sale (C43). The sale's due is cancelled with a
+   * `reversal` ledger row; money already collected stays as collections, so an over-paid shop
+   * simply shows a negative due (credit). Stock: approved -> sr_release; delivered -> the goods
+   * come back on hand as `return_restock`.
+   */
+  async reverse(staffId: string, id: string, reason: string): Promise<SrSaleDetailView> {
+    await this.prisma.$transaction(async (tx) => {
+      const sale = await tx.srSale.findUnique({
+        where: { id },
+        select: { status: true, srStaffId: true, b2bShopId: true, memoNo: true },
+      });
+      if (!sale) throw new NotFoundException('Sale not found');
+      if (sale.status !== 'approved' && sale.status !== 'delivered') {
+        throw srError(
+          ConflictException,
+          'INVALID_STATE',
+          'Only approved or delivered sales can be reversed',
+        );
+      }
+      const done = await tx.srSale.updateMany({
+        where: { id, status: sale.status },
+        data: {
+          status: 'reversed',
+          reversedById: staffId,
+          reversedAt: new Date(),
+          reverseReason: reason,
+        },
+      });
+      if (done.count === 0) {
+        throw srError(ConflictException, 'INVALID_STATE', 'The sale was changed meanwhile');
+      }
+
+      await this.ledger.lockShop(tx, sale.b2bShopId);
+      const due = await tx.b2bLedger.findFirst({
+        where: { srSaleId: id, type: 'sale_due' },
+        select: { amountP: true },
+      });
+      if (due) {
+        await this.ledger.append(tx, {
+          shopId: sale.b2bShopId,
+          type: 'reversal',
+          amountP: -due.amountP,
+          recordedById: sale.srStaffId,
+          confirmedById: staffId,
+          srSaleId: id,
+          note: `${sale.memoNo}: ${reason}`,
+        });
+      }
+
+      const items = await tx.srSaleItem.findMany({ where: { srSaleId: id } });
+      if (sale.status === 'approved') await this.stock(tx, items, 'sr_release', -1, id, staffId);
+      else await this.restock(tx, items, id, staffId);
     });
     return this.detail(id);
   }
@@ -316,6 +390,27 @@ export class SrSalesService {
       }),
     ]);
     return { items: rows.map(toListView), total, page, pageSize };
+  }
+
+  private async restock(
+    tx: Prisma.TransactionClient,
+    lines: Line[],
+    saleId: string,
+    staffId: string,
+  ) {
+    const sorted = [...lines].sort((a, b) => a.variantId.localeCompare(b.variantId));
+    for (const l of sorted) {
+      await this.inventory.move(tx, {
+        variantId: l.variantId,
+        qtyDelta: l.qty,
+        reservedDelta: 0,
+        reason: 'return_restock',
+        refType: 'sr_sale',
+        refId: saleId,
+        staffId,
+        note: 'SR sale reversed',
+      });
+    }
   }
 
   private notSubmitted(): never {

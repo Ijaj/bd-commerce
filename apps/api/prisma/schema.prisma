@@ -50,6 +50,8 @@ model Staff {
   b2bShopsCreated B2bShop[]
   ledgerRecorded  B2bLedger[]        @relation("LedgerRecordedBy")
   ledgerConfirmed B2bLedger[]        @relation("LedgerConfirmedBy")
+  ledgerRejected  B2bLedger[]        @relation("LedgerRejectedBy")
+  srReversals     SrSale[]           @relation("SrSaleReverser")
   srTargets       SrTarget[]
   srCommissions   SrCommission[]
   purchaseOrders  PurchaseOrder[]
@@ -1062,8 +1064,18 @@ enum SrSaleStatus {
   rejected
   delivered
   cancelled
+  /// Approved/delivered sale undone by staff (C43): reversing ledger entry + stock back.
+  reversed
 
   @@map("sr_sale_status")
+}
+
+/// Who delivers an SR sale (R19, C42).
+enum SrDeliveryBy {
+  sr
+  staff
+
+  @@map("sr_delivery_by")
 }
 
 model SrSale {
@@ -1081,9 +1093,17 @@ model SrSale {
   rejectedReason String?      @map("rejected_reason")
   deliveredById  String?      @map("delivered_by_id") @db.Uuid
   deliveredAt    DateTime?    @map("delivered_at") @db.Timestamptz
+  deliveryBy     SrDeliveryBy @default(staff) @map("delivery_by")
+  reversedById   String?      @map("reversed_by_id") @db.Uuid
+  reversedAt     DateTime?    @map("reversed_at") @db.Timestamptz
+  reverseReason  String?      @map("reverse_reason")
+  /// Public memo link token (C38); null = no link / revoked. Regenerate to revoke the old link.
+  memoToken      String?      @unique @map("memo_token")
+  memoTokenAt    DateTime?    @map("memo_token_at") @db.Timestamptz
   note           String?
 
   sr          Staff        @relation("SrSaleSr", fields: [srStaffId], references: [id])
+  reversedBy  Staff?       @relation("SrSaleReverser", fields: [reversedById], references: [id])
   shop        B2bShop      @relation(fields: [b2bShopId], references: [id])
   approvedBy  Staff?       @relation("SrSaleApprover", fields: [approvedById], references: [id])
   deliveredBy Staff?       @relation("SrSaleDeliverer", fields: [deliveredById], references: [id])
@@ -1116,6 +1136,8 @@ enum LedgerType {
   sale_due
   collection
   adjustment
+  /// Cancels a sale's due when the sale is reversed (C43).
+  reversal
 
   @@map("ledger_type")
 }
@@ -1133,6 +1155,10 @@ model B2bLedger {
   recordedById  String     @map("recorded_by_id") @db.Uuid
   confirmedById String?    @map("confirmed_by_id") @db.Uuid
   confirmedAt   DateTime?  @map("confirmed_at") @db.Timestamptz
+  /// Rejected collection (C43): never counted. Confirm and reject are mutually exclusive, set once.
+  rejectedById  String?    @map("rejected_by_id") @db.Uuid
+  rejectedAt    DateTime?  @map("rejected_at") @db.Timestamptz
+  rejectReason  String?    @map("reject_reason")
   note          String?
   at            DateTime   @default(now()) @db.Timestamptz
 
@@ -1140,6 +1166,7 @@ model B2bLedger {
   sale        SrSale? @relation(fields: [srSaleId], references: [id])
   recordedBy  Staff   @relation("LedgerRecordedBy", fields: [recordedById], references: [id])
   confirmedBy Staff?  @relation("LedgerConfirmedBy", fields: [confirmedById], references: [id])
+  rejectedBy  Staff?  @relation("LedgerRejectedBy", fields: [rejectedById], references: [id])
 
   @@index([b2bShopId, at])
   @@map("b2b_ledger")
