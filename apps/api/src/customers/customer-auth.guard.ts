@@ -14,8 +14,8 @@ import { ENV, type Env } from '../config/env';
 import {
   CUSTOMER_COOKIE,
   type CustomerAuthContext,
-  CustomerAuthService,
-} from './customer-auth.service';
+  CustomerSessionService,
+} from './customer-session.service';
 
 type AuthedRequest = Request & { customerAuth?: CustomerAuthContext };
 
@@ -32,7 +32,7 @@ export function customerCookie(env: Env, maxAge: number): CookieOptions {
 @Injectable()
 export class CustomerAuthGuard implements CanActivate {
   constructor(
-    private readonly auth: CustomerAuthService,
+    private readonly auth: CustomerSessionService,
     @Inject(ENV) private readonly env: Env,
   ) {}
 

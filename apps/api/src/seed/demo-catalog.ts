@@ -1,4 +1,5 @@
 import type { Prisma, PrismaClient } from '../generated/prisma/client';
+import { seedDemoZones } from './demo-zones';
 
 type Tx = Prisma.TransactionClient;
 type ValueDef = { en: string; bn?: string; deltaTk?: number };
@@ -554,6 +555,7 @@ export type DemoCatalogSummary = {
 
 /** Dev-only demo catalog. Idempotent: skips when any product with a `demo-` slug exists. */
 export async function seedDemoCatalog(prisma: PrismaClient): Promise<DemoCatalogSummary | null> {
+  await seedDemoZones(prisma);
   const existing = await prisma.product.findFirst({
     where: { slug: { startsWith: 'demo-' } },
     select: { id: true },

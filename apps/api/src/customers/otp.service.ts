@@ -65,13 +65,13 @@ export class OtpService {
     if (deliver) {
       const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
       const now = new Date();
-      await this.prisma.$transaction([
+      await this.prisma.$transaction(async (tx) => {
         // Only the newest code works.
-        this.prisma.otpCode.updateMany({
+        await tx.otpCode.updateMany({
           where: { phone, purpose, usedAt: null },
           data: { usedAt: now },
-        }),
-        this.prisma.otpCode.create({
+        });
+        await tx.otpCode.create({
           data: {
             phone,
             purpose,
@@ -79,8 +79,8 @@ export class OtpService {
             codeHash: this.hash(phone, purpose, code),
             expiresAt: new Date(now.getTime() + OTP_TTL_SEC * 1000),
           },
-        }),
-      ]);
+        });
+      });
       this.sms.send({
         to: phone,
         text: `${SHOP_NAME} code: ${code}. Valid ${OTP_TTL_SEC / 60} minutes.`,

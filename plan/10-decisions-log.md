@@ -276,3 +276,7 @@ Note on S6: our order tracking covers status until the parcel is handed to the c
 | C33 | BD geo master (divisions/districts/upazilas, EN+BN) **seeded from an open dataset** via migration; admin edits later; courier codes mapped in step 5 |
 | C34 | Partner portal (`apps/portal`) uses **Mantine** like admin |
 | C35 | Guest cart = **server cart keyed by visitor cookie**, merged into the account cart on login |
+| C36 | SR stock: **reserve on submit, deduct on deliver** (approve creates the shop's due only); supersedes R13 "deduct on approve" |
+| C37 | SRs see **all active buyer shops** (shared, avoids duplicates) and the shop's total due; ledger lists only their own entries |
+| C38 | SR memo shared via a **public signed link** (unguessable token, no login, revocable/expiring) |
+| C39 | Partner portal UI **EN + BN toggle** |

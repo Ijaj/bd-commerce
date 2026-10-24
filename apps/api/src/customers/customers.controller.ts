@@ -1,4 +1,15 @@
-import { Body, Controller, Get, HttpCode, Inject, Patch, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Inject,
+  Logger,
+  Patch,
+  Post,
+  Req,
+  Res,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiOkResponse,
@@ -7,6 +18,8 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
+import { CartService } from '../cart/cart.service';
+import { readVisitorId } from '../cart/visitor';
 import { ENV, type Env } from '../config/env';
 import { CurrentCustomer, CustomerAuth, customerCookie } from './customer-auth.guard';
 import {
@@ -44,13 +57,25 @@ function meta(req: Request) {
 @ApiTooManyRequestsResponse({ type: CustomerErrorDto })
 @Controller('customer')
 export class CustomersController {
+  private readonly logger = new Logger(CustomersController.name);
+
   constructor(
     private readonly auth: CustomerAuthService,
+    private readonly cart: CartService,
     @Inject(ENV) private readonly env: Env,
   ) {}
 
   private async setSession(res: Response, token: string) {
     res.cookie(CUSTOMER_COOKIE, token, customerCookie(this.env, await this.auth.sessionMaxAgeMs()));
+  }
+
+  /** Folds the browser's guest cart into the account cart. Never blocks signing in. */
+  private async mergeCart(req: Request, customerId: string) {
+    try {
+      await this.cart.mergeGuest(readVisitorId(req), customerId);
+    } catch (e) {
+      this.logger.error(`Cart merge failed for ${customerId}: ${String(e)}`);
+    }
   }
 
   @Post('auth/otp')
@@ -70,6 +95,7 @@ export class CustomersController {
   ): Promise<CustomerAuthResultDto> {
     const { customer, token } = await this.auth.signup(body, meta(req));
     await this.setSession(res, token);
+    await this.mergeCart(req, customer.id);
     return { customer: toMe(customer) };
   }
 
@@ -83,6 +109,7 @@ export class CustomersController {
   ): Promise<CustomerAuthResultDto> {
     const { customer, token } = await this.auth.login(body.login, body.password, meta(req));
     await this.setSession(res, token);
+    await this.mergeCart(req, customer.id);
     return { customer: toMe(customer) };
   }
 

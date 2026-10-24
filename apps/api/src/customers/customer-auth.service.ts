@@ -2,18 +2,20 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { newToken, sha256 } from '../auth/crypto';
 import { burnPasswordCheck, hashPassword, verifyPassword } from '../auth/password';
 import { ThrottleService } from '../auth/throttle.service';
-import type { Customer, CustomerSession } from '../generated/prisma/client';
+import type { Customer } from '../generated/prisma/client';
 import { Prisma } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import { SettingsService } from '../settings/settings.service';
+import {
+  CUSTOMER_COOKIE,
+  type CustomerAuthContext,
+  CustomerSessionService,
+} from './customer-session.service';
 import { CustomerError } from './customers.errors';
 import { OtpService } from './otp.service';
 import { normalizePhone } from './phone';
 
-export const CUSTOMER_COOKIE = 'bdc_cs';
+export { CUSTOMER_COOKIE, type CustomerAuthContext };
 
-const DAY_MS = 24 * 60 * 60_000;
-const TOUCH_EVERY_MS = 60_000;
 const LOGIN_WINDOW_SEC = 15 * 60;
 const LOGIN_LIMIT_PER_ID = 5;
 const LOGIN_LIMIT_PER_IP = 30;
@@ -21,13 +23,6 @@ const LOGIN_LIMIT_PER_IP = 30;
 export interface RequestMeta {
   ip?: string;
   userAgent?: string;
-}
-
-export interface CustomerAuthContext {
-  customer: Customer;
-  session: CustomerSession;
-  /** The idle window was extended, so the cookie should be re-issued. */
-  refreshed: boolean;
 }
 
 export function toMe(c: Customer) {
@@ -48,12 +43,8 @@ export class CustomerAuthService {
     private readonly prisma: PrismaService,
     private readonly otp: OtpService,
     private readonly throttle: ThrottleService,
-    private readonly settings: SettingsService,
+    private readonly sessions: CustomerSessionService,
   ) {}
-
-  async sessionMaxAgeMs() {
-    return (await this.settings.get('customer_session_days')) * DAY_MS;
-  }
 
   async requestOtp(phoneInput: string, purpose: 'signup' | 'reset', ip: string | undefined) {
     const phone = normalizePhone(phoneInput);
@@ -116,6 +107,7 @@ export class CustomerAuthService {
       }
       throw e;
     }
+    await this.linkGuestOrders(customer);
     return { customer, token: await this.startSession(customer.id, meta) };
   }
 
@@ -166,7 +158,17 @@ export class CustomerAuthService {
       where: { id: customer.id },
       data: { lastLoginAt: new Date() },
     });
+    await this.linkGuestOrders(updated);
     return { customer: updated, token: await this.startSession(customer.id, meta) };
+  }
+
+  /** Q94: guest orders placed with this customer's verified phone join the account. */
+  async linkGuestOrders(customer: Customer) {
+    if (!customer.phone || !customer.phoneVerifiedAt) return;
+    await this.prisma.order.updateMany({
+      where: { customerId: null, guestPhone: customer.phone },
+      data: { customerId: customer.id },
+    });
   }
 
   async resetPassword(phoneInput: string, code: string, password: string) {
@@ -271,52 +273,25 @@ export class CustomerAuthService {
         tokenHash: sha256(token),
         ip: meta.ip,
         userAgent: meta.userAgent,
-        expiresAt: new Date(Date.now() + (await this.sessionMaxAgeMs())),
+        expiresAt: new Date(Date.now() + (await this.sessions.sessionMaxAgeMs())),
       },
     });
     return token;
   }
 
-  /** Loads a live session; enforces revoke, idle expiry and disabled customers. Slides the window. */
-  async resolve(token: string | undefined): Promise<CustomerAuthContext | null> {
-    if (!token) return null;
-    const row = await this.prisma.customerSession.findUnique({
-      where: { tokenHash: sha256(token) },
-      include: { customer: true },
-    });
-    const now = Date.now();
-    if (!row || row.revokedAt || row.expiresAt.getTime() <= now) return null;
-    const { customer, ...session } = row;
-    if (customer.disabledAt) return null;
-
-    if (now - session.lastSeenAt.getTime() > TOUCH_EVERY_MS) {
-      const updated = await this.prisma.customerSession.update({
-        where: { id: session.id },
-        data: {
-          lastSeenAt: new Date(now),
-          expiresAt: new Date(now + (await this.sessionMaxAgeMs())),
-        },
-      });
-      return { customer, session: updated, refreshed: true };
-    }
-    return { customer, session, refreshed: false };
+  sessionMaxAgeMs() {
+    return this.sessions.sessionMaxAgeMs();
   }
 
-  async revoke(sessionId: string) {
-    await this.prisma.customerSession.updateMany({
-      where: { id: sessionId, revokedAt: null },
-      data: { revokedAt: new Date() },
-    });
+  resolve(token: string | undefined) {
+    return this.sessions.resolve(token);
   }
 
-  async revokeAll(customerId: string, exceptSessionId?: string) {
-    await this.prisma.customerSession.updateMany({
-      where: {
-        customerId,
-        revokedAt: null,
-        ...(exceptSessionId ? { id: { not: exceptSessionId } } : {}),
-      },
-      data: { revokedAt: new Date() },
-    });
+  revoke(sessionId: string) {
+    return this.sessions.revoke(sessionId);
+  }
+
+  revokeAll(customerId: string, exceptSessionId?: string) {
+    return this.sessions.revokeAll(customerId, exceptSessionId);
   }
 }

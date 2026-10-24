@@ -1,16 +1,18 @@
 import { Module } from '@nestjs/common';
-import { ThrottleService } from '../auth/throttle.service';
-import { CustomerAuthGuard } from './customer-auth.guard';
+import { CommerceModule } from '../checkout/commerce.module';
+import { StorefrontModule } from '../storefront/storefront.module';
+import { AddressesController } from './addresses.controller';
+import { AddressesService } from './addresses.service';
 import { CustomerAuthService } from './customer-auth.service';
+import { CustomerCoreModule } from './customer-core.module';
 import { CustomersController } from './customers.controller';
-import { OtpService } from './otp.service';
 import { WishlistController } from './wishlist.controller';
 import { WishlistService } from './wishlist.service';
 
 @Module({
-  controllers: [CustomersController, WishlistController],
-  // ThrottleService only needs the global Redis; AuthModule does not export it.
-  providers: [CustomerAuthService, CustomerAuthGuard, OtpService, WishlistService, ThrottleService],
-  exports: [CustomerAuthService, CustomerAuthGuard],
+  imports: [CustomerCoreModule, StorefrontModule, CommerceModule],
+  controllers: [CustomersController, WishlistController, AddressesController],
+  providers: [CustomerAuthService, WishlistService, AddressesService],
+  exports: [CustomerAuthService, CustomerCoreModule],
 })
 export class CustomersModule {}
