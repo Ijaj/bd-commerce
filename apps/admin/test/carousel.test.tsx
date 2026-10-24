@@ -38,6 +38,8 @@ function slide(over: Partial<CarouselSlide> & { id: string; title: string }): Ca
     sort: 0,
     isActive: true,
     lang: 'all',
+    createdAt: '2026-10-24T00:00:00.000Z',
+    updatedAt: '2026-10-24T00:00:00.000Z',
     ...over,
   };
 }
