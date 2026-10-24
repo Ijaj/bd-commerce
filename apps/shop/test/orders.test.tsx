@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const h = vi.hoisted(() => ({
   GET: vi.fn(),
@@ -44,7 +44,6 @@ beforeEach(() => {
   resetSession();
   resetGeo();
 });
-afterEach(() => vi.unstubAllGlobals());
 
 describe('Timeline', () => {
   it('lists steps in order and marks the last one as current', () => {
@@ -181,47 +180,44 @@ describe('TrackForm', () => {
     timeline: [{ status: 'processing', at: '2026-10-24T12:16:00.000Z' }],
   };
 
-  function stubFetch(res: { status: number; body: unknown }) {
-    const f = vi.fn(async () => ({
-      ok: res.status < 300,
-      status: res.status,
-      json: async () => res.body,
-    }));
-    vi.stubGlobal('fetch', f);
-    return f;
-  }
+  const res = (status: number, body: unknown) =>
+    status < 300
+      ? { data: body, response: { ok: true, status } }
+      : { error: body, response: { ok: false, status } };
 
   it('validates, posts the normalised phone and shows the timeline with a masked phone', async () => {
-    const f = stubFetch({ status: 200, body: track });
+    h.POST.mockResolvedValue(res(200, track));
     render(<TrackForm lang="en" initialOrderNo="2610-00001" />);
     fireEvent.click(screen.getByRole('button', { name: d.trackButton }));
     expect(await screen.findByText(d.trackPhoneRequired)).toBeInTheDocument();
-    expect(f).not.toHaveBeenCalled();
+    expect(h.POST).not.toHaveBeenCalled();
 
     fireEvent.change(screen.getByLabelText(d.trackPhone), { target: { value: '+8801711223344' } });
     fireEvent.click(screen.getByRole('button', { name: d.trackButton }));
     expect(await screen.findByText('Order 2610-00001')).toBeInTheDocument();
-    expect(f).toHaveBeenCalledWith(
-      '/v1/public/track',
-      expect.objectContaining({
-        method: 'POST',
-        body: JSON.stringify({ orderNo: '2610-00001', phone: '01711223344' }),
-      }),
-    );
+    expect(h.POST).toHaveBeenCalledWith('/v1/public/track', {
+      body: { orderNo: '2610-00001', phone: '01711223344' },
+    });
     expect(screen.getByText('Phone on order: 017******44')).toBeInTheDocument();
     expect(screen.getByRole('list', { name: d.timeline })).toBeInTheDocument();
   });
 
   it('shows a friendly message when nothing matches or lookups are throttled', async () => {
-    stubFetch({ status: 404, body: { code: 'ORDER_NOT_FOUND' } });
+    h.POST.mockResolvedValue(res(404, { code: 'ORDER_NOT_FOUND' }));
     render(<TrackForm lang="en" initialOrderNo="2610-00009" />);
     fireEvent.change(screen.getByLabelText(d.trackPhone), { target: { value: '01711223344' } });
     fireEvent.click(screen.getByRole('button', { name: d.trackButton }));
     expect(await screen.findByRole('alert')).toHaveTextContent(d.trackNotFound);
 
-    stubFetch({ status: 429, body: { code: 'TOO_MANY_REQUESTS' } });
+    h.POST.mockResolvedValue(res(429, { code: 'TOO_MANY_REQUESTS' }));
     fireEvent.click(screen.getByRole('button', { name: d.trackButton }));
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent(d.trackTooMany));
+
+    h.POST.mockResolvedValue(res(429, { code: 'TOO_MANY_REQUESTS', retryAfterSec: 650 }));
+    fireEvent.click(screen.getByRole('button', { name: d.trackButton }));
+    await waitFor(() =>
+      expect(screen.getByRole('alert')).toHaveTextContent('Too many lookups. Try again in 11 min.'),
+    );
   });
 });
 
@@ -308,5 +304,17 @@ describe('AddressesManager', () => {
         }),
       ),
     );
+  });
+
+  it('shows the Bangla place text under /bn', () => {
+    render(
+      <AddressesManager
+        lang="bn"
+        initial={[addr]}
+        customerName="Karim"
+        customerPhone="01755667788"
+      />,
+    );
+    expect(screen.getByText(/গুলশান, ঢাকা/)).toBeInTheDocument();
   });
 });

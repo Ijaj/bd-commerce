@@ -75,6 +75,7 @@ export function CheckoutForm({
   const [quote, setQuote] = useState<QuoteState>({ status: 'idle' });
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [limitHit, setLimitHit] = useState(false);
   const errorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -110,7 +111,7 @@ export function CheckoutForm({
       setQuote(
         r.ok
           ? { status: 'ok', quote: r.data }
-          : { status: 'error', message: checkoutError(r, d.errors) },
+          : { status: 'error', message: checkoutError(r, d.errors, lang) },
       );
     });
   }, [locKey, cartKey]);
@@ -149,6 +150,7 @@ export function CheckoutForm({
     e.preventDefault();
     if (submitting) return;
     setFormError(null);
+    setLimitHit(false);
 
     const gErr: GuestErrors = {};
     if (!me) {
@@ -210,10 +212,11 @@ export function CheckoutForm({
         return;
       }
       setSubmitting(false);
-      const text = checkoutError(r, d.errors);
+      const text = checkoutError(r, d.errors, lang);
       if (r.code === 'OTP_INVALID' || r.code === 'OTP_EXPIRED' || r.code === 'TOO_MANY_ATTEMPTS') {
         setCodeError(text);
       }
+      if (r.code === 'GUEST_LIMIT') setLimitHit(true);
       fail(text);
       return;
     }
@@ -317,7 +320,7 @@ export function CheckoutForm({
                         {a.name}, {a.phone}
                       </span>
                       <span className={s.muted}>
-                        {a.line}, {a.placeText}
+                        {a.line}, {lang === 'bn' && a.placeTextBn ? a.placeTextBn : a.placeText}
                       </span>
                     </span>
                   </label>
@@ -410,6 +413,14 @@ export function CheckoutForm({
           ) : null}
           <div ref={errorRef} tabIndex={-1} className={s.errorBox}>
             {formError ? <Notice kind="error">{formError}</Notice> : null}
+            {limitHit && !me ? (
+              <Link
+                className="link"
+                href={`${href(lang, '/login')}?next=${encodeURIComponent(href(lang, '/checkout'))}`}
+              >
+                {d.loginToOrder}
+              </Link>
+            ) : null}
           </div>
           <button type="submit" className="btn btn-primary" disabled={submitting || blocked}>
             {submitting ? d.placing : d.place}

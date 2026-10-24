@@ -201,7 +201,7 @@ export function AddressesManager({
               </span>
               <span className={s.muted}>{a.phone}</span>
               <span>
-                {a.line}, {a.placeText}
+                {a.line}, {lang === 'bn' && a.placeTextBn ? a.placeTextBn : a.placeText}
               </span>
               {a.landmark ? <span className={s.muted}>{a.landmark}</span> : null}
               <div className={s.addrActions}>

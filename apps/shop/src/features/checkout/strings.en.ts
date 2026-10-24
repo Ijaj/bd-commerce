@@ -7,6 +7,7 @@ export const checkoutEn = {
   contactGuestIntro: 'Order without an account. We will text you updates.',
   haveAccount: 'Have an account?',
   loginToFill: 'Log in',
+  loginToOrder: 'Log in to continue',
   name: 'Full name',
   phone: 'Mobile number',
   phoneHint: 'We call or text this number about your delivery. For example 01712345678',
@@ -93,6 +94,13 @@ export const checkoutEn = {
     TOO_MANY_ATTEMPTS: 'Too many wrong attempts. Request a new code.',
     OTP_COOLDOWN: 'Please wait a minute before asking for another code.',
     TOO_MANY_REQUESTS: 'Too many tries. Please wait a few minutes and try again.',
+    TOO_MANY_ATTEMPTS_IN: 'Too many wrong codes. Try again in {m} min.',
+    TOO_MANY_ORDERS:
+      'Too many orders were placed from this network. Please try again later, or call our hotline.',
+    GUEST_LIMIT_open_orders:
+      'This phone number already has the maximum number of open orders. Log in, wait for delivery, or call our hotline.',
+    GUEST_LIMIT_daily_cap:
+      'The daily limit for orders without an account is reached. Log in to order more, or call our hotline.',
     NO_DELIVERY_ZONE: 'We do not deliver to this area yet.',
     ADDRESS_INVALID: 'Please check the address and mobile number.',
     GUEST_REQUIRED: 'Enter your name and a valid mobile number.',

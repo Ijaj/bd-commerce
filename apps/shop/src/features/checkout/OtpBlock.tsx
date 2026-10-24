@@ -50,7 +50,7 @@ export function OtpBlock({
       setLeft(r.data.resendInSec);
       if (again) setMsg({ kind: 'ok', text: d.resent });
     } else {
-      setMsg({ kind: 'error', text: checkoutError(r, d.errors) });
+      setMsg({ kind: 'error', text: checkoutError(r, d.errors, lang) });
     }
   }
 

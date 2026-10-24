@@ -68,7 +68,9 @@ export const ordersEn = {
   trackSearching: 'Looking up your order',
   trackNotFound:
     'We could not find an order with those details. Check the order number and phone number.',
-  trackTooMany: 'Too many lookups. Please wait a few minutes and try again.',
+  trackTooMany:
+    'Too many lookups for this order or from this network. Please wait a while and try again.',
+  trackTooManyIn: 'Too many lookups. Try again in {m} min.',
   trackError: 'Could not look up the order. Please try again.',
   trackPhoneOn: 'Phone on order: {phone}',
   trackOrderNoRequired: 'Enter your order number.',

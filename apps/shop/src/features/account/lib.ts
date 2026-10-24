@@ -32,7 +32,16 @@ export function safeNext(next: string | string[] | undefined, fallback: string):
   return v;
 }
 
-export type ApiFail = { ok: false; status: number; code: string | null; message: string | null };
+export type ApiFail = {
+  ok: false;
+  status: number;
+  code: string | null;
+  message: string | null;
+  /** 429 lockouts: seconds until the next try is allowed. */
+  retryAfterSec?: number;
+  /** Sub-reason of a code, e.g. GUEST_LIMIT: open_orders | daily_cap. */
+  reason?: string;
+};
 export type ApiOk<T> = { ok: true; data: T };
 export type ApiResult<T> = ApiOk<T> | ApiFail;
 
@@ -43,12 +52,19 @@ export async function call<T>(p: Promise<Fetched<T>>): Promise<ApiResult<T>> {
   try {
     const r = await p;
     if (r.response.ok) return { ok: true, data: r.data as T };
-    const e = (r.error ?? {}) as { code?: unknown; message?: unknown };
+    const e = (r.error ?? {}) as {
+      code?: unknown;
+      message?: unknown;
+      retryAfterSec?: unknown;
+      reason?: unknown;
+    };
     return {
       ok: false,
       status: r.response.status,
       code: typeof e.code === 'string' ? e.code : null,
       message: typeof e.message === 'string' ? e.message : null,
+      ...(typeof e.retryAfterSec === 'number' ? { retryAfterSec: e.retryAfterSec } : {}),
+      ...(typeof e.reason === 'string' ? { reason: e.reason } : {}),
     };
   } catch {
     return { ok: false, status: 0, code: 'NETWORK', message: null };

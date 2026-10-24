@@ -32,6 +32,7 @@ import {
 } from '~/features/checkout/errors';
 import { resetGeo } from '~/features/checkout/geo';
 import { SuccessView } from '~/features/checkout/SuccessView';
+import { bn } from '~/i18n/bn';
 import { en } from '~/i18n/en';
 
 const d = en.checkout;
@@ -157,6 +158,23 @@ describe('checkout errors', () => {
     expect(checkoutError(e(400, 'OTP_INVALID'), d.errors)).toBe(d.errors.OTP_INVALID);
     expect(checkoutError(e(429, null), d.errors)).toBe(d.errors.TOO_MANY_REQUESTS);
     expect(checkoutError(e(400, 'SOMETHING'), d.errors)).toBe(d.errors.validation);
+    expect(checkoutError(e(429, 'TOO_MANY_ORDERS'), d.errors)).toBe(d.errors.TOO_MANY_ORDERS);
+    expect(checkoutError({ ...e(429, 'GUEST_LIMIT'), reason: 'open_orders' }, d.errors)).toBe(
+      d.errors.GUEST_LIMIT_open_orders,
+    );
+    expect(checkoutError({ ...e(429, 'GUEST_LIMIT'), reason: 'daily_cap' }, d.errors)).toBe(
+      d.errors.GUEST_LIMIT_daily_cap,
+    );
+    expect(checkoutError({ ...e(429, 'TOO_MANY_ATTEMPTS'), retryAfterSec: 301 }, d.errors)).toBe(
+      'Too many wrong codes. Try again in 6 min.',
+    );
+    expect(
+      checkoutError(
+        { ...e(429, 'TOO_MANY_ATTEMPTS'), retryAfterSec: 120 },
+        bn.checkout.errors,
+        'bn',
+      ),
+    ).toBe('অনেকবার ভুল কোড দিয়েছেন। ২ মিনিট পরে আবার চেষ্টা করুন।');
     expect(checkoutError(e(0, 'NETWORK'), d.errors)).toBe(d.errors.network);
     expect(checkoutError(e(500, null), d.errors)).toBe(d.errors.generic);
     expect(cartNoticeFor('CART_CHANGED')).toBe('changed');
@@ -234,6 +252,22 @@ describe('CheckoutForm (guest)', () => {
     await waitFor(() => expect(h.replace).toHaveBeenCalledWith('/cart?notice=changed'));
   });
 
+  it('explains the guest order limit and offers login', async () => {
+    placeResult = () => ({
+      error: { code: 'GUEST_LIMIT', reason: 'daily_cap', message: 'x' },
+      response: { ok: false, status: 429 },
+    });
+    render(<CheckoutForm lang="en" initialCart={cart} me={null} addresses={[]} />);
+    await fillGuest();
+    await screen.findByText('৳60');
+    fireEvent.click(screen.getByRole('button', { name: d.place }));
+    expect(await screen.findByText(d.errors.GUEST_LIMIT_daily_cap)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: d.loginToOrder })).toHaveAttribute(
+      'href',
+      '/login?next=%2Fcheckout',
+    );
+  });
+
   it('blocks placing when the area is not deliverable', async () => {
     quoteResult = () => fail(422, 'NO_DELIVERY_ZONE');
     render(<CheckoutForm lang="en" initialCart={cart} me={null} addresses={[]} />);
@@ -267,6 +301,11 @@ describe('CheckoutForm (logged in)', () => {
     placeText: 'Gulshan, Dhaka',
     placeTextBn: 'গুলশান, ঢাকা',
   };
+
+  it('shows the Bangla place text of saved addresses under /bn', () => {
+    render(<CheckoutForm lang="bn" initialCart={cart} me={me} addresses={[saved]} />);
+    expect(screen.getByText(/গুলশান, ঢাকা/)).toBeInTheDocument();
+  });
 
   it('preselects the default saved address, quotes it and places with addressId', async () => {
     render(<CheckoutForm lang="en" initialCart={cart} me={me} addresses={[saved]} />);

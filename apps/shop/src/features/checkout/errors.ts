@@ -1,9 +1,28 @@
 import type { ApiFail } from '~/features/account/lib';
+import { fmt } from '~/i18n';
+import { localizeDigits } from '~/lib/format';
 import type { CheckoutDict } from './strings.en';
 
+/** Whole minutes (at least 1) for a retry-after in seconds. */
+export function retryMinutes(sec: number): number {
+  return Math.max(1, Math.ceil(sec / 60));
+}
+
 /** Friendly text for a failed checkout call: stable API `code` first, then the HTTP status. */
-export function checkoutError(e: ApiFail, errors: CheckoutDict['errors']): string {
+export function checkoutError(
+  e: ApiFail,
+  errors: CheckoutDict['errors'],
+  lang: 'en' | 'bn' = 'en',
+): string {
   if (e.code === 'NETWORK') return errors.network;
+  if (e.code === 'TOO_MANY_ATTEMPTS' && e.retryAfterSec) {
+    return fmt(errors.TOO_MANY_ATTEMPTS_IN, {
+      m: localizeDigits(retryMinutes(e.retryAfterSec), lang),
+    });
+  }
+  if (e.code === 'GUEST_LIMIT') {
+    return e.reason === 'daily_cap' ? errors.GUEST_LIMIT_daily_cap : errors.GUEST_LIMIT_open_orders;
+  }
   if (e.code && e.code in errors) return errors[e.code as keyof CheckoutDict['errors']];
   if (e.status === 429) return errors.TOO_MANY_REQUESTS;
   if (e.status === 400) return errors.validation;
