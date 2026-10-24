@@ -2,7 +2,7 @@ import { MantineProvider } from '@mantine/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { allowedActions, extrasOf, hasMemo } from '~/features/sr/logic';
+import { allowedActions, hasMemo } from '~/features/sr/logic';
 import { theme } from '~/theme';
 
 const mocks = vi.hoisted(() => ({
@@ -12,7 +12,7 @@ const mocks = vi.hoisted(() => ({
   reject: vi.fn(),
   deliver: vi.fn(),
   reverse: vi.fn(),
-  profiles: vi.fn(),
+  srList: vi.fn(),
   shops: vi.fn(),
 }));
 
@@ -99,7 +99,6 @@ describe('sale status rules', () => {
   it('has a memo only after approval', () => {
     expect(hasMemo('submitted')).toBe(false);
     expect(hasMemo('approved')).toBe(true);
-    expect(extrasOf({ deliveryBy: 'sr' }).deliveryBy).toBe('sr');
   });
 });
 
@@ -108,7 +107,7 @@ describe('SalesPage', () => {
     vi.clearAllMocks();
     mocks.sales.mockResolvedValue({ items: [sale()], total: 1, page: 1, pageSize: 25 });
     mocks.sale.mockResolvedValue(detail());
-    mocks.profiles.mockResolvedValue([]);
+    mocks.srList.mockResolvedValue([]);
     mocks.shops.mockResolvedValue({ items: [], total: 0, page: 1, pageSize: 20 });
     mocks.approve.mockResolvedValue(detail({ status: 'approved' }));
     mocks.reject.mockResolvedValue(detail({ status: 'rejected' }));

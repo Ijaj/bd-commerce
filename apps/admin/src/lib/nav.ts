@@ -11,6 +11,7 @@ export interface NavItem {
     | '/b2b/sales'
     | '/b2b/shops'
     | '/b2b/collections'
+    | '/b2b/dues'
     | '/sr/team'
     | '/delivery'
     | '/staff'
@@ -52,6 +53,7 @@ export const NAV: NavSection[] = [
       { label: 'SR sales', to: '/b2b/sales', anyOf: ['b2b.view'] },
       { label: 'Buyer shops', to: '/b2b/shops', anyOf: ['b2b.view'] },
       { label: 'Collections', to: '/b2b/collections', anyOf: ['b2b.view', 'sr.approve'] },
+      { label: 'Dues ageing', to: '/b2b/dues', anyOf: ['b2b.view'] },
       { label: 'SR team', to: '/sr/team', anyOf: ['sr.manage'] },
     ],
   },

@@ -14,13 +14,13 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { ConfirmAction, ReasonModal } from '~/features/b2b/components';
-import { notifyError, notifyOk } from '~/features/categories/queries';
+import { notifyApiError } from '~/features/b2b/errors';
+import { notifyOk } from '~/features/categories/queries';
 import { formatDateTime, formatPrice } from '~/lib/format';
 import { useCan } from '~/lib/perm';
 import { memoUrl, srApi } from './api';
 import {
   allowedActions,
-  extrasOf,
   hasMemo,
   type SaleAction,
   type SaleStatusX,
@@ -49,7 +49,6 @@ export function SaleDrawer({ id, onClose }: { id: string | null; onClose: () => 
   const [action, setAction] = useState<SaleAction | null>(null);
   const sale = q.data;
   const status = sale?.status as SaleStatusX | undefined;
-  const extra = sale ? extrasOf(sale) : {};
   const actions = status && canAct ? allowedActions(status) : [];
 
   const done = (msg: string) => {
@@ -73,9 +72,9 @@ export function SaleDrawer({ id, onClose }: { id: string | null; onClose: () => 
             <Badge variant="light" color={STATUS_COLOR[status]}>
               {STATUS_LABEL[status]}
             </Badge>
-            {extra.deliveryBy && (
+            {sale.deliveryBy && (
               <Badge variant="outline" color="gray">
-                Delivery: {extra.deliveryBy === 'sr' ? 'SR delivers' : 'Staff delivers'}
+                Delivery: {sale.deliveryBy === 'sr' ? 'SR delivers' : 'Staff delivers'}
               </Badge>
             )}
           </Group>
@@ -99,9 +98,9 @@ export function SaleDrawer({ id, onClose }: { id: string | null; onClose: () => 
                 {formatDateTime(sale.deliveredAt)} by {sale.deliveredBy?.name ?? '-'}
               </Fact>
             )}
-            {extra.reversedAt && (
+            {sale.reversedAt && (
               <Fact label="Reversed">
-                {formatDateTime(extra.reversedAt)} by {extra.reversedBy?.name ?? '-'}
+                {formatDateTime(sale.reversedAt)} by {sale.reversedBy?.name ?? '-'}
               </Fact>
             )}
           </SimpleGrid>
@@ -111,9 +110,9 @@ export function SaleDrawer({ id, onClose }: { id: string | null; onClose: () => 
               {sale.rejectedReason}
             </Alert>
           )}
-          {extra.reverseReason && (
+          {sale.reverseReason && (
             <Alert color="orange" variant="light" title="Reversed">
-              {extra.reverseReason}
+              {sale.reverseReason}
             </Alert>
           )}
 
@@ -177,7 +176,7 @@ export function SaleDrawer({ id, onClose }: { id: string | null; onClose: () => 
                       await navigator.clipboard.writeText(url);
                       notifyOk('Memo link copied');
                     } catch (e) {
-                      notifyError(e, 'Could not copy the memo link');
+                      notifyApiError(e, 'Could not copy the memo link');
                     }
                   }}
                 >

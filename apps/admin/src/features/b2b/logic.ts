@@ -9,9 +9,8 @@ export const LEDGER_TYPE_LABEL: Record<string, string> = {
 
 export type LedgerState = 'confirmed' | 'pending' | 'rejected' | 'posted';
 
-/** Rejected state comes from fields the generated types do not have yet (TODO(lead) after J). */
 export function ledgerState(row: LedgerRow): LedgerState {
-  if ((row as { rejected?: boolean }).rejected) return 'rejected';
+  if (row.rejected) return 'rejected';
   if (row.type !== 'collection') return 'posted';
   return row.confirmed ? 'confirmed' : 'pending';
 }
@@ -37,5 +36,25 @@ export function signedAdjustment(
 }
 
 export function rejectReason(row: LedgerRow): string | null {
-  return (row as { rejectReason?: string | null }).rejectReason ?? null;
+  return row.rejectReason ?? null;
+}
+
+export interface DueRow {
+  dueP: number;
+  shop: { name: string };
+}
+
+/** Largest due first by default; ties by shop name. */
+export function sortByDue<T extends DueRow>(rows: readonly T[], dir: 'desc' | 'asc' = 'desc'): T[] {
+  const sign = dir === 'desc' ? -1 : 1;
+  return [...rows].sort(
+    (a, b) => sign * (a.dueP - b.dueP) || a.shop.name.localeCompare(b.shop.name),
+  );
+}
+
+/** Local calendar date as YYYY-MM-DD. */
+export function todayIso(now = new Date()): string {
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  return `${now.getFullYear()}-${m}-${d}`;
 }

@@ -1,38 +1,15 @@
 import { api } from '~/api';
-import { HttpError, send } from '~/features/categories/http';
+import { send } from '~/features/categories/http';
 
 export interface SaleFilters {
-  status?: 'submitted' | 'approved' | 'rejected' | 'delivered' | 'cancelled';
+  status?: 'submitted' | 'approved' | 'rejected' | 'delivered' | 'cancelled' | 'reversed';
   srId?: string;
   shopId?: string;
+  /** YYYY-MM */
+  month?: string;
   page: number;
   pageSize: number;
 }
-
-async function postRaw<T>(path: string, body?: unknown): Promise<T> {
-  const res = await fetch(path, {
-    method: 'POST',
-    credentials: 'include',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(body ?? {}),
-  });
-  const json = await res.json().catch(() => null);
-  if (!res.ok) {
-    const msg = (json as { message?: string } | null)?.message;
-    throw new HttpError(
-      typeof msg === 'string' ? msg : `Request failed (${res.status})`,
-      res.status,
-      json,
-    );
-  }
-  return json as T;
-}
-
-// TODO(lead): generated types after J (memo-link returns { token, url }).
-const reverseRaw = (id: string, reason: string) =>
-  postRaw(`/v1/admin/sr/sales/${id}/reverse`, { reason });
-const memoLinkRaw = (id: string) =>
-  postRaw<{ token: string; url: string }>(`/v1/admin/sr/sales/${id}/memo-link`);
 
 export const memoUrl = (id: string, lang: 'en' | 'bn' = 'en') =>
   `/v1/admin/sr/sales/${id}/memo?lang=${lang}`;
@@ -48,8 +25,19 @@ export const srApi = {
     ),
   deliver: (id: string) =>
     send(api.POST('/v1/admin/sr/sales/{id}/deliver', { params: { path: { id } } })),
-  reverse: reverseRaw,
-  memoLink: memoLinkRaw,
+  reverse: (id: string, reason: string) =>
+    send(
+      api.POST('/v1/admin/sr/sales/{id}/reverse', { params: { path: { id } }, body: { reason } }),
+    ),
+  memoLink: (id: string) =>
+    send(api.POST('/v1/admin/sr/sales/{id}/memo-link', { params: { path: { id } } })),
+  srList: () => send(api.GET('/v1/admin/sr/list')),
+  adjustments: (applied: 'true' | 'false', page: number, pageSize: number) =>
+    send(
+      api.GET('/v1/admin/sr/commission-adjustments', {
+        params: { query: { applied, page, pageSize } },
+      }),
+    ),
 
   profiles: () => send(api.GET('/v1/admin/sr/profiles')),
   updateProfile: (staffId: string, body: { area?: string | null; commissionBp?: number | null }) =>

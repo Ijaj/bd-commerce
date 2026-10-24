@@ -1,4 +1,5 @@
 import { Alert, Badge, Group, Select, Text } from '@mantine/core';
+import { MonthPickerInput } from '@mantine/dates';
 import { useDebouncedValue } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
@@ -7,10 +8,9 @@ import { type Column, DataTable } from '~/components/DataTable';
 import { PageHeader } from '~/components/PageHeader';
 import { shopsQuery } from '~/features/b2b/queries';
 import { formatDateTime, formatPrice } from '~/lib/format';
-import { useCan } from '~/lib/perm';
 import type { SaleFilters } from './api';
-import { extrasOf, type SaleStatusX, STATUS_COLOR, STATUS_LABEL } from './logic';
-import { profilesQuery, type Sale, salesQuery } from './queries';
+import { dateToMonth, monthToDate, type SaleStatusX, STATUS_COLOR, STATUS_LABEL } from './logic';
+import { type Sale, salesQuery, srListQuery } from './queries';
 import { SaleDrawer } from './SaleDrawer';
 
 const ANY = 'any';
@@ -20,6 +20,8 @@ export interface SalesSearch {
   /** Not `status`: the products route already uses that key with a narrower type. */
   saleStatus?: string;
   srId?: string;
+  /** YYYY-MM, by approval date. */
+  month?: string;
   open?: string;
 }
 
@@ -29,13 +31,13 @@ export function validateSalesSearch(s: Record<string, unknown>): SalesSearch {
     shopId: str(s.shopId),
     saleStatus: str(s.saleStatus),
     srId: str(s.srId),
+    month: typeof s.month === 'string' && /^\d{4}-\d{2}$/.test(s.month) ? s.month : undefined,
     open: str(s.open),
   };
 }
 
 export function SalesPage({ search }: { search: SalesSearch }) {
   const navigate = useNavigate({ from: '/b2b/sales' });
-  const canSeeSrs = useCan('sr.manage');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [shopText, setShopText] = useState('');
@@ -56,9 +58,10 @@ export function SalesPage({ search }: { search: SalesSearch }) {
     ...(status !== ANY ? { status: status as NonNullable<SaleFilters['status']> } : {}),
     ...(srId !== ANY ? { srId } : {}),
     ...(shopId !== ANY ? { shopId } : {}),
+    ...(search.month ? { month: search.month } : {}),
   };
   const list = useQuery(salesQuery(filters));
-  const srs = useQuery({ ...profilesQuery, enabled: canSeeSrs });
+  const srs = useQuery(srListQuery);
   const shops = useQuery(
     shopsQuery({ page: 1, pageSize: 20, ...(debouncedShop ? { q: debouncedShop } : {}) }),
   );
@@ -90,10 +93,7 @@ export function SalesPage({ search }: { search: SalesSearch }) {
     {
       key: 'delivery',
       header: 'Delivery',
-      render: (s) => {
-        const d = extrasOf(s).deliveryBy;
-        return d ? (d === 'sr' ? 'SR' : 'Staff') : '-';
-      },
+      render: (s) => (s.deliveryBy === 'sr' ? 'SR' : 'Staff'),
     },
     {
       key: 'status',
@@ -129,19 +129,25 @@ export function SalesPage({ search }: { search: SalesSearch }) {
             ).map((v) => ({ value: v, label: STATUS_LABEL[v] })),
           ]}
         />
-        {canSeeSrs && (
-          <Select
-            label="Sales rep"
-            w={180}
-            allowDeselect={false}
-            value={srId}
-            onChange={(v) => set({ srId: v && v !== ANY ? v : undefined })}
-            data={[
-              { value: ANY, label: 'All' },
-              ...(srs.data ?? []).map((p) => ({ value: p.staffId, label: p.name })),
-            ]}
-          />
-        )}
+        <Select
+          label="Sales rep"
+          w={180}
+          allowDeselect={false}
+          value={srId}
+          onChange={(v) => set({ srId: v && v !== ANY ? v : undefined })}
+          data={[
+            { value: ANY, label: 'All' },
+            ...(srs.data ?? []).map((p) => ({ value: p.staffId, label: p.name })),
+          ]}
+        />
+        <MonthPickerInput
+          label="Month"
+          w={160}
+          clearable
+          placeholder="Any month"
+          value={search.month ? monthToDate(search.month) : null}
+          onChange={(d) => set({ month: dateToMonth(d) ?? undefined })}
+        />
         <Select
           label="Shop"
           w={220}

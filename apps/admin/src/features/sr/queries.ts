@@ -5,12 +5,19 @@ import { type SaleFilters, srApi } from './api';
 export type Sale = components['schemas']['SrSalePageDto']['items'][number];
 export type SaleDetail = components['schemas']['SrSaleDetailDto'];
 export type Profile = components['schemas']['SrProfileDto'];
+export type Adjustment = components['schemas']['SrCommissionAdjustmentPageDto']['items'][number];
 export type Commission = components['schemas']['SrCommissionListDto']['items'][number];
 
 export const salesQuery = (f: SaleFilters) =>
   queryOptions({ queryKey: ['sr', 'sales', f], queryFn: () => srApi.sales(f) });
 export const saleQuery = (id: string) =>
   queryOptions({ queryKey: ['sr', 'sale', id], queryFn: () => srApi.sale(id) });
+export const srListQuery = queryOptions({ queryKey: ['sr', 'list'], queryFn: srApi.srList });
+export const adjustmentsQuery = (applied: 'true' | 'false', page: number, pageSize: number) =>
+  queryOptions({
+    queryKey: ['sr', 'adjustments', applied, page, pageSize],
+    queryFn: () => srApi.adjustments(applied, page, pageSize),
+  });
 export const profilesQuery = queryOptions({
   queryKey: ['sr', 'profiles'],
   queryFn: srApi.profiles,

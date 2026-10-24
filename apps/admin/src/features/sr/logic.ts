@@ -1,15 +1,6 @@
 import type { Sale } from './queries';
 
-// TODO(lead): generated types after J (status 'reversed', deliveryBy, reversed* fields).
-export type SaleStatusX = Sale['status'] | 'reversed';
-
-export interface SaleExtras {
-  deliveryBy?: 'sr' | 'staff';
-  reversedAt?: string | null;
-  reversedBy?: { id: string; name: string } | null;
-  reverseReason?: string | null;
-}
-export const extrasOf = (s: object) => s as SaleExtras;
+export type SaleStatusX = Sale['status'];
 
 export const STATUS_LABEL: Record<SaleStatusX, string> = {
   submitted: 'Pending approval',

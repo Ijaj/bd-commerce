@@ -4,6 +4,7 @@ import { b2bApi, type CollectionStatus, type ShopFilters } from './api';
 
 export type Shop = components['schemas']['SrShopDto'];
 export type ShopUpdate = components['schemas']['B2bUpdateShopDto'];
+export type DueItem = components['schemas']['B2bDuesDto']['items'][number];
 export type LedgerRow = components['schemas']['B2bLedgerRowDto'];
 
 export const shopsQuery = (f: ShopFilters) =>
@@ -17,6 +18,9 @@ export const ledgerQuery = (id: string, page: number, pageSize: number) =>
     queryKey: ['b2b', 'ledger', id, page, pageSize],
     queryFn: () => b2bApi.ledger(id, page, pageSize),
   });
+
+export const duesQuery = (asOf: string) =>
+  queryOptions({ queryKey: ['b2b', 'dues', asOf], queryFn: () => b2bApi.dues(asOf) });
 
 export const collectionsQuery = (status: CollectionStatus, page: number, pageSize: number) =>
   queryOptions({

@@ -1,8 +1,11 @@
 import { MantineProvider } from '@mantine/core';
+import { Notifications } from '@mantine/notifications';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { friendlyMessage } from '~/features/b2b/errors';
 import { ledgerState, signedAdjustment } from '~/features/b2b/logic';
+import { HttpError } from '~/features/categories/http';
 import { theme } from '~/theme';
 
 const mocks = vi.hoisted(() => ({
@@ -45,6 +48,7 @@ function wrap(ui: React.ReactElement) {
   return render(
     <QueryClientProvider client={qc}>
       <MantineProvider theme={theme} env="test">
+        <Notifications />
         {ui}
       </MantineProvider>
     </QueryClientProvider>,
@@ -69,6 +73,17 @@ describe('adjustment logic', () => {
     expect(ledgerState(row({ confirmed: true }))).toBe('confirmed');
     expect(ledgerState(row({ rejected: true }))).toBe('rejected');
     expect(ledgerState({ type: 'sale_due', confirmed: true } as never)).toBe('posted');
+  });
+});
+
+describe('error messages', () => {
+  it('rewrites known codes and keeps others', () => {
+    const err = (code: string, msg = 'raw') => new HttpError(msg, 403, { message: msg, code });
+    expect(friendlyMessage(err('SELF_CONFIRM'), 'x')).toMatch(/someone else/);
+    expect(friendlyMessage(err('LEDGER_OVERFLOW'), 'x')).toMatch(/limit/);
+    expect(friendlyMessage(err('TOO_MANY_OPEN_SALES'), 'x')).toMatch(/waiting for approval/);
+    expect(friendlyMessage(err('OTHER', 'Plain'), 'x')).toBe('Plain');
+    expect(friendlyMessage('nope', 'fallback')).toBe('fallback');
   });
 });
 
@@ -142,6 +157,18 @@ describe('CollectionsPage', () => {
     const dialog = await screen.findByRole('dialog');
     fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm' }));
     await waitFor(() => expect(mocks.confirmCollection).toHaveBeenCalledWith('l1'));
+  });
+
+  it('explains a self-confirm refusal', async () => {
+    mocks.confirmCollection.mockRejectedValue(
+      new HttpError('You cannot confirm your own collection', 403, { code: 'SELF_CONFIRM' }),
+    );
+    wrap(<CollectionsPage />);
+    fireEvent.click(await screen.findByRole('button', { name: 'Confirm' }));
+    const dialog = await screen.findByRole('dialog');
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm' }));
+    await waitFor(() => expect(mocks.confirmCollection).toHaveBeenCalled());
+    expect(await screen.findByText(/someone else has to confirm/)).toBeInTheDocument();
   });
 
   it('rejects with a reason', async () => {

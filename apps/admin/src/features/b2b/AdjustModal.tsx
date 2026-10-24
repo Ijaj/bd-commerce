@@ -11,9 +11,10 @@ import {
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { MoneyInput } from '~/components/MoneyInput';
-import { notifyError, notifyOk } from '~/features/categories/queries';
+import { notifyOk } from '~/features/categories/queries';
 import { formatPrice } from '~/lib/format';
 import { b2bApi } from './api';
+import { notifyApiError } from './errors';
 import { type AdjustDirection, signedAdjustment } from './logic';
 import { type Shop, useInvalidateB2b } from './queries';
 
@@ -34,7 +35,7 @@ export function AdjustModal({ shop, onClose }: { shop: Shop; onClose: () => void
       invalidate();
       onClose();
     },
-    onError: (e) => notifyError(e, 'Could not post the adjustment'),
+    onError: (e) => notifyApiError(e, 'Could not post the adjustment'),
   });
 
   function review() {

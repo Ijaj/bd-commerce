@@ -1,14 +1,21 @@
-import { Alert, Badge, Button, Group, Text, Title } from '@mantine/core';
+import { Alert, Badge, Button, Collapse, Group, Stack, Text, Title } from '@mantine/core';
 import { MonthPickerInput } from '@mantine/dates';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { type Column, DataTable } from '~/components/DataTable';
 import { ConfirmAction } from '~/features/b2b/components';
 import { notifyOk } from '~/features/categories/queries';
-import { formatPrice } from '~/lib/format';
+import { formatDateTime, formatPrice } from '~/lib/format';
 import { srApi } from './api';
 import { achievedPercent, currentMonth, dateToMonth, formatPercent, monthToDate } from './logic';
-import { type Commission, commissionsQuery, summaryQuery, useInvalidateSr } from './queries';
+import {
+  type Adjustment,
+  adjustmentsQuery,
+  type Commission,
+  commissionsQuery,
+  summaryQuery,
+  useInvalidateSr,
+} from './queries';
 
 type SummaryRow = NonNullable<ReturnType<typeof useSummaryRows>>[number];
 function useSummaryRows(month: string) {
@@ -22,6 +29,15 @@ export function CommissionsTab() {
   const [month, setMonth] = useState(currentMonth());
   const summary = useQuery(summaryQuery(month));
   const list = useQuery(commissionsQuery(month));
+  const [adjPage, setAdjPage] = useState(1);
+  const unapplied = useQuery(adjustmentsQuery('false', adjPage, 10));
+  const [open, setOpen] = useState<Set<string>>(new Set());
+  const toggle = (id: string) =>
+    setOpen((o) => {
+      const n = new Set(o);
+      if (!n.delete(id)) n.add(id);
+      return n;
+    });
   const [computing, setComputing] = useState(false);
   const [acting, setActing] = useState<{ row: Commission; kind: 'approve' | 'paid' } | null>(null);
 
@@ -59,11 +75,54 @@ export function CommissionsTab() {
     },
   ];
 
+  const adjCols: Column<Adjustment>[] = [
+    { key: 'sr', header: 'SR', render: (a) => a.sr.name },
+    { key: 'memo', header: 'Sale', render: (a) => a.memoNo ?? '-' },
+    { key: 'reason', header: 'Reason', render: (a) => a.reason },
+    { key: 'amount', header: 'Amount', align: 'right', render: (a) => formatPrice(a.amountP) },
+    { key: 'at', header: 'Created', render: (a) => formatDateTime(a.createdAt) },
+  ];
+
   const columns: Column<Commission>[] = [
     { key: 'sr', header: 'SR', render: (c) => c.sr.name },
     { key: 'base', header: 'Base', align: 'right', render: (c) => formatPrice(c.baseP) },
     { key: 'rate', header: 'Rate', align: 'right', render: (c) => formatPercent(c.commissionBp) },
-    { key: 'amount', header: 'Commission', align: 'right', render: (c) => formatPrice(c.amountP) },
+    {
+      key: 'adj',
+      header: 'Adjustments',
+      render: (c) =>
+        c.adjustments.length === 0 ? (
+          '-'
+        ) : (
+          <div>
+            <Button
+              size="compact-xs"
+              variant="subtle"
+              color="orange"
+              aria-expanded={open.has(c.id)}
+              aria-label={`Adjustments for ${c.sr.name}`}
+              onClick={() => toggle(c.id)}
+            >
+              {formatPrice(c.adjustmentP)} ({c.adjustments.length})
+            </Button>
+            <Collapse expanded={open.has(c.id)}>
+              <Stack gap={2} mt={4}>
+                {c.adjustments.map((a) => (
+                  <Text key={a.id} size="xs" c="dimmed">
+                    {formatPrice(a.amountP)}: {a.reason}
+                  </Text>
+                ))}
+              </Stack>
+            </Collapse>
+          </div>
+        ),
+    },
+    {
+      key: 'amount',
+      header: 'Commission (net)',
+      align: 'right',
+      render: (c) => formatPrice(c.amountP),
+    },
     {
       key: 'status',
       header: 'Status',
@@ -131,6 +190,26 @@ export function CommissionsTab() {
         rowKey={(c) => c.id}
         loading={list.isLoading}
         emptyMessage="Nothing computed for this month yet."
+      />
+
+      <Title order={4} mt="lg" mb="xs">
+        Unapplied adjustments
+      </Title>
+      <Text size="xs" c="dimmed" mb="xs">
+        Clawbacks from reversed sales whose commission was already approved or paid. They are
+        deducted from that rep's next computed commission.
+      </Text>
+      {unapplied.isError && <Alert color="red">{(unapplied.error as Error).message}</Alert>}
+      <DataTable
+        columns={adjCols}
+        rows={unapplied.data?.items}
+        rowKey={(a) => a.id}
+        loading={unapplied.isLoading}
+        emptyMessage="No adjustments waiting."
+        page={adjPage}
+        pageSize={10}
+        total={unapplied.data?.total}
+        onPageChange={setAdjPage}
       />
 
       <ConfirmAction

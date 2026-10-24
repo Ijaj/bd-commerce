@@ -1,6 +1,6 @@
 import { Button, Group, Modal, Stack, Text, Textarea } from '@mantine/core';
 import { type ReactNode, useState } from 'react';
-import { notifyError } from '~/features/categories/queries';
+import { notifyApiError } from './errors';
 
 /** Neutral "are you sure" for non-destructive actions (ConfirmDelete is red and says Delete). */
 export function ConfirmAction({
@@ -40,7 +40,7 @@ export function ConfirmAction({
                 await onConfirm();
                 onClose();
               } catch (e) {
-                notifyError(e, 'Action failed');
+                notifyApiError(e, 'Action failed');
               } finally {
                 setBusy(false);
               }
@@ -114,7 +114,7 @@ export function ReasonModal({
                 await onSubmit(reason.trim());
                 close();
               } catch (e) {
-                notifyError(e, 'Action failed');
+                notifyApiError(e, 'Action failed');
               } finally {
                 setBusy(false);
               }

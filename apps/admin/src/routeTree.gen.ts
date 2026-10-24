@@ -19,6 +19,7 @@ import { Route as AppRolesRouteImport } from './routes/_app/roles'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppStaffRouteImport } from './routes/_app/staff'
 import { Route as AppB2bCollectionsRouteImport } from './routes/_app/b2b.collections'
+import { Route as AppB2bDuesRouteImport } from './routes/_app/b2b.dues'
 import { Route as AppB2bSalesRouteImport } from './routes/_app/b2b.sales'
 import { Route as AppCatalogBrandsRouteImport } from './routes/_app/catalog.brands'
 import { Route as AppCatalogCategoriesRouteImport } from './routes/_app/catalog.categories'
@@ -78,6 +79,11 @@ const AppStaffRoute = AppStaffRouteImport.update({
 const AppB2bCollectionsRoute = AppB2bCollectionsRouteImport.update({
   id: '/b2b/collections',
   path: '/b2b/collections',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppB2bDuesRoute = AppB2bDuesRouteImport.update({
+  id: '/b2b/dues',
+  path: '/b2b/dues',
   getParentRoute: () => AppRoute,
 } as any)
 const AppB2bSalesRoute = AppB2bSalesRouteImport.update({
@@ -146,6 +152,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AppSettingsRoute
   '/staff': typeof AppStaffRoute
   '/b2b/collections': typeof AppB2bCollectionsRoute
+  '/b2b/dues': typeof AppB2bDuesRoute
   '/b2b/sales': typeof AppB2bSalesRoute
   '/catalog/brands': typeof AppCatalogBrandsRoute
   '/catalog/categories': typeof AppCatalogCategoriesRoute
@@ -168,6 +175,7 @@ export interface FileRoutesByTo {
   '/staff': typeof AppStaffRoute
   '/': typeof AppIndexRoute
   '/b2b/collections': typeof AppB2bCollectionsRoute
+  '/b2b/dues': typeof AppB2bDuesRoute
   '/b2b/sales': typeof AppB2bSalesRoute
   '/catalog/brands': typeof AppCatalogBrandsRoute
   '/catalog/categories': typeof AppCatalogCategoriesRoute
@@ -192,6 +200,7 @@ export interface FileRoutesById {
   '/_app/staff': typeof AppStaffRoute
   '/_app/': typeof AppIndexRoute
   '/_app/b2b/collections': typeof AppB2bCollectionsRoute
+  '/_app/b2b/dues': typeof AppB2bDuesRoute
   '/_app/b2b/sales': typeof AppB2bSalesRoute
   '/_app/catalog/brands': typeof AppCatalogBrandsRoute
   '/_app/catalog/categories': typeof AppCatalogCategoriesRoute
@@ -216,6 +225,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/staff'
     | '/b2b/collections'
+    | '/b2b/dues'
     | '/b2b/sales'
     | '/catalog/brands'
     | '/catalog/categories'
@@ -238,6 +248,7 @@ export interface FileRouteTypes {
     | '/staff'
     | '/'
     | '/b2b/collections'
+    | '/b2b/dues'
     | '/b2b/sales'
     | '/catalog/brands'
     | '/catalog/categories'
@@ -261,6 +272,7 @@ export interface FileRouteTypes {
     | '/_app/staff'
     | '/_app/'
     | '/_app/b2b/collections'
+    | '/_app/b2b/dues'
     | '/_app/b2b/sales'
     | '/_app/catalog/brands'
     | '/_app/catalog/categories'
@@ -353,6 +365,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppB2bCollectionsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/b2b/dues': {
+      id: '/_app/b2b/dues'
+      path: '/b2b/dues'
+      fullPath: '/b2b/dues'
+      preLoaderRoute: typeof AppB2bDuesRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/b2b/sales': {
       id: '/_app/b2b/sales'
       path: '/b2b/sales'
@@ -440,6 +459,7 @@ interface AppRouteChildren {
   AppStaffRoute: typeof AppStaffRoute
   AppIndexRoute: typeof AppIndexRoute
   AppB2bCollectionsRoute: typeof AppB2bCollectionsRoute
+  AppB2bDuesRoute: typeof AppB2bDuesRoute
   AppB2bSalesRoute: typeof AppB2bSalesRoute
   AppCatalogBrandsRoute: typeof AppCatalogBrandsRoute
   AppCatalogCategoriesRoute: typeof AppCatalogCategoriesRoute
@@ -460,6 +480,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppStaffRoute: AppStaffRoute,
   AppIndexRoute: AppIndexRoute,
   AppB2bCollectionsRoute: AppB2bCollectionsRoute,
+  AppB2bDuesRoute: AppB2bDuesRoute,
   AppB2bSalesRoute: AppB2bSalesRoute,
   AppCatalogBrandsRoute: AppCatalogBrandsRoute,
   AppCatalogCategoriesRoute: AppCatalogCategoriesRoute,
