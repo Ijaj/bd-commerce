@@ -900,6 +900,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/customer/addresses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AddressesController_list"];
+        put?: never;
+        post: operations["AddressesController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/customer/addresses/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["AddressesController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["AddressesController_update"];
+        trace?: never;
+    };
+    "/v1/customer/addresses/{id}/default": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["AddressesController_setDefault"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/public/categories/tree": {
         parameters: {
             query?: never;
@@ -1090,6 +1138,710 @@ export interface paths {
         options?: never;
         head?: never;
         patch: operations["CarouselController_update"];
+        trace?: never;
+    };
+    "/v1/public/geo/divisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GeoController_divisions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/geo/districts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GeoController_districts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/geo/upazilas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GeoController_upazilas"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/delivery-zones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["DeliveryController_list"];
+        put?: never;
+        post: operations["DeliveryController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/delivery-zones/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["DeliveryController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["DeliveryController_update"];
+        trace?: never;
+    };
+    "/v1/admin/delivery-zones/{id}/locations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["DeliveryController_setLocations"];
+        post: operations["DeliveryController_addLocations"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/delivery-zones/{id}/locations/{locationId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["DeliveryController_removeLocation"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cart": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CartController_get"];
+        put?: never;
+        post?: never;
+        delete: operations["CartController_clear"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cart/items/{variantId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["CartController_setQty"];
+        post?: never;
+        delete: operations["CartController_remove"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/customer/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomerOrdersController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/customer/orders/{orderNo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomerOrdersController_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/track": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TrackController_track"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/checkout/quote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CheckoutController_quote"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/checkout/otp": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CheckoutController_otp"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/checkout/place": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CheckoutController_place"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/portal/sr/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SrPortalController_me"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/portal/sr/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SrPortalController_productList"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/portal/sr/shops": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SrPortalController_shopList"];
+        put?: never;
+        post: operations["SrPortalController_createShop"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/portal/sr/shops/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SrPortalController_shop"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/portal/sr/sales": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SrPortalController_saleList"];
+        put?: never;
+        post: operations["SrPortalController_createSale"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/portal/sr/sales/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SrPortalController_sale"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/portal/sr/sales/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["SrPortalController_cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/portal/sr/sales/{id}/memo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SrPortalController_memoHtml"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/portal/sr/collections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SrPortalController_collections"];
+        put?: never;
+        post: operations["SrPortalController_collect"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/sr/sales": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SrAdminController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/sr/sales/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SrAdminController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/sr/sales/{id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["SrAdminController_approve"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/sr/sales/{id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["SrAdminController_reject"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/sr/sales/{id}/deliver": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["SrAdminController_deliver"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/sr/sales/{id}/memo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SrAdminController_memoHtml"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/sr/profiles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SrAdminController_profiles"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/sr/profiles/{staffId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SrAdminController_profile"];
+        put: operations["SrAdminController_putProfile"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/sr/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SrAdminController_summary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/sr/targets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SrAdminController_targets"];
+        put: operations["SrAdminController_setTargets"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/sr/commissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SrAdminController_commissions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/sr/commissions/compute": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["SrAdminController_compute"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/sr/commissions/{id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["SrAdminController_approveCommission"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/sr/commissions/{id}/paid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["SrAdminController_paidCommission"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/b2b/shops": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["B2bAdminController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/b2b/shops/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["B2bAdminController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["B2bAdminController_update"];
+        trace?: never;
+    };
+    "/v1/admin/b2b/shops/{id}/ledger": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["B2bAdminController_shopLedger"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/b2b/shops/{id}/adjust": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["B2bAdminController_adjust"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/b2b/collections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["B2bAdminController_collections"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/b2b/ledger/{id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["B2bAdminController_confirm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
 }
@@ -2099,6 +2851,53 @@ export interface components {
         WishlistIdsDto: {
             productIds: string[];
         };
+        AddressListDto: {
+            id: string;
+            label: string | null;
+            name: string;
+            phone: string;
+            districtId: number;
+            upazilaId: number;
+            areaId: number | null;
+            line: string;
+            landmark: string | null;
+            isDefault: boolean;
+            placeText: string;
+        }[];
+        CreateAddressDto: {
+            label?: string | null;
+            name: string;
+            phone: string;
+            districtId: number;
+            upazilaId: number;
+            areaId?: number | null;
+            line: string;
+            landmark?: string | null;
+            isDefault?: boolean;
+        };
+        AddressDto: {
+            id: string;
+            label: string | null;
+            name: string;
+            phone: string;
+            districtId: number;
+            upazilaId: number;
+            areaId: number | null;
+            line: string;
+            landmark: string | null;
+            isDefault: boolean;
+            placeText: string;
+        };
+        UpdateAddressDto: {
+            label?: string | null;
+            name?: string;
+            phone?: string;
+            districtId?: number;
+            upazilaId?: number;
+            areaId?: number | null;
+            line?: string;
+            landmark?: string | null;
+        };
         CategoryTreeDto__schema0: {
             /** Format: uuid */
             id: string;
@@ -2176,6 +2975,7 @@ export interface components {
                 } | null;
             }[];
             featuredCategories: components["schemas"]["HomeDto__schema0"][];
+            feedRowEvery: number;
         };
         FeedDto: {
             items: {
@@ -2545,6 +3345,781 @@ export interface components {
             isActive?: boolean;
             /** @enum {string} */
             lang?: "all" | "en" | "bn";
+        };
+        GeoDivisionListDto: {
+            id: number;
+            nameEn: string;
+            nameBn: string;
+        }[];
+        GeoDistrictListDto: {
+            id: number;
+            nameEn: string;
+            nameBn: string;
+            divisionId: number;
+        }[];
+        GeoUpazilaListDto: {
+            id: number;
+            nameEn: string;
+            nameBn: string;
+            districtId: number;
+        }[];
+        ZoneListDto: {
+            /** Format: uuid */
+            id: string;
+            nameEn: string;
+            nameBn: string | null;
+            baseChargeP: number;
+            baseWeightG: number;
+            extraPerKgP: number;
+            etaMinDays: number;
+            etaMaxDays: number;
+            freeAboveP: number | null;
+            isDefault: boolean;
+            sort: number;
+            orderCount: number;
+            createdAt: string;
+            updatedAt: string;
+            locations: {
+                /** Format: uuid */
+                id: string;
+                /** @enum {string} */
+                level: "district" | "upazila" | "area";
+                districtId: number | null;
+                upazilaId: number | null;
+                areaId: number | null;
+                nameEn: string;
+                nameBn: string;
+            }[];
+        }[];
+        CreateZoneDto: {
+            nameEn: string;
+            nameBn?: string | null;
+            baseChargeP: number;
+            /** @default 1000 */
+            baseWeightG: number;
+            /** @default 0 */
+            extraPerKgP: number;
+            etaMinDays: number;
+            etaMaxDays: number;
+            /** @default null */
+            freeAboveP: number | null;
+            /** @default false */
+            isDefault: boolean;
+            /** @default 0 */
+            sort: number;
+            locations?: {
+                districtId?: number;
+                upazilaId?: number;
+                areaId?: number;
+            }[];
+        };
+        ZoneDto: {
+            /** Format: uuid */
+            id: string;
+            nameEn: string;
+            nameBn: string | null;
+            baseChargeP: number;
+            baseWeightG: number;
+            extraPerKgP: number;
+            etaMinDays: number;
+            etaMaxDays: number;
+            freeAboveP: number | null;
+            isDefault: boolean;
+            sort: number;
+            orderCount: number;
+            createdAt: string;
+            updatedAt: string;
+            locations: {
+                /** Format: uuid */
+                id: string;
+                /** @enum {string} */
+                level: "district" | "upazila" | "area";
+                districtId: number | null;
+                upazilaId: number | null;
+                areaId: number | null;
+                nameEn: string;
+                nameBn: string;
+            }[];
+        };
+        UpdateZoneDto: {
+            nameEn?: string;
+            nameBn?: string | null;
+            baseChargeP?: number;
+            baseWeightG?: number;
+            extraPerKgP?: number;
+            etaMinDays?: number;
+            etaMaxDays?: number;
+            freeAboveP?: number | null;
+            isDefault?: boolean;
+            sort?: number;
+        };
+        ZoneLocationsDto: {
+            locations: {
+                districtId?: number;
+                upazilaId?: number;
+                areaId?: number;
+            }[];
+        };
+        CartDto: {
+            items: {
+                variantId: string;
+                productId: string;
+                slug: string;
+                titleEn: string;
+                titleBn: string | null;
+                optionsTextEn: string | null;
+                optionsTextBn: string | null;
+                image: {
+                    alt: string | null;
+                    width: number;
+                    height: number;
+                    url320: string;
+                    url640: string;
+                    url1200: string;
+                } | null;
+                qty: number;
+                unitPriceP: number;
+                compareAtP: number | null;
+                priceAtAddP: number;
+                priceChanged: boolean;
+                available: number;
+                maxQty: number;
+                problem: ("out_of_stock" | "qty_reduced" | "unavailable" | "upcoming") | null;
+            }[];
+            count: number;
+            subtotalP: number;
+        };
+        CartSetQtyDto: {
+            qty: number;
+        };
+        OrderListDto: {
+            items: {
+                orderNo: string;
+                placedAt: string;
+                /** @enum {string} */
+                status: "pending_payment" | "processing" | "on_hold" | "partially_shipped" | "shipped" | "delivered" | "completed" | "cancelled";
+                grandTotalP: number;
+                itemCount: number;
+                firstImage: {
+                    alt: string | null;
+                    width: number;
+                    height: number;
+                    url320: string;
+                    url640: string;
+                    url1200: string;
+                } | null;
+            }[];
+            total: number;
+            page: number;
+            limit: number;
+        };
+        OrderDetailDto: {
+            orderNo: string;
+            placedAt: string;
+            /** @enum {string} */
+            status: "pending_payment" | "processing" | "on_hold" | "partially_shipped" | "shipped" | "delivered" | "completed" | "cancelled";
+            paymentStatus: string;
+            paymentMethod: string;
+            /** @enum {string} */
+            lang: "en" | "bn";
+            isPreorder: boolean;
+            customerNote: string | null;
+            items: {
+                productId: string;
+                variantId: string;
+                slug: string;
+                title: string;
+                sku: string;
+                optionsText: string | null;
+                image: {
+                    alt: string | null;
+                    width: number;
+                    height: number;
+                    url320: string;
+                    url640: string;
+                    url1200: string;
+                } | null;
+                qty: number;
+                qtyCancelled: number;
+                unitPriceP: number;
+                lineTotalP: number;
+            }[];
+            money: {
+                subtotalP: number;
+                autoDiscountP: number;
+                couponDiscountP: number;
+                deliveryChargeP: number;
+                deliveryDiscountP: number;
+                grandTotalP: number;
+                paidP: number;
+                refundedP: number;
+                codDueP: number;
+            };
+            shipTo: {
+                name: string;
+                phone: string;
+                placeText: string;
+                line: string;
+                landmark: string | null;
+            };
+            zone: {
+                nameEn: string;
+                nameBn: string | null;
+                etaMinDays: number;
+                etaMaxDays: number;
+            };
+            history: {
+                /** @enum {string} */
+                status: "pending_payment" | "processing" | "on_hold" | "partially_shipped" | "shipped" | "delivered" | "completed" | "cancelled";
+                at: string;
+            }[];
+        };
+        OrderTrackDto: {
+            orderNo: string;
+            /** @enum {string} */
+            status: "pending_payment" | "processing" | "on_hold" | "partially_shipped" | "shipped" | "delivered" | "completed" | "cancelled";
+            placedAt: string;
+            maskedPhone: string;
+            itemCount: number;
+            grandTotalP: number;
+            etaMinDays: number;
+            etaMaxDays: number;
+            timeline: {
+                /** @enum {string} */
+                status: "pending_payment" | "processing" | "on_hold" | "partially_shipped" | "shipped" | "delivered" | "completed" | "cancelled";
+                at: string;
+            }[];
+        };
+        CheckoutQuoteRequestDto: {
+            districtId: number;
+            upazilaId: number;
+            areaId?: number | null;
+        };
+        CheckoutQuoteDto: {
+            zone: {
+                id: string;
+                nameEn: string;
+                nameBn: string | null;
+                etaMinDays: number;
+                etaMaxDays: number;
+            };
+            subtotalP: number;
+            deliveryChargeP: number;
+            deliveryDiscountP: number;
+            grandTotalP: number;
+            freeDeliveryRemainingP: number | null;
+            guestOtpRequired: boolean;
+            problems: ("CART_EMPTY" | "CART_CHANGED" | "OUT_OF_STOCK")[];
+        };
+        CheckoutOtpRequestDto: {
+            phone: string;
+        };
+        CheckoutPlaceDto: {
+            /** Format: uuid */
+            addressId?: string;
+            address?: {
+                name: string;
+                phone: string;
+                districtId: number;
+                upazilaId: number;
+                areaId?: number | null;
+                line: string;
+                landmark?: string | null;
+            };
+            guest?: {
+                name: string;
+                phone: string;
+                /** Format: email */
+                email?: string;
+            };
+            otpCode?: string;
+            note?: string;
+            /** @enum {string} */
+            lang: "en" | "bn";
+            idempotencyKey: string;
+        };
+        CheckoutPlacedDto: {
+            orderNo: string;
+            orderId: string;
+            grandTotalP: number;
+            codDueP: number;
+        };
+        SrPortalMeDto: {
+            staff: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            };
+            profile: {
+                area: string | null;
+                commissionBp: number;
+            };
+            month: {
+                month: string;
+                targetP: number;
+                soldP: number;
+                collectedP: number;
+                commissionP: number;
+                dueOutstandingP: number;
+                pendingCollectionP: number;
+            };
+        };
+        SrPortalProductDto: {
+            /** Format: uuid */
+            variantId: string;
+            sku: string;
+            titleEn: string;
+            titleBn: string | null;
+            optionsText: string;
+            optionsTextBn: string;
+            image: {
+                alt: string | null;
+                width: number;
+                height: number;
+                url320: string;
+                url640: string;
+                url1200: string;
+            } | null;
+            priceP: number;
+            available: number;
+        };
+        SrShopPageDto: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+                ownerName: string | null;
+                phone: string;
+                address: string;
+                area: string | null;
+                isNew: boolean;
+                /** @enum {string} */
+                status: "active" | "blocked";
+                dueBalanceP: number;
+                notes: string | null;
+                createdBy: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                };
+                /** Format: date-time */
+                createdAt: string;
+            }[];
+            total: number;
+            page: number;
+            pageSize: number;
+        };
+        SrCreateShopDto: {
+            name: string;
+            ownerName?: string | null;
+            phone: string;
+            address: string;
+            area?: string | null;
+        };
+        SrShopDto: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            ownerName: string | null;
+            phone: string;
+            address: string;
+            area: string | null;
+            isNew: boolean;
+            /** @enum {string} */
+            status: "active" | "blocked";
+            dueBalanceP: number;
+            notes: string | null;
+            createdBy: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            };
+            /** Format: date-time */
+            createdAt: string;
+        };
+        SrShopDetailDto: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            ownerName: string | null;
+            phone: string;
+            address: string;
+            area: string | null;
+            isNew: boolean;
+            /** @enum {string} */
+            status: "active" | "blocked";
+            dueBalanceP: number;
+            notes: string | null;
+            createdBy: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            };
+            /** Format: date-time */
+            createdAt: string;
+            ledger: {
+                /** Format: uuid */
+                id: string;
+                /** Format: uuid */
+                b2bShopId: string;
+                shopName: string;
+                /** @enum {string} */
+                type: "sale_due" | "collection" | "adjustment";
+                amountP: number;
+                method: string | null;
+                srSaleId: string | null;
+                memoNo: string | null;
+                recordedBy: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                };
+                confirmed: boolean;
+                confirmedBy: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                } | null;
+                confirmedAt: string | null;
+                note: string | null;
+                /** Format: date-time */
+                at: string;
+            }[];
+        };
+        SrSalePageDto: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                memoNo: string;
+                /** @enum {string} */
+                status: "submitted" | "approved" | "rejected" | "delivered" | "cancelled";
+                totalP: number;
+                paidAtSaleP: number;
+                dueP: number;
+                note: string | null;
+                /** Format: date-time */
+                submittedAt: string;
+                approvedAt: string | null;
+                approvedBy: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                } | null;
+                rejectedReason: string | null;
+                deliveredAt: string | null;
+                deliveredBy: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                } | null;
+                shop: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                    phone: string;
+                };
+                sr: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                };
+                itemCount: number;
+            }[];
+            total: number;
+            page: number;
+            pageSize: number;
+        };
+        SrCreateSaleDto: {
+            /** Format: uuid */
+            b2bShopId: string;
+            items: {
+                /** Format: uuid */
+                variantId: string;
+                qty: number;
+                unitPriceP: number;
+            }[];
+            /** @default 0 */
+            paidAtSaleP: number;
+            note?: string | null;
+        };
+        SrSaleDetailDto: {
+            /** Format: uuid */
+            id: string;
+            memoNo: string;
+            /** @enum {string} */
+            status: "submitted" | "approved" | "rejected" | "delivered" | "cancelled";
+            totalP: number;
+            paidAtSaleP: number;
+            dueP: number;
+            note: string | null;
+            /** Format: date-time */
+            submittedAt: string;
+            approvedAt: string | null;
+            approvedBy: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            } | null;
+            rejectedReason: string | null;
+            deliveredAt: string | null;
+            deliveredBy: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            } | null;
+            shop: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+                phone: string;
+            };
+            sr: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            };
+            itemCount: number;
+            items: {
+                /** Format: uuid */
+                id: string;
+                /** Format: uuid */
+                variantId: string;
+                sku: string;
+                titleEn: string;
+                titleBn: string | null;
+                optionsText: string;
+                optionsTextBn: string;
+                qty: number;
+                unitPriceP: number;
+                lineTotalP: number;
+            }[];
+        };
+        SrCreateCollectionDto: {
+            /** Format: uuid */
+            b2bShopId: string;
+            amountP: number;
+            /** @enum {string} */
+            method: "cash" | "bkash" | "nagad" | "bank";
+            note?: string | null;
+        };
+        B2bLedgerRowDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            b2bShopId: string;
+            shopName: string;
+            /** @enum {string} */
+            type: "sale_due" | "collection" | "adjustment";
+            amountP: number;
+            method: string | null;
+            srSaleId: string | null;
+            memoNo: string | null;
+            recordedBy: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            };
+            confirmed: boolean;
+            confirmedBy: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            } | null;
+            confirmedAt: string | null;
+            note: string | null;
+            /** Format: date-time */
+            at: string;
+        };
+        B2bLedgerPageDto: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                /** Format: uuid */
+                b2bShopId: string;
+                shopName: string;
+                /** @enum {string} */
+                type: "sale_due" | "collection" | "adjustment";
+                amountP: number;
+                method: string | null;
+                srSaleId: string | null;
+                memoNo: string | null;
+                recordedBy: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                };
+                confirmed: boolean;
+                confirmedBy: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                } | null;
+                confirmedAt: string | null;
+                note: string | null;
+                /** Format: date-time */
+                at: string;
+            }[];
+            total: number;
+            page: number;
+            pageSize: number;
+        };
+        SrRejectSaleDto: {
+            reason: string;
+        };
+        SrProfileListDto: {
+            /** Format: uuid */
+            staffId: string;
+            name: string;
+            email: string;
+            disabled: boolean;
+            area: string | null;
+            commissionBp: number | null;
+            effectiveCommissionBp: number;
+        }[];
+        SrProfileDto: {
+            /** Format: uuid */
+            staffId: string;
+            name: string;
+            email: string;
+            disabled: boolean;
+            area: string | null;
+            commissionBp: number | null;
+            effectiveCommissionBp: number;
+        };
+        SrUpdateProfileDto: {
+            area?: string | null;
+            commissionBp?: number | null;
+        };
+        SrSummaryDto: {
+            month: string;
+            items: {
+                targetP: number;
+                soldP: number;
+                collectedP: number;
+                commissionP: number;
+                dueOutstandingP: number;
+                pendingCollectionP: number;
+                /** Format: uuid */
+                srStaffId: string;
+                name: string;
+            }[];
+        };
+        SrTargetsDto: {
+            month: string;
+            items: {
+                /** Format: uuid */
+                srStaffId: string;
+                name: string;
+                targetP: number | null;
+            }[];
+        };
+        SrSetTargetsDto: {
+            targets: {
+                /** Format: uuid */
+                srStaffId: string;
+                targetP: number;
+            }[];
+        };
+        SrCommissionListDto: {
+            month: string;
+            items: {
+                /** Format: uuid */
+                id: string;
+                sr: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                };
+                month: string;
+                baseP: number;
+                commissionBp: number;
+                amountP: number;
+                /** @enum {string} */
+                status: "pending" | "approved" | "paid";
+                paidAt: string | null;
+            }[];
+        };
+        SrCommissionComputeDto: {
+            month: string;
+            items: {
+                /** Format: uuid */
+                id: string;
+                sr: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                };
+                month: string;
+                baseP: number;
+                commissionBp: number;
+                amountP: number;
+                /** @enum {string} */
+                status: "pending" | "approved" | "paid";
+                paidAt: string | null;
+            }[];
+            skipped: number;
+        };
+        SrCommissionDto: {
+            /** Format: uuid */
+            id: string;
+            sr: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            };
+            month: string;
+            baseP: number;
+            commissionBp: number;
+            amountP: number;
+            /** @enum {string} */
+            status: "pending" | "approved" | "paid";
+            paidAt: string | null;
+        };
+        B2bUpdateShopDto: {
+            name?: string;
+            ownerName?: string | null;
+            phone?: string;
+            address?: string;
+            area?: string | null;
+            notes?: string | null;
+            isNew?: boolean;
+            /** @enum {string} */
+            status?: "active" | "blocked";
+        };
+        B2bAdjustDto: {
+            amountP: number;
+            note: string;
+        };
+        B2bAdjustResultDto: {
+            entry: {
+                /** Format: uuid */
+                id: string;
+                /** Format: uuid */
+                b2bShopId: string;
+                shopName: string;
+                /** @enum {string} */
+                type: "sale_due" | "collection" | "adjustment";
+                amountP: number;
+                method: string | null;
+                srSaleId: string | null;
+                memoNo: string | null;
+                recordedBy: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                };
+                confirmed: boolean;
+                confirmedBy: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                } | null;
+                confirmedAt: string | null;
+                note: string | null;
+                /** Format: date-time */
+                at: string;
+            };
+            dueBalanceP: number;
         };
     };
     responses: never;
@@ -4428,6 +6003,236 @@ export interface operations {
             };
         };
     };
+    AddressesController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AddressListDto"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            /** @description No valid customer session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    AddressesController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAddressDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AddressDto"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            /** @description No valid customer session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    AddressesController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            /** @description No valid customer session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    AddressesController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAddressDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AddressDto"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            /** @description No valid customer session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    AddressesController_setDefault: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AddressDto"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            /** @description No valid customer session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
     PublicController_categoryTree: {
         parameters: {
             query?: never;
@@ -4729,6 +6534,1335 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SlideDto"];
+                };
+            };
+        };
+    };
+    GeoController_divisions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GeoDivisionListDto"];
+                };
+            };
+        };
+    };
+    GeoController_districts: {
+        parameters: {
+            query?: {
+                divisionId?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GeoDistrictListDto"];
+                };
+            };
+        };
+    };
+    GeoController_upazilas: {
+        parameters: {
+            query: {
+                districtId: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GeoUpazilaListDto"];
+                };
+            };
+        };
+    };
+    DeliveryController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ZoneListDto"];
+                };
+            };
+        };
+    };
+    DeliveryController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateZoneDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ZoneDto"];
+                };
+            };
+        };
+    };
+    DeliveryController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DeliveryController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateZoneDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ZoneDto"];
+                };
+            };
+        };
+    };
+    DeliveryController_setLocations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ZoneLocationsDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ZoneDto"];
+                };
+            };
+        };
+    };
+    DeliveryController_addLocations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ZoneLocationsDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ZoneDto"];
+                };
+            };
+        };
+    };
+    DeliveryController_removeLocation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                locationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ZoneDto"];
+                };
+            };
+        };
+    };
+    CartController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CartDto"];
+                };
+            };
+        };
+    };
+    CartController_clear: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CartDto"];
+                };
+            };
+        };
+    };
+    CartController_setQty: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                variantId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CartSetQtyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CartDto"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    CartController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                variantId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CartDto"];
+                };
+            };
+        };
+    };
+    CustomerOrdersController_list: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderListDto"];
+                };
+            };
+            /** @description No valid customer session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CustomerOrdersController_detail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                orderNo: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderDetailDto"];
+                };
+            };
+            /** @description No valid customer session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    TrackController_track: {
+        parameters: {
+            query: {
+                orderNo: string;
+                phone: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderTrackDto"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    CheckoutController_quote: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CheckoutQuoteRequestDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CheckoutQuoteDto"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    CheckoutController_otp: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CheckoutOtpRequestDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OtpSentDto"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    CheckoutController_place: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CheckoutPlaceDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CheckoutPlacedDto"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    SrPortalController_me: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrPortalMeDto"];
+                };
+            };
+        };
+    };
+    SrPortalController_productList: {
+        parameters: {
+            query?: {
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrPortalProductDto"][];
+                };
+            };
+        };
+    };
+    SrPortalController_shopList: {
+        parameters: {
+            query?: {
+                q?: string;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrShopPageDto"];
+                };
+            };
+        };
+    };
+    SrPortalController_createShop: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SrCreateShopDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrShopDto"];
+                };
+            };
+        };
+    };
+    SrPortalController_shop: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrShopDetailDto"];
+                };
+            };
+        };
+    };
+    SrPortalController_saleList: {
+        parameters: {
+            query?: {
+                status?: "submitted" | "approved" | "rejected" | "delivered" | "cancelled";
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrSalePageDto"];
+                };
+            };
+        };
+    };
+    SrPortalController_createSale: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SrCreateSaleDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrSaleDetailDto"];
+                };
+            };
+        };
+    };
+    SrPortalController_sale: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrSaleDetailDto"];
+                };
+            };
+        };
+    };
+    SrPortalController_cancel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrSaleDetailDto"];
+                };
+            };
+        };
+    };
+    SrPortalController_memoHtml: {
+        parameters: {
+            query?: {
+                lang?: "en" | "bn";
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Printable memo (HTML) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/html": string;
+                };
+            };
+        };
+    };
+    SrPortalController_collections: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["B2bLedgerPageDto"];
+                };
+            };
+        };
+    };
+    SrPortalController_collect: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SrCreateCollectionDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["B2bLedgerRowDto"];
+                };
+            };
+        };
+    };
+    SrAdminController_list: {
+        parameters: {
+            query?: {
+                status?: "submitted" | "approved" | "rejected" | "delivered" | "cancelled";
+                srId?: string;
+                shopId?: string;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrSalePageDto"];
+                };
+            };
+        };
+    };
+    SrAdminController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrSaleDetailDto"];
+                };
+            };
+        };
+    };
+    SrAdminController_approve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrSaleDetailDto"];
+                };
+            };
+        };
+    };
+    SrAdminController_reject: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SrRejectSaleDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrSaleDetailDto"];
+                };
+            };
+        };
+    };
+    SrAdminController_deliver: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrSaleDetailDto"];
+                };
+            };
+        };
+    };
+    SrAdminController_memoHtml: {
+        parameters: {
+            query?: {
+                lang?: "en" | "bn";
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Printable memo (HTML) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/html": string;
+                };
+            };
+        };
+    };
+    SrAdminController_profiles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrProfileListDto"];
+                };
+            };
+        };
+    };
+    SrAdminController_profile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                staffId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrProfileDto"];
+                };
+            };
+        };
+    };
+    SrAdminController_putProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                staffId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SrUpdateProfileDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrProfileDto"];
+                };
+            };
+        };
+    };
+    SrAdminController_summary: {
+        parameters: {
+            query?: {
+                month?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrSummaryDto"];
+                };
+            };
+        };
+    };
+    SrAdminController_targets: {
+        parameters: {
+            query?: {
+                month?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrTargetsDto"];
+                };
+            };
+        };
+    };
+    SrAdminController_setTargets: {
+        parameters: {
+            query: {
+                month: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SrSetTargetsDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrTargetsDto"];
+                };
+            };
+        };
+    };
+    SrAdminController_commissions: {
+        parameters: {
+            query?: {
+                month?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrCommissionListDto"];
+                };
+            };
+        };
+    };
+    SrAdminController_compute: {
+        parameters: {
+            query: {
+                month: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrCommissionComputeDto"];
+                };
+            };
+        };
+    };
+    SrAdminController_approveCommission: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrCommissionDto"];
+                };
+            };
+        };
+    };
+    SrAdminController_paidCommission: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrCommissionDto"];
+                };
+            };
+        };
+    };
+    B2bAdminController_list: {
+        parameters: {
+            query?: {
+                q?: string;
+                status?: "active" | "blocked";
+                isNew?: "true" | "false";
+                hasDue?: "true" | "false";
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrShopPageDto"];
+                };
+            };
+        };
+    };
+    B2bAdminController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrShopDto"];
+                };
+            };
+        };
+    };
+    B2bAdminController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["B2bUpdateShopDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SrShopDto"];
+                };
+            };
+        };
+    };
+    B2bAdminController_shopLedger: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["B2bLedgerPageDto"];
+                };
+            };
+        };
+    };
+    B2bAdminController_adjust: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["B2bAdjustDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["B2bAdjustResultDto"];
+                };
+            };
+        };
+    };
+    B2bAdminController_collections: {
+        parameters: {
+            query?: {
+                status?: "pending" | "confirmed" | "all";
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["B2bLedgerPageDto"];
+                };
+            };
+        };
+    };
+    B2bAdminController_confirm: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["B2bLedgerRowDto"];
                 };
             };
         };
