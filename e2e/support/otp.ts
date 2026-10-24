@@ -1,42 +1,15 @@
-import { execFileSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
-import { DB_NAME, PG_CONTAINER } from './env';
+import { API_URL } from './env';
 
 /**
- * SMS codes are only sent to the in-memory outbox when NODE_ENV=test (the e2e API), so the code
- * cannot be read from Mailpit. The API stores sha256(`${phone}:${purpose}:${code}`); the
- * 10^6 candidates are checked here against the latest row. Test-only: the DB is the harness's own.
+ * The e2e API runs with E2E_EXPOSE_OTP=1, which serves the latest SMS it "sent" to a phone at
+ * GET /v1/test/last-sms (the API refuses to boot with that flag in production). Codes are stored
+ * as keyed hashes, so the database cannot be used to read them.
  */
-export function readSmsCode(phone: string, purpose: 'signup' | 'reset'): string {
-  const sql = `select code_hash from otp_codes where phone = '${phone}' and purpose = '${purpose}' order by created_at desc limit 1`;
-  const hash = execEngine([
-    'exec',
-    PG_CONTAINER,
-    'psql',
-    '-U',
-    'bdc',
-    '-d',
-    DB_NAME,
-    '-At',
-    '-c',
-    sql,
-  ]).trim();
-  if (!/^[0-9a-f]{64}$/.test(hash)) throw new Error(`no ${purpose} OTP row for ${phone}`);
-  for (let n = 0; n < 1_000_000; n++) {
-    const code = String(n).padStart(6, '0');
-    if (createHash('sha256').update(`${phone}:${purpose}:${code}`).digest('hex') === hash)
-      return code;
-  }
-  throw new Error(`OTP for ${phone} not found`);
-}
-
-function execEngine(args: string[]): string {
-  for (const bin of ['podman', 'docker']) {
-    try {
-      return execFileSync(bin, args, { encoding: 'utf8' });
-    } catch (err) {
-      if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err;
-    }
-  }
-  throw new Error('podman or docker is required to reach the dev Postgres container');
+export async function readSmsCode(phone: string): Promise<string> {
+  const res = await fetch(`${API_URL}/v1/test/last-sms?phone=${encodeURIComponent(phone)}`);
+  if (!res.ok) throw new Error(`no SMS recorded for ${phone} (HTTP ${res.status})`);
+  const { text } = (await res.json()) as { text: string };
+  const code = /(\d{6})/.exec(text)?.[1];
+  if (!code) throw new Error(`no 6-digit code in SMS to ${phone}: ${text}`);
+  return code;
 }

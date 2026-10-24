@@ -1,8 +1,8 @@
-import { randomInt, timingSafeEqual } from 'node:crypto';
+import { createHmac, randomInt, timingSafeEqual } from 'node:crypto';
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import type Redis from 'ioredis';
-import { sha256 } from '../auth/crypto';
 import { ThrottleService } from '../auth/throttle.service';
+import { ENV, type Env } from '../config/env';
 import type { OtpPurpose } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { REDIS } from '../redis/redis.module';
@@ -15,6 +15,10 @@ export const OTP_RESEND_SEC = 60;
 const OTP_MAX_ATTEMPTS = 5;
 const PHONE_PER_HOUR = 5;
 const IP_PER_HOUR = 20;
+/** Wrong guesses across all codes of one phone+purpose before it locks for a day. */
+const FAIL_LOCK_AFTER = 10;
+const FAIL_LOCK_SEC = 24 * 3600;
+const KEEP_ROWS_MS = 24 * 3600_000;
 const HOUR_SEC = 3600;
 const SHOP_NAME = 'bd-commerce';
 
@@ -25,10 +29,30 @@ export class OtpService {
     private readonly sms: SmsService,
     private readonly throttle: ThrottleService,
     @Inject(REDIS) private readonly redis: Redis,
+    @Inject(ENV) private readonly env: Env,
   ) {}
 
   private hash(phone: string, purpose: OtpPurpose, code: string) {
-    return sha256(`${phone}:${purpose}:${code}`);
+    // Keyed: a leaked otp_codes row cannot be turned back into the 6-digit code without the secret.
+    return createHmac('sha256', this.env.OTP_SECRET)
+      .update(`${phone}:${purpose}:${code}`)
+      .digest('hex');
+  }
+
+  /**
+   * Per-IP budget for code requests. Callers run it FIRST, before any lookup that could answer
+   * differently for known and unknown phones, so probing numbers costs the same as sending codes.
+   */
+  async countIp(ip: string | undefined) {
+    const ipKey = `cust-otp:ip:${ip ?? 'unknown'}`;
+    if (await this.throttle.isBlocked(ipKey, IP_PER_HOUR)) {
+      throw new CustomerError(
+        HttpStatus.TOO_MANY_REQUESTS,
+        'TOO_MANY_REQUESTS',
+        'Too many code requests. Try again later.',
+      );
+    }
+    await this.throttle.hit(ipKey, HOUR_SEC);
   }
 
   /**
@@ -36,12 +60,8 @@ export class OtpService {
    * which numbers have an account. `deliver=false` goes through the motions without sending.
    */
   async request(phone: string, purpose: OtpPurpose, ip: string | undefined, deliver: boolean) {
-    const ipKey = `cust-otp:ip:${ip ?? 'unknown'}`;
     const phoneKey = `cust-otp:phone:${phone}`;
-    if (
-      (await this.throttle.isBlocked(ipKey, IP_PER_HOUR)) ||
-      (await this.throttle.isBlocked(phoneKey, PHONE_PER_HOUR))
-    ) {
+    if (await this.throttle.isBlocked(phoneKey, PHONE_PER_HOUR)) {
       throw new CustomerError(
         HttpStatus.TOO_MANY_REQUESTS,
         'TOO_MANY_REQUESTS',
@@ -59,13 +79,16 @@ export class OtpService {
         { retryAfterSec: retryAfter },
       );
     }
-    await this.throttle.hit(ipKey, HOUR_SEC);
     await this.throttle.hit(phoneKey, HOUR_SEC);
 
     if (deliver) {
       const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
       const now = new Date();
       await this.prisma.$transaction(async (tx) => {
+        // Spent and stale rows are of no use after a day.
+        await tx.otpCode.deleteMany({
+          where: { createdAt: { lt: new Date(now.getTime() - KEEP_ROWS_MS) } },
+        });
         // Only the newest code works.
         await tx.otpCode.updateMany({
           where: { phone, purpose, usedAt: null },
@@ -91,11 +114,23 @@ export class OtpService {
 
   /** Checks and consumes the newest code. Wrong guesses count against the code; 5 kill it. */
   async consume(phone: string, purpose: OtpPurpose, code: string) {
+    // Wrong guesses add up across codes, so asking for a fresh code does not reset the budget.
+    const failKey = `cust-otp:fail:${phone}:${purpose}`;
+    if (await this.throttle.isBlocked(failKey, FAIL_LOCK_AFTER)) {
+      throw new CustomerError(
+        HttpStatus.TOO_MANY_REQUESTS,
+        'TOO_MANY_ATTEMPTS',
+        'Too many wrong codes. Try again tomorrow.',
+      );
+    }
     const otp = await this.prisma.otpCode.findFirst({
       where: { phone, purpose, usedAt: null },
       orderBy: { createdAt: 'desc' },
     });
-    if (!otp) throw new CustomerError(HttpStatus.BAD_REQUEST, 'OTP_INVALID', 'Invalid code.');
+    if (!otp) {
+      await this.throttle.hit(failKey, FAIL_LOCK_SEC);
+      throw new CustomerError(HttpStatus.BAD_REQUEST, 'OTP_INVALID', 'Invalid code.');
+    }
     if (otp.expiresAt.getTime() <= Date.now()) {
       throw new CustomerError(HttpStatus.BAD_REQUEST, 'OTP_EXPIRED', 'This code has expired.');
     }
@@ -114,6 +149,7 @@ export class OtpService {
     const a = Buffer.from(this.hash(phone, purpose, code));
     const b = Buffer.from(otp.codeHash);
     if (a.length !== b.length || !timingSafeEqual(a, b)) {
+      await this.throttle.hit(failKey, FAIL_LOCK_SEC);
       throw new CustomerError(HttpStatus.BAD_REQUEST, 'OTP_INVALID', 'Invalid code.');
     }
     const used = await this.prisma.otpCode.updateMany({
@@ -123,5 +159,6 @@ export class OtpService {
     if (used.count !== 1) {
       throw new CustomerError(HttpStatus.BAD_REQUEST, 'OTP_INVALID', 'Invalid code.');
     }
+    await this.throttle.clear(failKey);
   }
 }

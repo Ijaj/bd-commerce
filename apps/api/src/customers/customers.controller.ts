@@ -20,6 +20,8 @@ import {
 import type { Request, Response } from 'express';
 import { CartService } from '../cart/cart.service';
 import { readVisitorId } from '../cart/visitor';
+import { clientIp } from '../common/client-ip';
+import { NoStore } from '../common/no-store.guard';
 import { ENV, type Env } from '../config/env';
 import { CurrentCustomer, CustomerAuth, customerCookie } from './customer-auth.guard';
 import {
@@ -43,10 +45,8 @@ import {
 } from './customers.dto';
 
 function meta(req: Request) {
-  // Only Cloudflare Tunnel reaches the API, so its client-IP header is trusted (same as staff).
-  const cfIp = req.headers['cf-connecting-ip'];
   return {
-    ip: (typeof cfIp === 'string' ? cfIp : undefined) ?? req.ip,
+    ip: clientIp(req),
     userAgent: req.headers['user-agent']?.slice(0, 500),
   };
 }
@@ -55,6 +55,7 @@ function meta(req: Request) {
 @ApiBadRequestResponse({ type: CustomerErrorDto })
 @ApiUnauthorizedResponse({ type: CustomerErrorDto })
 @ApiTooManyRequestsResponse({ type: CustomerErrorDto })
+@NoStore()
 @Controller('customer')
 export class CustomersController {
   private readonly logger = new Logger(CustomersController.name);

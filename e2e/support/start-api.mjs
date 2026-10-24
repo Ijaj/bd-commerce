@@ -53,7 +53,8 @@ run('node', ['apps/api/dist/cli.js', 'seed-demo'], {
 const child = spawn('node', ['apps/api/dist/main.js'], {
   cwd: root,
   stdio: 'inherit',
-  env: process.env,
+  // Lets the browser tests read SMS codes (GET /v1/test/last-sms); the API refuses this in production.
+  env: { ...process.env, E2E_EXPOSE_OTP: '1' },
 });
 for (const sig of ['SIGTERM', 'SIGINT']) process.on(sig, () => child.kill(sig));
 child.on('exit', (code) => process.exit(code ?? 0));

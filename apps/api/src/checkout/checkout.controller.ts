@@ -8,6 +8,8 @@ import {
 } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import { CartIdentityService } from '../cart/cart-identity.service';
+import { clientIp } from '../common/client-ip';
+import { NoStore } from '../common/no-store.guard';
 import { CustomerErrorDto, OtpSentDto } from '../customers/customers.dto';
 import {
   CheckoutOtpRequestDto,
@@ -19,16 +21,15 @@ import {
 import { CheckoutService } from './checkout.service';
 
 function clientMeta(req: Request) {
-  // Only Cloudflare Tunnel reaches the API, so its client-IP header is trusted (same as staff).
-  const cfIp = req.headers['cf-connecting-ip'];
   return {
-    ip: (typeof cfIp === 'string' ? cfIp : undefined) ?? req.ip,
+    ip: clientIp(req),
     userAgent: req.headers['user-agent']?.slice(0, 500),
   };
 }
 
 @ApiTags('checkout')
 @ApiBadRequestResponse({ type: CustomerErrorDto })
+@NoStore()
 @Controller('checkout')
 export class CheckoutController {
   constructor(

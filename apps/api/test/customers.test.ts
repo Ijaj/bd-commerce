@@ -217,11 +217,11 @@ describe('customer API', () => {
         .post('/v1/customer/auth/signup')
         .send({ name: 'R', phone: PHONE, password: PASSWORD, code: second })
         .expect(200);
-      // Replaying the used code with a fresh phone-free signup fails.
+      // Replaying a used code fails before anything about the phone is revealed.
       await agent
         .post('/v1/customer/auth/signup')
         .send({ name: 'R', phone: PHONE, password: PASSWORD, code: second })
-        .expect(409);
+        .expect(400);
     });
 
     it('enforces the 60 s resend cooldown', async () => {

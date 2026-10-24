@@ -9,6 +9,7 @@ import type { OrderListQueryDto } from './orders.dto';
 
 const TRACK_WINDOW_SEC = 15 * 60;
 const TRACK_LIMIT = 20;
+const TRACK_LIMIT_PER_ORDER = 10;
 
 @Injectable()
 export class OrdersService {
@@ -119,7 +120,12 @@ export class OrdersService {
   /** Public tracking: order number plus a phone on the order. Same 404 for every mismatch. */
   async track(orderNo: string, phoneInput: string, ip: string | undefined) {
     const key = `track:ip:${ip ?? 'unknown'}`;
-    if (await this.throttle.isBlocked(key, TRACK_LIMIT)) {
+    // Per order number as well, so a botnet cannot guess phones for one order from many IPs.
+    const noKey = `track:no:${orderNo.toLowerCase()}`;
+    if (
+      (await this.throttle.isBlocked(key, TRACK_LIMIT)) ||
+      (await this.throttle.isBlocked(noKey, TRACK_LIMIT_PER_ORDER))
+    ) {
       throw new CustomerError(
         HttpStatus.TOO_MANY_REQUESTS,
         'TOO_MANY_REQUESTS',
@@ -142,6 +148,7 @@ export class OrdersService {
       : null;
     if (!order || !phone) {
       await this.throttle.hit(key, TRACK_WINDOW_SEC);
+      await this.throttle.hit(noKey, TRACK_WINDOW_SEC);
       throw new CommerceError(HttpStatus.NOT_FOUND, 'ORDER_NOT_FOUND', 'No order matches.');
     }
     return {

@@ -101,7 +101,7 @@ export class OrderDetailDto extends createZodDto(
   }),
 ) {}
 
-export class OrderTrackQueryDto extends createZodDto(
+export class OrderTrackRequestDto extends createZodDto(
   z.object({ orderNo: z.string().trim().min(3).max(20), phone: z.string().trim().min(5).max(30) }),
 ) {}
 

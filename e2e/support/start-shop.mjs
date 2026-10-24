@@ -17,7 +17,7 @@ for (let i = 0; ; i++) {
 }
 
 if (!process.env.E2E_SKIP_BUILD) {
-  execFileSync('pnpm', ['--filter', '@bdc/shop', 'exec', 'next', 'build'], {
+  execFileSync('pnpm', ['--filter', './apps/shop', 'exec', 'next', 'build'], {
     cwd: root,
     env,
     stdio: 'inherit',
@@ -26,7 +26,7 @@ if (!process.env.E2E_SKIP_BUILD) {
 
 const child = spawn(
   'pnpm',
-  ['--filter', '@bdc/shop', 'exec', 'next', 'start', '-p', String(SHOP_PORT)],
+  ['--filter', './apps/shop', 'exec', 'next', 'start', '-p', String(SHOP_PORT)],
   {
     cwd: root,
     stdio: 'inherit',

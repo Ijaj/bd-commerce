@@ -133,7 +133,8 @@ export class CheckoutService {
     } satisfies CheckoutQuoteDto;
   }
 
-  sendGuestOtp(phoneInput: string, ip: string | undefined) {
+  async sendGuestOtp(phoneInput: string, ip: string | undefined) {
+    await this.otp.countIp(ip);
     const phone = normalizePhone(phoneInput);
     if (!phone) {
       throw new CommerceError(
@@ -248,9 +249,19 @@ export class CheckoutService {
     const cartId = found?.cart.id as string;
     const placed = await this.prisma.$transaction(
       async (tx) => {
+        // One order per cart: a second place (another key, another tab) waits here, then finds an empty cart.
+        await tx.$queryRaw`SELECT id FROM carts WHERE id = ${cartId}::uuid FOR UPDATE`;
         const lines = await this.cart.lines(tx, cartId);
         this.assertBuyable(lines);
         const money = this.price(zone, lines);
+        // The total can have grown since the pre-check (price or cart change): ask for the OTP then.
+        if (!otpVerified && (await this.otpRequired(who, money.grandTotalP))) {
+          throw new CommerceError(
+            HttpStatus.BAD_REQUEST,
+            'OTP_REQUIRED',
+            'Verify your phone with the SMS code.',
+          );
+        }
 
         const seq = await tx.$queryRaw<{ n: bigint }[]>`SELECT nextval('order_no_seq') AS n`;
         const n = seq[0]?.n ?? 0n;

@@ -25,7 +25,7 @@ export async function signupShopCustomer(page: Page, customer: ShopCustomer) {
   await page.getByRole('button', { name: 'Send code' }).click();
 
   await expect(page.getByLabel('6-digit code')).toBeVisible();
-  await page.getByLabel('6-digit code').fill(readSmsCode(customer.phone, 'signup'));
+  await page.getByLabel('6-digit code').fill(await readSmsCode(customer.phone));
   await page.getByRole('button', { name: 'Create account' }).click();
   await expect(page.getByRole('heading', { name: `Hello, ${customer.name}` })).toBeVisible();
 }

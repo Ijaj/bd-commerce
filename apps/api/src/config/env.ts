@@ -18,9 +18,23 @@ const envSchema = z.object({
   IMGPROXY_URL: z.url(),
   IMGPROXY_KEY: z.string().regex(/^[0-9a-f]+$/, 'hex'),
   IMGPROXY_SALT: z.string().regex(/^[0-9a-f]+$/, 'hex'),
+  /// HMAC key for SMS one-time codes. Required in production; development falls back to a fixed key.
+  OTP_SECRET: z.string().min(16).optional(),
+  /// Only `dev` exists (Mailpit / test outbox) until the SMS gateway is chosen (Q75).
+  SMS_PROVIDER: z.enum(['dev']).default('dev'),
+  /// e2e only: serves GET /v1/test/last-sms. Refused when NODE_ENV=production.
+  E2E_EXPOSE_OTP: z.enum(['0', '1']).default('0'),
+  /// Trust `cf-connecting-ip` (API reachable only through the Cloudflare Tunnel) when the peer is local.
+  TRUST_CF_HEADER: z.enum(['0', '1']).default('0'),
+  /// Express `trust proxy`: false, true, a hop count, or a comma list of subnets.
+  TRUST_PROXY: z.string().default('false'),
+  /// Listen address. Default: 127.0.0.1 in production, 0.0.0.0 otherwise.
+  HOST: z.string().min(1).optional(),
 });
 
-export type Env = z.infer<typeof envSchema>;
+const DEV_OTP_SECRET = 'dev-only-otp-secret-not-for-production';
+
+export type Env = Omit<z.infer<typeof envSchema>, 'OTP_SECRET'> & { OTP_SECRET: string };
 
 export const ENV = Symbol('ENV');
 
@@ -29,5 +43,13 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
   if (!result.success) {
     throw new Error(`Invalid environment:\n${z.prettifyError(result.error)}`);
   }
-  return result.data;
+  const env = result.data;
+  if (env.NODE_ENV === 'production') {
+    if (!env.OTP_SECRET)
+      throw new Error('Invalid environment:\nOTP_SECRET is required in production');
+    if (env.E2E_EXPOSE_OTP === '1') {
+      throw new Error('Invalid environment:\nE2E_EXPOSE_OTP must not be set in production');
+    }
+  }
+  return { ...env, OTP_SECRET: env.OTP_SECRET ?? DEV_OTP_SECRET };
 }

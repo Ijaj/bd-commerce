@@ -1,7 +1,9 @@
 import type { INestApplication } from '@nestjs/common';
+import type Redis from 'ioredis';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { PrismaService } from '../src/prisma/prisma.service';
+import { REDIS } from '../src/redis/redis.module';
 import { addToCart, makeProduct, places, resetCommerce, signupCustomer } from './cart-fixtures';
 import { createApp } from './helpers';
 
@@ -10,10 +12,12 @@ type Agent = ReturnType<typeof request.agent>;
 describe('customer orders, tracking and addresses', () => {
   let app: INestApplication;
   let prisma: PrismaService;
+  let redis: Redis;
 
   beforeAll(async () => {
     app = await createApp();
     prisma = app.get(PrismaService);
+    redis = app.get<Redis>(REDIS);
   });
   beforeEach(() => resetCommerce(app));
   afterAll(() => app.close());
@@ -127,10 +131,10 @@ describe('customer orders, tracking and addresses', () => {
     it('tracks by order number plus a phone on the order, with no personal data', async () => {
       const g = guest();
       const { orderNo } = await order(g, { guestPhone: '01712345678' });
-      const ok = await request(app.getHttpServer())
-        .get('/v1/public/track')
-        .query({ orderNo, phone: '+880 1811-111111' })
-        .expect(200);
+      const track = (body: object) =>
+        request(app.getHttpServer()).post('/v1/public/track').send(body);
+      const ok = await track({ orderNo, phone: '+880 1811-111111' }).expect(200);
+      expect(ok.headers['cache-control']).toBe('private, no-store');
       expect(ok.body).toEqual({
         orderNo,
         status: 'processing',
@@ -143,32 +147,33 @@ describe('customer orders, tracking and addresses', () => {
         timeline: [{ status: 'processing', at: expect.any(String) }],
       });
       // The guest phone works too.
-      await request(app.getHttpServer())
-        .get('/v1/public/track')
-        .query({ orderNo, phone: '01712345678' })
-        .expect(200);
+      await track({ orderNo, phone: '01712345678' }).expect(200);
       for (const q of [
         { orderNo, phone: '01999999999' },
         { orderNo: '2610-99999', phone: '01811111111' },
         { orderNo, phone: 'abc12' },
       ]) {
-        const res = await request(app.getHttpServer()).get('/v1/public/track').query(q).expect(404);
+        const res = await track(q).expect(404);
         expect(res.body.code).toBe('ORDER_NOT_FOUND');
       }
-      await request(app.getHttpServer()).get('/v1/public/track').query({ orderNo }).expect(400);
+      await track({ orderNo }).expect(400);
+      // The phone no longer goes in the URL.
+      await request(app.getHttpServer())
+        .get('/v1/public/track')
+        .query({ orderNo, phone: '01811111111' })
+        .expect(404);
     });
 
-    it('throttles repeated wrong tracking lookups', async () => {
-      const { variant } = await makeProduct(app);
-      void variant;
+    it('throttles wrong tracking lookups per IP and per order number', async () => {
+      const post = (orderNo: string) =>
+        request(app.getHttpServer())
+          .post('/v1/public/track')
+          .send({ orderNo, phone: '01811111111' });
       let last = 0;
-      for (let i = 0; i < 21; i++) {
-        last = (
-          await request(app.getHttpServer())
-            .get('/v1/public/track')
-            .query({ orderNo: '2610-00001', phone: '01811111111' })
-        ).status;
-      }
+      for (let i = 0; i < 11; i++) last = (await post('2610-00001')).status;
+      expect(last).toBe(429);
+      await redis.flushdb();
+      for (let i = 0; i < 21; i++) last = (await post(`2610-1000${i}`)).status;
       expect(last).toBe(429);
     });
   });

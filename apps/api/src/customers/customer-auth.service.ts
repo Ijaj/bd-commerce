@@ -19,6 +19,9 @@ export { CUSTOMER_COOKIE, type CustomerAuthContext };
 const LOGIN_WINDOW_SEC = 15 * 60;
 const LOGIN_LIMIT_PER_ID = 5;
 const LOGIN_LIMIT_PER_IP = 30;
+const PASSWORD_LIMIT = 5;
+const EMAIL_CHANGES_PER_DAY = 5;
+const DAY_SEC = 24 * 3600;
 
 export interface RequestMeta {
   ip?: string;
@@ -47,6 +50,8 @@ export class CustomerAuthService {
   ) {}
 
   async requestOtp(phoneInput: string, purpose: 'signup' | 'reset', ip: string | undefined) {
+    // First, so PHONE_TAKEN / PHONE_INVALID answers cannot be used to scan numbers for free.
+    await this.otp.countIp(ip);
     const phone = normalizePhone(phoneInput);
     if (!phone) {
       throw new CustomerError(
@@ -82,8 +87,9 @@ export class CustomerAuthService {
       );
     }
     const email = input.email?.trim().toLowerCase();
-    await this.assertFree(phone, email);
+    // The code is checked first: only someone who owns the phone learns whether it is registered.
     await this.otp.consume(phone, 'signup', input.code);
+    await this.assertFree(phone, email);
 
     let customer: Customer;
     try {
@@ -195,10 +201,19 @@ export class CustomerAuthService {
 
   async changePassword(ctx: CustomerAuthContext, currentPassword: string, newPassword: string) {
     const { customer } = ctx;
+    const failKey = `cust-pw:fail:${customer.id}`;
+    if (await this.throttle.isBlocked(failKey, PASSWORD_LIMIT)) {
+      throw new CustomerError(
+        HttpStatus.TOO_MANY_REQUESTS,
+        'TOO_MANY_REQUESTS',
+        'Too many wrong passwords. Try again later.',
+      );
+    }
     const ok = customer.passwordHash
       ? await verifyPassword(customer.passwordHash, currentPassword)
       : false;
     if (!ok) {
+      await this.throttle.hit(failKey, LOGIN_WINDOW_SEC);
       throw new CustomerError(
         HttpStatus.UNAUTHORIZED,
         'INVALID_CREDENTIALS',
@@ -218,7 +233,19 @@ export class CustomerAuthService {
   ) {
     const email =
       input.email === undefined ? undefined : (input.email?.trim().toLowerCase() ?? null);
-    if (email && email !== customer.email) await this.assertFree(undefined, email);
+    if (email && email !== customer.email) {
+      // Also stops the email field being used to test which addresses are registered.
+      const key = `cust-email-change:${customer.id}`;
+      if (await this.throttle.isBlocked(key, EMAIL_CHANGES_PER_DAY)) {
+        throw new CustomerError(
+          HttpStatus.TOO_MANY_REQUESTS,
+          'TOO_MANY_REQUESTS',
+          'Too many email changes today. Try again tomorrow.',
+        );
+      }
+      await this.throttle.hit(key, DAY_SEC);
+      await this.assertFree(undefined, email);
+    }
     try {
       return await this.prisma.customer.update({
         where: { id: customer.id },
@@ -283,7 +310,7 @@ export class CustomerAuthService {
     return this.sessions.sessionMaxAgeMs();
   }
 
-  resolve(token: string | undefined) {
+  resolve(token: unknown) {
     return this.sessions.resolve(token);
   }
 

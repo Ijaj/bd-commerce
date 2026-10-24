@@ -19,6 +19,7 @@ import {
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { NoStore } from '../common/no-store.guard';
 import { AddressDto, AddressListDto, CreateAddressDto, UpdateAddressDto } from './addresses.dto';
 import { AddressesService } from './addresses.service';
 import { CurrentCustomer, CustomerAuth } from './customer-auth.guard';
@@ -29,6 +30,7 @@ import { CustomerErrorDto } from './customers.dto';
 @ApiBadRequestResponse({ type: CustomerErrorDto })
 @ApiNotFoundResponse({ type: CustomerErrorDto })
 @CustomerAuth()
+@NoStore()
 @Controller('customer/addresses')
 export class AddressesController {
   constructor(private readonly addresses: AddressesService) {}

@@ -5,6 +5,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { NoStore } from '../common/no-store.guard';
 import { CurrentCustomer, CustomerAuth } from './customer-auth.guard';
 import type { CustomerAuthContext } from './customer-auth.service';
 import { CustomerErrorDto, OkDto, WishlistDto, WishlistIdsDto } from './customers.dto';
@@ -13,6 +14,7 @@ import { WishlistService } from './wishlist.service';
 @ApiTags('customer wishlist')
 @ApiUnauthorizedResponse({ type: CustomerErrorDto })
 @CustomerAuth()
+@NoStore()
 @Controller('customer/wishlist')
 export class WishlistController {
   constructor(private readonly wishlist: WishlistService) {}

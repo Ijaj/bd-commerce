@@ -12,6 +12,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { ApiCookieAuth } from '@nestjs/swagger';
 import type { Request } from 'express';
+import { clientIp } from '../common/client-ip';
 import type { PermissionKey } from './permissions';
 import { SESSION_COOKIE, type StaffAuthContext, StaffAuthService } from './staff-auth.service';
 
@@ -73,10 +74,8 @@ export const CurrentStaff = createParamDecorator(
 );
 
 export function requestMeta(req: Request, deviceCookie: string) {
-  // Only Cloudflare Tunnel reaches the API (no open ports), so its client-IP header is trusted.
-  const cfIp = req.headers['cf-connecting-ip'];
   return {
-    ip: (typeof cfIp === 'string' ? cfIp : undefined) ?? req.ip,
+    ip: clientIp(req),
     userAgent: req.headers['user-agent']?.slice(0, 500),
     deviceToken: req.cookies?.[deviceCookie] as string | undefined,
   };

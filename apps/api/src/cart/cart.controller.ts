@@ -7,12 +7,14 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
+import { NoStore } from '../common/no-store.guard';
 import { CustomerErrorDto } from '../customers/customers.dto';
 import { CartDto, CartSetQtyDto } from './cart.dto';
 import { CartService } from './cart.service';
 import { CartIdentityService } from './cart-identity.service';
 
 @ApiTags('cart')
+@NoStore()
 @Controller('cart')
 export class CartController {
   constructor(

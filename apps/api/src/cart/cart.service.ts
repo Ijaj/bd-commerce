@@ -1,4 +1,5 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
+import { ThrottleService } from '../auth/throttle.service';
 import { Prisma } from '../generated/prisma/client';
 import { CommerceError } from '../orders/commerce.errors';
 import { PrismaService } from '../prisma/prisma.service';
@@ -6,6 +7,8 @@ import { SettingsService } from '../settings/settings.service';
 import { ImageService, type ImageSet } from '../storefront/images';
 import { availableQty, effectivePrice } from '../storefront/pricing';
 import type { CartIdentity } from './cart-identity.service';
+
+const NEW_CARTS_PER_IP_HOUR = 30;
 
 type Db = Prisma.TransactionClient;
 export type CartProblem = 'out_of_stock' | 'qty_reduced' | 'unavailable' | 'upcoming';
@@ -82,6 +85,7 @@ export class CartService {
     private readonly prisma: PrismaService,
     private readonly settings: SettingsService,
     private readonly images: ImageService,
+    private readonly throttle: ThrottleService,
   ) {}
 
   private findLive(db: Db, who: Pick<CartIdentity, 'customerId' | 'visitorId'>) {
@@ -96,9 +100,21 @@ export class CartService {
     return Promise.resolve(null);
   }
 
-  private async getOrCreate(who: Pick<CartIdentity, 'customerId' | 'visitorId'>) {
+  private async getOrCreate(who: Pick<CartIdentity, 'customerId' | 'visitorId' | 'ip'>) {
     const found = await this.findLive(this.prisma, who);
     if (found) return found;
+    if (!who.customerId) {
+      // Anonymous cart rows are free to create, so cap them per IP (cookie-less scripts make one each).
+      const key = `cart-create:ip:${who.ip ?? 'unknown'}`;
+      if (await this.throttle.isBlocked(key, NEW_CARTS_PER_IP_HOUR)) {
+        throw new CommerceError(
+          HttpStatus.TOO_MANY_REQUESTS,
+          'TOO_MANY_REQUESTS',
+          'Too many new carts from this network. Try again later.',
+        );
+      }
+      await this.throttle.hit(key, 3600);
+    }
     try {
       return await this.prisma.cart.create({
         data: who.customerId

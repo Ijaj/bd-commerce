@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Req } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Post, Query, Req } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiNotFoundResponse,
@@ -7,6 +7,8 @@ import {
   ApiTooManyRequestsResponse,
 } from '@nestjs/swagger';
 import type { Request } from 'express';
+import { clientIp } from '../common/client-ip';
+import { NoStore } from '../common/no-store.guard';
 import { CurrentCustomer, CustomerAuth } from '../customers/customer-auth.guard';
 import type { CustomerAuthContext } from '../customers/customer-session.service';
 import { CustomerErrorDto } from '../customers/customers.dto';
@@ -15,10 +17,11 @@ import {
   OrderListDto,
   OrderListQueryDto,
   OrderTrackDto,
-  OrderTrackQueryDto,
+  OrderTrackRequestDto,
 } from './orders.dto';
 import { OrdersService } from './orders.service';
 
+@NoStore()
 @ApiTags('customer orders')
 @Controller('customer/orders')
 export class CustomerOrdersController {
@@ -46,22 +49,20 @@ export class CustomerOrdersController {
   }
 }
 
+@NoStore()
 @ApiTags('order tracking')
 @Controller('public/track')
 export class TrackController {
   constructor(private readonly orders: OrdersService) {}
 
-  @Get()
+  /** POST so the phone number never lands in URLs, logs or browser history. */
+  @Post()
+  @HttpCode(200)
   @ApiOkResponse({ type: OrderTrackDto })
   @ApiBadRequestResponse({ type: CustomerErrorDto })
   @ApiNotFoundResponse({ type: CustomerErrorDto })
   @ApiTooManyRequestsResponse({ type: CustomerErrorDto })
-  track(@Query() q: OrderTrackQueryDto, @Req() req: Request): Promise<OrderTrackDto> {
-    const cfIp = req.headers['cf-connecting-ip'];
-    return this.orders.track(
-      q.orderNo,
-      q.phone,
-      (typeof cfIp === 'string' ? cfIp : undefined) ?? req.ip,
-    );
+  track(@Body() body: OrderTrackRequestDto, @Req() req: Request): Promise<OrderTrackDto> {
+    return this.orders.track(body.orderNo, body.phone, clientIp(req));
   }
 }

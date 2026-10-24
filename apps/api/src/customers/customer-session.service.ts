@@ -29,8 +29,9 @@ export class CustomerSessionService {
   }
 
   /** Loads a live session; enforces revoke, idle expiry and disabled customers. Slides the window. */
-  async resolve(token: string | undefined): Promise<CustomerAuthContext | null> {
-    if (!token) return null;
+  async resolve(token: unknown): Promise<CustomerAuthContext | null> {
+    // cookie-parser turns `j:{...}` cookies into objects; only a plain string can be a token.
+    if (typeof token !== 'string' || !token) return null;
     const row = await this.prisma.customerSession.findUnique({
       where: { tokenHash: sha256(token) },
       include: { customer: true },
