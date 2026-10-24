@@ -45,6 +45,11 @@ run('pnpm', ['--filter', '@bdc/api', 'exec', 'prisma', 'migrate', 'deploy'], {
 });
 if (!process.env.E2E_SKIP_BUILD) run('pnpm', ['--filter', '@bdc/api', 'build']);
 
+// Demo catalog for the storefront specs (idempotent; the DB was just emptied, so it always seeds).
+run('node', ['apps/api/dist/cli.js', 'seed-demo'], {
+  env: { ...process.env, DATABASE_URL: databaseUrl },
+});
+
 const child = spawn('node', ['apps/api/dist/main.js'], {
   cwd: root,
   stdio: 'inherit',

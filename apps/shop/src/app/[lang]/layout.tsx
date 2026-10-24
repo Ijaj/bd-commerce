@@ -29,7 +29,8 @@ const hind = Hind_Siliguri({
   display: 'swap',
 });
 
-export const dynamicParams = false;
+// No `dynamicParams = false` here: child segments inherit it and Next 16 then 404s every
+// /p/[slug] not built ahead. Unknown languages 404 via routeParams() instead.
 // Safety net: if the API was down at build time (getSite fails open), static pages still refresh.
 export const revalidate = 60;
 export function generateStaticParams() {

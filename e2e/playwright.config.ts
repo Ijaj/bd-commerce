@@ -1,5 +1,14 @@
 import { defineConfig, devices } from '@playwright/test';
-import { ADMIN_PORT, ADMIN_URL, API_PORT, API_URL, apiEnv } from './support/env';
+import {
+  ADMIN_PORT,
+  ADMIN_URL,
+  API_PORT,
+  API_URL,
+  apiEnv,
+  SHOP_PORT,
+  SHOP_URL,
+  shopEnv,
+} from './support/env';
 
 export default defineConfig({
   testDir: './tests',
@@ -37,6 +46,16 @@ export default defineConfig({
       reuseExistingServer: false,
       env: { ...process.env, API_URL } as Record<string, string>,
       name: `admin:${ADMIN_PORT}`,
+    },
+    {
+      command: 'node support/start-shop.mjs',
+      url: SHOP_URL,
+      timeout: 300_000,
+      reuseExistingServer: false,
+      env: shopEnv() as Record<string, string>,
+      stdout: 'ignore',
+      stderr: 'pipe',
+      name: `shop:${SHOP_PORT}`,
     },
   ],
 });

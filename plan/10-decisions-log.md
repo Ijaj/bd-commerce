@@ -280,3 +280,7 @@ Note on S6: our order tracking covers status until the parcel is handed to the c
 | C37 | SRs see **all active buyer shops** (shared, avoids duplicates) and the shop's total due; ledger lists only their own entries |
 | C38 | SR memo shared via a **public signed link** (unguessable token, no login, revocable/expiring) |
 | C39 | Partner portal UI **EN + BN toggle** |
+| C40 | Delivery charge with product overrides (Q85): order pays **max(zone charge incl. per-kg extra, highest product override)**, once per order |
+| C41 | Price changed since add-to-cart: order is **charged the current price without an extra confirm** (cart shows a "price changed" badge) |
+| C42 | SR delivery (R19): **per-sale choice** "I deliver" / "staff delivers"; SR can mark own "I deliver" sales delivered, staff marks the rest |
+| C43 | SR corrections: staff can **reject a pending collection** (with reason, never counted) and **reverse an approved/delivered sale** (reversing ledger entry + stock back); ledger stays append-only |

@@ -5,6 +5,8 @@ export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..')
 export const API_PORT = 4100;
 export const ADMIN_PORT = 5180;
 export const ADMIN_URL = `http://localhost:${ADMIN_PORT}`;
+export const SHOP_PORT = 3180;
+export const SHOP_URL = `http://localhost:${SHOP_PORT}`;
 export const API_URL = `http://localhost:${API_PORT}`;
 export const DB_NAME = 'bdc_e2e';
 export const DATABASE_URL = `postgresql://bdc:bdc_dev@localhost:5432/${DB_NAME}`;
@@ -29,4 +31,9 @@ export function apiEnv(): NodeJS.ProcessEnv {
     REDIS_URL,
     ADMIN_ORIGIN: ADMIN_URL,
   };
+}
+
+/** Environment for the shop build and server: talks to the e2e API and emits e2e URLs. */
+export function shopEnv(): NodeJS.ProcessEnv {
+  return { ...process.env, API_URL, SITE_URL: SHOP_URL } as NodeJS.ProcessEnv;
 }
