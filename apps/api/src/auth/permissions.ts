@@ -51,6 +51,13 @@ export const PERMISSIONS = {
     description: 'Adjust stock and low-stock thresholds',
   },
   'inventory.export': { group: 'Inventory', description: 'Export stock levels' },
+  // Step 3: home page content and customers.
+  'content.manage': {
+    group: 'Content',
+    description: 'Manage home carousel slides and home feed weights',
+  },
+  'customers.view': { group: 'Customers', description: 'View customer accounts' },
+  'customers.manage': { group: 'Customers', description: 'Disable or flag customer accounts' },
 } as const satisfies Record<string, { group: string; description: string }>;
 
 export type PermissionKey = keyof typeof PERMISSIONS;

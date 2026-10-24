@@ -7,6 +7,7 @@ import { CategoriesModule } from './catalog/categories/categories.module';
 import { ImportExportModule } from './catalog/import-export/import-export.module';
 import { ProductsModule } from './catalog/products/products.module';
 import { EnvModule } from './config/env.module';
+import { CustomersModule } from './customers/customers.module';
 import { HealthController } from './health/health.controller';
 import { InventoryModule } from './inventory/inventory.module';
 import { MailModule } from './mail/mail.module';
@@ -14,7 +15,9 @@ import { MediaModule } from './media/media.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RedisModule } from './redis/redis.module';
 import { SettingsModule } from './settings/settings.module';
+import { SmsModule } from './sms/sms.module';
 import { StaffModule } from './staff/staff.module';
+import { StorefrontModule } from './storefront/storefront.module';
 
 @Module({
   imports: [
@@ -32,6 +35,9 @@ import { StaffModule } from './staff/staff.module';
     ImportExportModule,
     ProductsModule,
     InventoryModule,
+    SmsModule,
+    CustomersModule,
+    StorefrontModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_PIPE, useClass: ZodValidationPipe }],

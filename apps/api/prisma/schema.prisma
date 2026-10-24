@@ -1,4 +1,5 @@
 // Tables follow plan/12-data-model.md. Step 1: staff, sessions, RBAC, settings. Step 2: catalog + inventory.
+// Step 3: customers, customer sessions, OTP codes, wishlists, carousel slides.
 
 generator client {
   provider     = "prisma-client"
@@ -191,6 +192,8 @@ model Media {
   categoryIcons   Category[]     @relation("CategoryIcon")
   categoryBanners Category[]     @relation("CategoryBanner")
   productImages   ProductImage[]
+  slidesDesktop   CarouselSlide[] @relation("SlideDesktop")
+  slidesMobile    CarouselSlide[] @relation("SlideMobile")
 
   @@map("media")
 }
@@ -365,6 +368,7 @@ model Product {
   options         ProductOption[]
   images          ProductImage[]
   variants        Variant[]
+  wishlists       Wishlist[]
 
   @@index([status])
   @@index([brandId])
@@ -534,4 +538,131 @@ model StockMovement {
 
   @@index([variantId, at])
   @@map("stock_movements")
+}
+
+// ---------------------------------------------------------------------------
+// Customers (doc 12 §1, Q33/Q33b, Q91). Separate from staff. Never deleted: disabled_at.
+// Step 3 = phone/email + password + SMS OTP; social logins come later (C27).
+// ---------------------------------------------------------------------------
+
+enum Lang {
+  en
+  bn
+
+  @@map("lang")
+}
+
+model Customer {
+  id              String    @id @default(uuid(7)) @db.Uuid
+  name            String
+  /// Normalized BD mobile `01XXXXXXXXX` (11 digits).
+  phone           String?   @unique
+  phoneVerifiedAt DateTime? @map("phone_verified_at") @db.Timestamptz
+  /// Lower-cased.
+  email           String?   @unique
+  emailVerifiedAt DateTime? @map("email_verified_at") @db.Timestamptz
+  /// Argon2id. Null only for future social-login-only accounts.
+  passwordHash    String?   @map("password_hash")
+  lang            Lang      @default(en)
+  /// Risky customer → advance required (Q106, P2).
+  isFlagged       Boolean   @default(false) @map("is_flagged")
+  disabledAt      DateTime? @map("disabled_at") @db.Timestamptz
+  lastLoginAt     DateTime? @map("last_login_at") @db.Timestamptz
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  sessions  CustomerSession[]
+  wishlists Wishlist[]
+
+  @@map("customers")
+}
+
+model CustomerSession {
+  id         String    @id @default(uuid(7)) @db.Uuid
+  customerId String    @map("customer_id") @db.Uuid
+  tokenHash  String    @unique @map("token_hash")
+  ip         String?
+  userAgent  String?   @map("user_agent")
+  lastSeenAt DateTime  @default(now()) @map("last_seen_at") @db.Timestamptz
+  expiresAt  DateTime  @map("expires_at") @db.Timestamptz
+  revokedAt  DateTime? @map("revoked_at") @db.Timestamptz
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  @@index([customerId])
+  @@map("customer_sessions")
+}
+
+enum OtpPurpose {
+  signup
+  reset
+  guest_cod
+  phone_change
+
+  @@map("otp_purpose")
+}
+
+/// SMS one-time codes (Q33b, Q81). Hashed; limited attempts; single use.
+model OtpCode {
+  id        String     @id @default(uuid(7)) @db.Uuid
+  purpose   OtpPurpose
+  phone     String
+  codeHash  String     @map("code_hash")
+  attempts  Int        @default(0)
+  expiresAt DateTime   @map("expires_at") @db.Timestamptz
+  usedAt    DateTime?  @map("used_at") @db.Timestamptz
+  ip        String?
+  createdAt DateTime   @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([phone, purpose, createdAt])
+  @@map("otp_codes")
+}
+
+/// Wishlist needs login (C29). Per product (variant picked at add-to-cart).
+model Wishlist {
+  id         String   @id @default(uuid(7)) @db.Uuid
+  customerId String   @map("customer_id") @db.Uuid
+  productId  String   @map("product_id") @db.Uuid
+  addedAt    DateTime @default(now()) @map("added_at") @db.Timestamptz
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([customerId, productId])
+  @@index([productId])
+  @@map("wishlists")
+}
+
+// ---------------------------------------------------------------------------
+// Home page (doc 02 Carousel, doc 12 §14). Featured categories = categories.show_on_home.
+// ---------------------------------------------------------------------------
+
+enum SlideLang {
+  all
+  en
+  bn
+
+  @@map("slide_lang")
+}
+
+model CarouselSlide {
+  id                  String    @id @default(uuid(7)) @db.Uuid
+  title               String
+  imageDesktopMediaId String    @map("image_desktop_media_id") @db.Uuid
+  imageMobileMediaId  String?   @map("image_mobile_media_id") @db.Uuid
+  /// Relative shop path (`/p/slug`, `/c/slug`) or absolute URL.
+  linkUrl             String?   @map("link_url")
+  startsAt            DateTime? @map("starts_at") @db.Timestamptz
+  endsAt              DateTime? @map("ends_at") @db.Timestamptz
+  sort                Int       @default(0)
+  isActive            Boolean   @default(true) @map("is_active")
+  lang                SlideLang @default(all)
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  imageDesktop Media  @relation("SlideDesktop", fields: [imageDesktopMediaId], references: [id], onDelete: Restrict)
+  imageMobile  Media? @relation("SlideMobile", fields: [imageMobileMediaId], references: [id], onDelete: Restrict)
+
+  @@map("carousel_slides")
 }

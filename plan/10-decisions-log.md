@@ -266,3 +266,8 @@ Note on S6: our order tracking covers status until the parcel is handed to the c
 | C23 | Image upload **through the API** (max 10 MB, sharp validates + strips EXIF, stored in Garage); imgproxy resizes on view, so no stored renditions |
 | C24 | Bulk import/export: **XLSX + CSV** (exceljs), one row per variant |
 | C25 | Step 2 built by a **parallel agent swarm** (owner request): lead (Opus) owns schema/migrations/shared files and commits; Sonnet agents per module; Haiku for the demo seed |
+| C26 | Storefront URLs: **English at root, Bangla under `/bn/…`**, both indexed with hreflang |
+| C27 | Google/Facebook login **later in P1** (before launch); step 3 = phone/email + password + SMS OTP only |
+| C28 | PWA: **hand-written** manifest + small service worker (offline page, static/image cache), no library |
+| C29 | Wishlist **requires login** (server-side); recently viewed kept **in the browser** (localStorage), no server table |
+| C30 | Step 3 built by a parallel agent swarm like C25: lead (Opus) does schema/scaffold/contracts/commits; wave 1 = 4 Sonnet + 1 Haiku, wave 2 = account/PWA (Sonnet) + e2e (Haiku) |
