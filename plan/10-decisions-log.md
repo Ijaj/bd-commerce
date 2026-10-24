@@ -291,3 +291,7 @@ Note on S6: our order tracking covers status until the parcel is handed to the c
 | C48 | Reversing an SR sale whose commission is already approved/paid → **negative commission adjustment, auto-deducted in the SR's next commission run** (listed for staff) |
 | C49 | OTP wrong-code lockout **escalating, per purpose**: 1 h after 10 wrong codes, 24 h after 30 |
 | C50 | Public SR memo link limit **60 requests/min per IP** |
+| C51 | Step 5 couriers: **adapter interface + in-memory fake courier now**; Steadfast/Pathao real adapters plug in via env keys when owner has accounts |
+| C52 | Step 5 docs: **A4 invoice** (VAT portion + BIN per Q95, EN/BN) and **4x6in label PDF** (order no, address, COD amount, barcode) |
+| C53 | Step 5 call queue: **auto-flag risky only** (velocity rules Q54, COD above setting threshold, first-time guest); staff confirm/cancel/note; non-blocking per Q53; others go straight to processing |
+| C54 | Step 5 returns: **request → approve → receive → refund/reject**; per-item qty + reason, within 7-day window (Q59), restock or write-off on receive, refund to wallet credit or original method (manual mark-paid until online payments), return shipping per Q87 |
