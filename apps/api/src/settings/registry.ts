@@ -99,6 +99,24 @@ export const SETTINGS = {
     default: 60,
     public: false,
   },
+  checkout: {
+    group: 'Checkout',
+    description:
+      'Guest COD orders at or above guestOtpAboveP (paisa) need SMS OTP (Q81); max quantity per line.',
+    schema: z.object({
+      guestOtpAboveP: z.number().int().min(0),
+      maxQtyPerLine: z.number().int().min(1).max(999),
+    }),
+    default: { guestOtpAboveP: 500000, maxQtyPerLine: 10 },
+    public: true,
+  },
+  sr_default_commission_bp: {
+    group: 'SR / B2B',
+    description: 'SR commission in basis points of money collected (Q120), unless set per SR.',
+    schema: z.number().int().min(0).max(10000),
+    default: 100,
+    public: false,
+  },
   online_payments_enabled: flag('Online payments at checkout (off for the COD-only launch)'),
   advance_payments_enabled: flag('Advance payment on COD orders (Q106)'),
   preorders_enabled: flag('Pre-order products can be bought (Q109)'),

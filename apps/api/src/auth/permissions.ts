@@ -58,6 +58,37 @@ export const PERMISSIONS = {
   },
   'customers.view': { group: 'Customers', description: 'View customer accounts' },
   'customers.manage': { group: 'Customers', description: 'Disable or flag customer accounts' },
+  // Step 4: orders + delivery.
+  'orders.view': { group: 'Orders', description: 'View orders' },
+  'orders.manage': { group: 'Orders', description: 'Change order status, hold, cancel' },
+  'delivery.manage': {
+    group: 'Settings',
+    description: 'Manage delivery zones, charges and zone locations',
+  },
+  // Step 7: SR / B2B (R10–R20) and purchasing (Q62).
+  'sr.portal': {
+    group: 'SR / B2B',
+    description: 'Use the SR section of the partner portal (own sales, shops, collections)',
+  },
+  'sr.approve': {
+    group: 'SR / B2B',
+    description: 'Approve, reject and mark SR sales delivered; confirm due collections',
+  },
+  'sr.manage': {
+    group: 'SR / B2B',
+    description: 'Manage SR profiles, targets and commissions',
+  },
+  'b2b.view': { group: 'SR / B2B', description: 'View buyer shops, SR sales and due ledgers' },
+  'b2b.manage': {
+    group: 'SR / B2B',
+    description: 'Edit/block buyer shops and post ledger adjustments',
+  },
+  'suppliers.view': { group: 'Suppliers & POs', description: 'View suppliers and purchase orders' },
+  'suppliers.manage': {
+    group: 'Suppliers & POs',
+    description: 'Manage suppliers, product links and purchase orders',
+  },
+  'po.receive': { group: 'Suppliers & POs', description: 'Approve POs and receive stock' },
 } as const satisfies Record<string, { group: string; description: string }>;
 
 export type PermissionKey = keyof typeof PERMISSIONS;

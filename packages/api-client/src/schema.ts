@@ -740,6 +740,358 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/customer/auth/otp": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CustomersController_otp"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/customer/auth/signup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CustomersController_signup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/customer/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CustomersController_login"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/customer/auth/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CustomersController_reset"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/customer/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CustomersController_logout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/customer/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomersController_me"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["CustomersController_update"];
+        trace?: never;
+    };
+    "/v1/customer/me/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CustomersController_changePassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/customer/wishlist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["WishlistController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/customer/wishlist/ids": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["WishlistController_ids"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/customer/wishlist/{productId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["WishlistController_add"];
+        post?: never;
+        delete: operations["WishlistController_remove"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/categories/tree": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PublicController_categoryTree"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/home": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PublicController_homePage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/feed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PublicController_feedPage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PublicController_products"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/search/suggest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PublicController_suggest"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/products/cards": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PublicController_productCards"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/products/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PublicController_product"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/products/{slug}/similar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PublicController_similar"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/sitemap": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PublicController_sitemap"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/carousel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CarouselController_list"];
+        put?: never;
+        post: operations["CarouselController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/carousel/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["CarouselController_order"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/carousel/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["CarouselController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["CarouselController_update"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -788,6 +1140,10 @@ export interface components {
                 };
                 link: string | null;
             } | null;
+            contact: {
+                hotline: string;
+                email: string;
+            };
             flags: {
                 online_payments_enabled: boolean;
                 advance_payments_enabled: boolean;
@@ -827,7 +1183,7 @@ export interface components {
                 id: string;
                 name: string;
             }[];
-            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export")[];
+            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "delivery.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "po.receive")[];
         };
         ChangePasswordDto: {
             currentPassword: string;
@@ -905,13 +1261,13 @@ export interface components {
             name: string;
             description: string | null;
             isSystem: boolean;
-            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export")[];
+            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "delivery.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "po.receive")[];
             staffCount: number;
         }[];
         CreateRoleDto: {
             name: string;
             description?: string;
-            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export")[];
+            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "delivery.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "po.receive")[];
         };
         RoleDto: {
             /** Format: uuid */
@@ -919,17 +1275,17 @@ export interface components {
             name: string;
             description: string | null;
             isSystem: boolean;
-            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export")[];
+            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "delivery.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "po.receive")[];
             staffCount: number;
         };
         UpdateRoleDto: {
             name?: string;
             description?: string | null;
-            permissions?: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export")[];
+            permissions?: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "delivery.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "po.receive")[];
         };
         PermissionListDto: {
             /** @enum {string} */
-            key: "staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export";
+            key: "staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "delivery.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "po.receive";
             group: string;
             description: string;
         }[];
@@ -1640,6 +1996,555 @@ export interface components {
             total: number;
             page: number;
             pageSize: number;
+        };
+        CustomerErrorDto: {
+            statusCode: number;
+            message: string;
+            code?: string;
+        };
+        RequestOtpDto: {
+            phone: string;
+            /** @enum {string} */
+            purpose: "signup" | "reset";
+        };
+        OtpSentDto: {
+            sentTo: string;
+            expiresInSec: number;
+            resendInSec: number;
+        };
+        SignupDto: {
+            name: string;
+            phone: string;
+            /** Format: email */
+            email?: string;
+            password: string;
+            code: string;
+        };
+        CustomerAuthResultDto: {
+            customer: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+                phone: string | null;
+                phoneVerified: boolean;
+                email: string | null;
+                /** @enum {string} */
+                lang: "en" | "bn";
+                createdAt: string;
+            };
+        };
+        CustomerLoginDto: {
+            login: string;
+            password: string;
+        };
+        ResetPasswordDto: {
+            phone: string;
+            code: string;
+            password: string;
+        };
+        OkDto: {
+            /** @constant */
+            ok: true;
+        };
+        CustomerMeDto: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            phone: string | null;
+            phoneVerified: boolean;
+            email: string | null;
+            /** @enum {string} */
+            lang: "en" | "bn";
+            createdAt: string;
+        };
+        UpdateCustomerDto: {
+            name?: string;
+            email?: string | null;
+            /** @enum {string} */
+            lang?: "en" | "bn";
+        };
+        CustomerChangePasswordDto: {
+            currentPassword: string;
+            newPassword: string;
+        };
+        WishlistDto: {
+            items: {
+                id: string;
+                slug: string;
+                titleEn: string;
+                titleBn: string | null;
+                image: {
+                    alt: string | null;
+                    width: number;
+                    height: number;
+                    url320: string;
+                    url640: string;
+                    url1200: string;
+                } | null;
+                priceP: number;
+                compareAtP: number | null;
+                discountPct: number | null;
+                ratingAvg: number;
+                ratingCount: number;
+                soldCount: number;
+                badges: {
+                    isNew: boolean;
+                    isPreorder: boolean;
+                    isUpcoming: boolean;
+                    outOfStock: boolean;
+                };
+                addedAt: string;
+            }[];
+        };
+        WishlistIdsDto: {
+            productIds: string[];
+        };
+        CategoryTreeDto__schema0: {
+            /** Format: uuid */
+            id: string;
+            slug: string;
+            nameEn: string;
+            nameBn: string | null;
+            level: number;
+            chipColor: string | null;
+            image: {
+                alt: string | null;
+                width: number;
+                height: number;
+                url320: string;
+                url640: string;
+                url1200: string;
+            } | null;
+            icon: {
+                alt: string | null;
+                width: number;
+                height: number;
+                url320: string;
+                url640: string;
+                url1200: string;
+            } | null;
+            children: components["schemas"]["CategoryTreeDto__schema0"][];
+        };
+        CategoryTreeDto: components["schemas"]["CategoryTreeDto__schema0"][];
+        HomeDto__schema0: {
+            /** Format: uuid */
+            id: string;
+            slug: string;
+            nameEn: string;
+            nameBn: string | null;
+            level: number;
+            chipColor: string | null;
+            image: {
+                alt: string | null;
+                width: number;
+                height: number;
+                url320: string;
+                url640: string;
+                url1200: string;
+            } | null;
+            icon: {
+                alt: string | null;
+                width: number;
+                height: number;
+                url320: string;
+                url640: string;
+                url1200: string;
+            } | null;
+            children: components["schemas"]["HomeDto__schema0"][];
+        };
+        HomeDto: {
+            slides: {
+                /** Format: uuid */
+                id: string;
+                title: string;
+                linkUrl: string | null;
+                desktop: {
+                    alt: string | null;
+                    width: number;
+                    height: number;
+                    url320: string;
+                    url640: string;
+                    url1200: string;
+                };
+                mobile: {
+                    alt: string | null;
+                    width: number;
+                    height: number;
+                    url320: string;
+                    url640: string;
+                    url1200: string;
+                } | null;
+            }[];
+            featuredCategories: components["schemas"]["HomeDto__schema0"][];
+        };
+        FeedDto: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                slug: string;
+                titleEn: string;
+                titleBn: string | null;
+                image: {
+                    alt: string | null;
+                    width: number;
+                    height: number;
+                    url320: string;
+                    url640: string;
+                    url1200: string;
+                } | null;
+                priceP: number;
+                compareAtP: number | null;
+                discountPct: number | null;
+                ratingAvg: number;
+                ratingCount: number;
+                soldCount: number;
+                badges: {
+                    isNew: boolean;
+                    isPreorder: boolean;
+                    isUpcoming: boolean;
+                    outOfStock: boolean;
+                };
+            }[];
+            nextCursor: string | null;
+        };
+        ListingDto__schema0: {
+            /** Format: uuid */
+            id: string;
+            slug: string;
+            nameEn: string;
+            nameBn: string | null;
+            level: number;
+            chipColor: string | null;
+            image: {
+                alt: string | null;
+                width: number;
+                height: number;
+                url320: string;
+                url640: string;
+                url1200: string;
+            } | null;
+            icon: {
+                alt: string | null;
+                width: number;
+                height: number;
+                url320: string;
+                url640: string;
+                url1200: string;
+            } | null;
+            children: components["schemas"]["ListingDto__schema0"][];
+        };
+        ListingDto: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                slug: string;
+                titleEn: string;
+                titleBn: string | null;
+                image: {
+                    alt: string | null;
+                    width: number;
+                    height: number;
+                    url320: string;
+                    url640: string;
+                    url1200: string;
+                } | null;
+                priceP: number;
+                compareAtP: number | null;
+                discountPct: number | null;
+                ratingAvg: number;
+                ratingCount: number;
+                soldCount: number;
+                badges: {
+                    isNew: boolean;
+                    isPreorder: boolean;
+                    isUpcoming: boolean;
+                    outOfStock: boolean;
+                };
+            }[];
+            total: number;
+            page: number;
+            limit: number;
+            facets: {
+                brands: {
+                    slug: string;
+                    nameEn: string;
+                    nameBn: string | null;
+                    count: number;
+                }[];
+                price: {
+                    min: number;
+                    max: number;
+                } | null;
+                availability: {
+                    in_stock: number;
+                    preorder: number;
+                    upcoming: number;
+                };
+                attributes: {
+                    key: string;
+                    nameEn: string;
+                    nameBn: string | null;
+                    type: string;
+                    unit: string | null;
+                    options: {
+                        id: string;
+                        valueEn: string;
+                        valueBn: string | null;
+                        count: number;
+                    }[];
+                }[];
+            };
+            category: {
+                /** Format: uuid */
+                id: string;
+                slug: string;
+                nameEn: string;
+                nameBn: string | null;
+                descriptionEn: string | null;
+                descriptionBn: string | null;
+                seoTitle: string | null;
+                seoDescription: string | null;
+                banner: {
+                    alt: string | null;
+                    width: number;
+                    height: number;
+                    url320: string;
+                    url640: string;
+                    url1200: string;
+                } | null;
+                breadcrumb: {
+                    slug: string;
+                    nameEn: string;
+                    nameBn: string | null;
+                }[];
+                children: components["schemas"]["ListingDto__schema0"][];
+            } | null;
+        };
+        SuggestDto: {
+            products: {
+                slug: string;
+                titleEn: string;
+                titleBn: string | null;
+                image: {
+                    alt: string | null;
+                    width: number;
+                    height: number;
+                    url320: string;
+                    url640: string;
+                    url1200: string;
+                } | null;
+                priceP: number;
+            }[];
+            categories: {
+                slug: string;
+                nameEn: string;
+                nameBn: string | null;
+            }[];
+            brands: {
+                slug: string;
+                nameEn: string;
+                nameBn: string | null;
+            }[];
+        };
+        ProductCardListDto: {
+            /** Format: uuid */
+            id: string;
+            slug: string;
+            titleEn: string;
+            titleBn: string | null;
+            image: {
+                alt: string | null;
+                width: number;
+                height: number;
+                url320: string;
+                url640: string;
+                url1200: string;
+            } | null;
+            priceP: number;
+            compareAtP: number | null;
+            discountPct: number | null;
+            ratingAvg: number;
+            ratingCount: number;
+            soldCount: number;
+            badges: {
+                isNew: boolean;
+                isPreorder: boolean;
+                isUpcoming: boolean;
+                outOfStock: boolean;
+            };
+        }[];
+        PublicProductDetailDto: {
+            /** Format: uuid */
+            id: string;
+            slug: string;
+            titleEn: string;
+            titleBn: string | null;
+            shortDescriptionEn: string | null;
+            shortDescriptionBn: string | null;
+            descriptionHtmlEn: string | null;
+            descriptionHtmlBn: string | null;
+            youtubeUrl: string | null;
+            brand: {
+                slug: string;
+                nameEn: string;
+                nameBn: string | null;
+            } | null;
+            breadcrumb: {
+                slug: string;
+                nameEn: string;
+                nameBn: string | null;
+            }[];
+            images: {
+                alt: string | null;
+                width: number;
+                height: number;
+                url320: string;
+                url640: string;
+                url1200: string;
+                variantId: string | null;
+            }[];
+            options: {
+                position: number;
+                nameEn: string;
+                nameBn: string | null;
+                values: {
+                    /** Format: uuid */
+                    id: string;
+                    valueEn: string;
+                    valueBn: string | null;
+                    swatchHex: string | null;
+                }[];
+            }[];
+            variants: {
+                /** Format: uuid */
+                id: string;
+                sku: string;
+                optionValue1Id: string | null;
+                optionValue2Id: string | null;
+                priceP: number;
+                compareAtP: number | null;
+                discountPct: number | null;
+                available: number;
+                isActive: boolean;
+            }[];
+            specs: {
+                nameEn: string;
+                nameBn: string | null;
+                unit: string | null;
+                valueEn: string;
+                valueBn: string | null;
+            }[];
+            badges: {
+                isNew: boolean;
+                isPreorder: boolean;
+                isUpcoming: boolean;
+                outOfStock: boolean;
+            };
+            isPreorder: boolean;
+            preorderExpectedDate: string | null;
+            isUpcoming: boolean;
+            ratingAvg: number;
+            ratingCount: number;
+            soldCount: number;
+            seoTitle: string | null;
+            seoDescription: string | null;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        SitemapDto: {
+            products: {
+                slug: string;
+                /** Format: date-time */
+                updatedAt: string;
+            }[];
+            categories: {
+                slug: string;
+                /** Format: date-time */
+                updatedAt: string;
+            }[];
+        };
+        SlideListDto: {
+            /** Format: uuid */
+            id: string;
+            title: string;
+            linkUrl: string | null;
+            startsAt: string | null;
+            endsAt: string | null;
+            sort: number;
+            isActive: boolean;
+            /** @enum {string} */
+            lang: "all" | "en" | "bn";
+            imageDesktop: {
+                /** Format: uuid */
+                id: string;
+                url: string;
+                thumbUrl: string;
+            };
+            imageMobile: {
+                /** Format: uuid */
+                id: string;
+                url: string;
+                thumbUrl: string;
+            } | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        }[];
+        CreateSlideDto: {
+            title: string;
+            /** Format: uuid */
+            imageDesktopMediaId: string;
+            imageMobileMediaId?: string | null;
+            linkUrl?: string | null;
+            startsAt?: string | null;
+            endsAt?: string | null;
+            isActive?: boolean;
+            /** @enum {string} */
+            lang?: "all" | "en" | "bn";
+        };
+        SlideDto: {
+            /** Format: uuid */
+            id: string;
+            title: string;
+            linkUrl: string | null;
+            startsAt: string | null;
+            endsAt: string | null;
+            sort: number;
+            isActive: boolean;
+            /** @enum {string} */
+            lang: "all" | "en" | "bn";
+            imageDesktop: {
+                /** Format: uuid */
+                id: string;
+                url: string;
+                thumbUrl: string;
+            };
+            imageMobile: {
+                /** Format: uuid */
+                id: string;
+                url: string;
+                thumbUrl: string;
+            } | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        SlideOrderDto: {
+            ids: string[];
+        };
+        UpdateSlideDto: {
+            title?: string;
+            /** Format: uuid */
+            imageDesktopMediaId?: string;
+            imageMobileMediaId?: string | null;
+            linkUrl?: string | null;
+            startsAt?: string | null;
+            endsAt?: string | null;
+            isActive?: boolean;
+            /** @enum {string} */
+            lang?: "all" | "en" | "bn";
         };
     };
     responses: never;
@@ -3031,6 +3936,799 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MovementListDto"];
+                };
+            };
+        };
+    };
+    CustomersController_otp: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RequestOtpDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OtpSentDto"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    CustomersController_signup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SignupDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerAuthResultDto"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    CustomersController_login: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CustomerLoginDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerAuthResultDto"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    CustomersController_reset: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResetPasswordDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkDto"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    CustomersController_logout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkDto"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            /** @description No valid customer session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    CustomersController_me: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerMeDto"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            /** @description No valid customer session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    CustomersController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCustomerDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerMeDto"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            /** @description No valid customer session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    CustomersController_changePassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CustomerChangePasswordDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkDto"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            /** @description No valid customer session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    WishlistController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WishlistDto"];
+                };
+            };
+            /** @description No valid customer session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    WishlistController_ids: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WishlistIdsDto"];
+                };
+            };
+            /** @description No valid customer session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    WishlistController_add: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                productId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkDto"];
+                };
+            };
+            /** @description No valid customer session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    WishlistController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                productId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkDto"];
+                };
+            };
+            /** @description No valid customer session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    PublicController_categoryTree: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryTreeDto"];
+                };
+            };
+        };
+    };
+    PublicController_homePage: {
+        parameters: {
+            query?: {
+                lang?: "en" | "bn";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HomeDto"];
+                };
+            };
+        };
+    };
+    PublicController_feedPage: {
+        parameters: {
+            query?: {
+                seed?: number;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedDto"];
+                };
+            };
+        };
+    };
+    PublicController_products: {
+        parameters: {
+            query?: {
+                category?: string;
+                q?: string;
+                brand?: string;
+                minPrice?: number;
+                maxPrice?: number;
+                rating?: number;
+                availability?: string;
+                sort?: "relevance" | "newest" | "price_asc" | "price_desc" | "popular" | "rating";
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListingDto"];
+                };
+            };
+        };
+    };
+    PublicController_suggest: {
+        parameters: {
+            query: {
+                q: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SuggestDto"];
+                };
+            };
+        };
+    };
+    PublicController_productCards: {
+        parameters: {
+            query: {
+                ids: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductCardListDto"];
+                };
+            };
+        };
+    };
+    PublicController_product: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicProductDetailDto"];
+                };
+            };
+        };
+    };
+    PublicController_similar: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductCardListDto"];
+                };
+            };
+        };
+    };
+    PublicController_sitemap: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SitemapDto"];
+                };
+            };
+        };
+    };
+    CarouselController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SlideListDto"];
+                };
+            };
+        };
+    };
+    CarouselController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateSlideDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SlideDto"];
+                };
+            };
+        };
+    };
+    CarouselController_order: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SlideOrderDto"];
+            };
+        };
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CarouselController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CarouselController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSlideDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SlideDto"];
                 };
             };
         };
