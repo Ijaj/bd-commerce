@@ -14,14 +14,20 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as R2faSetupRouteImport } from './routes/2fa.setup'
 import { Route as R2faVerifyRouteImport } from './routes/2fa.verify'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
+import { Route as AppDeliveryRouteImport } from './routes/_app/delivery'
 import { Route as AppRolesRouteImport } from './routes/_app/roles'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppStaffRouteImport } from './routes/_app/staff'
+import { Route as AppB2bCollectionsRouteImport } from './routes/_app/b2b.collections'
+import { Route as AppB2bSalesRouteImport } from './routes/_app/b2b.sales'
 import { Route as AppCatalogBrandsRouteImport } from './routes/_app/catalog.brands'
 import { Route as AppCatalogCategoriesRouteImport } from './routes/_app/catalog.categories'
 import { Route as AppCatalogImportExportRouteImport } from './routes/_app/catalog.import-export'
 import { Route as AppCatalogInventoryRouteImport } from './routes/_app/catalog.inventory'
 import { Route as AppContentCarouselRouteImport } from './routes/_app/content.carousel'
+import { Route as AppSrTeamRouteImport } from './routes/_app/sr.team'
+import { Route as AppB2bShopsIndexRouteImport } from './routes/_app/b2b.shops.index'
+import { Route as AppB2bShopsIdRouteImport } from './routes/_app/b2b.shops.$id'
 import { Route as AppCatalogProductsIndexRouteImport } from './routes/_app/catalog.products.index'
 import { Route as AppCatalogProductsIdRouteImport } from './routes/_app/catalog.products.$id'
 
@@ -49,6 +55,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppDeliveryRoute = AppDeliveryRouteImport.update({
+  id: '/delivery',
+  path: '/delivery',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppRolesRoute = AppRolesRouteImport.update({
   id: '/roles',
   path: '/roles',
@@ -62,6 +73,16 @@ const AppSettingsRoute = AppSettingsRouteImport.update({
 const AppStaffRoute = AppStaffRouteImport.update({
   id: '/staff',
   path: '/staff',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppB2bCollectionsRoute = AppB2bCollectionsRouteImport.update({
+  id: '/b2b/collections',
+  path: '/b2b/collections',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppB2bSalesRoute = AppB2bSalesRouteImport.update({
+  id: '/b2b/sales',
+  path: '/b2b/sales',
   getParentRoute: () => AppRoute,
 } as any)
 const AppCatalogBrandsRoute = AppCatalogBrandsRouteImport.update({
@@ -89,6 +110,21 @@ const AppContentCarouselRoute = AppContentCarouselRouteImport.update({
   path: '/content/carousel',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSrTeamRoute = AppSrTeamRouteImport.update({
+  id: '/sr/team',
+  path: '/sr/team',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppB2bShopsIndexRoute = AppB2bShopsIndexRouteImport.update({
+  id: '/b2b/shops/',
+  path: '/b2b/shops/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppB2bShopsIdRoute = AppB2bShopsIdRouteImport.update({
+  id: '/b2b/shops/$id',
+  path: '/b2b/shops/$id',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppCatalogProductsIndexRoute = AppCatalogProductsIndexRouteImport.update({
   id: '/catalog/products/',
   path: '/catalog/products/',
@@ -105,31 +141,43 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/2fa/setup': typeof R2faSetupRoute
   '/2fa/verify': typeof R2faVerifyRoute
+  '/delivery': typeof AppDeliveryRoute
   '/roles': typeof AppRolesRoute
   '/settings': typeof AppSettingsRoute
   '/staff': typeof AppStaffRoute
+  '/b2b/collections': typeof AppB2bCollectionsRoute
+  '/b2b/sales': typeof AppB2bSalesRoute
   '/catalog/brands': typeof AppCatalogBrandsRoute
   '/catalog/categories': typeof AppCatalogCategoriesRoute
   '/catalog/import-export': typeof AppCatalogImportExportRoute
   '/catalog/inventory': typeof AppCatalogInventoryRoute
   '/content/carousel': typeof AppContentCarouselRoute
+  '/sr/team': typeof AppSrTeamRoute
+  '/b2b/shops/$id': typeof AppB2bShopsIdRoute
   '/catalog/products/$id': typeof AppCatalogProductsIdRoute
+  '/b2b/shops/': typeof AppB2bShopsIndexRoute
   '/catalog/products/': typeof AppCatalogProductsIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/2fa/setup': typeof R2faSetupRoute
   '/2fa/verify': typeof R2faVerifyRoute
+  '/delivery': typeof AppDeliveryRoute
   '/roles': typeof AppRolesRoute
   '/settings': typeof AppSettingsRoute
   '/staff': typeof AppStaffRoute
   '/': typeof AppIndexRoute
+  '/b2b/collections': typeof AppB2bCollectionsRoute
+  '/b2b/sales': typeof AppB2bSalesRoute
   '/catalog/brands': typeof AppCatalogBrandsRoute
   '/catalog/categories': typeof AppCatalogCategoriesRoute
   '/catalog/import-export': typeof AppCatalogImportExportRoute
   '/catalog/inventory': typeof AppCatalogInventoryRoute
   '/content/carousel': typeof AppContentCarouselRoute
+  '/sr/team': typeof AppSrTeamRoute
+  '/b2b/shops/$id': typeof AppB2bShopsIdRoute
   '/catalog/products/$id': typeof AppCatalogProductsIdRoute
+  '/b2b/shops': typeof AppB2bShopsIndexRoute
   '/catalog/products': typeof AppCatalogProductsIndexRoute
 }
 export interface FileRoutesById {
@@ -138,16 +186,22 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/2fa/setup': typeof R2faSetupRoute
   '/2fa/verify': typeof R2faVerifyRoute
+  '/_app/delivery': typeof AppDeliveryRoute
   '/_app/roles': typeof AppRolesRoute
   '/_app/settings': typeof AppSettingsRoute
   '/_app/staff': typeof AppStaffRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/b2b/collections': typeof AppB2bCollectionsRoute
+  '/_app/b2b/sales': typeof AppB2bSalesRoute
   '/_app/catalog/brands': typeof AppCatalogBrandsRoute
   '/_app/catalog/categories': typeof AppCatalogCategoriesRoute
   '/_app/catalog/import-export': typeof AppCatalogImportExportRoute
   '/_app/catalog/inventory': typeof AppCatalogInventoryRoute
   '/_app/content/carousel': typeof AppContentCarouselRoute
+  '/_app/sr/team': typeof AppSrTeamRoute
+  '/_app/b2b/shops/$id': typeof AppB2bShopsIdRoute
   '/_app/catalog/products/$id': typeof AppCatalogProductsIdRoute
+  '/_app/b2b/shops/': typeof AppB2bShopsIndexRoute
   '/_app/catalog/products/': typeof AppCatalogProductsIndexRoute
 }
 export interface FileRouteTypes {
@@ -157,31 +211,43 @@ export interface FileRouteTypes {
     | '/login'
     | '/2fa/setup'
     | '/2fa/verify'
+    | '/delivery'
     | '/roles'
     | '/settings'
     | '/staff'
+    | '/b2b/collections'
+    | '/b2b/sales'
     | '/catalog/brands'
     | '/catalog/categories'
     | '/catalog/import-export'
     | '/catalog/inventory'
     | '/content/carousel'
+    | '/sr/team'
+    | '/b2b/shops/$id'
     | '/catalog/products/$id'
+    | '/b2b/shops/'
     | '/catalog/products/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
     | '/2fa/setup'
     | '/2fa/verify'
+    | '/delivery'
     | '/roles'
     | '/settings'
     | '/staff'
     | '/'
+    | '/b2b/collections'
+    | '/b2b/sales'
     | '/catalog/brands'
     | '/catalog/categories'
     | '/catalog/import-export'
     | '/catalog/inventory'
     | '/content/carousel'
+    | '/sr/team'
+    | '/b2b/shops/$id'
     | '/catalog/products/$id'
+    | '/b2b/shops'
     | '/catalog/products'
   id:
     | '__root__'
@@ -189,16 +255,22 @@ export interface FileRouteTypes {
     | '/login'
     | '/2fa/setup'
     | '/2fa/verify'
+    | '/_app/delivery'
     | '/_app/roles'
     | '/_app/settings'
     | '/_app/staff'
     | '/_app/'
+    | '/_app/b2b/collections'
+    | '/_app/b2b/sales'
     | '/_app/catalog/brands'
     | '/_app/catalog/categories'
     | '/_app/catalog/import-export'
     | '/_app/catalog/inventory'
     | '/_app/content/carousel'
+    | '/_app/sr/team'
+    | '/_app/b2b/shops/$id'
     | '/_app/catalog/products/$id'
+    | '/_app/b2b/shops/'
     | '/_app/catalog/products/'
   fileRoutesById: FileRoutesById
 }
@@ -246,6 +318,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/delivery': {
+      id: '/_app/delivery'
+      path: '/delivery'
+      fullPath: '/delivery'
+      preLoaderRoute: typeof AppDeliveryRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/roles': {
       id: '/_app/roles'
       path: '/roles'
@@ -265,6 +344,20 @@ declare module '@tanstack/react-router' {
       path: '/staff'
       fullPath: '/staff'
       preLoaderRoute: typeof AppStaffRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/b2b/collections': {
+      id: '/_app/b2b/collections'
+      path: '/b2b/collections'
+      fullPath: '/b2b/collections'
+      preLoaderRoute: typeof AppB2bCollectionsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/b2b/sales': {
+      id: '/_app/b2b/sales'
+      path: '/b2b/sales'
+      fullPath: '/b2b/sales'
+      preLoaderRoute: typeof AppB2bSalesRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/catalog/brands': {
@@ -302,6 +395,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppContentCarouselRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/sr/team': {
+      id: '/_app/sr/team'
+      path: '/sr/team'
+      fullPath: '/sr/team'
+      preLoaderRoute: typeof AppSrTeamRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/b2b/shops/': {
+      id: '/_app/b2b/shops/'
+      path: '/b2b/shops'
+      fullPath: '/b2b/shops/'
+      preLoaderRoute: typeof AppB2bShopsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/b2b/shops/$id': {
+      id: '/_app/b2b/shops/$id'
+      path: '/b2b/shops/$id'
+      fullPath: '/b2b/shops/$id'
+      preLoaderRoute: typeof AppB2bShopsIdRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/catalog/products/': {
       id: '/_app/catalog/products/'
       path: '/catalog/products'
@@ -320,30 +434,42 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppDeliveryRoute: typeof AppDeliveryRoute
   AppRolesRoute: typeof AppRolesRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppStaffRoute: typeof AppStaffRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppB2bCollectionsRoute: typeof AppB2bCollectionsRoute
+  AppB2bSalesRoute: typeof AppB2bSalesRoute
   AppCatalogBrandsRoute: typeof AppCatalogBrandsRoute
   AppCatalogCategoriesRoute: typeof AppCatalogCategoriesRoute
   AppCatalogImportExportRoute: typeof AppCatalogImportExportRoute
   AppCatalogInventoryRoute: typeof AppCatalogInventoryRoute
   AppContentCarouselRoute: typeof AppContentCarouselRoute
+  AppSrTeamRoute: typeof AppSrTeamRoute
+  AppB2bShopsIdRoute: typeof AppB2bShopsIdRoute
   AppCatalogProductsIdRoute: typeof AppCatalogProductsIdRoute
+  AppB2bShopsIndexRoute: typeof AppB2bShopsIndexRoute
   AppCatalogProductsIndexRoute: typeof AppCatalogProductsIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppDeliveryRoute: AppDeliveryRoute,
   AppRolesRoute: AppRolesRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppStaffRoute: AppStaffRoute,
   AppIndexRoute: AppIndexRoute,
+  AppB2bCollectionsRoute: AppB2bCollectionsRoute,
+  AppB2bSalesRoute: AppB2bSalesRoute,
   AppCatalogBrandsRoute: AppCatalogBrandsRoute,
   AppCatalogCategoriesRoute: AppCatalogCategoriesRoute,
   AppCatalogImportExportRoute: AppCatalogImportExportRoute,
   AppCatalogInventoryRoute: AppCatalogInventoryRoute,
   AppContentCarouselRoute: AppContentCarouselRoute,
+  AppSrTeamRoute: AppSrTeamRoute,
+  AppB2bShopsIdRoute: AppB2bShopsIdRoute,
   AppCatalogProductsIdRoute: AppCatalogProductsIdRoute,
+  AppB2bShopsIndexRoute: AppB2bShopsIndexRoute,
   AppCatalogProductsIndexRoute: AppCatalogProductsIndexRoute,
 }
 

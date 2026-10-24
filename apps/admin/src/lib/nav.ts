@@ -8,6 +8,11 @@ export interface NavItem {
     | '/catalog/inventory'
     | '/catalog/import-export'
     | '/content/carousel'
+    | '/b2b/sales'
+    | '/b2b/shops'
+    | '/b2b/collections'
+    | '/sr/team'
+    | '/delivery'
     | '/staff'
     | '/roles'
     | '/settings';
@@ -42,6 +47,15 @@ export const NAV: NavSection[] = [
     items: [{ label: 'Home carousel', to: '/content/carousel', anyOf: ['content.manage'] }],
   },
   {
+    heading: 'B2B / SR',
+    items: [
+      { label: 'SR sales', to: '/b2b/sales', anyOf: ['b2b.view'] },
+      { label: 'Buyer shops', to: '/b2b/shops', anyOf: ['b2b.view'] },
+      { label: 'Collections', to: '/b2b/collections', anyOf: ['b2b.view', 'sr.approve'] },
+      { label: 'SR team', to: '/sr/team', anyOf: ['sr.manage'] },
+    ],
+  },
+  {
     heading: 'Staff',
     items: [
       { label: 'Staff', to: '/staff', anyOf: ['staff.view'] },
@@ -50,7 +64,10 @@ export const NAV: NavSection[] = [
   },
   {
     heading: 'Settings',
-    items: [{ label: 'Settings', to: '/settings', anyOf: ['settings.view'] }],
+    items: [
+      { label: 'Settings', to: '/settings', anyOf: ['settings.view'] },
+      { label: 'Delivery zones', to: '/delivery', anyOf: ['delivery.manage'] },
+    ],
   },
 ];
 
