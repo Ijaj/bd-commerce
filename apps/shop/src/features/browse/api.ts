@@ -33,13 +33,23 @@ export async function fetchSimilar(slug: string): Promise<ProductCard[]> {
   }
 }
 
+// Fail open: these feed statically prerendered routes (/categories, sitemap.xml), which are built
+// when no API may be running (CI). An empty result is regenerated on the next revalidate.
 export async function fetchCategoryTree(): Promise<CategoryNode[]> {
-  return (
-    (await apiGet<CategoryNode[]>('/v1/public/categories/tree', undefined, { revalidate: 300 })) ??
-    []
-  );
+  try {
+    return (
+      (await apiGet<CategoryNode[]>('/v1/public/categories/tree', undefined, { revalidate: 300 })) ??
+      []
+    );
+  } catch {
+    return [];
+  }
 }
 
-export function fetchSitemap(): Promise<Sitemap | null> {
-  return apiGet<Sitemap>('/v1/public/sitemap', undefined, { revalidate: 3600 });
+export async function fetchSitemap(): Promise<Sitemap | null> {
+  try {
+    return await apiGet<Sitemap>('/v1/public/sitemap', undefined, { revalidate: 3600 });
+  } catch {
+    return null;
+  }
 }

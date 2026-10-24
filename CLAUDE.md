@@ -12,7 +12,7 @@ General-purpose e-commerce for Bangladesh. Planning gates 1–7 done (`plan/READ
 - User wants big visual/UI work delegated to a Sonnet/Haiku sub-agent with a precise spec. No Artifacts unless asked.
 - Old reference project: `~/webdev/baby-commerce` (lessons in `plan/09-baby-commerce-reuse.md`).
 
-## Resume state (last updated 2026-10-24, session 6)
+## Resume state (last updated 2026-10-24, session 7)
 
 - Gates 1–7 done; SR mockups approved (C1). **Gate 8 coding in progress.** Decisions C1–C8 in doc 10: step 1 in 4 sub-steps (1a stack/CI, 1b Prisma+Nest+OpenAPI, 1c staff auth/2FA/sessions/RBAC, 1d settings/flags/EN-BN/maintenance), foundation tables only, commit to main, Node 24, Garage (not MinIO), Biome, TypeScript 7 (fall back to 6.0 per app if a tool breaks).
 - **1a done** (e3dcc56, CI green): root pnpm/turbo/biome/tsconfig.base, `infra/dev` compose (Postgres 18, Redis 8, Garage v2.4.1, imgproxy v3.31.4), `pnpm stack:up|init|down|reset`, `.env.example`, `.github/workflows/ci.yml`. Verified S3 upload + signed imgproxy WebP.
@@ -24,7 +24,14 @@ General-purpose e-commerce for Bangladesh. Planning gates 1–7 done (`plan/READ
   - Admin `apps/admin`: Vite + React 19 + Mantine 9 + TanStack Router (file routes) / Query; login + 2FA, settings, staff, roles, categories (tree, dnd, attributes, option editor), brands, products list + editor (variants matrix, images, attributes, HTML), inventory, import/export. 74 tests.
   - `e2e/` (`@bdc/e2e`, Playwright, `cd e2e && pnpm test:e2e`, own DB bdc_e2e, API :4100, admin :5180): 15 flows green. Not in CI yet.
   - Fixes worth remembering: OpenAPI is 3.1 and `setup.ts` restores zod nullable types (nestjs-zod bug turned `string|null` into `string[]`); turbo `prisma:generate` task (parallel generate raced in CI); Biome ignores pnpm-lock.yaml.
-- **Next session:** `pnpm stack:up`, then P1 **step 3 Storefront browse** (doc 14 row 3: `apps/shop` Next.js, home/category/search/product pages, customer accounts + OTP, SEO, PWA). Ask owner tool choices first. Open option: add e2e as a CI job (needs Playwright browsers in CI).
+- **Session 7 (2026-10-24): swarm widened (C30, C31)** — step 3 done, step 4 backend done, step 7 SR module mostly done, in parallel. Decisions C26–C43. Swarm brief + board: session scratchpad `swarm/BRIEF.md` (contracts per step) + `BOARD.md` (recreate per session; copy contracts from git history of the code if lost).
+  - Step 3 (commits 15e29ea..4276f4f): `/v1/customer/*` auth (phone/email + password, SMS OTP via `src/sms` stub → Mailpit), wishlist; `/v1/public/*` listing/facets/search (FTS + pg_trgm)/feed/product/similar/cards/sitemap; admin carousel; `apps/shop` Next.js 16 (EN root, BN `/bn`, C26), home/category/search/product/account/wishlist, SEO, PWA (hand-written SW). e2e: 22 flows incl. shop (`cd e2e && pnpm test:e2e`). Fix: `[lang]` layout must NOT set `dynamicParams=false` (made every `/p/[slug]` 404 in prod).
+  - Step 4 backend (e9403a8): geo seed (541 upazilas incl. 47 Dhaka thanas, ids 1001+), delivery zones, addresses, server cart (`bdc_vid` cookie, merge on login), COD checkout (quote, guest OTP ≥ setting, idempotent place, order_reserve), orders, `/v1/public/track`. Order no YYMM-NNNNN (C32).
+  - Step 7 (23edf3c, 5f7dbdc): SR/B2B API (`src/sr`), `apps/portal` (Vite + Mantine, staff login + 2FA, SR section). Schema for suppliers/POs exists (no code yet). Migration 20261024140000 (SR deliveryBy, reversal, memo token, collection reject) applied in dev.
+  - Wave 3 in flight at session end: shop cart/checkout/orders/track UI (L), admin SR/B2B + delivery zones pages (M), SR API C38/C42/C43 (J), portal BN + new flows (K), security review (R). Check `git status`; finish/verify uncommitted work first.
+  - Known perf: home feed ~650 ms at 20k products (full scan) → add cached min_price/stock columns on products if catalog grows.
+  - Gotchas: never `pkill -f` with a pattern that appears in your own command (kills the shell); `prisma migrate dev` hangs/prompts when non-interactive → use `migrate diff --from-config-datasource --to-schema … --script` + `migrate deploy`; stale Prisma advisory lock = old migrate process; DTO class names must be unique across the API (Swagger merges them); agents use own test DBs (`bdc_test_<x>`).
+- **Next session:** finish wave 3, then step 5 (order operations: admin orders, call queue, Steadfast/Pathao, invoices/labels, returns), step 6 promotions, rest of step 7 (suppliers/POs, supplier portal, affiliates), step 8. Open option: e2e in CI.
 - Repo: GitHub `Ijaj/bd-commerce` (main). Commit + push after each step.
 - Owner prefs: ask every decision via AskUserQuestion, never decide; explain pros/cons when asked; local model (unsloth) was down sessions 4–5.
 - Lesson: resume stopped agents with SendMessage rather than respawning; stale agents from a previous session can still run and collide.
