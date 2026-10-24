@@ -14,6 +14,22 @@ const config: NextConfig = {
   async rewrites() {
     return [{ source: '/v1/:path*', destination: `${API_URL}/v1/:path*` }];
   },
+  // PWA (C28): the worker must never be served stale, or fixes cannot reach installed shops.
+  async headers() {
+    return [
+      {
+        source: '/sw.js',
+        headers: [
+          { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
+          { key: 'Service-Worker-Allowed', value: '/' },
+        ],
+      },
+      {
+        source: '/manifest.webmanifest',
+        headers: [{ key: 'Content-Type', value: 'application/manifest+json' }],
+      },
+    ];
+  },
 };
 
 export default config;

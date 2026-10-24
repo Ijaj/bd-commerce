@@ -86,6 +86,7 @@ export class HomeDto extends createZodDto(
       }),
     ),
     featuredCategories: z.array(categoryNodeSchema),
+    feedRowEvery: z.number().int(),
   }),
 ) {}
 

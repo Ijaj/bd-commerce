@@ -1,0 +1,37 @@
+.band {
+  margin: var(--sec-gap) 0;
+  min-width: 0;
+}
+.h {
+  font-size: 20px;
+  line-height: 1.25;
+  margin-bottom: var(--s3);
+}
+.scroll {
+  display: flex;
+  gap: var(--gap);
+  overflow-x: auto;
+  padding: 4px 2px var(--s3);
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+}
+.scroll > li {
+  flex: 0 0 150px;
+  width: 150px;
+  min-width: 0;
+  display: flex;
+  scroll-snap-align: start;
+}
+.scroll > li > * {
+  flex: 1;
+  min-width: 0;
+}
+@media (max-width: 640px) {
+  .h {
+    font-size: 17px;
+  }
+  .scroll > li {
+    flex-basis: 128px;
+    width: 128px;
+  }
+}

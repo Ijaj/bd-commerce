@@ -7,6 +7,7 @@ import { Footer } from '~/components/shell/Footer';
 import { Header } from '~/components/shell/Header';
 import { Maintenance } from '~/components/shell/Maintenance';
 import { UtilityBar } from '~/components/shell/UtilityBar';
+import { ServiceWorkerRegister } from '~/features/account/ServiceWorkerRegister';
 import { dict } from '~/i18n';
 import { getSite } from '~/lib/api';
 import { SITE_URL } from '~/lib/env';
@@ -42,6 +43,8 @@ export async function generateMetadata({ params }: LangProps): Promise<Metadata>
     title: { default: 'ShopName', template: '%s | ShopName' },
     description: dict(lang).footer.about,
     applicationName: 'ShopName',
+    manifest: '/manifest.webmanifest',
+    icons: { icon: '/icons/icon.svg', apple: '/icons/apple-touch-icon.png' },
     openGraph: { siteName: 'ShopName', locale: lang === 'bn' ? 'bn_BD' : 'en_BD', type: 'website' },
   };
 }
@@ -91,6 +94,7 @@ export default async function RootLayout({
             <main id="main">{children}</main>
             <Footer lang={lang} contact={site?.contact} />
             <BottomNav lang={lang} />
+            <ServiceWorkerRegister />
           </>
         )}
       </body>

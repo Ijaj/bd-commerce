@@ -1,21 +1,99 @@
 import type { Metadata } from 'next';
-import { ComingSoon } from '~/components/States';
-import { dict } from '~/i18n';
-import { alternatesFor } from '~/i18n/routing';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { Breadcrumb } from '~/components/Breadcrumb';
+import { Img } from '~/components/Img';
+import { fetchListing } from '~/features/browse/api';
+import { JsonLd } from '~/features/browse/JsonLd';
+import { Listing } from '~/features/browse/Listing';
+import s from '~/features/browse/Page.module.css';
+import { isFiltered, parseListingQuery, type RawSearchParams } from '~/features/browse/query';
+import { breadcrumbLd, plainText } from '~/features/browse/seo';
+import { dict, pick } from '~/i18n';
+import { alternatesFor, href } from '~/i18n/routing';
 import { type LangProps, routeParams } from '~/lib/lang';
 
-// PLACEHOLDER: replace this page's body (keep routeParams + alternatesFor).
-export async function generateMetadata({
-  params,
-}: LangProps<{ slug: string[] }>): Promise<Metadata> {
+export const revalidate = 60;
+
+type Props = LangProps<{ slug: string[] }> & { searchParams: Promise<RawSearchParams> };
+
+const lastSlug = (slug: string[]) => decodeURIComponent(slug[slug.length - 1] ?? '');
+
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { lang, slug } = await routeParams(params);
+  const q = parseListingQuery(await searchParams);
+  const data = await fetchListing(q, lastSlug(slug));
+  const cat = data?.category;
+  if (!cat) return { title: dict(lang).states.notFoundTitle, robots: { index: false } };
+  const name = pick(lang, cat.nameEn, cat.nameBn);
+  const path = `/c/${cat.slug}`;
+  const pageSuffix = q.page > 1 && !isFiltered(q) ? `?page=${q.page}` : '';
+  const image = cat.banner?.url1200;
+  const description =
+    cat.seoDescription ??
+    plainText(pick(lang, cat.descriptionEn ?? '', cat.descriptionBn)) ??
+    undefined;
   return {
-    title: dict(lang).pages.category,
-    alternates: alternatesFor(lang, `/c/${slug.join('/')}`),
+    title: cat.seoTitle ?? name,
+    description,
+    alternates: alternatesFor(lang, `${path}${pageSuffix}`),
+    robots: isFiltered(q) ? { index: false, follow: true } : undefined,
+    openGraph: {
+      type: 'website',
+      title: cat.seoTitle ?? name,
+      description,
+      ...(image ? { images: [image] } : {}),
+    },
   };
 }
 
-export default async function Page({ params }: LangProps<{ slug: string[] }>) {
-  const { lang } = await routeParams(params);
-  return <ComingSoon lang={lang} title={dict(lang).pages.category} />;
+export default async function Page({ params, searchParams }: Props) {
+  const { lang, slug } = await routeParams(params);
+  const q = parseListingQuery(await searchParams);
+  const data = await fetchListing(q, lastSlug(slug));
+  const cat = data?.category;
+  if (!data || !cat) notFound();
+  const d = dict(lang);
+  const name = pick(lang, cat.nameEn, cat.nameBn);
+  const desc = pick(lang, cat.descriptionEn ?? '', cat.descriptionBn);
+  const path = `/c/${cat.slug}`;
+
+  return (
+    <div className="wrap page">
+      <JsonLd data={breadcrumbLd(lang, d.common.home, cat.breadcrumb)} />
+      <Breadcrumb
+        lang={lang}
+        items={[
+          { label: d.common.home, href: href(lang, '/') },
+          ...cat.breadcrumb.map((c, i) => ({
+            label: pick(lang, c.nameEn, c.nameBn),
+            href: i === cat.breadcrumb.length - 1 ? undefined : href(lang, `/c/${c.slug}`),
+          })),
+        ]}
+      />
+      {cat.banner ? (
+        <div className={s.banner}>
+          <Img
+            image={cat.banner}
+            alt=""
+            sizes="(max-width: 1360px) 100vw, 1360px"
+            priority
+            placeholderRatio={4}
+          />
+        </div>
+      ) : null}
+      <h1 className={s.title}>{name}</h1>
+      {desc ? <p className={s.lead}>{desc}</p> : null}
+      {cat.children.length > 0 ? (
+        <nav className={s.chips} aria-label={d.browse.subCategories}>
+          {cat.children.map((c) => (
+            <Link key={c.id} className={s.chip} href={href(lang, `/c/${c.slug}`)}>
+              {pick(lang, c.nameEn, c.nameBn)}
+            </Link>
+          ))}
+        </nav>
+      ) : null}
+      <Listing lang={lang} path={path} q={q} data={data} />
+    </div>
+  );
 }

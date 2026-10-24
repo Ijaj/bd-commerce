@@ -1,14 +1,15 @@
 import type { Metadata } from 'next';
-import { ComingSoon } from '~/components/States';
+import Link from 'next/link';
+import s from '~/features/account/account.module.css';
+import { ResetForm } from '~/features/account/ResetForm';
 import { dict } from '~/i18n';
-import { alternatesFor } from '~/i18n/routing';
+import { alternatesFor, href } from '~/i18n/routing';
 import { type LangProps, routeParams } from '~/lib/lang';
 
-// PLACEHOLDER: replace this page's body (keep routeParams + alternatesFor).
 export async function generateMetadata({ params }: LangProps): Promise<Metadata> {
   const { lang } = await routeParams(params);
   return {
-    title: dict(lang).pages.reset,
+    title: dict(lang).account.resetTitle,
     alternates: alternatesFor(lang, '/reset'),
     robots: { index: false },
   };
@@ -16,5 +17,18 @@ export async function generateMetadata({ params }: LangProps): Promise<Metadata>
 
 export default async function Page({ params }: LangProps) {
   const { lang } = await routeParams(params);
-  return <ComingSoon lang={lang} title={dict(lang).pages.reset} />;
+  const d = dict(lang).account;
+  return (
+    <div className="wrap page">
+      <div className={s.card}>
+        <h1>{d.resetTitle}</h1>
+        <ResetForm lang={lang} />
+        <p className={s.foot}>
+          <Link className="link" href={href(lang, '/login')}>
+            {d.backToLogin}
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
 }

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#312e81">
+<title>Offline | ShopName</title>
+<style>
+  :root { color-scheme: light dark; --bg: #f4f4fb; --text: #1e1b3a; --muted: #5d5b7c; --primary: #4338ca; --on: #fff; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0e0d1c; --text: #ecebff; --muted: #a5a3c6; --primary: #9a94ff; --on: #0f0e1d; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; background: var(--bg); color: var(--text); font: 15px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; text-align: center; }
+  main { max-width: 360px; }
+  img { width: 72px; height: 72px; border-radius: 16px; margin: 0 auto 16px; }
+  h1 { margin: 0 0 8px; font-size: 22px; }
+  p { margin: 0 0 8px; color: var(--muted); }
+  button { margin-top: 16px; padding: 10px 24px; border: 0; border-radius: 4px; background: var(--primary); color: var(--on); font: inherit; cursor: pointer; }
+</style>
+</head>
+<body>
+<main>
+  <img src="/icons/icon-192.png" alt="" width="72" height="72">
+  <h1>You are offline</h1>
+  <p>Check your internet connection and try again.</p>
+  <p lang="bn">আপনি অফলাইনে আছেন। ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।</p>
+  <button type="button" onclick="location.reload()">Retry / আবার চেষ্টা করুন</button>
+</main>
+</body>
+</html>

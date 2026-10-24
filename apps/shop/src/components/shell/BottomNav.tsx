@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useSession } from '~/features/account/session';
 import { dict, type Lang } from '~/i18n';
 import { href, stripLang } from '~/i18n/routing';
 import { Icon, type IconName } from '../Icon';
@@ -28,6 +29,7 @@ const ITEMS: {
 export function BottomNav({ lang }: { lang: Lang }) {
   const path = stripLang(usePathname());
   const d = dict(lang);
+  const { me } = useSession();
   return (
     <nav className={s.bnav} aria-label={d.shell.mainNav}>
       {ITEMS.map((it) => (
@@ -37,7 +39,7 @@ export function BottomNav({ lang }: { lang: Lang }) {
           aria-current={it.match.test(path) ? 'page' : undefined}
         >
           <Icon name={it.icon} size={22} />
-          <span>{d.nav[it.key]}</span>
+          <span>{it.key === 'account' && !me ? d.shell.login : d.nav[it.key]}</span>
         </Link>
       ))}
     </nav>
