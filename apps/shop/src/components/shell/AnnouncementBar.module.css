@@ -1,0 +1,11 @@
+.bar {
+  background: var(--ann-bg);
+  color: var(--ann-fg);
+  text-align: center;
+  font-size: 13px;
+  padding-block: 7px;
+}
+.bar a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

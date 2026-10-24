@@ -1,0 +1,46 @@
+.seg {
+  display: inline-flex;
+  border: 1px solid color-mix(in srgb, currentColor 40%, transparent);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.seg a {
+  padding: 2px 11px;
+  min-height: 24px;
+  min-width: 28px;
+  font-size: 12px;
+  line-height: 1.7;
+  text-align: center;
+}
+.seg a[aria-current="true"] {
+  background: color-mix(in srgb, currentColor 24%, transparent);
+}
+.iconBtn {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: 50%;
+  border: 0;
+  background: none;
+  color: inherit;
+  transition: background 0.15s;
+}
+.iconBtn:hover {
+  background: color-mix(in srgb, currentColor 16%, transparent);
+}
+:global(:root[data-theme="dark"]) .sun,
+:global(:root:not([data-theme="dark"])) .moon {
+  display: none;
+}
+@media (max-width: 640px) {
+  .seg a {
+    padding-inline: 8px;
+  }
+  .iconBtn {
+    width: 36px;
+    height: 36px;
+  }
+}

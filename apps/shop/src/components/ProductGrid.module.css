@@ -1,0 +1,25 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--gap);
+}
+.grid > li {
+  min-width: 0;
+  display: flex;
+}
+.grid > li > * {
+  flex: 1;
+}
+@media (min-width: 641px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+  .compact {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

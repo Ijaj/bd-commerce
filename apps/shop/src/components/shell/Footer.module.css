@@ -1,0 +1,62 @@
+.foot {
+  margin-top: var(--s7);
+  background: var(--foot-bg);
+  color: var(--foot-fg);
+}
+.foot a:hover {
+  text-decoration: underline;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--s6) var(--s5);
+  padding-block: var(--s6);
+}
+.foot h3 {
+  margin-bottom: var(--s3);
+  font-size: 14px;
+}
+.foot li a {
+  display: inline-block;
+  padding: 3px 0;
+  color: var(--foot-muted);
+}
+.foot li a:hover {
+  color: var(--foot-fg);
+}
+.about p {
+  margin: var(--s3) 0 var(--s4);
+  max-width: 320px;
+  color: var(--foot-muted);
+}
+.pays {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+}
+.pays span {
+  padding: 5px 12px;
+  border-radius: var(--r-sm);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 12.5px;
+}
+.copy {
+  padding-block: var(--s4) var(--s5);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  color: var(--foot-muted);
+  font-size: 12.5px;
+}
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: 1.6fr 0.8fr 1fr 0.8fr;
+  }
+}
+@media (max-width: 640px) {
+  .foot {
+    margin-top: var(--s6);
+  }
+  .about {
+    grid-column: 1 / -1;
+  }
+}

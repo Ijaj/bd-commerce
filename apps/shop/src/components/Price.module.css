@@ -1,0 +1,39 @@
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 6px;
+}
+.price {
+  font-size: 17px;
+  color: var(--primary);
+}
+.old {
+  font-size: 12px;
+  color: var(--muted);
+}
+.off {
+  padding: 1px 7px 1px 5px;
+  background: var(--sale);
+  color: var(--on-sale);
+  font-size: 11px;
+  line-height: 1.5;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 5px) 50%, 100% 100%, 0 100%);
+}
+.sm .price {
+  font-size: 14px;
+}
+.lg .price {
+  font-size: 28px;
+}
+.lg .old {
+  font-size: 15px;
+}
+.lg .off {
+  font-size: 13px;
+}
+@media (max-width: 640px) {
+  .md .price {
+    font-size: 14.5px;
+  }
+}

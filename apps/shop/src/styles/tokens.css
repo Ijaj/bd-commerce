@@ -1,0 +1,109 @@
+/* Design tokens: brand "D" (Q103: style of B + palette of C), ported from plan/mockups/shared/{base,brand-d}.css.
+   Theme is [data-theme] on <html>, set before first paint by the inline script in app/[lang]/layout.tsx. */
+:root {
+  color-scheme: light;
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+  --s7: 48px;
+
+  /* --font-poppins / --font-hind are injected by next/font on <html> */
+  --font-latin: var(--font-poppins);
+  --font-bn: var(--font-hind);
+  --font-stack: var(--font-latin), var(--font-bn), system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --maxw: 1360px;
+  --gap: 8px;
+  --hd-pad: 9px;
+  --sec-gap: 22px;
+  --r-sm: 3px;
+  --r: 4px;
+  --r-lg: 6px;
+  --badge-r: 3px;
+  --search-r: 4px;
+  --sh-1: 0 1px 0 rgba(30, 27, 58, 0.06);
+  --sh-2: 0 6px 16px rgba(30, 27, 58, 0.22);
+  --lift: -2px;
+  --card-bd: 1px solid var(--border);
+  --focus: #1d4ed8;
+  --focus-hdr: #5eead4;
+  --star: #d97706;
+  --scrim: rgba(255, 255, 255, 0.82);
+
+  --primary: #4338ca;
+  --on-primary: #fff;
+  --accent: #0f766e;
+  --on-accent: #fff;
+  --hl: #5eead4;
+  --on-hl: #1e1b4b;
+  --bg: #f4f4fb;
+  --surface: #fff;
+  --surface-2: #ecebf8;
+  --text: #1e1b3a;
+  --muted: #5d5b7c;
+  --border: #dcdbef;
+  --success: #15803d;
+  --on-success: #fff;
+  --danger: #be123c;
+  --sale: #be123c;
+  --on-sale: #fff;
+
+  --hdr-bg: linear-gradient(90deg, #312e81, #4338ca);
+  --hdr-fg: #fff;
+  --util-bg: #1e1b3a;
+  --util-fg: #e0dfff;
+  --ann-bg: #0f766e;
+  --ann-fg: #fff;
+  --search-bg: #fff;
+  --search-btn-bg: #0f766e;
+  --search-btn-fg: #fff;
+  --lm-bg: #5eead4;
+  --lm-fg: #1e1b4b;
+  --cnt-ring: #3a34b8;
+  --foot-bg: #1e1b3a;
+  --foot-fg: #fff;
+  --foot-muted: #c4c2e4;
+  --ph-a: #e4e2f7;
+  --ph-b: #d3d0ef;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --focus: #8ab4ff;
+  --star: #fbbf24;
+  --scrim: rgba(12, 12, 16, 0.66);
+  --sh-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --sh-2: 0 8px 24px rgba(0, 0, 0, 0.5);
+
+  --primary: #9a94ff;
+  --on-primary: #0f0e1d;
+  --accent: #2dd4bf;
+  --on-accent: #04201c;
+  --bg: #0e0d1c;
+  --surface: #171630;
+  --surface-2: #201f3f;
+  --text: #ecebff;
+  --muted: #a5a3c6;
+  --border: #2e2c54;
+  --success: #4ade80;
+  --on-success: #04210f;
+  --danger: #fb7185;
+  --sale: #e11d48;
+  --on-sale: #fff;
+
+  --hdr-bg: linear-gradient(90deg, #1e1b4b, #2b2a7a);
+  --util-bg: #0b0a18;
+  --util-fg: #bdbbe0;
+  --ann-bg: #115e59;
+  --search-bg: #201f3f;
+  --search-btn-bg: #2dd4bf;
+  --search-btn-fg: #04201c;
+  --cnt-ring: #26256b;
+  --foot-bg: #07060f;
+  --foot-muted: #a5a3c6;
+  --ph-a: #201f3f;
+  --ph-b: #171630;
+}

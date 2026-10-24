@@ -1,5 +1,6 @@
 // Tables follow plan/12-data-model.md. Step 1: staff, sessions, RBAC, settings. Step 2: catalog + inventory.
 // Step 3: customers, customer sessions, OTP codes, wishlists, carousel slides.
+// Step 4: BD geo, delivery zones, addresses, carts, orders, payments. Step 7: SR/B2B, suppliers, POs.
 
 generator client {
   provider     = "prisma-client"
@@ -33,15 +34,25 @@ model Staff {
   createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz
 
-  totpResetBy Staff?             @relation("TotpReset", fields: [totpResetById], references: [id])
-  totpResets  Staff[]            @relation("TotpReset")
-  sessions    StaffSession[]
-  devices     StaffKnownDevice[]
-  backupCodes StaffBackupCode[]
-  roles       StaffRole[]
-  settings    Setting[]
-  media       Media[]
-  stockMoves  StockMovement[]
+  totpResetBy     Staff?             @relation("TotpReset", fields: [totpResetById], references: [id])
+  totpResets      Staff[]            @relation("TotpReset")
+  sessions        StaffSession[]
+  devices         StaffKnownDevice[]
+  backupCodes     StaffBackupCode[]
+  roles           StaffRole[]
+  settings        Setting[]
+  media           Media[]
+  stockMoves      StockMovement[]
+  srProfile       SrProfile?
+  srSales         SrSale[]           @relation("SrSaleSr")
+  srApprovals     SrSale[]           @relation("SrSaleApprover")
+  srDeliveries    SrSale[]           @relation("SrSaleDeliverer")
+  b2bShopsCreated B2bShop[]
+  ledgerRecorded  B2bLedger[]        @relation("LedgerRecordedBy")
+  ledgerConfirmed B2bLedger[]        @relation("LedgerConfirmedBy")
+  srTargets       SrTarget[]
+  srCommissions   SrCommission[]
+  purchaseOrders  PurchaseOrder[]
 
   @@map("staff")
 }
@@ -186,11 +197,11 @@ model Media {
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
-  uploadedBy      Staff?         @relation(fields: [uploadedById], references: [id])
+  uploadedBy      Staff?          @relation(fields: [uploadedById], references: [id])
   brandLogos      Brand[]
-  categoryImages  Category[]     @relation("CategoryImage")
-  categoryIcons   Category[]     @relation("CategoryIcon")
-  categoryBanners Category[]     @relation("CategoryBanner")
+  categoryImages  Category[]      @relation("CategoryImage")
+  categoryIcons   Category[]      @relation("CategoryIcon")
+  categoryBanners Category[]      @relation("CategoryBanner")
   productImages   ProductImage[]
   slidesDesktop   CarouselSlide[] @relation("SlideDesktop")
   slidesMobile    CarouselSlide[] @relation("SlideMobile")
@@ -369,6 +380,7 @@ model Product {
   images          ProductImage[]
   variants        Variant[]
   wishlists       Wishlist[]
+  orderItems      OrderItem[]
 
   @@index([status])
   @@index([brandId])
@@ -486,6 +498,11 @@ model Variant {
   images       ProductImage[]
   inventory    Inventory?
   movements    StockMovement[]
+  cartItems    CartItem[]
+  orderItems   OrderItem[]
+  srSaleItems  SrSaleItem[]
+  suppliers    VariantSupplier[]
+  poItems      PurchaseOrderItem[]
 
   @@unique([productId, optionValue1Id, optionValue2Id])
   @@map("variants")
@@ -573,6 +590,9 @@ model Customer {
 
   sessions  CustomerSession[]
   wishlists Wishlist[]
+  addresses CustomerAddress[]
+  carts     Cart[]
+  orders    Order[]
 
   @@map("customers")
 }
@@ -665,4 +685,586 @@ model CarouselSlide {
   imageMobile  Media? @relation("SlideMobile", fields: [imageMobileMediaId], references: [id], onDelete: Restrict)
 
   @@map("carousel_slides")
+}
+
+// ---------------------------------------------------------------------------
+// BD geo + delivery zones (doc 12 §9, Q50, Q85, Q105, C33). Geo ids come from the seed dataset.
+// ---------------------------------------------------------------------------
+
+model Division {
+  id     Int    @id
+  nameEn String @map("name_en")
+  nameBn String @map("name_bn")
+
+  districts District[]
+
+  @@map("divisions")
+}
+
+model District {
+  id         Int    @id
+  divisionId Int    @map("division_id")
+  nameEn     String @map("name_en")
+  nameBn     String @map("name_bn")
+
+  division  Division          @relation(fields: [divisionId], references: [id])
+  upazilas  Upazila[]
+  zones     ZoneLocation[]
+  addresses CustomerAddress[]
+
+  @@index([divisionId])
+  @@map("districts")
+}
+
+model Upazila {
+  id         Int    @id
+  districtId Int    @map("district_id")
+  nameEn     String @map("name_en")
+  nameBn     String @map("name_bn")
+
+  district  District          @relation(fields: [districtId], references: [id])
+  areas     Area[]
+  zones     ZoneLocation[]
+  addresses CustomerAddress[]
+
+  @@index([districtId])
+  @@map("upazilas")
+}
+
+/// Optional finer level (city areas / unions), filled later for courier area lists.
+model Area {
+  id        Int    @id @default(autoincrement())
+  upazilaId Int    @map("upazila_id")
+  nameEn    String @map("name_en")
+  nameBn    String @map("name_bn")
+
+  upazila   Upazila           @relation(fields: [upazilaId], references: [id])
+  zones     ZoneLocation[]
+  addresses CustomerAddress[]
+
+  @@index([upazilaId])
+  @@map("areas")
+}
+
+model DeliveryZone {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  nameEn      String   @map("name_en")
+  nameBn      String?  @map("name_bn")
+  baseChargeP Int      @map("base_charge_p")
+  baseWeightG Int      @default(1000) @map("base_weight_g")
+  extraPerKgP Int      @default(0) @map("extra_per_kg_p")
+  etaMinDays  Int      @map("eta_min_days")
+  etaMaxDays  Int      @map("eta_max_days")
+  /// Q105: null = never free, 0 = always free, else free when subtotal ≥ this.
+  freeAboveP  Int?     @map("free_above_p")
+  /// Fallback zone for locations not matched by any zone_locations row. Exactly one.
+  isDefault   Boolean  @default(false) @map("is_default")
+  sort        Int      @default(0)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  locations ZoneLocation[]
+  orders    Order[]
+
+  @@map("delivery_zones")
+}
+
+/// Exactly one of district/upazila/area is set; most specific match wins.
+model ZoneLocation {
+  id         String @id @default(uuid(7)) @db.Uuid
+  zoneId     String @map("zone_id") @db.Uuid
+  districtId Int?   @map("district_id")
+  upazilaId  Int?   @map("upazila_id")
+  areaId     Int?   @map("area_id")
+
+  zone     DeliveryZone @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  district District?    @relation(fields: [districtId], references: [id])
+  upazila  Upazila?     @relation(fields: [upazilaId], references: [id])
+  area     Area?        @relation(fields: [areaId], references: [id])
+
+  @@unique([districtId])
+  @@unique([upazilaId])
+  @@unique([areaId])
+  @@map("zone_locations")
+}
+
+model CustomerAddress {
+  id         String   @id @default(uuid(7)) @db.Uuid
+  customerId String   @map("customer_id") @db.Uuid
+  label      String?
+  name       String
+  phone      String
+  districtId Int      @map("district_id")
+  upazilaId  Int      @map("upazila_id")
+  areaId     Int?     @map("area_id")
+  line       String
+  landmark   String?
+  isDefault  Boolean  @default(false) @map("is_default")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  district District @relation(fields: [districtId], references: [id])
+  upazila  Upazila  @relation(fields: [upazilaId], references: [id])
+  area     Area?    @relation(fields: [areaId], references: [id])
+
+  @@index([customerId])
+  @@map("customer_addresses")
+}
+
+// ---------------------------------------------------------------------------
+// Cart (doc 12 §6, C35). Guest cart keyed by visitor cookie; merged into the customer cart on login.
+// ---------------------------------------------------------------------------
+
+model Cart {
+  id                  String    @id @default(uuid(7)) @db.Uuid
+  customerId          String?   @map("customer_id") @db.Uuid
+  visitorId           String?   @map("visitor_id")
+  platform            String    @default("web")
+  lastActivityAt      DateTime  @default(now()) @map("last_activity_at") @db.Timestamptz
+  abandonedNotifiedAt DateTime? @map("abandoned_notified_at") @db.Timestamptz
+  /// Set when this guest cart was merged into a customer cart; merged carts are read-only.
+  mergedIntoId        String?   @map("merged_into_id") @db.Uuid
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  customer Customer?  @relation(fields: [customerId], references: [id])
+  items    CartItem[]
+
+  @@index([customerId])
+  @@index([visitorId])
+  @@map("carts")
+}
+
+model CartItem {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  cartId      String   @map("cart_id") @db.Uuid
+  variantId   String   @map("variant_id") @db.Uuid
+  qty         Int
+  /// Price when added, to show "price changed" in the cart.
+  priceAtAddP Int      @map("price_at_add_p")
+  addedAt     DateTime @default(now()) @map("added_at") @db.Timestamptz
+
+  cart    Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  variant Variant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, variantId])
+  @@map("cart_items")
+}
+
+// ---------------------------------------------------------------------------
+// Orders + payments (doc 12 §6). Snapshots: later catalog edits never change old orders.
+// order_no = YYMM-NNNNN from sequence order_no_seq (C32). Shipments/couriers/invoices come in step 5.
+// ---------------------------------------------------------------------------
+
+enum OrderStatus {
+  pending_payment
+  processing
+  on_hold
+  partially_shipped
+  shipped
+  delivered
+  completed
+  cancelled
+
+  @@map("order_status")
+}
+
+enum PaymentStatus {
+  unpaid
+  partially_paid
+  paid
+  partially_refunded
+  refunded
+  failed
+
+  @@map("payment_status")
+}
+
+model Order {
+  id                  String        @id @default(uuid(7)) @db.Uuid
+  orderNo             String        @unique @map("order_no")
+  customerId          String?       @map("customer_id") @db.Uuid
+  guestName           String?       @map("guest_name")
+  guestPhone          String?       @map("guest_phone")
+  guestEmail          String?       @map("guest_email")
+  visitorId           String?       @map("visitor_id")
+  platform            String        @default("web")
+  ip                  String?
+  userAgent           String?       @map("user_agent")
+  lang                Lang          @default(en)
+  // Ship-to snapshot
+  shipName            String        @map("ship_name")
+  shipPhone           String        @map("ship_phone")
+  shipDivisionId      Int           @map("ship_division_id")
+  shipDistrictId      Int           @map("ship_district_id")
+  shipUpazilaId       Int           @map("ship_upazila_id")
+  shipAreaId          Int?          @map("ship_area_id")
+  /// "Area, Upazila, District" in the order's language, frozen at placement.
+  shipPlaceText       String        @map("ship_place_text")
+  shipLine            String        @map("ship_line")
+  shipLandmark        String?       @map("ship_landmark")
+  zoneId              String        @map("zone_id") @db.Uuid
+  customerNote        String?       @map("customer_note")
+  // Status
+  status              OrderStatus   @default(processing)
+  paymentStatus       PaymentStatus @default(unpaid) @map("payment_status")
+  paymentMethodChosen String        @default("cod") @map("payment_method_chosen")
+  isPreorder          Boolean       @default(false) @map("is_preorder")
+  cancelReason        String?       @map("cancel_reason")
+  heldReason          String?       @map("held_reason")
+  // Money (paisa)
+  subtotalP           Int           @map("subtotal_p")
+  autoDiscountP       Int           @default(0) @map("auto_discount_p")
+  couponDiscountP     Int           @default(0) @map("coupon_discount_p")
+  deliveryChargeP     Int           @map("delivery_charge_p")
+  deliveryDiscountP   Int           @default(0) @map("delivery_discount_p")
+  grandTotalP         Int           @map("grand_total_p")
+  advanceRequiredP    Int           @default(0) @map("advance_required_p")
+  paidP               Int           @default(0) @map("paid_p")
+  refundedP           Int           @default(0) @map("refunded_p")
+  codDueP             Int           @map("cod_due_p")
+  // Checks
+  guestOtpVerifiedAt  DateTime?     @map("guest_otp_verified_at") @db.Timestamptz
+  placedAt            DateTime      @default(now()) @map("placed_at") @db.Timestamptz
+  deliveredAt         DateTime?     @map("delivered_at") @db.Timestamptz
+  completedAt         DateTime?     @map("completed_at") @db.Timestamptz
+  createdAt           DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime      @updatedAt @map("updated_at") @db.Timestamptz
+
+  customer Customer?            @relation(fields: [customerId], references: [id])
+  zone     DeliveryZone         @relation(fields: [zoneId], references: [id])
+  items    OrderItem[]
+  history  OrderStatusHistory[]
+  payments Payment[]
+
+  @@index([customerId])
+  @@index([guestPhone])
+  @@index([status, placedAt])
+  @@map("orders")
+}
+
+model OrderItem {
+  id               String  @id @default(uuid(7)) @db.Uuid
+  orderId          String  @map("order_id") @db.Uuid
+  sellerId         String  @map("seller_id") @db.Uuid
+  productId        String  @map("product_id") @db.Uuid
+  variantId        String  @map("variant_id") @db.Uuid
+  titleSnapshot    String  @map("title_snapshot")
+  sku              String
+  optionsText      String? @map("options_text")
+  /// Snapshot of the image shown at purchase; no FK so media cleanup never touches orders.
+  imageMediaId     String? @map("image_media_id") @db.Uuid
+  qty              Int
+  qtyCancelled     Int     @default(0) @map("qty_cancelled")
+  qtyReturned      Int     @default(0) @map("qty_returned")
+  unitBaseP        Int     @map("unit_base_p")
+  unitPriceP       Int     @map("unit_price_p")
+  /// base | sale (flash/event come with promotions, step 6)
+  priceSource      String  @map("price_source")
+  weightG          Int?    @map("weight_g")
+  returnWindowDays Int?    @map("return_window_days")
+  lineTotalP       Int     @map("line_total_p")
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  variant Variant @relation(fields: [variantId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@index([variantId])
+  @@map("order_items")
+}
+
+model OrderStatusHistory {
+  id         String       @id @default(uuid(7)) @db.Uuid
+  orderId    String       @map("order_id") @db.Uuid
+  fromStatus OrderStatus? @map("from_status")
+  toStatus   OrderStatus  @map("to_status")
+  /// staff | customer | system
+  actorType  String       @map("actor_type")
+  actorId    String?      @map("actor_id") @db.Uuid
+  note       String?
+  at         DateTime     @default(now()) @db.Timestamptz
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId, at])
+  @@map("order_status_history")
+}
+
+model Payment {
+  id            String    @id @default(uuid(7)) @db.Uuid
+  orderId       String    @map("order_id") @db.Uuid
+  /// cod | bkash | nagad | gateway | wallet (P1: cod only)
+  method        String
+  /// full | advance | balance | delivery_charge
+  purpose       String
+  amountP       Int       @map("amount_p")
+  /// initiated | success | failed | cancelled | expired
+  status        String    @default("initiated")
+  provider      String?
+  providerTxnId String?   @map("provider_txn_id")
+  initiatedAt   DateTime  @default(now()) @map("initiated_at") @db.Timestamptz
+  paidAt        DateTime? @map("paid_at") @db.Timestamptz
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@map("payments")
+}
+
+// ---------------------------------------------------------------------------
+// SR / B2B sales (doc 12 §8b, R10–R20, Q119, Q120). SRs are staff with an sr_profile.
+// memo_no = SR-YYMM-NNNNN from sequence sr_memo_no_seq.
+// ---------------------------------------------------------------------------
+
+model SrProfile {
+  staffId      String   @id @map("staff_id") @db.Uuid
+  area         String?
+  /// Basis points; null = store default setting.
+  commissionBp Int?     @map("commission_bp")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  staff Staff @relation(fields: [staffId], references: [id])
+
+  @@map("sr_profiles")
+}
+
+model B2bShop {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  name        String
+  ownerName   String?  @map("owner_name")
+  phone       String
+  address     String
+  area        String?
+  createdById String   @map("created_by_id") @db.Uuid
+  /// Added from the field; usable at once, flagged for staff review (Q119).
+  isNew       Boolean  @default(true) @map("is_new")
+  /// active | blocked
+  status      String   @default("active")
+  /// Cache of the b2b_ledger sum; ledger is the source of truth.
+  dueBalanceP Int      @default(0) @map("due_balance_p")
+  notes       String?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  createdBy Staff       @relation(fields: [createdById], references: [id])
+  sales     SrSale[]
+  ledger    B2bLedger[]
+
+  @@index([phone])
+  @@map("b2b_shops")
+}
+
+enum SrSaleStatus {
+  submitted
+  approved
+  rejected
+  delivered
+  cancelled
+
+  @@map("sr_sale_status")
+}
+
+model SrSale {
+  id             String       @id @default(uuid(7)) @db.Uuid
+  memoNo         String       @unique @map("memo_no")
+  srStaffId      String       @map("sr_staff_id") @db.Uuid
+  b2bShopId      String       @map("b2b_shop_id") @db.Uuid
+  status         SrSaleStatus @default(submitted)
+  totalP         Int          @map("total_p")
+  paidAtSaleP    Int          @default(0) @map("paid_at_sale_p")
+  dueP           Int          @map("due_p")
+  submittedAt    DateTime     @default(now()) @map("submitted_at") @db.Timestamptz
+  approvedById   String?      @map("approved_by_id") @db.Uuid
+  approvedAt     DateTime?    @map("approved_at") @db.Timestamptz
+  rejectedReason String?      @map("rejected_reason")
+  deliveredById  String?      @map("delivered_by_id") @db.Uuid
+  deliveredAt    DateTime?    @map("delivered_at") @db.Timestamptz
+  note           String?
+
+  sr          Staff        @relation("SrSaleSr", fields: [srStaffId], references: [id])
+  shop        B2bShop      @relation(fields: [b2bShopId], references: [id])
+  approvedBy  Staff?       @relation("SrSaleApprover", fields: [approvedById], references: [id])
+  deliveredBy Staff?       @relation("SrSaleDeliverer", fields: [deliveredById], references: [id])
+  items       SrSaleItem[]
+  ledger      B2bLedger[]
+
+  @@index([srStaffId, submittedAt])
+  @@index([b2bShopId])
+  @@index([status])
+  @@map("sr_sales")
+}
+
+model SrSaleItem {
+  id         String @id @default(uuid(7)) @db.Uuid
+  srSaleId   String @map("sr_sale_id") @db.Uuid
+  variantId  String @map("variant_id") @db.Uuid
+  qty        Int
+  /// SR-entered (R15).
+  unitPriceP Int    @map("unit_price_p")
+  lineTotalP Int    @map("line_total_p")
+
+  sale    SrSale  @relation(fields: [srSaleId], references: [id], onDelete: Cascade)
+  variant Variant @relation(fields: [variantId], references: [id], onDelete: Restrict)
+
+  @@index([srSaleId])
+  @@map("sr_sale_items")
+}
+
+enum LedgerType {
+  sale_due
+  collection
+  adjustment
+
+  @@map("ledger_type")
+}
+
+/// Due (baki) ledger per buyer shop (R16). amount_p: + adds due, − pays it. Append-only.
+/// SR collections count once confirmed by staff (R18).
+model B2bLedger {
+  id            String     @id @default(uuid(7)) @db.Uuid
+  b2bShopId     String     @map("b2b_shop_id") @db.Uuid
+  srSaleId      String?    @map("sr_sale_id") @db.Uuid
+  type          LedgerType
+  amountP       Int        @map("amount_p")
+  /// cash | bkash | nagad | bank
+  method        String?
+  recordedById  String     @map("recorded_by_id") @db.Uuid
+  confirmedById String?    @map("confirmed_by_id") @db.Uuid
+  confirmedAt   DateTime?  @map("confirmed_at") @db.Timestamptz
+  note          String?
+  at            DateTime   @default(now()) @db.Timestamptz
+
+  shop        B2bShop @relation(fields: [b2bShopId], references: [id])
+  sale        SrSale? @relation(fields: [srSaleId], references: [id])
+  recordedBy  Staff   @relation("LedgerRecordedBy", fields: [recordedById], references: [id])
+  confirmedBy Staff?  @relation("LedgerConfirmedBy", fields: [confirmedById], references: [id])
+
+  @@index([b2bShopId, at])
+  @@map("b2b_ledger")
+}
+
+model SrTarget {
+  id        String @id @default(uuid(7)) @db.Uuid
+  srStaffId String @map("sr_staff_id") @db.Uuid
+  /// YYYY-MM
+  month     String
+  targetP   Int    @map("target_p")
+
+  sr Staff @relation(fields: [srStaffId], references: [id])
+
+  @@unique([srStaffId, month])
+  @@map("sr_targets")
+}
+
+/// Commission on money collected in the month (Q120).
+model SrCommission {
+  id           String    @id @default(uuid(7)) @db.Uuid
+  srStaffId    String    @map("sr_staff_id") @db.Uuid
+  month        String
+  baseP        Int       @map("base_p")
+  commissionBp Int       @map("commission_bp")
+  amountP      Int       @map("amount_p")
+  /// pending | approved | paid
+  status       String    @default("pending")
+  paidAt       DateTime? @map("paid_at") @db.Timestamptz
+
+  sr Staff @relation(fields: [srStaffId], references: [id])
+
+  @@unique([srStaffId, month])
+  @@map("sr_commissions")
+}
+
+// ---------------------------------------------------------------------------
+// Suppliers + purchasing (doc 12 §4, Q62, Q82, Q88). Receiving writes stock_movements (po_receive).
+// po_no = PO-YYMM-NNNNN from sequence po_no_seq. Supplier portal users come with dropship (after step 5).
+// ---------------------------------------------------------------------------
+
+enum SupplierShipMode {
+  direct_to_customer
+  via_warehouse
+
+  @@map("supplier_ship_mode")
+}
+
+model Supplier {
+  id           String           @id @default(uuid(7)) @db.Uuid
+  name         String
+  contactName  String?          @map("contact_name")
+  phone        String?
+  email        String?
+  address      String?
+  shipMode     SupplierShipMode @default(via_warehouse) @map("ship_mode")
+  paymentTerms String?          @map("payment_terms")
+  notes        String?
+  isActive     Boolean          @default(true) @map("is_active")
+  createdAt    DateTime         @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime         @updatedAt @map("updated_at") @db.Timestamptz
+
+  variants       VariantSupplier[]
+  purchaseOrders PurchaseOrder[]
+
+  @@map("suppliers")
+}
+
+model VariantSupplier {
+  id           String  @id @default(uuid(7)) @db.Uuid
+  variantId    String  @map("variant_id") @db.Uuid
+  supplierId   String  @map("supplier_id") @db.Uuid
+  supplierSku  String? @map("supplier_sku")
+  costP        Int?    @map("cost_p")
+  leadTimeDays Int?    @map("lead_time_days")
+  isDefault    Boolean @default(false) @map("is_default")
+
+  variant  Variant  @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  supplier Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+
+  @@unique([variantId, supplierId])
+  @@map("variant_suppliers")
+}
+
+enum PoStatus {
+  draft
+  sent
+  partially_received
+  received
+  cancelled
+
+  @@map("po_status")
+}
+
+model PurchaseOrder {
+  id          String    @id @default(uuid(7)) @db.Uuid
+  poNo        String    @unique @map("po_no")
+  supplierId  String    @map("supplier_id") @db.Uuid
+  status      PoStatus  @default(draft)
+  expectedAt  DateTime? @map("expected_at") @db.Date
+  subtotalP   Int       @default(0) @map("subtotal_p")
+  notes       String?
+  createdById String    @map("created_by_id") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  supplier  Supplier            @relation(fields: [supplierId], references: [id])
+  createdBy Staff               @relation(fields: [createdById], references: [id])
+  items     PurchaseOrderItem[]
+
+  @@index([supplierId])
+  @@map("purchase_orders")
+}
+
+model PurchaseOrderItem {
+  id          String @id @default(uuid(7)) @db.Uuid
+  poId        String @map("po_id") @db.Uuid
+  variantId   String @map("variant_id") @db.Uuid
+  qtyOrdered  Int    @map("qty_ordered")
+  qtyReceived Int    @default(0) @map("qty_received")
+  unitCostP   Int    @map("unit_cost_p")
+
+  po      PurchaseOrder @relation(fields: [poId], references: [id], onDelete: Cascade)
+  variant Variant       @relation(fields: [variantId], references: [id], onDelete: Restrict)
+
+  @@index([poId])
+  @@map("purchase_order_items")
 }

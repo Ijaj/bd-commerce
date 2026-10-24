@@ -1,0 +1,12 @@
+{
+  "root": false,
+  "extends": "//",
+  "files": { "includes": ["**", "!next-env.d.ts", "!.next"] },
+  "linter": {
+    "rules": {
+      "a11y": {
+        "useSemanticElements": "off"
+      }
+    }
+  }
+}

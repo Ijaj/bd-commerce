@@ -21,6 +21,7 @@ import { Route as AppCatalogBrandsRouteImport } from './routes/_app/catalog.bran
 import { Route as AppCatalogCategoriesRouteImport } from './routes/_app/catalog.categories'
 import { Route as AppCatalogImportExportRouteImport } from './routes/_app/catalog.import-export'
 import { Route as AppCatalogInventoryRouteImport } from './routes/_app/catalog.inventory'
+import { Route as AppContentCarouselRouteImport } from './routes/_app/content.carousel'
 import { Route as AppCatalogProductsIndexRouteImport } from './routes/_app/catalog.products.index'
 import { Route as AppCatalogProductsIdRouteImport } from './routes/_app/catalog.products.$id'
 
@@ -83,6 +84,11 @@ const AppCatalogInventoryRoute = AppCatalogInventoryRouteImport.update({
   path: '/catalog/inventory',
   getParentRoute: () => AppRoute,
 } as any)
+const AppContentCarouselRoute = AppContentCarouselRouteImport.update({
+  id: '/content/carousel',
+  path: '/content/carousel',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppCatalogProductsIndexRoute = AppCatalogProductsIndexRouteImport.update({
   id: '/catalog/products/',
   path: '/catalog/products/',
@@ -106,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/catalog/categories': typeof AppCatalogCategoriesRoute
   '/catalog/import-export': typeof AppCatalogImportExportRoute
   '/catalog/inventory': typeof AppCatalogInventoryRoute
+  '/content/carousel': typeof AppContentCarouselRoute
   '/catalog/products/$id': typeof AppCatalogProductsIdRoute
   '/catalog/products/': typeof AppCatalogProductsIndexRoute
 }
@@ -121,6 +128,7 @@ export interface FileRoutesByTo {
   '/catalog/categories': typeof AppCatalogCategoriesRoute
   '/catalog/import-export': typeof AppCatalogImportExportRoute
   '/catalog/inventory': typeof AppCatalogInventoryRoute
+  '/content/carousel': typeof AppContentCarouselRoute
   '/catalog/products/$id': typeof AppCatalogProductsIdRoute
   '/catalog/products': typeof AppCatalogProductsIndexRoute
 }
@@ -138,6 +146,7 @@ export interface FileRoutesById {
   '/_app/catalog/categories': typeof AppCatalogCategoriesRoute
   '/_app/catalog/import-export': typeof AppCatalogImportExportRoute
   '/_app/catalog/inventory': typeof AppCatalogInventoryRoute
+  '/_app/content/carousel': typeof AppContentCarouselRoute
   '/_app/catalog/products/$id': typeof AppCatalogProductsIdRoute
   '/_app/catalog/products/': typeof AppCatalogProductsIndexRoute
 }
@@ -155,6 +164,7 @@ export interface FileRouteTypes {
     | '/catalog/categories'
     | '/catalog/import-export'
     | '/catalog/inventory'
+    | '/content/carousel'
     | '/catalog/products/$id'
     | '/catalog/products/'
   fileRoutesByTo: FileRoutesByTo
@@ -170,6 +180,7 @@ export interface FileRouteTypes {
     | '/catalog/categories'
     | '/catalog/import-export'
     | '/catalog/inventory'
+    | '/content/carousel'
     | '/catalog/products/$id'
     | '/catalog/products'
   id:
@@ -186,6 +197,7 @@ export interface FileRouteTypes {
     | '/_app/catalog/categories'
     | '/_app/catalog/import-export'
     | '/_app/catalog/inventory'
+    | '/_app/content/carousel'
     | '/_app/catalog/products/$id'
     | '/_app/catalog/products/'
   fileRoutesById: FileRoutesById
@@ -283,6 +295,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCatalogInventoryRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/content/carousel': {
+      id: '/_app/content/carousel'
+      path: '/content/carousel'
+      fullPath: '/content/carousel'
+      preLoaderRoute: typeof AppContentCarouselRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/catalog/products/': {
       id: '/_app/catalog/products/'
       path: '/catalog/products'
@@ -309,6 +328,7 @@ interface AppRouteChildren {
   AppCatalogCategoriesRoute: typeof AppCatalogCategoriesRoute
   AppCatalogImportExportRoute: typeof AppCatalogImportExportRoute
   AppCatalogInventoryRoute: typeof AppCatalogInventoryRoute
+  AppContentCarouselRoute: typeof AppContentCarouselRoute
   AppCatalogProductsIdRoute: typeof AppCatalogProductsIdRoute
   AppCatalogProductsIndexRoute: typeof AppCatalogProductsIndexRoute
 }
@@ -322,6 +342,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCatalogCategoriesRoute: AppCatalogCategoriesRoute,
   AppCatalogImportExportRoute: AppCatalogImportExportRoute,
   AppCatalogInventoryRoute: AppCatalogInventoryRoute,
+  AppContentCarouselRoute: AppContentCarouselRoute,
   AppCatalogProductsIdRoute: AppCatalogProductsIdRoute,
   AppCatalogProductsIndexRoute: AppCatalogProductsIndexRoute,
 }

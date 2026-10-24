@@ -271,3 +271,8 @@ Note on S6: our order tracking covers status until the parcel is handed to the c
 | C28 | PWA: **hand-written** manifest + small service worker (offline page, static/image cache), no library |
 | C29 | Wishlist **requires login** (server-side); recently viewed kept **in the browser** (localStorage), no server table |
 | C30 | Step 3 built by a parallel agent swarm like C25: lead (Opus) does schema/scaffold/contracts/commits; wave 1 = 4 Sonnet + 1 Haiku, wave 2 = account/PWA (Sonnet) + e2e (Haiku) |
+| C31 | Swarm widened (owner): step 3 waves continue; **step 4 backend (cart/checkout/zones) and step 7 partner portal (SR module) start in parallel**. Lead adds their schema first; ~7 agents peak |
+| C32 | Order number = **YYMM-NNNNN** (e.g. `2610-00123`): month prefix + one running number that never resets (DB sequence) |
+| C33 | BD geo master (divisions/districts/upazilas, EN+BN) **seeded from an open dataset** via migration; admin edits later; courier codes mapped in step 5 |
+| C34 | Partner portal (`apps/portal`) uses **Mantine** like admin |
+| C35 | Guest cart = **server cart keyed by visitor cookie**, merged into the account cart on login |

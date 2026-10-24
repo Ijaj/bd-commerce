@@ -1,0 +1,38 @@
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+  color: inherit;
+}
+.mark {
+  width: 34px;
+  height: 34px;
+}
+.mkBg {
+  fill: var(--lm-bg);
+}
+.mkFg {
+  fill: var(--lm-fg);
+}
+.wm {
+  font-weight: 700;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: -0.03em;
+  font-size: 24px;
+  line-height: 1;
+}
+.wm b {
+  font-weight: 700;
+  color: var(--hl);
+}
+@media (max-width: 640px) {
+  .mark {
+    width: 30px;
+    height: 30px;
+  }
+  .wm {
+    font-size: 20px;
+  }
+}

@@ -57,6 +57,7 @@ export class SiteController {
     return {
       maintenance: s.maintenance_mode,
       announcement: showBar ? { text: bar.text, link: bar.link } : null,
+      contact: s.shop_contact,
       flags: {
         online_payments_enabled: s.online_payments_enabled,
         advance_payments_enabled: s.advance_payments_enabled,

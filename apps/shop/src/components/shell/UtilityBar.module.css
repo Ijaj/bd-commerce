@@ -1,0 +1,31 @@
+.bar {
+  background: var(--util-bg);
+  color: var(--util-fg);
+  font-size: 12.5px;
+}
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 36px;
+  gap: var(--s4);
+}
+.left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.right {
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+}
+.right a:hover,
+.left a:hover {
+  text-decoration: underline;
+}
+@media (max-width: 640px) {
+  .bar {
+    display: none;
+  }
+}

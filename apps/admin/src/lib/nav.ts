@@ -7,6 +7,7 @@ export interface NavItem {
     | '/catalog/brands'
     | '/catalog/inventory'
     | '/catalog/import-export'
+    | '/content/carousel'
     | '/staff'
     | '/roles'
     | '/settings';
@@ -35,6 +36,10 @@ export const NAV: NavSection[] = [
         anyOf: ['products.import', 'products.export', 'inventory.export'],
       },
     ],
+  },
+  {
+    heading: 'Content',
+    items: [{ label: 'Home carousel', to: '/content/carousel', anyOf: ['content.manage'] }],
   },
   {
     heading: 'Staff',

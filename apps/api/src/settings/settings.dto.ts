@@ -25,6 +25,7 @@ export class SiteStatusDto extends createZodDto(
   z.object({
     maintenance: z.object({ enabled: z.boolean(), message: localized }),
     announcement: z.object({ text: localized, link: z.string().nullable() }).nullable(),
+    contact: z.object({ hotline: z.string(), email: z.string() }),
     flags: z.object({
       online_payments_enabled: z.boolean(),
       advance_payments_enabled: z.boolean(),
