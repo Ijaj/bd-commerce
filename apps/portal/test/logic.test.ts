@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import type { SrLedgerRow } from '~/features/sr/api';
 import {
   belowListPct,
   type DraftLine,
@@ -9,7 +8,6 @@ import {
   lineFromProduct,
   type SaleDraft,
   saleTotals,
-  shopMatches,
   validateSale,
 } from '~/features/sr/logic';
 
@@ -75,18 +73,7 @@ describe('saleTotals', () => {
 });
 
 describe('ledgerNewestFirst', () => {
-  const row = (id: string, at: string): SrLedgerRow => ({
-    id,
-    b2bShopId: 'shop1',
-    shopName: 'Shop',
-    type: 'sale_due',
-    amountP: 100,
-    method: null,
-    memoNo: null,
-    confirmed: true,
-    note: null,
-    at,
-  });
+  const row = (id: string, at: string) => ({ id, at });
   it('sorts newest first without mutating the input', () => {
     const rows = [row('a', '2026-10-01'), row('c', '2026-10-03'), row('b', '2026-10-02')];
     expect(ledgerNewestFirst(rows).map((r) => r.id)).toEqual(['c', 'b', 'a']);
@@ -94,11 +81,14 @@ describe('ledgerNewestFirst', () => {
   });
 });
 
-describe('shopMatches', () => {
-  const shop = { name: 'Rahman Store', ownerName: 'Abdur', area: 'Mirpur', phone: '01712345678' };
-  it('matches name, owner, area, phone, case-insensitive', () => {
-    for (const q of ['rahman', 'ABDUR', 'mirpur', '0171', ''])
-      expect(shopMatches(shop, q)).toBe(true);
-    expect(shopMatches(shop, 'uttara')).toBe(false);
+describe('i18n', () => {
+  it('Bangla has the same {placeholders} as English for every key', async () => {
+    const { en } = await import('~/i18n/en');
+    const { bn } = await import('~/i18n/bn');
+    const vars = (s: string) => [...s.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort();
+    for (const key of Object.keys(en) as (keyof typeof en)[]) {
+      expect(bn[key], key).toBeTruthy();
+      expect(vars(bn[key]), key).toEqual(vars(en[key]));
+    }
   });
 });

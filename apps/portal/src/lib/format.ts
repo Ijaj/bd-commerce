@@ -1,12 +1,14 @@
 import { formatPrice as fmtPrice } from '@bdc/i18n';
 import { getLang } from '~/i18n';
 
-/** Paisa -> "৳1,25,000". Follows the portal language (BN digits when bn). */
+/** Paisa -> "৳1,25,000" (Bangla digits when the portal is in Bangla). */
 export const formatPrice = (paisa: number) => fmtPrice(paisa, getLang());
+
+const locale = () => (getLang() === 'bn' ? 'bn-BD' : 'en-GB');
 
 export function formatDate(iso: string | null | undefined): string {
   if (!iso) return '-';
-  return new Date(iso).toLocaleDateString('en-GB', {
+  return new Date(iso).toLocaleDateString(locale(), {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
@@ -14,7 +16,7 @@ export function formatDate(iso: string | null | undefined): string {
 }
 
 export function formatMonth(date = new Date()): string {
-  return date.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+  return date.toLocaleDateString(locale(), { month: 'long', year: 'numeric' });
 }
 
 /** Days left in the month including today. */

@@ -6,6 +6,7 @@ import {
   Image,
   NumberInput,
   Paper,
+  Radio,
   Stack,
   Text,
   Textarea,
@@ -14,18 +15,20 @@ import {
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { IconPlus, IconSearch, IconX } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
+import { LoadMore } from '~/components/LoadMore';
 import { PageTitle } from '~/components/PageTitle';
 import { QueryBoundary } from '~/components/QueryBoundary';
-import { t } from '~/i18n';
+import { num, t } from '~/i18n';
 import { formatPrice } from '~/lib/format';
 import { paisaToTaka, takaToPaisa } from '~/lib/money';
 import { AddShopForm } from './AddShopForm';
 import { type SrProduct, type SrSaleDetail, srApi } from './api';
 import {
   belowListPct,
+  type DeliveryBy,
   type DraftLine,
   emptyDraft,
   hasErrors,
@@ -33,10 +36,9 @@ import {
   lineTotalP,
   type SaleDraft,
   saleTotals,
-  shopMatches,
   validateSale,
 } from './logic';
-import { srKeys, srProductsQuery, srShopsQuery } from './queries';
+import { srKeys, srProductsQuery, srShopQuery, srShopsQuery } from './queries';
 import { NewBadge } from './ShopsPage';
 
 function ShopPicker({
@@ -48,31 +50,35 @@ function ShopPicker({
   error?: string;
   onChange: (id: string | null) => void;
 }) {
-  const shops = useQuery(srShopsQuery);
   const [q, setQ] = useState('');
+  const [debounced] = useDebouncedValue(q.trim(), 250);
   const [adding, setAdding] = useState(false);
-  const chosen = shops.data?.find((s) => s.id === shopId);
+  const chosenQuery = useQuery({ ...srShopQuery(shopId ?? ''), enabled: Boolean(shopId) });
+  const shops = useInfiniteQuery({ ...srShopsQuery(debounced), enabled: !shopId && !adding });
+  const chosen = chosenQuery.data;
 
-  if (chosen) {
+  if (shopId) {
     return (
       <Paper>
         <Group justify="space-between" wrap="nowrap">
           <div>
             <Text>
-              {chosen.name}
-              {chosen.isNew && <NewBadge />}
+              {chosen?.name ?? t('loading')}
+              {chosen?.isNew && <NewBadge />}
             </Text>
-            <Text size="sm" c="dimmed">
-              {chosen.area}
-              {chosen.dueBalanceP > 0 && (
-                <>
-                  {' · '}
-                  <Text span size="sm" c="red">
-                    {t('currentDue', { amount: formatPrice(chosen.dueBalanceP) })}
-                  </Text>
-                </>
-              )}
-            </Text>
+            {chosen && (
+              <Text size="sm" c="dimmed">
+                {chosen.area}
+                {chosen.dueBalanceP > 0 && (
+                  <>
+                    {' · '}
+                    <Text span size="sm" c="red">
+                      {t('currentDue', { amount: formatPrice(chosen.dueBalanceP) })}
+                    </Text>
+                  </>
+                )}
+              </Text>
+            )}
           </div>
           <Button size="xs" variant="default" onClick={() => onChange(null)}>
             {t('change')}
@@ -106,9 +112,6 @@ function ShopPicker({
     );
   }
 
-  const matches = (shops.data ?? [])
-    .filter((s) => s.status === 'active' && shopMatches(s, q))
-    .slice(0, 6);
   return (
     <Stack gap="xs">
       <TextInput
@@ -120,39 +123,46 @@ function ShopPicker({
         onChange={(e) => setQ(e.currentTarget.value)}
       />
       <QueryBoundary query={shops}>
-        {() => (
-          <Paper py={4}>
-            {matches.length === 0 ? (
-              <Text c="dimmed" ta="center" py="sm">
-                {t('noShops')}
-              </Text>
-            ) : (
-              matches.map((s) => (
-                <button
-                  key={s.id}
-                  type="button"
-                  className="portal-item"
-                  style={{
-                    width: '100%',
-                    textAlign: 'left',
-                    background: 'none',
-                    border: 0,
-                    cursor: 'pointer',
-                  }}
-                  onClick={() => onChange(s.id)}
-                >
-                  <Text>
-                    {s.name}
-                    {s.isNew && <NewBadge />}
+        {(data) => {
+          const matches = data.pages.flatMap((p) => p.items).filter((s) => s.status === 'active');
+          return (
+            <>
+              <Paper py={4}>
+                {matches.length === 0 ? (
+                  <Text c="dimmed" ta="center" py="sm">
+                    {t('noShops')}
                   </Text>
-                  <Text size="sm" c="dimmed">
-                    {[s.ownerName, s.area].filter(Boolean).join(' · ')}
-                  </Text>
-                </button>
-              ))
-            )}
-          </Paper>
-        )}
+                ) : (
+                  matches.map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      className="portal-item"
+                      style={{
+                        width: '100%',
+                        textAlign: 'left',
+                        background: 'none',
+                        border: 0,
+                        cursor: 'pointer',
+                        color: 'inherit',
+                      }}
+                      onClick={() => onChange(s.id)}
+                    >
+                      <Text>
+                        {s.name}
+                        {s.isNew && <NewBadge />}
+                      </Text>
+                      <Text size="sm" c="dimmed">
+                        {[s.ownerName, s.area].filter(Boolean).join(' · ')}
+                      </Text>
+                    </button>
+                  ))
+                )}
+              </Paper>
+              <LoadMore query={shops} />
+            </>
+          );
+        }}
       </QueryBoundary>
       <Button variant="light" leftSection={<IconPlus size={16} />} onClick={() => setAdding(true)}>
         {t('addNewShop')}
@@ -327,8 +337,11 @@ export function NewSalePage({ initialShopId }: { initialShopId?: string }) {
   const [attempted, setAttempted] = useState(false);
   const [picking, setPicking] = useState(false);
   const [done, setDone] = useState<SrSaleDetail | null>(null);
-  const shops = useQuery(srShopsQuery);
 
+  const chosenShop = useQuery({
+    ...srShopQuery(draft.shopId ?? ''),
+    enabled: Boolean(draft.shopId),
+  });
   const errors = validateSale(draft);
   const patch = (p: Partial<SaleDraft>) => setDraft((d) => ({ ...d, ...p }));
   const patchLine = (variantId: string, p: Partial<DraftLine>) =>
@@ -347,6 +360,7 @@ export function NewSalePage({ initialShopId }: { initialShopId?: string }) {
           unitPriceP: l.unitPriceP as number,
         })),
         paidAtSaleP: draft.paidP ?? 0,
+        deliveryBy: draft.deliveryBy,
         note: draft.note.trim() || undefined,
       }),
     onSuccess: async (sale) => {
@@ -383,7 +397,7 @@ export function NewSalePage({ initialShopId }: { initialShopId?: string }) {
   }
 
   if (step === 'review') {
-    const shop = shops.data?.find((s) => s.id === draft.shopId);
+    const shop = chosenShop.data;
     return (
       <Stack gap="md">
         <PageTitle>{t('reviewSale')}</PageTitle>
@@ -397,13 +411,16 @@ export function NewSalePage({ initialShopId }: { initialShopId?: string }) {
           {draft.lines.map((l) => (
             <Group key={l.variantId} justify="space-between" wrap="nowrap" py={4}>
               <Text size="sm" truncate>
-                {l.qty} x {l.title}
+                {num(l.qty ?? 0)} x {l.title}
               </Text>
               <Text size="sm">{formatPrice(lineTotalP(l))}</Text>
             </Group>
           ))}
         </Paper>
         <Totals draft={draft} />
+        <Text size="sm">
+          {t('deliveryBy')}: {draft.deliveryBy === 'sr' ? t('deliveryBySr') : t('deliveryByStaff')}
+        </Text>
         {draft.note && (
           <Text size="sm" c="dimmed">
             {t('note')}: {draft.note}
@@ -487,6 +504,17 @@ export function NewSalePage({ initialShopId }: { initialShopId?: string }) {
           )}
         </Stack>
       </div>
+
+      <Radio.Group
+        label={t('whoDelivers')}
+        value={draft.deliveryBy}
+        onChange={(v) => patch({ deliveryBy: v as DeliveryBy })}
+      >
+        <Stack gap="xs" mt={6}>
+          <Radio value="staff" label={t('deliverOffice')} description={t('deliverOfficeHint')} />
+          <Radio value="sr" label={t('deliverSr')} description={t('deliverSrHint')} />
+        </Stack>
+      </Radio.Group>
 
       <div>
         <NumberInput

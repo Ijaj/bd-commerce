@@ -79,32 +79,3 @@ export const queryClient = new QueryClient({
     },
   },
 });
-
-/**
- * Plain JSON fetch for endpoints not in the generated client yet (same error + 401 handling).
- * TODO(lead): drop this once /v1/portal/sr/* is in the generated types (use `api` + `unwrap`).
- */
-export async function http<T>(
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
-  path: string,
-  body?: unknown,
-): Promise<T> {
-  const res = await fetch(path, {
-    method,
-    credentials: 'include',
-    headers: body === undefined ? undefined : { 'content-type': 'application/json' },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
-  if (res.status === 401) onUnauthorized?.();
-  const text = await res.text();
-  let json: unknown = null;
-  try {
-    json = text ? JSON.parse(text) : null;
-  } catch {
-    // non-JSON body (proxy error page)
-  }
-  if (!res.ok) {
-    throw new ApiError(errorMessage(json, `Request failed (${res.status})`), res.status);
-  }
-  return json as T;
-}

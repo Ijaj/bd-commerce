@@ -14,9 +14,9 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { QueryBoundary } from '~/components/QueryBoundary';
-import { t } from '~/i18n';
+import { num, t } from '~/i18n';
 import { daysLeftInMonth, formatMonth, formatPrice } from '~/lib/format';
-import { srMeQuery, srSalesQuery } from './queries';
+import { srMeQuery, srPendingQuery, srRecentSalesQuery } from './queries';
 import { SaleItem } from './SaleItem';
 
 interface InstallEvent extends Event {
@@ -62,13 +62,13 @@ const pct = (a: number, b: number) => (b > 0 ? Math.round((a / b) * 100) : 0);
 
 export function HomePage() {
   const me = useQuery(srMeQuery);
-  const sales = useQuery(srSalesQuery);
+  const sales = useQuery(srRecentSalesQuery);
+  const pendingCount = useQuery(srPendingQuery).data ?? 0;
   return (
     <QueryBoundary query={me}>
       {(d) => {
         const m = d.month;
         const soldPct = pct(m.soldP, m.targetP);
-        const pending = sales.data?.filter((s) => s.status === 'submitted').length ?? 0;
         return (
           <Stack gap="md">
             <InstallCard />
@@ -99,7 +99,7 @@ export function HomePage() {
                   </Text>
                   <Text size="sm" c="dimmed">
                     {t('toGo', { amount: formatPrice(Math.max(0, m.targetP - m.soldP)) })} ·{' '}
-                    {daysLeftInMonth()}d
+                    {t('daysLeft', { n: daysLeftInMonth() })}
                   </Text>
                 </Group>
               )}
@@ -121,7 +121,7 @@ export function HomePage() {
                   <Text size="sm" c="dimmed">
                     {t('collectionRate')}
                   </Text>
-                  <Text fz="lg">{pct(m.collectedP, m.soldP)}%</Text>
+                  <Text fz="lg">{num(pct(m.collectedP, m.soldP))}%</Text>
                 </div>
               </Group>
             </Paper>
@@ -149,7 +149,7 @@ export function HomePage() {
                 <Text size="sm" c="dimmed">
                   {t('filterPending')}
                 </Text>
-                <Text fz="xl">{pending}</Text>
+                <Text fz="xl">{num(pendingCount)}</Text>
               </Paper>
             </SimpleGrid>
 
@@ -189,12 +189,12 @@ export function HomePage() {
               </Group>
               <QueryBoundary query={sales}>
                 {(list) =>
-                  list.length === 0 ? (
+                  list.items.length === 0 ? (
                     <Text c="dimmed" py="sm">
                       {t('noSales')}
                     </Text>
                   ) : (
-                    list.slice(0, 3).map((s) => <SaleItem key={s.id} sale={s} />)
+                    list.items.map((s) => <SaleItem key={s.id} sale={s} />)
                   )
                 }
               </QueryBoundary>

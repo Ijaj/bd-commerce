@@ -1,17 +1,31 @@
+import { getLang, t } from '~/i18n';
 import { formatPrice } from '~/lib/format';
-import { type SrSaleDetail, srApi } from './api';
+import { srApi } from './api';
 
-/** Web Share (WhatsApp etc. on phones) with a wa.me fallback. Memo link needs the SR's login for now. */
-export async function shareMemo(sale: Pick<SrSaleDetail, 'id' | 'memoNo' | 'totalP' | 'shop'>) {
-  const url = `${location.origin}${srApi.memoUrl(sale.id)}`;
-  const text = `${sale.shop.name}: memo ${sale.memoNo}, ${formatPrice(sale.totalP)}`;
+/**
+ * Creates the public memo link (C38) and hands a short message to the share sheet
+ * (WhatsApp etc. on phones), or to wa.me on desktop. Throws if the link cannot be made.
+ */
+export async function shareMemo(sale: {
+  id: string;
+  memoNo: string;
+  totalP: number;
+  dueP: number;
+}) {
+  const { url } = await srApi.memoLink(sale.id);
+  const text = t('shareMessage', {
+    memo: sale.memoNo,
+    total: formatPrice(sale.totalP),
+    due: formatPrice(sale.dueP),
+    url: `${url}${url.includes('?') ? '&' : '?'}lang=${getLang()}`,
+  });
   if (navigator.share) {
     try {
-      await navigator.share({ title: sale.memoNo, text, url });
-      return;
+      await navigator.share({ title: sale.memoNo, text });
     } catch {
-      return; // user closed the share sheet
+      // user closed the share sheet
     }
+    return;
   }
-  window.open(`https://wa.me/?text=${encodeURIComponent(`${text}\n${url}`)}`, '_blank', 'noopener');
+  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
 }

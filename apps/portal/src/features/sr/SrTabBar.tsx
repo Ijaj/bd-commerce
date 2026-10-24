@@ -2,12 +2,11 @@ import { Indicator } from '@mantine/core';
 import { IconBuildingStore, IconCash, IconHome, IconPlus, IconReceipt } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { t } from '~/i18n';
-import { srSalesQuery } from './queries';
+import { num, t } from '~/i18n';
+import { srPendingQuery } from './queries';
 
 export function SrTabBar() {
-  const { data: sales } = useQuery(srSalesQuery);
-  const pending = sales?.filter((s) => s.status === 'submitted').length ?? 0;
+  const { data: pending = 0 } = useQuery(srPendingQuery);
   // Link sets data-status="active" on the current tab; styles.css colours it.
   return (
     <nav className="portal-tabbar" aria-label="Main">
@@ -17,7 +16,7 @@ export function SrTabBar() {
           {t('tabHome')}
         </Link>
         <Link to="/sr/sales" className="portal-tab">
-          <Indicator label={pending} disabled={pending === 0} size={16} color="red" offset={2}>
+          <Indicator label={num(pending)} disabled={pending === 0} size={16} color="red" offset={2}>
             <IconReceipt size={22} />
           </Indicator>
           {t('tabSales')}

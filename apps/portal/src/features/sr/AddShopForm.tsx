@@ -4,7 +4,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { t } from '~/i18n';
 import { type SrShop, srApi } from './api';
 import { BD_PHONE } from './logic';
-import { srKeys } from './queries';
 
 /** Add a buyer shop from the field (Q119: usable at once, staff review the "New" flag). */
 export function AddShopForm({ onCreated }: { onCreated: (shop: SrShop) => void }) {
@@ -29,7 +28,7 @@ export function AddShopForm({ onCreated }: { onCreated: (shop: SrShop) => void }
         area: v.area.trim(),
       }),
     onSuccess: async (shop) => {
-      await qc.invalidateQueries({ queryKey: srKeys.shops });
+      await qc.invalidateQueries({ queryKey: ['sr', 'shops'] });
       onCreated(shop);
     },
   });

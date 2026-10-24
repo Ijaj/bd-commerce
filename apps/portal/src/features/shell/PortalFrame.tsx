@@ -6,15 +6,14 @@ import {
   useMantineColorScheme,
 } from '@mantine/core';
 import { IconLogout, IconMoon, IconSun } from '@tabler/icons-react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { Outlet, useNavigate } from '@tanstack/react-router';
 import { api } from '~/api';
+import { LangToggle } from '~/components/LangToggle';
 import { t } from '~/i18n';
-import { meQuery } from '~/lib/auth';
 
 /** Fixed top bar + padded main area shared by every portal section. */
 export function PortalFrame() {
-  const { data: me } = useQuery(meQuery);
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { setColorScheme } = useMantineColorScheme();
@@ -34,9 +33,7 @@ export function PortalFrame() {
             ShopName <span style={{ color: '#5eead4' }}>Partner</span>
           </Text>
           <Group gap={4} wrap="nowrap">
-            <Text size="sm" truncate maw={110}>
-              {me?.name.split(' ')[0]}
-            </Text>
+            <LangToggle dark />
             <ActionIcon
               variant="subtle"
               color="gray"

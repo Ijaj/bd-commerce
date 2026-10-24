@@ -284,3 +284,7 @@ Note on S6: our order tracking covers status until the parcel is handed to the c
 | C41 | Price changed since add-to-cart: order is **charged the current price without an extra confirm** (cart shows a "price changed" badge) |
 | C42 | SR delivery (R19): **per-sale choice** "I deliver" / "staff delivers"; SR can mark own "I deliver" sales delivered, staff marks the rest |
 | C43 | SR corrections: staff can **reject a pending collection** (with reason, never counted) and **reverse an approved/delivered sale** (reversing ledger entry + stock back); ledger stays append-only |
+| C44 | Guest COD abuse (security review M4): **rate limits + caps** — max 5 orders/hour per IP, max 3 open guest orders per phone, daily guest total cap per phone (setting, default ৳20,000); confirmation SMS still sent |
+| C45 | Q94 refined: auto-link **only OTP-verified guest orders** to the account that verifies the phone |
+| C46 | SR unit price: **any price ≥ ৳1** (approver review is the control) |
+| C47 | SR paid-at-sale cash: **approval = confirmation** (approver checks cash at approve time) |

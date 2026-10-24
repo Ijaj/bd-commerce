@@ -1,6 +1,6 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { mockApi, renderApp, staff, unauthorized } from './utils';
 
 const SR = staff(['sr.portal']);
@@ -77,6 +77,21 @@ describe('auth + sections', () => {
     });
     renderApp('/');
     expect(await screen.findByText('Month target')).toBeInTheDocument();
+  });
+});
+
+describe('language toggle', () => {
+  it('switches the UI to Bangla, updates <html lang> and remembers it', async () => {
+    mockApi({});
+    renderApp('/login');
+    await screen.findByRole('heading', { name: 'Sign in' });
+    await userEvent.click(screen.getByRole('button', { name: 'বাংলা' }));
+    expect(await screen.findByRole('heading', { name: 'সাইন ইন' })).toBeInTheDocument();
+    expect(document.documentElement.lang).toBe('bn');
+    expect(localStorage.getItem('bdc_portal_lang')).toBe('bn');
+    await userEvent.click(screen.getByRole('button', { name: 'EN' }));
+    expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeInTheDocument();
+    expect(document.documentElement.lang).toBe('en');
   });
 });
 
@@ -187,7 +202,20 @@ describe('new sale form', () => {
       b2bShopId: 'shop1',
       items: [{ variantId: 'v1', qty: 1, unitPriceP: 50000 }],
       paidAtSaleP: 50000,
+      deliveryBy: 'staff',
     });
+  });
+
+  it('sends deliveryBy=sr when the SR delivers', async () => {
+    const { calls } = setup();
+    renderApp('/sr/new-sale');
+    const user = await fillShopAndItem();
+    await user.click(screen.getByLabelText(/I deliver/));
+    await user.click(screen.getByRole('button', { name: 'Review' }));
+    await user.click(await screen.findByRole('button', { name: 'Submit for approval' }));
+    await screen.findByText('Sale submitted');
+    const post = calls.find((c) => c.method === 'POST' && c.path === '/v1/portal/sr/sales');
+    expect(post?.body).toMatchObject({ deliveryBy: 'sr' });
   });
 
   it('shows an empty-cart error when reviewing with nothing', async () => {
@@ -218,6 +246,33 @@ describe('collections', () => {
   });
 });
 
+describe('rejected collections', () => {
+  it('shows the rejection reason', async () => {
+    mockApi({
+      'GET /v1/admin/auth/me': SR,
+      'GET /v1/portal/sr/sales': paged([]),
+      'GET /v1/portal/sr/shops': paged([shop]),
+      'GET /v1/portal/sr/collections': paged([
+        {
+          id: 'c1',
+          b2bShopId: 'shop1',
+          shopName: 'Rahman General Store',
+          type: 'collection',
+          amountP: -50000,
+          method: 'cash',
+          confirmed: false,
+          rejected: true,
+          rejectReason: 'Amount does not match receipt',
+          at: '2026-10-22T08:00:00Z',
+        },
+      ]),
+    });
+    renderApp('/sr/collections');
+    expect(await screen.findByText('Rejected by staff')).toBeInTheDocument();
+    expect(screen.getByText('Rejected: Amount does not match receipt')).toBeInTheDocument();
+  });
+});
+
 describe('sale detail', () => {
   const base = {
     id: 'sale1',
@@ -228,6 +283,12 @@ describe('sale detail', () => {
     dueP: 100000,
     submittedAt: '2026-10-20T08:00:00Z',
     itemCount: 1,
+    deliveryBy: 'staff',
+    deliveredBy: null,
+    approvedBy: null,
+    reversedAt: null,
+    reversedBy: null,
+    reverseReason: null,
     items: [
       {
         id: 'i1',
@@ -248,11 +309,11 @@ describe('sale detail', () => {
     deliveredAt: null,
   };
 
-  function load(status: string) {
+  function load(status: string, extra: Record<string, unknown> = {}) {
     mockApi({
       'GET /v1/admin/auth/me': SR,
       'GET /v1/portal/sr/sales': paged([]),
-      'GET /v1/portal/sr/sales/sale1': { ...base, status },
+      'GET /v1/portal/sr/sales/sale1': { ...base, status, ...extra },
     });
     renderApp('/sr/sales/sale1');
   }
@@ -269,5 +330,63 @@ describe('sale detail', () => {
     const link = await screen.findByRole('link', { name: 'View memo' });
     expect(link).toHaveAttribute('href', '/v1/portal/sr/sales/sale1/memo?lang=en');
     expect(screen.queryByRole('button', { name: 'Cancel this request' })).not.toBeInTheDocument();
+  });
+
+  it('lets the SR mark an own-delivery sale as delivered', async () => {
+    const { calls } = (() => {
+      const m = mockApi({
+        'GET /v1/admin/auth/me': SR,
+        'GET /v1/portal/sr/sales': paged([]),
+        'GET /v1/portal/sr/sales/sale1': { ...base, status: 'approved', deliveryBy: 'sr' },
+        'POST /v1/portal/sr/sales/sale1/deliver': {
+          ...base,
+          status: 'delivered',
+          deliveryBy: 'sr',
+        },
+      });
+      return m;
+    })();
+    renderApp('/sr/sales/sale1');
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Mark as delivered' }));
+    await user.click(await screen.findByRole('button', { name: 'Yes, delivered' }));
+    await waitFor(() =>
+      expect(calls.some((c) => c.path === '/v1/portal/sr/sales/sale1/deliver')).toBe(true),
+    );
+  });
+
+  it('hides mark-delivered when the office delivers', async () => {
+    load('approved', { deliveryBy: 'staff' });
+    await screen.findByRole('link', { name: 'View memo' });
+    expect(screen.queryByRole('button', { name: 'Mark as delivered' })).not.toBeInTheDocument();
+  });
+
+  it('shows a reversed sale with its reason and no memo or actions', async () => {
+    load('reversed', { reverseReason: 'Goods returned' });
+    expect(await screen.findByText('Reversed by staff: Goods returned')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'View memo' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Cancel this request' })).not.toBeInTheDocument();
+  });
+
+  it('shares the public memo link', async () => {
+    const share = vi.fn(async () => undefined);
+    Object.defineProperty(navigator, 'share', { value: share, configurable: true });
+    const { calls } = mockApi({
+      'GET /v1/admin/auth/me': SR,
+      'GET /v1/portal/sr/sales': paged([]),
+      'GET /v1/portal/sr/sales/sale1': { ...base, status: 'approved' },
+      'POST /v1/portal/sr/sales/sale1/memo-link': {
+        token: 'abc',
+        url: 'https://shop.example/v1/public/memo/abc',
+      },
+    });
+    renderApp('/sr/sales/sale1');
+    await userEvent.click(await screen.findByRole('button', { name: 'Share memo' }));
+    await waitFor(() => expect(share).toHaveBeenCalled());
+    const arg = share.mock.calls[0] as unknown as [{ text: string }];
+    expect(arg[0].text).toContain('https://shop.example/v1/public/memo/abc?lang=en');
+    expect(arg[0].text).toContain('SR-2610-00001');
+    expect(calls.some((c) => c.path.endsWith('/memo-link'))).toBe(true);
+    Reflect.deleteProperty(navigator, 'share');
   });
 });

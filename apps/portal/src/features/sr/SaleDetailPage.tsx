@@ -17,7 +17,7 @@ import { Link } from '@tanstack/react-router';
 import { BackLink } from '~/components/PageTitle';
 import { QueryBoundary } from '~/components/QueryBoundary';
 import { StatusBadge } from '~/components/StatusBadge';
-import { t } from '~/i18n';
+import { num, t } from '~/i18n';
 import { formatDate, formatPrice } from '~/lib/format';
 import type { SrSaleDetail } from './api';
 import { srApi } from './api';
@@ -35,6 +35,19 @@ export function SaleDetailPage({ id }: { id: string }) {
   const sale = useQuery(srSaleQuery(id));
   const qc = useQueryClient();
   const [confirmOpen, { open, close }] = useDisclosure(false);
+  const [deliverOpen, { open: openDeliver, close: closeDeliver }] = useDisclosure(false);
+  const share = useMutation({
+    mutationFn: shareMemo,
+    onError: () => notifications.show({ message: t('memoLinkFailed'), color: 'red' }),
+  });
+  const deliver = useMutation({
+    mutationFn: () => srApi.deliverSale(id),
+    onSuccess: async () => {
+      closeDeliver();
+      notifications.show({ message: t('deliveredDone'), color: 'green' });
+      await qc.invalidateQueries({ queryKey: srKeys.all });
+    },
+  });
   const cancel = useMutation({
     mutationFn: () => srApi.cancelSale(id),
     onSuccess: async () => {
@@ -47,7 +60,8 @@ export function SaleDetailPage({ id }: { id: string }) {
   return (
     <QueryBoundary query={sale}>
       {(s) => {
-        const closed = s.status === 'rejected' || s.status === 'cancelled';
+        const closed =
+          s.status === 'rejected' || s.status === 'cancelled' || s.status === 'reversed';
         return (
           <Stack gap="md">
             <div>
@@ -68,6 +82,11 @@ export function SaleDetailPage({ id }: { id: string }) {
             {s.status === 'submitted' && (
               <Alert color="yellow" variant="light">
                 {t('waitingApproval')}
+              </Alert>
+            )}
+            {s.status === 'reversed' && (
+              <Alert color="grape" variant="light">
+                {t('reversedNote', { reason: s.reverseReason ?? '-' })}
               </Alert>
             )}
             {s.status === 'rejected' && (
@@ -110,7 +129,12 @@ export function SaleDetailPage({ id }: { id: string }) {
                     >
                       বাংলা
                     </Button>
-                    <Button size="xs" variant="default" onClick={() => void shareMemo(s)}>
+                    <Button
+                      size="xs"
+                      variant="default"
+                      loading={share.isPending}
+                      onClick={() => share.mutate(s)}
+                    >
                       {t('shareMemo')}
                     </Button>
                   </Group>
@@ -142,7 +166,7 @@ export function SaleDetailPage({ id }: { id: string }) {
                           </Text>
                         )}
                       </Table.Td>
-                      <Table.Td ta="right">{i.qty}</Table.Td>
+                      <Table.Td ta="right">{num(i.qty)}</Table.Td>
                       <Table.Td ta="right">{formatPrice(i.unitPriceP)}</Table.Td>
                       <Table.Td ta="right">{formatPrice(i.lineTotalP)}</Table.Td>
                     </Table.Tr>
@@ -183,6 +207,12 @@ export function SaleDetailPage({ id }: { id: string }) {
                     <Text>{formatDate(s.approvedAt)}</Text>
                   </Group>
                 )}
+                <Group justify="space-between">
+                  <Text c="dimmed">{t('deliveryBy')}</Text>
+                  <Text ta="right">
+                    {s.deliveryBy === 'sr' ? t('deliveryBySr') : t('deliveryByStaff')}
+                  </Text>
+                </Group>
                 {s.deliveredAt && (
                   <Group justify="space-between">
                     <Text c="dimmed">{t('statusDelivered')}</Text>
@@ -198,6 +228,34 @@ export function SaleDetailPage({ id }: { id: string }) {
               </Stack>
             </Paper>
 
+            {s.status === 'approved' && s.deliveryBy === 'sr' && (
+              <>
+                <Button onClick={openDeliver}>{t('markDelivered')}</Button>
+                <Modal
+                  opened={deliverOpen}
+                  onClose={closeDeliver}
+                  title={t('markDelivered')}
+                  centered
+                >
+                  <Stack>
+                    <Text>{t('markDeliveredConfirm')}</Text>
+                    {deliver.error && (
+                      <Alert color="red" variant="light">
+                        {deliver.error.message}
+                      </Alert>
+                    )}
+                    <Group grow>
+                      <Button variant="default" onClick={closeDeliver}>
+                        {t('notYet')}
+                      </Button>
+                      <Button loading={deliver.isPending} onClick={() => deliver.mutate()}>
+                        {t('yesDelivered')}
+                      </Button>
+                    </Group>
+                  </Stack>
+                </Modal>
+              </>
+            )}
             {s.status === 'submitted' && (
               <>
                 <Button color="red" variant="light" onClick={open}>

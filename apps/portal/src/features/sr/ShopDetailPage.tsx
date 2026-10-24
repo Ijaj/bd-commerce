@@ -15,26 +15,23 @@ import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { BackLink, PageTitle } from '~/components/PageTitle';
 import { QueryBoundary } from '~/components/QueryBoundary';
-import { t } from '~/i18n';
+import { num, t } from '~/i18n';
 import { formatDate, formatPrice } from '~/lib/format';
 import { ledgerLabel, ledgerNewestFirst } from './logic';
-import { srSalesQuery, srShopQuery } from './queries';
+import { srRecentHundredQuery, srShopQuery } from './queries';
 import { SaleItem } from './SaleItem';
 import { NewBadge } from './ShopsPage';
 
 export function ShopDetailPage({ id }: { id: string }) {
   const navigate = useNavigate();
   const shop = useQuery(srShopQuery(id));
-  const sales = useQuery(srSalesQuery);
+  const sales = useQuery(srRecentHundredQuery);
   const [tab, setTab] = useState<'sales' | 'ledger'>('sales');
   return (
     <QueryBoundary query={shop}>
       {(s) => {
-        const shopSales = sales.data?.filter((x) => x.shop.id === id) ?? [];
+        const shopSales = sales.data?.items.filter((x) => x.shop.id === id) ?? [];
         const rows = ledgerNewestFirst(s.ledger);
-        const totalBoughtP = shopSales
-          .filter((x) => x.status === 'approved' || x.status === 'delivered')
-          .reduce((a, x) => a + x.totalP, 0);
         return (
           <Stack gap="md">
             <div>
@@ -59,7 +56,7 @@ export function ShopDetailPage({ id }: { id: string }) {
                   <Text ta="right">{[s.address, s.area].filter(Boolean).join(', ')}</Text>
                 </Group>
               </Stack>
-              <SimpleGrid cols={2} mt="md">
+              <SimpleGrid cols={1} mt="md">
                 <div>
                   <Text size="sm" c="dimmed">
                     {t('currentDueLabel')}
@@ -67,12 +64,6 @@ export function ShopDetailPage({ id }: { id: string }) {
                   <Text fz="xl" c={s.dueBalanceP > 0 ? 'red' : undefined} data-testid="shop-due">
                     {formatPrice(s.dueBalanceP)}
                   </Text>
-                </div>
-                <div>
-                  <Text size="sm" c="dimmed">
-                    {t('totalBought')}
-                  </Text>
-                  <Text fz="xl">{formatPrice(totalBoughtP)}</Text>
                 </div>
               </SimpleGrid>
             </Paper>
@@ -97,7 +88,7 @@ export function ShopDetailPage({ id }: { id: string }) {
               value={tab}
               onChange={(v) => setTab(v as 'sales' | 'ledger')}
               data={[
-                { value: 'sales', label: `${t('tabShopSales')} (${shopSales.length})` },
+                { value: 'sales', label: `${t('tabShopSales')} (${num(shopSales.length)})` },
                 { value: 'ledger', label: t('tabLedger') },
               ]}
             />
@@ -133,10 +124,15 @@ export function ShopDetailPage({ id }: { id: string }) {
                           {ledgerLabel(r.type)}
                           <Text size="xs" c="dimmed">
                             {r.memoNo ?? r.note ?? ''}
-                            {!r.confirmed && ` ${t('awaitingConfirm')}`}
+                            {!r.confirmed && !r.rejected && ` ${t('awaitingConfirm')}`}
                           </Text>
+                          {r.rejected && (
+                            <Text size="xs" c="red">
+                              {t('collectionRejectedReason', { reason: r.rejectReason ?? '-' })}
+                            </Text>
+                          )}
                         </Table.Td>
-                        <Table.Td ta="right">
+                        <Table.Td ta="right" td={r.rejected ? 'line-through' : undefined}>
                           {r.confirmed
                             ? `${r.amountP > 0 ? '+' : '-'}${formatPrice(Math.abs(r.amountP))}`
                             : `(${formatPrice(Math.abs(r.amountP))})`}

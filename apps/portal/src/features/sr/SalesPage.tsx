@@ -1,8 +1,9 @@
 import { Button, Chip, Group, Paper, Stack, Text } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
+import { LoadMore } from '~/components/LoadMore';
 import { PageTitle } from '~/components/PageTitle';
 import { QueryBoundary } from '~/components/QueryBoundary';
 import { t } from '~/i18n';
@@ -18,11 +19,12 @@ const FILTERS: { value: Filter; label: () => string }[] = [
   { value: 'approved', label: () => t('filterApproved') },
   { value: 'delivered', label: () => t('filterDelivered') },
   { value: 'rejected', label: () => t('filterRejected') },
+  { value: 'reversed', label: () => t('filterReversed') },
 ];
 
 export function SalesPage() {
   const [filter, setFilter] = useState<Filter>('all');
-  const sales = useQuery(srSalesQuery);
+  const sales = useInfiniteQuery(srSalesQuery(filter === 'all' ? undefined : filter));
   return (
     <Stack gap="sm">
       <PageTitle
@@ -34,27 +36,24 @@ export function SalesPage() {
       >
         {t('mySales')}
       </PageTitle>
+      <Group gap={6} wrap="nowrap" style={{ overflowX: 'auto' }}>
+        {FILTERS.map((f) => (
+          <Chip
+            key={f.value}
+            checked={filter === f.value}
+            onChange={() => setFilter(f.value)}
+            variant="outline"
+            size="sm"
+          >
+            {f.label()}
+          </Chip>
+        ))}
+      </Group>
       <QueryBoundary query={sales}>
-        {(all) => {
-          const list = all.filter((s) => filter === 'all' || s.status === filter);
+        {(data) => {
+          const list = data.pages.flatMap((p) => p.items);
           return (
             <>
-              <Group gap={6} wrap="nowrap" style={{ overflowX: 'auto' }}>
-                {FILTERS.map((f) => (
-                  <Chip
-                    key={f.value}
-                    checked={filter === f.value}
-                    onChange={() => setFilter(f.value)}
-                    variant="outline"
-                    size="sm"
-                  >
-                    {f.label()}{' '}
-                    {f.value === 'all'
-                      ? all.length
-                      : all.filter((s) => s.status === f.value).length}
-                  </Chip>
-                ))}
-              </Group>
               <Paper py={4}>
                 {list.length === 0 ? (
                   <Text c="dimmed" ta="center" py="md">
@@ -64,6 +63,7 @@ export function SalesPage() {
                   list.map((s) => <SaleItem key={s.id} sale={s} />)
                 )}
               </Paper>
+              <LoadMore query={sales} />
             </>
           );
         }}

@@ -1,15 +1,16 @@
 import { Alert, Badge, Button, Group, Paper, Stack, Text, TextInput } from '@mantine/core';
+import { useDebouncedValue } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconPlus, IconSearch } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
+import { LoadMore } from '~/components/LoadMore';
 import { BackLink, PageTitle } from '~/components/PageTitle';
 import { QueryBoundary } from '~/components/QueryBoundary';
 import { t } from '~/i18n';
 import { formatPrice } from '~/lib/format';
 import { AddShopForm } from './AddShopForm';
-import { shopMatches } from './logic';
 import { srShopsQuery } from './queries';
 
 export function NewBadge() {
@@ -21,8 +22,9 @@ export function NewBadge() {
 }
 
 export function ShopsPage() {
-  const shops = useQuery(srShopsQuery);
   const [q, setQ] = useState('');
+  const [debounced] = useDebouncedValue(q.trim(), 250);
+  const shops = useInfiniteQuery(srShopsQuery(debounced));
   return (
     <Stack gap="sm">
       <PageTitle
@@ -47,15 +49,13 @@ export function ShopsPage() {
         onChange={(e) => setQ(e.currentTarget.value)}
       />
       <QueryBoundary query={shops}>
-        {(all) => {
-          const list = all
-            .filter((s) => shopMatches(s, q))
-            .sort((a, b) => b.dueBalanceP - a.dueBalanceP);
-          const totalDue = all.reduce((a, s) => a + s.dueBalanceP, 0);
+        {(data) => {
+          const list = data.pages.flatMap((p) => p.items);
+          const total = data.pages[0]?.total ?? 0;
           return (
             <>
               <Text size="sm" c="dimmed">
-                {t('shopsSummary', { n: list.length, amount: formatPrice(totalDue) })}
+                {t('shopsCount', { n: total })}
               </Text>
               <Paper py={4}>
                 {list.length === 0 ? (
@@ -74,6 +74,11 @@ export function ShopsPage() {
                         <Text truncate>
                           {s.name}
                           {s.isNew && <NewBadge />}
+                          {s.status === 'blocked' && (
+                            <Badge color="red" variant="light" ml={6}>
+                              {t('blocked')}
+                            </Badge>
+                          )}
                         </Text>
                         <Text
                           c={s.dueBalanceP > 0 ? 'red' : 'teal'}
@@ -95,6 +100,7 @@ export function ShopsPage() {
                   ))
                 )}
               </Paper>
+              <LoadMore query={shops} />
             </>
           );
         }}

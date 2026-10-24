@@ -1,5 +1,5 @@
 import { t } from '~/i18n';
-import type { LedgerType, SaleStatus, SrLedgerRow, SrProduct } from './api';
+import type { LedgerType, SaleStatus, SrProduct } from './api';
 
 export interface DraftLine {
   variantId: string;
@@ -12,14 +12,24 @@ export interface DraftLine {
   unitPriceP: number | null;
 }
 
+export type DeliveryBy = 'sr' | 'staff';
+
 export interface SaleDraft {
   shopId: string | null;
+  /** C42: office delivers unless the SR says otherwise. */
+  deliveryBy: DeliveryBy;
   lines: DraftLine[];
   paidP: number | null;
   note: string;
 }
 
-export const emptyDraft = (): SaleDraft => ({ shopId: null, lines: [], paidP: null, note: '' });
+export const emptyDraft = (): SaleDraft => ({
+  shopId: null,
+  deliveryBy: 'staff',
+  lines: [],
+  paidP: null,
+  note: '',
+});
 
 export function lineFromProduct(p: SrProduct): DraftLine {
   return {
@@ -79,7 +89,8 @@ export function validateSale(d: SaleDraft): SaleErrors {
 export const hasErrors = (e: SaleErrors) =>
   Boolean(e.shop || e.items || e.paid || Object.keys(e.lines).length);
 
-export const STATUS_COLOR: Record<SaleStatus, string> = {
+export const STATUS_COLOR: Record<string, string> = {
+  reversed: 'grape',
   submitted: 'yellow',
   approved: 'blue',
   delivered: 'green',
@@ -87,8 +98,9 @@ export const STATUS_COLOR: Record<SaleStatus, string> = {
   cancelled: 'gray',
 };
 
-export const statusLabel = (s: SaleStatus) =>
+export const statusLabel = (s: SaleStatus | 'reversed') =>
   ({
+    reversed: t('statusReversed'),
     submitted: t('statusSubmitted'),
     approved: t('statusApproved'),
     delivered: t('statusDelivered'),
@@ -96,25 +108,16 @@ export const statusLabel = (s: SaleStatus) =>
     cancelled: t('statusCancelled'),
   })[s];
 
-export const ledgerLabel = (type: LedgerType) =>
+export const ledgerLabel = (type: LedgerType | 'reversal') =>
   ({
     sale_due: t('ledgerSale'),
+    reversal: t('ledgerReversal'),
     collection: t('ledgerCollection'),
     adjustment: t('ledgerAdjustment'),
   })[type];
 
 /** Newest entry first. */
-export const ledgerNewestFirst = (rows: SrLedgerRow[]) =>
+export const ledgerNewestFirst = <T extends { at: string }>(rows: T[]) =>
   [...rows].sort((a, b) => b.at.localeCompare(a.at));
-
-/** Shop matches a free-text query on name, owner, area, phone. */
-export function shopMatches(
-  s: { name: string; ownerName: string | null; area: string | null; phone: string },
-  q: string,
-): boolean {
-  const needle = q.trim().toLowerCase();
-  if (!needle) return true;
-  return `${s.name} ${s.ownerName ?? ''} ${s.area ?? ''} ${s.phone}`.toLowerCase().includes(needle);
-}
 
 export const BD_PHONE = /^01\d{9}$/;
