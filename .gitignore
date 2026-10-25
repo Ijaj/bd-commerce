@@ -22,3 +22,6 @@ e2e/playwright-report
 # Next.js (apps/shop) regenerates these
 apps/shop/next-env.d.ts
 apps/shop/AGENTS.md
+
+# dev.sh state (pids, logs)
+.dev/
