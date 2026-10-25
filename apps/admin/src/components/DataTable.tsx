@@ -8,6 +8,8 @@ export interface Column<T> {
   render: (row: T) => ReactNode;
   width?: number | string;
   align?: 'left' | 'right' | 'center';
+  /** Cell class on both th and td: `num` (right, tabular), `act` (actions), `a-nowrap`. */
+  className?: string;
 }
 
 export interface DataTableProps<T> {
@@ -57,7 +59,7 @@ export function DataTable<T>({
         <Table.Thead>
           <Table.Tr>
             {columns.map((c) => (
-              <Table.Th key={c.key} w={c.width} ta={c.align}>
+              <Table.Th key={c.key} w={c.width} ta={c.align} className={c.className}>
                 {c.header}
               </Table.Th>
             ))}
@@ -71,7 +73,7 @@ export function DataTable<T>({
               className={onRowClick ? 'click' : undefined}
             >
               {columns.map((c) => (
-                <Table.Td key={c.key} ta={c.align}>
+                <Table.Td key={c.key} ta={c.align} className={c.className}>
                   {c.render(row)}
                 </Table.Td>
               ))}
