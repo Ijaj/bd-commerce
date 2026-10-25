@@ -9,10 +9,11 @@ General-purpose e-commerce for Bangladesh. Planning gates 1–7 done (`plan/READ
 - Log every answer in `plan/10-decisions-log.md`; mark `[DECIDED]` in the topic docs; new questions go into `plan/08-open-questions.md` with the next Q number.
 - Token budget matters (user on $20 plan): read only the files you need, don't re-read the whole plan. `plan/10-decisions-log.md` is the compact source of truth for decisions.
 - Flowcharts: edit `plan/flowcharts/flows.js` only, then run `node plan/flowcharts/to-md.mjs` to regenerate `plan/11-flowcharts.md`. Never hand-edit the md. Animated viewer: `plan/flowcharts/index.html` (dagre + GSAP, file://).
-- User wants big visual/UI work delegated to a Sonnet/Haiku sub-agent with a precise spec. No Artifacts unless asked.
+- UI must match `plan/mockups/` (C60, approved design; stock Mantine look is rejected). User wants big visual/UI work delegated to a Sonnet/Haiku sub-agent with a precise spec. No Artifacts unless asked.
 - Old reference project: `~/webdev/baby-commerce` (lessons in `plan/09-baby-commerce-reuse.md`).
 
 ## Resume state (last updated 2026-10-25, session 11)
+- **TOP PRIORITY (C60, owner 2026-10-25): built admin/portal UI does NOT match the approved mockups (`plan/mockups/`).** Stock Mantine was used (old S-T8) and never compared with mockups: wrong colors, no icons/dark mode/styled sidebar, different menus. Do roadmap step 6b first, following `plan/swarm/brief-ui-fidelity.md` (customize Mantine to the brand-D mockups, per-screen screenshot comparison). Rule: every UI task opens the matching mockup first. Do this before step 7/8 work.
 
 - Gates 1–7 done; SR mockups approved (C1). **Gate 8 coding in progress.** Decisions C1–C8 in doc 10: step 1 in 4 sub-steps (1a stack/CI, 1b Prisma+Nest+OpenAPI, 1c staff auth/2FA/sessions/RBAC, 1d settings/flags/EN-BN/maintenance), foundation tables only, commit to main, Node 24, Garage (not MinIO), Biome, TypeScript 7 (fall back to 6.0 per app if a tool breaks).
 - **1a done** (e3dcc56, CI green): root pnpm/turbo/biome/tsconfig.base, `infra/dev` compose (Postgres 18, Redis 8, Garage v2.4.1, imgproxy v3.31.4), `pnpm stack:up|init|down|reset`, `.env.example`, `.github/workflows/ci.yml`. Verified S3 upload + signed imgproxy WebP.

@@ -185,7 +185,7 @@ Note on S6: our order tracking covers status until the parcel is handed to the c
 | S-T5 | Backend: **separate API service on NestJS**, REST, used by shop, admin and Android app |
 | S-T6 | DB toolkit: **Prisma** (schema + migrations from day 1) |
 | S-T7 | Admin panel: **separate app** (own subdomain/deploy), not inside the shop |
-| S-T8 | Styling: storefront **plain CSS** (no CSS framework); admin **Tailwind + Mantine**, use Mantine stock styling as much as possible |
+| S-T8 | Styling: storefront **plain CSS** (no CSS framework); admin **Tailwind + Mantine**, use Mantine stock styling as much as possible. **SUPERSEDED by C60 (stock styling no longer wanted)** |
 | S-T9 | Admin app: **Vite + React SPA** + Mantine, data from NestJS API |
 | S-T10 | Repo: **monorepo, pnpm + Turborepo** (apps/shop, apps/admin, apps/api, shared packages) |
 | S-T11 | Hosting: **self-hosted on 2-3 owner PCs with public static IP** (details S-T13+) |
@@ -300,3 +300,4 @@ Note on S6: our order tracking covers status until the parcel is handed to the c
 | C57 | Step 6 combining: **all eligible auto discounts that stack with each other + at most 1 code**; a 2nd code only if both coupons allow stacking with other coupons (Q43 toggles stay) |
 | C58 | Step 6 product discounts: **bulk sale tool** in admin (category/brand/products, % or fixed off, window → writes variant sale prices, one-click undo). Events + page builder stay P3 (R7); payment-method discount condition stored but only `cod` is live until online payments |
 | C59 | Local staff sign-in: `.env` sets `DISABLE_2FA=true` for easier development; production refuses that setting, and API/e2e tests explicitly keep 2FA enabled |
+| C60 | **UI must match the approved mockups (owner, 2026-10-25).** The mockups in `plan/mockups/` are the visual source of truth for admin, portal and shop; what was built in steps 1-6 (stock Mantine + a few colors) is NOT approved. Supersedes S-T8. Customize Mantine (theme + component overrides + a shared shell) to reproduce: brand-D tokens (light + dark), gradient top bar with wordmark + global search, dark sidebar with icons, visible group headings, active-item highlight bar, light/dark switch, page header (left-bar title, crumbs, actions), stat tiles, dense tables, badges, tabs, cards. Menus follow the mockup groups/labels/icons (Overview / Sales / Catalog / Marketing / People & partners / System); built pages that the mockup lacks (call queue, shipments, bulk sales, carousel...) are slotted into the nearest group. Work = new roadmap step 6b (before step 7 continues). Acceptance: side-by-side screenshots per page vs mockup, owner review |

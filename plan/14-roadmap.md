@@ -14,6 +14,7 @@ Build order (R24). Each slice ends with tests (Vitest + Playwright where it touc
 | 4 | Cart + checkout | Cart, guest + account COD checkout, guest OTP above ৳X, delivery zones + per-zone free threshold, orders + statuses, order SMS/email, guest order tracking |
 | 5 | Order operations | Admin orders (filters, edits before hand-off, hold/cancel, split), call-confirmation queue, courier API (Steadfast + Pathao), invoices + labels (VAT/BIN), returns & refunds (manual payback, no wallet) |
 | 6 | Promotions | Product discounts, coupons (full), flash sales + countdown |
+| 6b | UI fidelity (C60) | Restyle admin (then portal, then shop check) to match `plan/mockups`: brand-D tokens + dark mode, shell (gradient top bar, dark sidebar with icons/groups), shared page components, per-page pass. Spec: `plan/swarm/brief-ui-fidelity.md` |
 | 7 | Partner portal | `apps/portal` (Q118): suppliers + POs + receiving + dropship supplier section; **SR module** (sale forms, approvals, B2B shop list, due ledger + collections, memo, targets + commission on collected money); affiliates + dashboard |
 | 8 | Growth in P1 | Loyalty points, referral, analytics + visitor tracking, reviews & Q&A, abandoned cart email |
 | 9 | Hardening + soft launch | Monitoring (Uptime Kuma, GlitchTip, Beszel), backups + replica drills, performance pass on low-end phones, full Playwright run, production setup on owner PCs + self-hosted deploy runner (C20), soft launch |
