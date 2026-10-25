@@ -18019,6 +18019,12 @@
             "items": {
               "type": "object",
               "properties": {
+                "orderItemId": {
+                  "type": "string"
+                },
+                "returnableQty": {
+                  "type": "number"
+                },
                 "productId": {
                   "type": "string"
                 },
@@ -18095,6 +18101,8 @@
                 }
               },
               "required": [
+                "orderItemId",
+                "returnableQty",
                 "productId",
                 "variantId",
                 "slug",

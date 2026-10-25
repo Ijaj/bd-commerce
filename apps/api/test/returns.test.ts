@@ -148,6 +148,28 @@ describe('returns and refunds', () => {
   });
 
   describe('customer requests', () => {
+    it('exposes orderItemId and returnableQty on the customer order, shrinking as returns are held', async () => {
+      const c = await customer();
+      const o = await deliveredOrder({ customerId: c.id });
+      const before = await c.agent.get(`/v1/customer/orders/${o.order.orderNo}`).expect(200);
+      const lineA = before.body.items.find(
+        (i: { orderItemId: string }) => i.orderItemId === o.itemA.id,
+      );
+      expect(lineA.returnableQty).toBeGreaterThan(0);
+      await c.agent
+        .post('/v1/customer/returns')
+        .send({
+          orderNo: o.order.orderNo,
+          items: [{ orderItemId: o.itemA.id, qty: 1, reason: 'damaged' }],
+        })
+        .expect(201);
+      const after = await c.agent.get(`/v1/customer/orders/${o.order.orderNo}`).expect(200);
+      const afterA = after.body.items.find(
+        (i: { orderItemId: string }) => i.orderItemId === o.itemA.id,
+      );
+      expect(afterA.returnableQty).toBe(lineA.returnableQty - 1);
+    });
+
     it('creates a requested return for my delivered order and lists it', async () => {
       const c = await customer();
       const o = await deliveredOrder({ customerId: c.id });

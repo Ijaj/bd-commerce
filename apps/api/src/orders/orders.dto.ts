@@ -60,6 +60,8 @@ export class OrderDetailDto extends createZodDto(
     customerNote: z.string().nullable(),
     items: z.array(
       z.object({
+        orderItemId: z.string(),
+        returnableQty: z.number(),
         productId: z.string(),
         variantId: z.string(),
         slug: z.string(),

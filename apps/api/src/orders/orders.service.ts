@@ -3,6 +3,8 @@ import { ThrottleService } from '../auth/throttle.service';
 import { CustomerError } from '../customers/customers.errors';
 import { maskPhone, normalizePhone } from '../customers/phone';
 import { PrismaService } from '../prisma/prisma.service';
+import { returnableQtyByLine } from '../returns/returns.util';
+import { SettingsService } from '../settings/settings.service';
 import { ImageService } from '../storefront/images';
 import { CommerceError } from './commerce.errors';
 import type { OrderListQueryDto } from './orders.dto';
@@ -17,6 +19,7 @@ export class OrdersService {
     private readonly prisma: PrismaService,
     private readonly images: ImageService,
     private readonly throttle: ThrottleService,
+    private readonly settings: SettingsService,
   ) {}
 
   private async imageMap(mediaIds: (string | null)[]) {
@@ -66,6 +69,11 @@ export class OrdersService {
     });
     if (!o) throw new CommerceError(HttpStatus.NOT_FOUND, 'ORDER_NOT_FOUND', 'Order not found.');
     const images = await this.imageMap(o.items.map((i) => i.imageMediaId));
+    const returnable = await returnableQtyByLine(
+      this.prisma,
+      o,
+      (await this.settings.get('returns')).windowDays,
+    );
     return {
       orderNo: o.orderNo,
       placedAt: o.placedAt.toISOString(),
@@ -76,6 +84,8 @@ export class OrdersService {
       isPreorder: o.isPreorder,
       customerNote: o.customerNote,
       items: o.items.map((i) => ({
+        orderItemId: i.id,
+        returnableQty: returnable.get(i.id) ?? 0,
         productId: i.productId,
         variantId: i.variantId,
         slug: i.product.slug,

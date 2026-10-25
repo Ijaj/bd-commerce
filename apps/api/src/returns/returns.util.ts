@@ -40,3 +40,47 @@ export function lineRefundP(order: MoneyOrder, unitPriceP: number, qty: number) 
 export async function lockOrder(tx: Prisma.TransactionClient, orderId: string) {
   await tx.$queryRaw`SELECT id FROM orders WHERE id = ${orderId}::uuid FOR UPDATE`;
 }
+
+/**
+ * Units a customer can still return now, per order line: delivered qty minus what is already
+ * returned or held by an open return; 0 when the order is not delivered or the line's window closed.
+ */
+export async function returnableQtyByLine(
+  db: Prisma.TransactionClient,
+  order: {
+    id: string;
+    status: string;
+    deliveredAt: Date | null;
+    items: { id: string; qtyReturned: number; returnWindowDays: number | null }[];
+  },
+  windowDefaultDays: number,
+  now = Date.now(),
+) {
+  const out = new Map<string, number>();
+  if (order.status !== 'delivered' && order.status !== 'completed') {
+    for (const i of order.items) out.set(i.id, 0);
+    return out;
+  }
+  const [delivered, holding] = await Promise.all([
+    db.shipmentItem.groupBy({
+      by: ['orderItemId'],
+      where: { shipment: { orderId: order.id, status: 'delivered' } },
+      _sum: { qty: true },
+    }),
+    db.returnItem.groupBy({
+      by: ['orderItemId'],
+      where: { return: { orderId: order.id, status: { in: [...HOLDING_STATUSES] } } },
+      _sum: { qty: true },
+    }),
+  ]);
+  const dMap = new Map(delivered.map((r) => [r.orderItemId, r._sum.qty ?? 0]));
+  const hMap = new Map(holding.map((r) => [r.orderItemId, r._sum.qty ?? 0]));
+  const from = order.deliveredAt?.getTime() ?? now;
+  for (const i of order.items) {
+    const days = i.returnWindowDays ?? windowDefaultDays;
+    const open = now <= from + days * DAY_MS;
+    const available = (dMap.get(i.id) ?? 0) - i.qtyReturned - (hMap.get(i.id) ?? 0);
+    out.set(i.id, open ? Math.max(0, available) : 0);
+  }
+  return out;
+}

@@ -4327,6 +4327,8 @@ export interface components {
             isPreorder: boolean;
             customerNote: string | null;
             items: {
+                orderItemId: string;
+                returnableQty: number;
                 productId: string;
                 variantId: string;
                 slug: string;

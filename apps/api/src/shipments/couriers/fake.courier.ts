@@ -32,6 +32,8 @@ export const fakeCourierHooks = {
   },
 };
 
+const WEBHOOK_STATUSES = new Set(['handed_over', 'in_transit', 'delivered', 'failed', 'returned']);
+
 export class FakeCourier implements CourierAdapter {
   readonly code = 'fake';
 
@@ -66,5 +68,21 @@ export class FakeCourier implements CourierAdapter {
   async status(consignmentId: string) {
     const mapped = state.statuses.get(consignmentId) ?? 'booked';
     return { rawStatus: mapped, mapped, raw: { status: mapped } };
+  }
+
+  // Lets e2e (separate process from the API) push status changes; no booking exists in production.
+  verifyWebhook(headers: Record<string, string | string[] | undefined>) {
+    return headers['x-fake-courier'] === 'e2e';
+  }
+
+  parseWebhook(body: unknown) {
+    const b = body as { consignmentId?: unknown; status?: unknown } | null;
+    if (typeof b?.consignmentId !== 'string' || typeof b.status !== 'string') return null;
+    if (!WEBHOOK_STATUSES.has(b.status)) return null;
+    return {
+      consignmentId: b.consignmentId,
+      rawStatus: b.status,
+      mapped: b.status as CourierMapped,
+    };
   }
 }
