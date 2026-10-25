@@ -79,6 +79,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends postgresql-client redis-tools
       - run: pnpm --filter @bdc/e2e exec playwright install --with-deps chromium
+      - run: pnpm --filter @bdc/api prisma:generate
       - run: pnpm turbo run build --filter='./packages/*'
       # Dev-only values; the e2e overrides database, Redis db and ports itself.
       - run: cp .env.example .env

@@ -14,7 +14,7 @@ export async function resetCommerce(app: INestApplication) {
   const prisma = app.get(PrismaService);
   await prisma.$executeRawUnsafe(
     'TRUNCATE order_items, order_status_history, payments, orders, cart_items, carts, ' +
-      'customer_addresses, zone_locations, delivery_zones, wishlists CASCADE',
+      'customer_addresses, zone_locations, delivery_zones, wishlists, coupons, flash_sales, sale_batches CASCADE',
   );
   await prisma.customerSession.deleteMany();
   await prisma.otpCode.deleteMany();
