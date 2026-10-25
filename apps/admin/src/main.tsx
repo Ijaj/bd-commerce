@@ -40,7 +40,7 @@ createRoot(root).render(
       cssVariablesResolver={bdcCssVariablesResolver}
     >
       <ModalsProvider>
-        <Notifications position="bottom-right" />
+        <Notifications position="top-right" />
         <QueryClientProvider client={queryClient}>
           <RouterProvider router={router} />
         </QueryClientProvider>

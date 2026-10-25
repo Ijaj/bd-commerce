@@ -35,7 +35,7 @@ function VerifyPage() {
 
   return (
     <AuthLayout
-      title="Two-step verification"
+      title="Two-factor code"
       subtitle={
         useBackup
           ? 'Enter one of your backup codes. Each works once.'

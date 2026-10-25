@@ -50,7 +50,7 @@ function SettingCard({ setting, canManage }: { setting: Setting; canManage: bool
   });
 
   return (
-    <div className={classes.row}>
+    <div className={classes.row} data-setting={setting.key}>
       <div className={classes.head}>
         <div className={classes.title}>
           <span className={classes.key}>

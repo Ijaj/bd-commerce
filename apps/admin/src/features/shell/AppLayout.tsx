@@ -150,7 +150,7 @@ function GlobalSearch({ canSearchProducts }: { canSearchProducts: boolean }) {
         type="search"
         placeholder="Search products…"
         autoComplete="off"
-        aria-label="Global search"
+        aria-label="Find products"
         value={q}
         onChange={(e) => setQ(e.currentTarget.value)}
         onFocus={() => setFocused(true)}
