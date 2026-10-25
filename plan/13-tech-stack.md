@@ -6,7 +6,7 @@ Decided 2026-10-23 (S-T1 – S-T28 in doc 10). Hard requirements: lightweight st
 | Path | What | Stack |
 |---|---|---|
 | `apps/shop` | Customer storefront (EN/BN) | Next.js (React) on Node.js LTS, **plain CSS** (no CSS framework). Keep client JS small: server components, few client libs |
-| `apps/admin` | Admin panel (separate subdomain) | Vite + React SPA, Tailwind + Mantine (stock Mantine styling as much as possible) |
+| `apps/admin` | Admin panel (separate subdomain) | Vite + React SPA, Mantine, **heavily customized to match the approved mockups (C60)**; no stock look |
 | `apps/api` | REST API for shop, admin, Android, supplier/affiliate portals | NestJS on Node.js LTS, Prisma (migrations from day 1) |
 | `apps/android` | Android app (after web launch, Q5) | Native Kotlin, Jetpack Compose |
 | `packages/*` | Shared code | Generated TS API client, BN/EN + digit helpers, shared constants |
