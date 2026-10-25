@@ -54,6 +54,10 @@ run('node', ['apps/api/dist/cli.js', 'seed-demo'], {
 
 // The fake courier ships disabled; order-ops specs book with it.
 psql2(`UPDATE couriers SET is_active = true WHERE code = 'fake'`);
+// Every e2e order comes from one IP; the default 5 placed orders per IP per hour (C44) would block the suite.
+psql2(
+  `INSERT INTO settings (key, value, updated_at) VALUES ('guest_orders', '{"maxOpenPerPhone":3,"dailyCapP":2000000,"perIpPerHour":500}', now())`,
+);
 
 const child = spawn('node', ['apps/api/dist/main.js'], {
   cwd: root,
