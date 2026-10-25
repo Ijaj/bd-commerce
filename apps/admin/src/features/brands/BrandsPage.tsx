@@ -76,7 +76,13 @@ export function BrandsPage() {
       header: 'Slug',
       render: (b) => <span className={classes.mono}>{b.slug}</span>,
     },
-    { key: 'products', header: 'Products', align: 'right', render: (b) => b.productCount },
+    {
+      key: 'products',
+      className: 'num',
+      header: 'Products',
+      align: 'right',
+      render: (b) => b.productCount,
+    },
     {
       key: 'active',
       header: 'Status',
@@ -88,6 +94,7 @@ export function BrandsPage() {
     },
     {
       key: 'actions',
+      className: 'act',
       header: '',
       width: 80,
       render: (b) => (

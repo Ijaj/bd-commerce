@@ -1,0 +1,4 @@
+/* plan/mockups/admin/shared/admin.css: .a-dropzone */
+.dropInner {
+  pointer-events: none;
+}

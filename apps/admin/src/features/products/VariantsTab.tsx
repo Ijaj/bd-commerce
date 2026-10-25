@@ -1,3 +1,4 @@
+import { TableWrap } from '@bdc/ui';
 import {
   Alert,
   Anchor,
@@ -15,6 +16,7 @@ import { Link } from '@tanstack/react-router';
 import { MoneyInput } from '~/components/MoneyInput';
 import { blankOption, OptionsEditor } from './OptionsEditor';
 import { numOrNull } from './tabProps';
+import classes from './VariantsTab.module.css';
 import {
   comboCount,
   comboLabel,
@@ -83,24 +85,24 @@ export function VariantsTab({
         </Alert>
       )}
 
-      <Text size="sm" fw={600}>
+      <Text size="sm" fw={600} className={classes.heading}>
         {hasOptions ? `Variants (${liveRows.length})` : 'Price and stock'}
       </Text>
-      <Table.ScrollContainer minWidth={900}>
-        <Table verticalSpacing={6} horizontalSpacing={6} fz="xs">
+      <TableWrap>
+        <Table miw={900} className={classes.matrix}>
           <Table.Thead>
             <Table.Tr>
               {hasOptions && <Table.Th>Variant</Table.Th>}
               <Table.Th>SKU</Table.Th>
               <Table.Th>Barcode</Table.Th>
-              <Table.Th>Price</Table.Th>
-              <Table.Th>Compare-at</Table.Th>
-              <Table.Th>Sale price</Table.Th>
+              <Table.Th className="num">Price</Table.Th>
+              <Table.Th className="num">Compare-at</Table.Th>
+              <Table.Th className="num">Sale price</Table.Th>
               <Table.Th>Sale from</Table.Th>
               <Table.Th>Sale until</Table.Th>
-              {canViewCost && <Table.Th>Cost</Table.Th>}
-              <Table.Th>Weight (g)</Table.Th>
-              <Table.Th>Low stock at</Table.Th>
+              {canViewCost && <Table.Th className="num">Cost</Table.Th>}
+              <Table.Th className="num">Weight (g)</Table.Th>
+              <Table.Th className="num">Low stock at</Table.Th>
               <Table.Th>Active</Table.Th>
               <Table.Th>Stock</Table.Th>
             </Table.Tr>
@@ -116,10 +118,7 @@ export function VariantsTab({
                     : 'Required'
                   : undefined;
               return (
-                <Table.Tr
-                  key={r.comboKey}
-                  bg={skuError ? 'var(--mantine-color-red-light)' : undefined}
-                >
+                <Table.Tr key={r.comboKey} className={skuError ? classes.bad : undefined}>
                   {hasOptions && (
                     <Table.Td>
                       <Text size="xs" fw={500} miw={90}>
@@ -152,7 +151,7 @@ export function VariantsTab({
                       onChange={(e) => patchRow(r.comboKey, { barcode: e.currentTarget.value })}
                     />
                   </Table.Td>
-                  <Table.Td>
+                  <Table.Td className="num">
                     <MoneyInput
                       size="xs"
                       w={100}
@@ -162,7 +161,7 @@ export function VariantsTab({
                       onChange={(v) => patchRow(r.comboKey, { priceP: v })}
                     />
                   </Table.Td>
-                  <Table.Td>
+                  <Table.Td className="num">
                     <MoneyInput
                       size="xs"
                       w={100}
@@ -172,7 +171,7 @@ export function VariantsTab({
                       onChange={(v) => patchRow(r.comboKey, { compareAtP: v })}
                     />
                   </Table.Td>
-                  <Table.Td>
+                  <Table.Td className="num">
                     <MoneyInput
                       size="xs"
                       w={100}
@@ -207,7 +206,7 @@ export function VariantsTab({
                     />
                   </Table.Td>
                   {canViewCost && (
-                    <Table.Td>
+                    <Table.Td className="num">
                       <MoneyInput
                         size="xs"
                         w={100}
@@ -218,7 +217,7 @@ export function VariantsTab({
                       />
                     </Table.Td>
                   )}
-                  <Table.Td>
+                  <Table.Td className="num">
                     <NumberInput
                       size="xs"
                       w={80}
@@ -231,7 +230,7 @@ export function VariantsTab({
                       onChange={(v) => patchRow(r.comboKey, { weightG: numOrNull(v) })}
                     />
                   </Table.Td>
-                  <Table.Td>
+                  <Table.Td className="num">
                     <NumberInput
                       size="xs"
                       w={80}
@@ -271,7 +270,7 @@ export function VariantsTab({
             })}
           </Table.Tbody>
         </Table>
-      </Table.ScrollContainer>
+      </TableWrap>
       {retiredRows.length > 0 && (
         <Stack gap={4}>
           <Text size="sm" fw={600}>

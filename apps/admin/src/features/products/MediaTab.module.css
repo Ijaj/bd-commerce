@@ -1,0 +1,31 @@
+/* plan/mockups/admin/shared/catalog.css: .c-mt (image tile), .c-mt .main */
+.card {
+  background: var(--bdc-surface-2);
+  border-radius: var(--bdc-r);
+}
+.tile {
+  position: relative;
+  flex: none;
+  width: 84px;
+  height: 84px;
+  border: 1px solid var(--bdc-border);
+  border-radius: var(--bdc-r);
+  overflow: hidden;
+  background: var(--bdc-surface);
+}
+.main {
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  font-size: 9.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  background: var(--bdc-primary);
+  color: var(--bdc-on-primary);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.body {
+  flex: 1;
+  min-width: 0;
+}

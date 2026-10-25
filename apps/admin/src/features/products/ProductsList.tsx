@@ -181,15 +181,23 @@ export function ProductsList({ search }: { search: ProductsSearch }) {
     { key: 'status', header: 'Status', render: (p) => <StatusBadge status={p.status} /> },
     { key: 'brand', header: 'Brand', render: (p) => p.brand?.nameEn ?? '-' },
     { key: 'category', header: 'Category', render: (p) => p.primaryCategory.nameEn },
-    { key: 'variants', header: 'Variants', align: 'right', render: (p) => p.variantCount },
+    {
+      key: 'variants',
+      className: 'num',
+      header: 'Variants',
+      align: 'right',
+      render: (p) => p.variantCount,
+    },
     {
       key: 'price',
+      className: 'num',
       header: 'Price',
       align: 'right',
       render: (p) => <b>{priceRange(p)}</b>,
     },
     {
       key: 'stock',
+      className: 'num',
       header: 'Available',
       align: 'right',
       render: (p) => (
@@ -205,6 +213,7 @@ export function ProductsList({ search }: { search: ProductsSearch }) {
     },
     {
       key: 'actions',
+      className: 'act',
       header: '',
       width: 48,
       render: (p) => (

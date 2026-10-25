@@ -10,6 +10,7 @@ import {
   TextInput,
 } from '@mantine/core';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
+import classes from './OptionsEditor.module.css';
 import { SortableItem, SortableList } from './Sortable';
 import { MAX_OPTIONS, newKey, type OptionDraft, type OptionValueDraft } from './variants';
 
@@ -48,7 +49,7 @@ export function OptionsEditor({ options, onChange, disabled }: Props) {
   return (
     <Stack gap="sm">
       {options.map((o, idx) => (
-        <Paper key={o.key} withBorder p="sm">
+        <Paper key={o.key} withBorder p="sm" className={classes.opt}>
           <Group justify="space-between" mb="xs">
             <Text size="sm" fw={600}>
               Option {idx + 1}
@@ -112,7 +113,7 @@ export function OptionsEditor({ options, onChange, disabled }: Props) {
                         aria-label={`Value ${vi + 1} (English)`}
                         placeholder="English"
                         size="xs"
-                        style={{ flex: 1 }}
+                        className={classes.grow}
                         maxLength={100}
                         disabled={disabled}
                         value={v.valueEn}
@@ -125,7 +126,7 @@ export function OptionsEditor({ options, onChange, disabled }: Props) {
                         placeholder="বাংলা"
                         lang="bn"
                         size="xs"
-                        style={{ flex: 1 }}
+                        className={classes.grow}
                         maxLength={100}
                         disabled={disabled}
                         value={v.valueBn}

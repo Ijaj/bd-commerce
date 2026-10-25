@@ -78,15 +78,23 @@ export function InventoryPage({ search, onSearch }: Props) {
       render: (r) =>
         r.fulfillment === 'dropship' ? <StatusBadge tone="info">Dropship</StatusBadge> : null,
     },
-    { key: 'onHand', header: 'On hand', align: 'right', render: (r) => formatNumber(r.onHand) },
+    {
+      key: 'onHand',
+      className: 'num',
+      header: 'On hand',
+      align: 'right',
+      render: (r) => formatNumber(r.onHand),
+    },
     {
       key: 'reserved',
+      className: 'num',
       header: 'Reserved',
       align: 'right',
       render: (r) => formatNumber(r.reserved),
     },
     {
       key: 'available',
+      className: 'num',
       header: 'Available',
       align: 'right',
       render: (r) => (
@@ -101,6 +109,7 @@ export function InventoryPage({ search, onSearch }: Props) {
     },
     {
       key: 'threshold',
+      className: 'num',
       header: 'Threshold',
       align: 'right',
       width: 140,
@@ -108,6 +117,7 @@ export function InventoryPage({ search, onSearch }: Props) {
     },
     {
       key: 'actions',
+      className: 'act',
       header: '',
       align: 'right',
       render: (r) => (

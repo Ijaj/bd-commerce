@@ -11,6 +11,7 @@ import {
 } from '@mantine/core';
 import { IconTrash } from '@tabler/icons-react';
 import { ImageUpload, type MediaDto } from '~/components/ImageUpload';
+import classes from './MediaTab.module.css';
 import type { ImageDraft } from './payload';
 import { SortableItem, SortableList } from './Sortable';
 
@@ -63,18 +64,13 @@ export function MediaTab({ images, onChange, variantOptions, disabled }: Props) 
           {images.map((img, index) => (
             <SortableItem key={img.mediaId} id={img.mediaId} disabled={disabled}>
               {(handle) => (
-                <Paper withBorder p="xs">
+                <Paper withBorder p="xs" className={classes.card}>
                   <Group align="flex-start" wrap="nowrap" gap="xs">
-                    <Image
-                      src={img.thumbUrl}
-                      alt={img.alt}
-                      w={88}
-                      h={88}
-                      radius="sm"
-                      fit="cover"
-                      style={{ flexShrink: 0 }}
-                    />
-                    <Stack gap={6} style={{ flex: 1, minWidth: 0 }}>
+                    <div className={classes.tile}>
+                      <Image src={img.thumbUrl} alt={img.alt} w={84} h={84} fit="cover" />
+                      {index === 0 && <span className={classes.main}>Main</span>}
+                    </div>
+                    <Stack gap={6} className={classes.body}>
                       <Group justify="space-between" gap={4}>
                         <Group gap={4}>
                           {handle}

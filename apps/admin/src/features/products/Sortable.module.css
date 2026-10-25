@@ -1,0 +1,8 @@
+.grip {
+  cursor: grab;
+  touch-action: none;
+}
+.gripOff {
+  cursor: default;
+  touch-action: none;
+}

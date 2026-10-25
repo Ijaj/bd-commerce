@@ -1,16 +1,15 @@
-import { NumberInput, SimpleGrid, Stack, Switch, Textarea, TextInput, Title } from '@mantine/core';
+import { SectionCard } from '@bdc/ui';
+import { NumberInput, Stack, Switch, Textarea, TextInput } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { MoneyInput } from '~/components/MoneyInput';
+import classes from './ShippingTab.module.css';
 import { type FormTabProps, numOrNull } from './tabProps';
 
 export function ShippingTab({ form, set, disabled }: FormTabProps) {
   return (
-    <Stack gap="lg">
-      <div>
-        <Title order={5} mb="xs">
-          Shipping
-        </Title>
-        <SimpleGrid cols={{ base: 1, sm: 3 }}>
+    <Stack gap="md">
+      <SectionCard title="Shipping">
+        <div className={classes.grid3}>
           <NumberInput
             label="Weight (grams)"
             description="Default for variants without their own weight."
@@ -37,13 +36,10 @@ export function ShippingTab({ form, set, disabled }: FormTabProps) {
             value={form.returnWindowDays ?? ''}
             onChange={(v) => set({ returnWindowDays: numOrNull(v) })}
           />
-        </SimpleGrid>
-      </div>
+        </div>
+      </SectionCard>
 
-      <div>
-        <Title order={5} mb="xs">
-          Availability
-        </Title>
+      <SectionCard title="Availability">
         <Stack gap="sm">
           <Switch
             label="Pre-order"
@@ -80,12 +76,9 @@ export function ShippingTab({ form, set, disabled }: FormTabProps) {
             maw={240}
           />
         </Stack>
-      </div>
+      </SectionCard>
 
-      <div>
-        <Title order={5} mb="xs">
-          Placement
-        </Title>
+      <SectionCard title="Placement">
         <Stack gap="sm">
           <Switch
             label="Pinned"
@@ -107,12 +100,9 @@ export function ShippingTab({ form, set, disabled }: FormTabProps) {
             />
           )}
         </Stack>
-      </div>
+      </SectionCard>
 
-      <div>
-        <Title order={5} mb="xs">
-          SEO
-        </Title>
+      <SectionCard title="SEO">
         <Stack gap="sm">
           <TextInput
             label="SEO title"
@@ -131,7 +121,7 @@ export function ShippingTab({ form, set, disabled }: FormTabProps) {
             onChange={(e) => set({ seoDescription: e.currentTarget.value })}
           />
         </Stack>
-      </div>
+      </SectionCard>
     </Stack>
   );
 }

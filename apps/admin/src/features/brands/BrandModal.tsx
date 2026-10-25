@@ -5,6 +5,7 @@ import { BilingualTextInput } from '~/components/BilingualTextInput';
 import { ImageUpload, type MediaDto } from '~/components/ImageUpload';
 import { notifyError, notifyOk, refToMedia } from '~/features/categories/queries';
 import { brandsApi } from './api';
+import classes from './BrandsPage.module.css';
 import { type Brand, useInvalidateBrands } from './queries';
 
 const SLUG_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
@@ -75,7 +76,7 @@ export function BrandModal({
       size="lg"
     >
       <form onSubmit={form.onSubmit((v) => save.mutate(v))}>
-        <fieldset disabled={readOnly} style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
+        <fieldset disabled={readOnly} className={classes.fieldset}>
           <Stack>
             <BilingualTextInput
               label="Name"

@@ -210,7 +210,7 @@ const Row = memo(function Row({
           ) : (
             <span className={classes.thumb} />
           )}
-          <div style={{ minWidth: 0 }}>
+          <div className={classes.name}>
             <Text size="sm" fw={500} truncate>
               {c.nameEn}
             </Text>

@@ -15,6 +15,7 @@ import {
   type ImportSummary,
   submitImport,
 } from './api';
+import classes from './ImportCard.module.css';
 
 const MAX_BYTES = 10 * 1024 * 1024;
 const ACCEPT = [MIME_TYPES.xlsx, MIME_TYPES.csv, 'application/vnd.ms-excel'];
@@ -171,7 +172,7 @@ export function ImportCard() {
           maxFiles={1}
           multiple={false}
         >
-          <Stack align="center" gap={2} mih={64} justify="center" style={{ pointerEvents: 'none' }}>
+          <Stack align="center" gap={2} mih={64} justify="center" className={classes.dropInner}>
             {file ? (
               <Text size="sm" fw={500}>
                 {file.name} ({Math.max(1, Math.round(file.size / 1024))} KB)

@@ -1,4 +1,4 @@
-import { Icon, PageHeader } from '@bdc/ui';
+import { Icon, SectionCard } from '@bdc/ui';
 import {
   Alert,
   Button,
@@ -6,7 +6,6 @@ import {
   Group,
   Loader,
   Modal,
-  Paper,
   Stack,
   Tabs,
   Text,
@@ -18,6 +17,7 @@ import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/rea
 import { Link, useBlocker, useNavigate } from '@tanstack/react-router';
 import { useMemo, useRef, useState } from 'react';
 import { api } from '~/api';
+import { PageHeader } from '~/components/PageHeader';
 import { useCan } from '~/lib/perm';
 import { AttributesTab } from './AttributesTab';
 import { useProductActions } from './actions';
@@ -59,6 +59,15 @@ import {
   usableOptions,
   type VariantRowDraft,
 } from './variants';
+
+const TAB_TITLES: Record<string, string> = {
+  basics: 'Basic information',
+  description: 'Description',
+  media: 'Images',
+  variants: 'Variants, price and stock',
+  attributes: 'Attributes',
+  shipping: '',
+};
 
 /**
  * Loads the product, then mounts the form keyed by id + a version counter. The form copies the
@@ -365,7 +374,7 @@ function EditorForm({ id, detail, tab, onTab, onDiscard, onSaved }: FormProps) {
           <Tabs.Tab value="shipping">Shipping &amp; rules</Tabs.Tab>
         </Tabs.List>
 
-        <Paper withBorder p="md" mb="md">
+        <SectionCard title={TAB_TITLES[tab]} className={classes.panel}>
           <Tabs.Panel value="basics">
             <BasicsTab
               form={form}
@@ -418,7 +427,7 @@ function EditorForm({ id, detail, tab, onTab, onDiscard, onSaved }: FormProps) {
           <Tabs.Panel value="shipping">
             <ShippingTab form={form} set={set} disabled={disabled} />
           </Tabs.Panel>
-        </Paper>
+        </SectionCard>
       </Tabs>
 
       {canEdit && (
