@@ -1,108 +1,118 @@
-import { Badge, Group, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
+import { KeyValue, SectionCard } from '@bdc/ui';
+import { Badge } from '@mantine/core';
+import type { ReactNode } from 'react';
 import { formatDateTime } from '~/lib/format';
 import { CallBadge } from './badges';
 import { actorText, riskReasonText } from './logic';
+import classes from './Orders.module.css';
 import type { OrderDetail } from './queries';
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <Text size="xs" c="dimmed">
-        {label}
-      </Text>
-      <Text size="sm" component="div">
-        {children}
-      </Text>
-    </div>
-  );
-}
-
-/** Customer, ship-to, call/risk and notes. */
+/** Customer, ship-to, call/risk and notes (right column of the mockup's order page). */
 export function OrderInfoCards({ order }: { order: OrderDetail }) {
   const s = order.shipTo;
+  const riskNode: ReactNode =
+    order.risk.reasons.length === 0 ? (
+      'None flagged'
+    ) : (
+      <span className={classes.reasons}>
+        {order.risk.reasons.map((r) => (
+          <Badge key={r} size="sm" color="red">
+            {riskReasonText(r)}
+          </Badge>
+        ))}
+      </span>
+    );
+  const callRows: Array<[ReactNode, ReactNode]> = [
+    [
+      'Call',
+      <>
+        <span className={classes.row}>
+          <CallBadge status={order.call.status} />
+          {order.call.status === 'not_needed' && 'Not needed'}
+        </span>
+        {order.call.at && (
+          <div className={`${classes.muted} ${classes.small}`}>
+            {order.call.staffName ?? 'Staff'} · {formatDateTime(order.call.at)}
+          </div>
+        )}
+        {order.call.note && <div className={classes.note}>{order.call.note}</div>}
+      </>,
+    ],
+    ['Risk', riskNode],
+  ];
+  if (order.customerNote) callRows.push(['Customer note', order.customerNote]);
+  if (order.heldReason) callRows.push(['Hold reason', order.heldReason]);
+  if (order.cancelReason) callRows.push(['Cancel reason', order.cancelReason]);
   return (
-    <SimpleGrid cols={{ base: 1, md: 3 }}>
-      <Paper withBorder p="md">
-        <Text mb="xs">Customer</Text>
-        <Stack gap="xs">
-          <Field label="Name">
-            {order.customer.name}
-            {order.customer.isGuest && ' (guest)'}
-          </Field>
-          <Field label="Phone">{order.customer.phone}</Field>
-          <Field label="Language">{order.lang === 'bn' ? 'Bangla' : 'English'}</Field>
-        </Stack>
-      </Paper>
-      <Paper withBorder p="md">
-        <Text mb="xs">Ship to</Text>
-        <Stack gap="xs">
-          <Field label="Recipient">
-            {s.name} · {s.phone}
-          </Field>
-          <Field label="Address">
-            {s.line}
-            {s.landmark && ` (${s.landmark})`}
-            <br />
-            {s.placeText}
-          </Field>
-          <Field label="Delivery zone">{order.zone.nameEn}</Field>
-        </Stack>
-      </Paper>
-      <Paper withBorder p="md">
-        <Text mb="xs">Call and risk</Text>
-        <Stack gap="xs">
-          <Field label="Call">
-            <Group gap="xs">
-              <CallBadge status={order.call.status} />
-              {order.call.status === 'not_needed' && 'Not needed'}
-            </Group>
-            {order.call.at && (
-              <Text size="xs" c="dimmed">
-                {order.call.staffName ?? 'Staff'} · {formatDateTime(order.call.at)}
-              </Text>
-            )}
-            {order.call.note && <Text size="xs">{order.call.note}</Text>}
-          </Field>
-          <Field label="Risk">
-            {order.risk.reasons.length === 0 ? (
-              'None flagged'
-            ) : (
-              <Group gap={4}>
-                {order.risk.reasons.map((r) => (
-                  <Badge key={r} size="sm" variant="outline" color="orange">
-                    {riskReasonText(r)}
-                  </Badge>
-                ))}
-              </Group>
-            )}
-          </Field>
-          {order.customerNote && <Field label="Customer note">{order.customerNote}</Field>}
-          {order.heldReason && <Field label="Hold reason">{order.heldReason}</Field>}
-          {order.cancelReason && <Field label="Cancel reason">{order.cancelReason}</Field>}
-        </Stack>
-      </Paper>
-    </SimpleGrid>
+    <>
+      <SectionCard title="Customer">
+        <KeyValue
+          items={[
+            [
+              'Name',
+              <>
+                {order.customer.name}
+                {order.customer.isGuest && ' (guest)'}
+              </>,
+            ],
+            ['Phone', order.customer.phone],
+            ['Language', order.lang === 'bn' ? 'Bangla' : 'English'],
+          ]}
+        />
+      </SectionCard>
+      <SectionCard title="Ship to">
+        <KeyValue
+          items={[
+            [
+              'Recipient',
+              <>
+                {s.name} · {s.phone}
+              </>,
+            ],
+            [
+              'Address',
+              <>
+                {s.line}
+                {s.landmark && ` (${s.landmark})`}
+                <br />
+                {s.placeText}
+              </>,
+            ],
+            ['Delivery zone', order.zone.nameEn],
+          ]}
+        />
+      </SectionCard>
+      <SectionCard
+        title="Call and risk"
+        actions={
+          order.risk.reasons.length > 0 ? (
+            <span className="a-badge danger">{order.risk.reasons.length}</span>
+          ) : undefined
+        }
+      >
+        <KeyValue items={callRows} />
+      </SectionCard>
+    </>
   );
 }
 
 export function OrderHistoryCard({ order }: { order: OrderDetail }) {
   return (
-    <Paper withBorder p="md">
-      <Text mb="xs">Status history</Text>
-      <Stack gap="xs">
-        {order.history.map((h) => (
-          <div key={h.id}>
-            <Text size="sm">
+    <SectionCard title="Status history">
+      <ol className="a-timeline">
+        {order.history.map((h, i) => (
+          <li key={h.id} className={i === order.history.length - 1 ? 'current' : 'done'}>
+            <b>
               {h.fromStatus ? `${label(h.fromStatus)} to ${label(h.toStatus)}` : label(h.toStatus)}
-            </Text>
-            <Text size="xs" c="dimmed">
+            </b>
+            <div className={`${classes.muted} ${classes.small}`}>
               {actorText(h)} · {formatDateTime(h.at)}
               {h.note ? ` · ${h.note}` : ''}
-            </Text>
-          </div>
+            </div>
+          </li>
         ))}
-      </Stack>
-    </Paper>
+      </ol>
+    </SectionCard>
   );
 }
 

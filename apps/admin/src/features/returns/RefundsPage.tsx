@@ -1,9 +1,9 @@
-import { Select } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
 import { type Column, DataTable } from '~/components/DataTable';
 import { PageHeader } from '~/components/PageHeader';
+import classes from '~/features/orders/Orders.module.css';
 import { formatDateTime, formatPrice } from '~/lib/format';
 import { RefundStatusBadge } from './components';
 import { REFUND_STATUS_LABEL } from './logic';
@@ -28,7 +28,12 @@ export function RefundsPage() {
       key: 'order',
       header: 'Order',
       render: (r) => (
-        <Link to="/orders/$id" params={{ id: r.orderId }} onClick={(e) => e.stopPropagation()}>
+        <Link
+          to="/orders/$id"
+          params={{ id: r.orderId }}
+          className={classes.orderNo}
+          onClick={(e) => e.stopPropagation()}
+        >
           {r.orderNo}
         </Link>
       ),
@@ -43,27 +48,54 @@ export function RefundsPage() {
       header: 'Method',
       render: (r) => (r.method === 'wallet' ? 'Wallet' : 'Original'),
     },
-    { key: 'amount', header: 'Amount', align: 'right', render: (r) => formatPrice(r.amountP) },
+    {
+      key: 'amount',
+      header: 'Amount',
+      align: 'right',
+      render: (r) => <b>{formatPrice(r.amountP)}</b>,
+    },
     { key: 'by', header: 'Requested by', render: (r) => r.requestedByName ?? '-' },
     { key: 'status', header: 'Status', render: (r) => <RefundStatusBadge status={r.status} /> },
   ];
 
   return (
     <>
-      <PageHeader title="Refunds" description="Refund requests waiting for approval or payout." />
-      <Select
-        label="Status"
-        placeholder="All"
-        clearable
-        mb="md"
-        data={STATUS_OPTIONS}
-        value={status}
-        onChange={(v) => {
-          setStatus(v as RefundStatus | null);
-          setPage(1);
-        }}
-        w={220}
+      <PageHeader
+        title="Refunds"
+        crumbs={['Sales', 'Refunds']}
+        description="Refund requests waiting for approval or payout."
       />
+      <div className={classes.tabsWrap}>
+        <div className="a-tabs" role="tablist" aria-label="Refund status">
+          <button
+            type="button"
+            role="tab"
+            className="a-tab"
+            aria-selected={status === null}
+            onClick={() => {
+              setStatus(null);
+              setPage(1);
+            }}
+          >
+            All
+          </button>
+          {STATUS_OPTIONS.map((o) => (
+            <button
+              key={o.value}
+              type="button"
+              role="tab"
+              className="a-tab"
+              aria-selected={status === o.value}
+              onClick={() => {
+                setStatus(o.value);
+                setPage(1);
+              }}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
+      </div>
       <DataTable
         columns={columns}
         rows={list.data?.items}

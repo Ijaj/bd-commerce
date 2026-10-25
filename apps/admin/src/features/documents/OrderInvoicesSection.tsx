@@ -1,4 +1,5 @@
-import { Alert, Badge, Button, Group, Loader, Table, Text, Title } from '@mantine/core';
+import { Banner, EmptyState, SectionCard, TableWrap } from '@bdc/ui';
+import { Badge, Button, Group, Loader, Table } from '@mantine/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { notifyApiError } from '~/features/b2b/errors';
 import { notifyOk } from '~/features/categories/queries';
@@ -24,36 +25,36 @@ export function OrderInvoicesSection({ orderId }: { orderId: string }) {
   });
 
   return (
-    <section>
-      <Group justify="space-between" mb="xs">
-        <Title order={4}>Invoices</Title>
-        {canIssue && (
+    <SectionCard
+      title="Invoices"
+      flush={items.length > 0}
+      actions={
+        canIssue ? (
           <Button
-            size="compact-md"
-            variant={items.length ? 'light' : 'filled'}
+            size="compact-sm"
+            variant={items.length ? 'default' : 'filled'}
             loading={issue.isPending}
             onClick={() => issue.mutate(items.length > 0)}
           >
             {items.length ? 'Reissue invoice' : 'Issue invoice'}
           </Button>
-        )}
-      </Group>
+        ) : undefined
+      }
+    >
       {list.isLoading && <Loader size="sm" />}
-      {list.isError && <Alert color="red">{list.error.message}</Alert>}
+      {list.isError && <Banner tone="danger">{list.error.message}</Banner>}
       {list.data && items.length === 0 && (
-        <Text size="sm" c="dimmed">
-          No invoice issued yet.
-        </Text>
+        <EmptyState icon="reports" title="No invoice issued yet." />
       )}
       {items.length > 0 && (
-        <Table.ScrollContainer minWidth={480}>
-          <Table>
+        <TableWrap>
+          <Table miw={480}>
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>Invoice</Table.Th>
                 <Table.Th>Issued</Table.Th>
-                <Table.Th ta="right">Total</Table.Th>
-                <Table.Th ta="right">VAT included</Table.Th>
+                <Table.Th className="num">Total</Table.Th>
+                <Table.Th className="num">VAT included</Table.Th>
                 <Table.Th />
               </Table.Tr>
             </Table.Thead>
@@ -63,15 +64,15 @@ export function OrderInvoicesSection({ orderId }: { orderId: string }) {
                   <Table.Td>
                     {inv.invoiceNo}{' '}
                     {!inv.isCurrent && (
-                      <Badge size="xs" variant="light" color="gray">
+                      <Badge size="xs" color="gray">
                         Superseded
                       </Badge>
                     )}
                   </Table.Td>
                   <Table.Td>{formatDateTime(inv.issuedAt)}</Table.Td>
-                  <Table.Td ta="right">{formatPrice(inv.grandTotalP)}</Table.Td>
-                  <Table.Td ta="right">{formatPrice(inv.vatTotalP)}</Table.Td>
-                  <Table.Td ta="right">
+                  <Table.Td className="num">{formatPrice(inv.grandTotalP)}</Table.Td>
+                  <Table.Td className="num">{formatPrice(inv.vatTotalP)}</Table.Td>
+                  <Table.Td className="act">
                     <Group gap="xs" justify="flex-end" wrap="nowrap">
                       <Button
                         component="a"
@@ -79,7 +80,7 @@ export function OrderInvoicesSection({ orderId }: { orderId: string }) {
                         target="_blank"
                         rel="noopener"
                         size="compact-sm"
-                        variant="light"
+                        variant="default"
                       >
                         Print (EN)
                       </Button>
@@ -89,7 +90,7 @@ export function OrderInvoicesSection({ orderId }: { orderId: string }) {
                         target="_blank"
                         rel="noopener"
                         size="compact-sm"
-                        variant="light"
+                        variant="default"
                       >
                         Print (BN)
                       </Button>
@@ -99,8 +100,8 @@ export function OrderInvoicesSection({ orderId }: { orderId: string }) {
               ))}
             </Table.Tbody>
           </Table>
-        </Table.ScrollContainer>
+        </TableWrap>
       )}
-    </section>
+    </SectionCard>
   );
 }

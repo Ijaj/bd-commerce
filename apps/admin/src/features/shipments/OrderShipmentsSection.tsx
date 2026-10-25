@@ -1,6 +1,8 @@
-import { Alert, Button, Group, Loader, Table, Text, Title } from '@mantine/core';
+import { Banner, EmptyState, SectionCard, TableWrap } from '@bdc/ui';
+import { Button, Loader, Table } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import classes from '~/features/orders/Orders.module.css';
 import { formatPrice } from '~/lib/format';
 import { useCan } from '~/lib/perm';
 import { CreateShipmentModal } from './CreateShipmentModal';
@@ -31,39 +33,41 @@ export function OrderShipmentsSection({ orderId }: { orderId: string }) {
   const shippable = order.data && ['processing', 'partially_shipped'].includes(order.data.status);
 
   return (
-    <section>
-      <Group justify="space-between" mb="xs">
-        <Title order={4}>Shipments</Title>
-        {canManage && order.data && (
+    <SectionCard
+      title="Shipments"
+      flush={items.length > 0}
+      actions={
+        canManage && order.data ? (
           <Button
-            size="compact-md"
+            size="compact-sm"
             disabled={!hasFree || !shippable}
             onClick={() => setCreating(true)}
           >
             Create shipment
           </Button>
-        )}
-      </Group>
+        ) : undefined
+      }
+    >
       {canManage && order.data && !shippable && hasFree && (
-        <Text size="xs" c="dimmed" mb="xs">
+        <p className={`${classes.muted} ${classes.small}`}>
           Shipments can be created while the order is processing or partially shipped.
-        </Text>
+        </p>
       )}
       {shipments.isLoading && <Loader size="sm" />}
-      {shipments.isError && <Alert color="red">{shipments.error.message}</Alert>}
+      {shipments.isError && <Banner tone="danger">{shipments.error.message}</Banner>}
       {shipments.data && items.length === 0 && (
-        <Text size="sm" c="dimmed">
-          No shipments yet.
-        </Text>
+        <EmptyState icon="truck" title="No shipments yet.">
+          Create a shipment to book a courier.
+        </EmptyState>
       )}
       {items.length > 0 && (
-        <Table.ScrollContainer minWidth={560}>
-          <Table>
+        <TableWrap>
+          <Table miw={560}>
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>Shipment</Table.Th>
                 <Table.Th>Items</Table.Th>
-                <Table.Th ta="right">COD</Table.Th>
+                <Table.Th className="num">COD</Table.Th>
                 <Table.Th>Courier</Table.Th>
                 <Table.Th>Status</Table.Th>
                 <Table.Th />
@@ -75,39 +79,33 @@ export function OrderShipmentsSection({ orderId }: { orderId: string }) {
                   <Table.Td>{s.shipmentNo}</Table.Td>
                   <Table.Td>
                     {s.items.map((i) => (
-                      <Text size="sm" key={i.id}>
+                      <div key={i.id}>
                         {i.qty} x {i.titleSnapshot}
-                      </Text>
+                      </div>
                     ))}
                   </Table.Td>
-                  <Table.Td ta="right">{formatPrice(s.codAmountP)}</Table.Td>
+                  <Table.Td className="num">{formatPrice(s.codAmountP)}</Table.Td>
                   <Table.Td>
-                    <Text size="sm">{s.courier?.name ?? '-'}</Text>
+                    {s.courier?.name ?? '-'}
                     {s.trackingUrl ? (
                       <a href={s.trackingUrl} target="_blank" rel="noopener noreferrer">
-                        <Text size="xs" component="span">
-                          {s.consignmentId ?? 'Track'}
-                        </Text>
+                        <span className={classes.sub}>{s.consignmentId ?? 'Track'}</span>
                       </a>
                     ) : (
-                      s.consignmentId && (
-                        <Text size="xs" c="dimmed">
-                          {s.consignmentId}
-                        </Text>
-                      )
+                      s.consignmentId && <span className={classes.sub}>{s.consignmentId}</span>
                     )}
                   </Table.Td>
                   <Table.Td>
                     <StatusBadge status={s.status} />
                   </Table.Td>
-                  <Table.Td ta="right">
+                  <Table.Td className="act">
                     <ShipmentActions shipment={s} />
                   </Table.Td>
                 </Table.Tr>
               ))}
             </Table.Tbody>
           </Table>
-        </Table.ScrollContainer>
+        </TableWrap>
       )}
       {order.data && (
         <CreateShipmentModal
@@ -119,6 +117,6 @@ export function OrderShipmentsSection({ orderId }: { orderId: string }) {
           codDueP={order.data.money.codDueP}
         />
       )}
-    </section>
+    </SectionCard>
   );
 }

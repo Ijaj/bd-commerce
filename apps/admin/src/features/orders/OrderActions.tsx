@@ -22,7 +22,7 @@ export function OrderActions({ order }: { order: OrderDetail }) {
 
   return (
     <>
-      <Group gap="xs">
+      <Group gap={6}>
         {canCall && can.call && <Button onClick={() => setOpen('call')}>Log call</Button>}
         {canManage && can.hold && (
           <Button variant="default" onClick={() => setOpen('hold')}>
@@ -33,12 +33,7 @@ export function OrderActions({ order }: { order: OrderDetail }) {
         {canManage && can.cancel && (
           <Tooltip label={blocked} disabled={!blocked} multiline maw={260}>
             <span>
-              <Button
-                variant="default"
-                color="red"
-                disabled={!!blocked}
-                onClick={() => setOpen('cancel')}
-              >
+              <Button color="red" disabled={!!blocked} onClick={() => setOpen('cancel')}>
                 Cancel order
               </Button>
             </span>

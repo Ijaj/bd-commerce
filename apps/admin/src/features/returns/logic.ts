@@ -15,9 +15,9 @@ export const RETURN_STATUS_COLOR: Record<ReturnStatus, string> = {
   approved: 'blue',
   rejected: 'red',
   pickup_booked: 'blue',
-  received: 'cyan',
-  inspected: 'grape',
-  closed: 'teal',
+  received: 'blue',
+  inspected: 'blue',
+  closed: 'green',
 };
 
 export const REFUND_STATUS_LABEL: Record<RefundStatus, string> = {
@@ -33,8 +33,8 @@ export const REFUND_STATUS_COLOR: Record<RefundStatus, string> = {
   pending_approval: 'yellow',
   approved: 'blue',
   rejected: 'red',
-  processing: 'cyan',
-  done: 'teal',
+  processing: 'blue',
+  done: 'green',
   failed: 'red',
 };
 

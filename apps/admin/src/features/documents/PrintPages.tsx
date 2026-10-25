@@ -66,7 +66,7 @@ export function LabelsPrintPage({ ids, max }: { ids: string[]; max: number }) {
       <LabelPageRule />
       <PrintToolbar disabled={!q.data?.length} />
       {ids.length > max && (
-        <Alert color="orange" m="md" className="no-print">
+        <Alert color="yellow" m="md" className="no-print">
           {ids.length} labels requested; only the first {max} are shown. Print the rest in another
           batch.
         </Alert>
