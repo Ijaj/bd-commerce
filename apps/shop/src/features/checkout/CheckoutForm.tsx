@@ -261,9 +261,14 @@ export function CheckoutForm({
               {d.contact}
             </h2>
             {me ? (
-              <p>
-                {me.name} <span className={s.muted}>({me.phone})</span>
-              </p>
+              <div className={s.contactUser}>
+                <span className={s.avatar} aria-hidden="true">
+                  {me.name.trim().charAt(0).toUpperCase()}
+                </span>
+                <p>
+                  {me.name} <span className={s.muted}>({me.phone})</span>
+                </p>
+              </div>
             ) : (
               <>
                 <p className={s.muted}>
@@ -428,7 +433,11 @@ export function CheckoutForm({
               </Link>
             ) : null}
           </div>
-          <button type="submit" className="btn btn-primary" disabled={submitting || blocked}>
+          <button
+            type="submit"
+            className={`btn btn-primary btn-lg ${s.placeBtn}`}
+            disabled={submitting || blocked}
+          >
             {submitting ? d.placing : d.place}
           </button>
           <p className={s.muted}>{d.placeHint}</p>

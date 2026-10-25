@@ -18,7 +18,7 @@ import '~/styles/base.css';
 // Fonts per brand D. Q113: regular weight, 700 only for h1, current breadcrumb and logo. Font choice may change later (owner).
 const poppins = Poppins({
   subsets: ['latin'],
-  weight: ['400', '700'],
+  weight: ['400', '700', '800'],
   variable: '--font-poppins',
   display: 'swap',
 });

@@ -35,11 +35,14 @@ export function ProductView({
   product: p,
   lang,
   header,
+  extra,
   preorderDate,
 }: {
   product: ProductDetail;
   lang: Lang;
   header: ReactNode;
+  /** Server-rendered block shown under the buy box (coupons). */
+  extra?: ReactNode;
   preorderDate: string | null;
 }) {
   const d = dict(lang).browse;
@@ -185,6 +188,7 @@ export function ProductView({
 
         {price ? (
           <div className={s.pbox}>
+            {price.flash ? <FlashBox flash={price.flash} lang={lang} /> : null}
             <Price
               lang={lang}
               size="lg"
@@ -195,7 +199,6 @@ export function ProductView({
             {save > 0 ? (
               <p className={s.save}>{fmt(d.save, { amt: formatPrice(save, lang) })}</p>
             ) : null}
-            {price.flash ? <FlashBox flash={price.flash} lang={lang} /> : null}
           </div>
         ) : null}
 
@@ -322,6 +325,7 @@ export function ProductView({
             {d.sku}: {variant.sku}
           </p>
         ) : null}
+        {extra}
       </div>
 
       <div

@@ -1,6 +1,12 @@
 .title {
-  font-size: 22px;
-  margin: var(--s3) 0 var(--s2);
+  font-size: 26px;
+  line-height: 1.25;
+  margin: var(--s2) 0 var(--s3);
+}
+@media (max-width: 640px) {
+  .title {
+    font-size: 20px;
+  }
 }
 .lead {
   color: var(--muted);
@@ -17,32 +23,75 @@
   width: 100%;
   height: auto;
 }
-.chips {
+.catBanner {
   display: flex;
+  flex-direction: column;
+  justify-content: center;
   gap: var(--s2);
-  flex-wrap: wrap;
+  min-height: 170px;
   margin-bottom: var(--s4);
+  padding: var(--s6) var(--s7);
+  border-radius: var(--r-lg);
+  color: var(--flash-fg);
 }
-.chip {
-  padding: 7px 14px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--surface);
+.sl1 {
+  background: var(--sl1);
 }
-.chip:hover {
+.sl2 {
+  background: var(--sl2);
+}
+.sl3 {
+  background: var(--sl3);
+}
+.catTitle {
+  font-size: 32px;
+  line-height: 1.15;
+}
+.catSub {
+  opacity: 0.96;
+  max-width: 80ch;
+}
+.subcats ul {
+  display: flex;
+  gap: var(--s3);
+  margin: 0 0 var(--s3);
+  padding: 4px 2px var(--s3);
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.subcat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 92px;
+  text-align: center;
+  font-size: 12.5px;
+  line-height: 1.25;
+}
+.subcat .scImg {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  object-fit: cover;
+  transition:
+    border-color 0.15s,
+    transform 0.15s;
+}
+.subcat:hover .scImg {
+  transform: scale(1.06);
   border-color: var(--primary);
-  color: var(--primary);
 }
 @media (max-width: 640px) {
-  .chips {
-    flex-wrap: nowrap;
-    overflow-x: auto;
+  .catBanner {
+    min-height: 110px;
+    padding: var(--s5) var(--s4);
     margin-inline: calc(var(--s3) * -1);
-    padding-inline: var(--s3);
-    scrollbar-width: none;
+    border-radius: 0;
   }
-  .chip {
-    white-space: nowrap;
+  .catTitle {
+    font-size: 23px;
   }
 }
 
@@ -55,6 +104,7 @@
 .group {
   background: var(--surface);
   border: var(--card-bd);
+  box-shadow: var(--sh-1);
   border-radius: var(--r-lg);
   padding: var(--s4);
 }

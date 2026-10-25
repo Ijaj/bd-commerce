@@ -36,11 +36,13 @@ function RecentRow({ lang, title }: { lang: Lang; title: string }) {
   if (items.length === 0) return null;
   return (
     <section className={s.band} aria-label={title}>
-      <h2 className={s.h}>{title}</h2>
+      <div className="sec-head">
+        <h2>{title}</h2>
+      </div>
       <ul className={s.scroll}>
         {items.map((p) => (
           <li key={p.id}>
-            <ProductCard product={p} lang={lang} sizes="150px" />
+            <ProductCard product={p} lang={lang} sizes="136px" />
           </li>
         ))}
       </ul>

@@ -16,7 +16,7 @@
   fill: var(--lm-fg);
 }
 .wm {
-  font-weight: 700;
+  font-weight: 800;
   font-style: italic;
   text-transform: uppercase;
   letter-spacing: -0.03em;
@@ -24,7 +24,7 @@
   line-height: 1;
 }
 .wm b {
-  font-weight: 700;
+  font-weight: 800;
   color: var(--hl);
 }
 @media (max-width: 640px) {

@@ -8,9 +8,11 @@
   background: var(--surface);
   border: var(--card-bd);
   border-radius: var(--r-lg);
+  margin-block: var(--s4);
+  box-shadow: var(--sh-1);
 }
 .title {
-  font-size: 18px;
+  font-size: 20px;
 }
 .body {
   color: var(--muted);

@@ -57,6 +57,8 @@ export default async function Page({ params, searchParams }: Props) {
   const name = pick(lang, cat.nameEn, cat.nameBn);
   const desc = pick(lang, cat.descriptionEn ?? '', cat.descriptionBn);
   const path = `/c/${cat.slug}`;
+  const root = cat.breadcrumb[0]?.slug ?? cat.slug;
+  const hue = (([...root].reduce((n, ch) => n + ch.charCodeAt(0), 0) % 3) + 1) as 1 | 2 | 3;
 
   return (
     <div className="wrap page">
@@ -82,15 +84,35 @@ export default async function Page({ params, searchParams }: Props) {
           />
         </div>
       ) : null}
-      <h1 className={s.title}>{name}</h1>
-      {desc ? <p className={s.lead}>{desc}</p> : null}
+      {cat.banner ? (
+        <>
+          <h1 className={s.title}>{name}</h1>
+          {desc ? <p className={s.lead}>{desc}</p> : null}
+        </>
+      ) : (
+        <section className={`${s.catBanner} ${s[`sl${hue}`]} on-dark`}>
+          <h1 className={s.catTitle}>{name}</h1>
+          {desc ? <p className={s.catSub}>{desc}</p> : null}
+        </section>
+      )}
       {cat.children.length > 0 ? (
-        <nav className={s.chips} aria-label={d.browse.subCategories}>
-          {cat.children.map((c) => (
-            <Link key={c.id} className={s.chip} href={href(lang, `/c/${c.slug}`)}>
-              {pick(lang, c.nameEn, c.nameBn)}
-            </Link>
-          ))}
+        <nav className={s.subcats} aria-label={d.browse.subCategories}>
+          <ul>
+            {cat.children.map((c) => (
+              <li key={c.id}>
+                <Link className={s.subcat} href={href(lang, `/c/${c.slug}`)}>
+                  <Img
+                    className={s.scImg}
+                    image={c.image}
+                    alt=""
+                    sizes="64px"
+                    placeholderRatio={1}
+                  />
+                  <span>{pick(lang, c.nameEn, c.nameBn)}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
         </nav>
       ) : null}
       <Listing lang={lang} path={path} q={q} data={data} />

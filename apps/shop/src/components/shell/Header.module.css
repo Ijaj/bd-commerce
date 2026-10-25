@@ -130,6 +130,10 @@
     height: 40px;
     border-radius: 50%;
   }
+  .cartM .cnt {
+    top: 2px;
+    right: 0;
+  }
   .cartM:hover {
     background: color-mix(in srgb, currentColor 16%, transparent);
   }

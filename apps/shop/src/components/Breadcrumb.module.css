@@ -1,6 +1,6 @@
 .bc {
-  padding-block: var(--s3);
-  font-size: 12.5px;
+  padding-block: var(--s4) var(--s3);
+  font-size: 13px;
   color: var(--muted);
 }
 .bc ol {
@@ -8,6 +8,14 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 2px 6px;
+}
+@media (max-width: 640px) {
+  .bc ol {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none;
+  }
 }
 .bc li {
   display: inline-flex;
@@ -20,7 +28,7 @@
 }
 .current {
   color: var(--text);
-  font-weight: 700;
+  font-weight: 600;
 }
 .sep {
   opacity: 0.6;

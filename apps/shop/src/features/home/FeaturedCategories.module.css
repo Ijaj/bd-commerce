@@ -1,17 +1,6 @@
 .sec {
   margin-top: var(--sec-gap);
 }
-.head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--s4);
-  margin-bottom: var(--s4);
-}
-.head h2 {
-  font-size: 20px;
-  line-height: 1.25;
-}
 .tiles {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -41,6 +30,7 @@
     box-shadow 0.18s;
 }
 .tile:hover {
+  border-color: var(--primary);
   transform: translateY(var(--lift));
   box-shadow: var(--sh-2);
 }
@@ -66,9 +56,6 @@
   letter-spacing: 0;
 }
 @media (max-width: 640px) {
-  .head h2 {
-    font-size: 17px;
-  }
   .tiles {
     grid-template-columns: none;
     grid-template-rows: repeat(2, auto);

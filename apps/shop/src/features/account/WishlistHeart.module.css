@@ -1,26 +1,26 @@
 .heart {
   display: inline-grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   padding: 0;
   border-radius: 50%;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--muted);
-  box-shadow: var(--sh-1);
+  border: 0;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  color: var(--text);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.35);
   transition:
     color 0.15s,
     transform 0.15s;
 }
 .heart:hover {
-  color: var(--sale);
+  color: var(--danger);
 }
 .heart:active {
   transform: scale(0.92);
 }
 .on {
-  color: var(--sale);
+  color: var(--danger);
 }
 .on svg {
   fill: currentColor;

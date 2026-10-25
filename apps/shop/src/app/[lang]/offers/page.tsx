@@ -39,13 +39,19 @@ export default async function Page({ params }: LangProps) {
         live.map((sale) => <FlashSaleBlock key={sale.id} sale={sale} lang={lang} />)
       ) : (
         <section className={s.section} aria-label={t.flashTitle}>
-          <h2 className={s.sectionTitle}>{t.flashTitle}</h2>
+          <div className="sec-head">
+            <h2>{t.flashTitle}</h2>
+          </div>
           <p className={s.facts}>{t.flashEmpty}</p>
         </section>
       )}
       {upcoming.length > 0 ? (
         <>
-          <h2 className={`${s.sectionTitle} ${s.section}`}>{t.upcomingTitle}</h2>
+          <div className={s.section}>
+            <div className="sec-head">
+              <h2>{t.upcomingTitle}</h2>
+            </div>
+          </div>
           {upcoming.map((sale) => (
             <FlashSaleBlock key={sale.id} sale={sale} lang={lang} upcoming max={6} />
           ))}

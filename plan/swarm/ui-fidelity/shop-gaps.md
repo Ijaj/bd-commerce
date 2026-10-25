@@ -350,3 +350,11 @@ Ordered by visible impact per effort; each step is independent and keeps behavio
 10. Needs browser check before any work: C5, H3, H8, H10, K9, O5, P14, A9.
 
 ASK items for the lead (cannot decide from the mockup alone): G3 (category select in header search), C12 (add a "Clear filters" button to the empty state), O3 (move "Place order" into the summary box), P16 (move coupons into the info column), L3 (6-box OTP), O8 (checkout steps trail), C9 (keep the app's uppercase facet titles?).
+
+---
+
+## 6. Done (fix pass, static only; typecheck, vitest 144/144 and `biome ci apps/shop` 0 errors)
+
+Fixed: T1-T8, T10, T11, T14-T16, F2, F4 (tokens in `tokens.css`, Poppins 800, logo 800); G1, G4, G8, G9, G10, G11, G12, G15, G16, G17, G18, G19, G20; H1, H2, H3 (widths only), H4 (band, gradient, hl bar, 176px cards; no progress bar), H5 (countdown in one box, text unchanged, no per-unit boxes), H7; C1 (gradient banner with h1 inside when the category has no image; with an image the old layout stays), C2 (circular sub-category tiles), C3, C4, C6, C7, C8, C9 (follows mockup), C10 (checkbox size, count right), C11; S1; P1, P2 (mobile full-bleed, 72px thumbs, radius; no swipe slider), P3, P4, P5, P6 (flash bar at top of price box), P7, P8, P9, P10, P11, P12, P13, P15, P16 (coupons now in the info column), P17; K1, K2, K3 (padding, shadow, clamp; layout areas unchanged), K4, K5, K6 (shadow, 17px), K7; O1 (CSS counter badge), O2, O3 (already inside the summary box; button now `btn-lg` full width), O4, O6, O7; X1, X4; R1, R2, R4, R3 (28px check/ring timeline); L1 (h1 21px), L2, L4, L5; A1, A2, A6 (shadow), A7 (ticket coupon cards), A8 (`#fff` tokenised), E1, E3.
+
+Skipped: G3, C12, L3, O8 (lead said no); all section 4 items; step 10 browser-check items (C5, H8, H10, K9, O5, P14, A9); X2/X3 (needs data and a copy button), A3, A4 (order card restructure is markup-heavy), A5, G2, G5-G7, G13, G14, H6, H9, H11, H12, S3, S4, K8 (suggestions), C13/C14/C15/R5, L6 (not built or already matching).

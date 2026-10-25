@@ -43,6 +43,7 @@ export function CategoryMenu({ tree, lang }: { tree: CategoryNode[]; lang: Lang 
                   <span>{pick(lang, c.nameEn, c.nameBn)}</span>
                   <Link className="link" href={url(lang, c)}>
                     {dict(lang).common.viewAll}
+                    <Icon name="chevR" size={14} />
                   </Link>
                 </div>
                 {c.children.map((g) => (

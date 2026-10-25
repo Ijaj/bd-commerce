@@ -23,8 +23,8 @@ export function FlashSaleBlock({
   const items = max ? sale.items.slice(0, max) : sale.items;
   return (
     <section className={s.section} aria-label={name}>
-      <div className={s.saleHead}>
-        <h2 className={s.sectionTitle}>{name}</h2>
+      <div className="sec-head">
+        <h2>{name}</h2>
         <Countdown
           endsAt={upcoming ? sale.startsAt : sale.endsAt}
           lang={lang}
