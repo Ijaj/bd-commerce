@@ -495,17 +495,19 @@ model Variant {
   createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz
 
-  product      Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
-  optionValue1 ProductOptionValue? @relation("VariantOption1", fields: [optionValue1Id], references: [id], onDelete: Restrict)
-  optionValue2 ProductOptionValue? @relation("VariantOption2", fields: [optionValue2Id], references: [id], onDelete: Restrict)
-  images       ProductImage[]
-  inventory    Inventory?
-  movements    StockMovement[]
-  cartItems    CartItem[]
-  orderItems   OrderItem[]
-  srSaleItems  SrSaleItem[]
-  suppliers    VariantSupplier[]
-  poItems      PurchaseOrderItem[]
+  product        Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
+  optionValue1   ProductOptionValue? @relation("VariantOption1", fields: [optionValue1Id], references: [id], onDelete: Restrict)
+  optionValue2   ProductOptionValue? @relation("VariantOption2", fields: [optionValue2Id], references: [id], onDelete: Restrict)
+  images         ProductImage[]
+  inventory      Inventory?
+  movements      StockMovement[]
+  cartItems      CartItem[]
+  orderItems     OrderItem[]
+  srSaleItems    SrSaleItem[]
+  suppliers      VariantSupplier[]
+  poItems        PurchaseOrderItem[]
+  flashItems     FlashSaleItem[]
+  saleBatchItems SaleBatchItem[]
 
   @@unique([productId, optionValue1Id, optionValue2Id])
   @@map("variants")
@@ -591,11 +593,15 @@ model Customer {
   createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz
 
-  sessions  CustomerSession[]
-  wishlists Wishlist[]
-  addresses CustomerAddress[]
-  carts     Cart[]
-  orders    Order[]
+  sessions          CustomerSession[]
+  wishlists         Wishlist[]
+  addresses         CustomerAddress[]
+  carts             Cart[]
+  orders            Order[]
+  couponWallet      CouponWallet[]
+  couponRedemptions CouponRedemption[]
+  couponCodes       CouponCode[]
+  couponCustomers   CouponCustomer[]
 
   @@map("customers")
 }
@@ -769,6 +775,8 @@ model DeliveryZone {
   locations ZoneLocation[]
   orders    Order[]
 
+  couponZones CouponZone[]
+
   @@map("delivery_zones")
 }
 
@@ -828,6 +836,8 @@ model Cart {
   abandonedNotifiedAt DateTime? @map("abandoned_notified_at") @db.Timestamptz
   /// Set when this guest cart was merged into a customer cart; merged carts are read-only.
   mergedIntoId        String?   @map("merged_into_id") @db.Uuid
+  /// Codes the customer applied (C57: at most 2, the 2nd only when both coupons stack).
+  couponCodes         String[]  @default([]) @map("coupon_codes")
   createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz
 
   customer Customer?  @relation(fields: [customerId], references: [id])
@@ -921,6 +931,8 @@ model Order {
   couponDiscountP     Int           @default(0) @map("coupon_discount_p")
   deliveryChargeP     Int           @map("delivery_charge_p")
   deliveryDiscountP   Int           @default(0) @map("delivery_discount_p")
+  /// Snapshot of every discount applied: [{couponId,name,kind,type,code,amountP,deliveryP}] (coupons may change later).
+  discountsJson       Json          @default("[]") @map("discounts_json")
   grandTotalP         Int           @map("grand_total_p")
   advanceRequiredP    Int           @default(0) @map("advance_required_p")
   paidP               Int           @default(0) @map("paid_p")
@@ -942,15 +954,16 @@ model Order {
   createdAt           DateTime      @default(now()) @map("created_at") @db.Timestamptz
   updatedAt           DateTime      @updatedAt @map("updated_at") @db.Timestamptz
 
-  customer  Customer?            @relation(fields: [customerId], references: [id])
-  zone      DeliveryZone         @relation(fields: [zoneId], references: [id])
-  items     OrderItem[]
-  history   OrderStatusHistory[]
-  payments  Payment[]
-  shipments Shipment[]
-  invoices  Invoice[]
-  returns   Return[]
-  refunds   Refund[]
+  customer          Customer?            @relation(fields: [customerId], references: [id])
+  zone              DeliveryZone         @relation(fields: [zoneId], references: [id])
+  items             OrderItem[]
+  history           OrderStatusHistory[]
+  payments          Payment[]
+  shipments         Shipment[]
+  invoices          Invoice[]
+  returns           Return[]
+  refunds           Refund[]
+  couponRedemptions CouponRedemption[]
 
   @@index([callStatus, placedAt])
   @@index([customerId])
@@ -975,8 +988,12 @@ model OrderItem {
   qtyReturned      Int     @default(0) @map("qty_returned")
   unitBaseP        Int     @map("unit_base_p")
   unitPriceP       Int     @map("unit_price_p")
-  /// base | sale (flash/event come with promotions, step 6)
+  /// base | sale | flash (event is P3)
   priceSource      String  @map("price_source")
+  /// Auto + coupon discount allocated to this line (whole line, not per unit); refunds scale by it.
+  discountP        Int     @default(0) @map("discount_p")
+  /// Set when priceSource = flash. Plain id (no FK): flash sales can be cleaned up, orders stay.
+  flashSaleItemId  String? @map("flash_sale_item_id") @db.Uuid
   weightG          Int?    @map("weight_g")
   returnWindowDays Int?    @map("return_window_days")
   lineTotalP       Int     @map("line_total_p")
@@ -1652,4 +1669,309 @@ model PurchaseOrderItem {
 
   @@index([poId])
   @@map("purchase_order_items")
+}
+
+// ---------------------------------------------------------------------------
+// Promotions (step 6, doc 04 + doc 12 §5). Money in paisa; percent in basis points (10000 = 100%).
+// Events + page builder are P3 (R7). Price order: base/sale/flash (lowest) -> auto coupons -> code
+// coupon(s) -> delivery. A coupon's value never changes an old order: orders keep discounts_json.
+// ---------------------------------------------------------------------------
+
+enum CouponKind {
+  code
+  auto
+
+  @@map("coupon_kind")
+}
+
+enum CouponType {
+  percent
+  fixed
+  free_delivery
+  bxgy
+  tiered
+  bundle
+
+  @@map("coupon_type")
+}
+
+enum CouponStatus {
+  draft
+  active
+  paused
+
+  @@map("coupon_status")
+}
+
+enum CouponVisibility {
+  public
+  hidden
+
+  @@map("coupon_visibility")
+}
+
+enum CouponSegment {
+  all
+  first_order
+  specific
+  inactive_days
+
+  @@map("coupon_segment")
+}
+
+enum CouponPlatform {
+  web
+  app
+  both
+
+  @@map("coupon_platform")
+}
+
+enum CouponSource {
+  manual
+  referral_signup
+  referral_reward
+  system
+
+  @@map("coupon_source")
+}
+
+model Coupon {
+  id                     String           @id @default(uuid(7)) @db.Uuid
+  name                   String
+  kind                   CouponKind
+  /// Upper-cased, unique. Null for auto coupons and for bulk-code coupons (codes live in coupon_codes).
+  code                   String?          @unique
+  isBulk                 Boolean          @default(false) @map("is_bulk")
+  termsEn                String?          @map("terms_en")
+  termsBn                String?          @map("terms_bn")
+  visibility             CouponVisibility @default(hidden)
+  isCollectable          Boolean          @default(false) @map("is_collectable")
+  status                 CouponStatus     @default(draft)
+  type                   CouponType
+  /// percent: basis points; fixed: paisa; others unused.
+  value                  Int              @default(0)
+  maxDiscountP           Int?             @map("max_discount_p")
+  /// bxgy: {buyQty,getQty,getPctBp,getSame,getProductIds?}; bundle: {items:[{productId,variantId?,qty}],priceP}. Zod in src/promotions/types.ts.
+  config                 Json             @default("{}")
+  minOrderP              Int?             @map("min_order_p")
+  minQty                 Int?             @map("min_qty")
+  startsAt               DateTime?        @map("starts_at") @db.Timestamptz
+  endsAt                 DateTime?        @map("ends_at") @db.Timestamptz
+  segment                CouponSegment    @default(all)
+  /// inactive_days: N days without an order.
+  segmentParam           Int?             @map("segment_param")
+  /// Empty = any method. Only 'cod' exists until online payments (Q42).
+  paymentMethods         String[]         @default([]) @map("payment_methods")
+  platform               CouponPlatform   @default(both)
+  maxUsesTotal           Int?             @map("max_uses_total")
+  maxPerCustomer         Int?             @map("max_per_customer")
+  maxPerPhone            Int?             @map("max_per_phone")
+  maxPerDevice           Int?             @map("max_per_device")
+  budgetCapP             Int?             @map("budget_cap_p")
+  usesCount              Int              @default(0) @map("uses_count")
+  discountGivenP         Int              @default(0) @map("discount_given_p")
+  stacksWithSalePrice    Boolean          @default(false) @map("stacks_with_sale_price")
+  stacksWithOtherCoupons Boolean          @default(false) @map("stacks_with_other_coupons")
+  stacksWithPoints       Boolean          @default(true) @map("stacks_with_points")
+  /// Auto coupons apply highest priority first.
+  priority               Int              @default(0)
+  source                 CouponSource     @default(manual)
+  createdAt              DateTime         @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt              DateTime         @updatedAt @map("updated_at") @db.Timestamptz
+
+  targets     CouponTarget[]
+  zones       CouponZone[]
+  tiers       CouponTier[]
+  customers   CouponCustomer[]
+  codes       CouponCode[]
+  wallet      CouponWallet[]
+  redemptions CouponRedemption[]
+
+  @@index([kind, status])
+  @@map("coupons")
+}
+
+/// product | category (includes descendants) | brand. include = scope, exclude = carve-outs.
+model CouponTarget {
+  id         String @id @default(uuid(7)) @db.Uuid
+  couponId   String @map("coupon_id") @db.Uuid
+  targetType String @map("target_type")
+  targetId   String @map("target_id") @db.Uuid
+  /// include | exclude
+  mode       String
+
+  coupon Coupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
+
+  @@index([couponId])
+  @@map("coupon_targets")
+}
+
+/// Zone condition; for free_delivery coupons these are the zones the delivery charge is waived in (none = all).
+model CouponZone {
+  couponId String @map("coupon_id") @db.Uuid
+  zoneId   String @map("zone_id") @db.Uuid
+
+  coupon Coupon       @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  zone   DeliveryZone @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+
+  @@id([couponId, zoneId])
+  @@map("coupon_zones")
+}
+
+model CouponTier {
+  id        String @id @default(uuid(7)) @db.Uuid
+  couponId  String @map("coupon_id") @db.Uuid
+  minSpendP Int    @map("min_spend_p")
+  discountP Int    @map("discount_p")
+
+  coupon Coupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
+
+  @@index([couponId])
+  @@map("coupon_tiers")
+}
+
+/// segment=specific audience; also referral coupons (step 8).
+model CouponCustomer {
+  couponId   String @map("coupon_id") @db.Uuid
+  customerId String @map("customer_id") @db.Uuid
+
+  coupon   Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@id([couponId, customerId])
+  @@map("coupon_customers")
+}
+
+/// Bulk unique codes; one use each (usedAt set at redemption, cleared on reversal).
+model CouponCode {
+  id                 String    @id @default(uuid(7)) @db.Uuid
+  couponId           String    @map("coupon_id") @db.Uuid
+  code               String    @unique
+  assignedCustomerId String?   @map("assigned_customer_id") @db.Uuid
+  usedAt             DateTime? @map("used_at") @db.Timestamptz
+
+  coupon           Coupon             @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  assignedCustomer Customer?          @relation(fields: [assignedCustomerId], references: [id], onDelete: SetNull)
+  redemptions      CouponRedemption[]
+
+  @@index([couponId])
+  @@map("coupon_codes")
+}
+
+/// Collect-coupon wallet (Q44).
+model CouponWallet {
+  customerId  String   @map("customer_id") @db.Uuid
+  couponId    String   @map("coupon_id") @db.Uuid
+  collectedAt DateTime @default(now()) @map("collected_at") @db.Timestamptz
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  coupon   Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
+
+  @@id([customerId, couponId])
+  @@map("coupon_wallet")
+}
+
+enum RedemptionStatus {
+  applied
+  reversed
+
+  @@map("redemption_status")
+}
+
+/// One row per coupon per order (auto coupons too). Reversed on cancel / failed delivery (Q90).
+model CouponRedemption {
+  id           String           @id @default(uuid(7)) @db.Uuid
+  couponId     String           @map("coupon_id") @db.Uuid
+  couponCodeId String?          @map("coupon_code_id") @db.Uuid
+  orderId      String           @map("order_id") @db.Uuid
+  customerId   String?          @map("customer_id") @db.Uuid
+  phone        String?
+  visitorId    String?          @map("visitor_id")
+  /// Item discount + delivery discount this coupon gave.
+  discountP    Int              @map("discount_p")
+  status       RedemptionStatus @default(applied)
+  reversedAt   DateTime?        @map("reversed_at") @db.Timestamptz
+  createdAt    DateTime         @default(now()) @map("created_at") @db.Timestamptz
+
+  coupon   Coupon      @relation(fields: [couponId], references: [id], onDelete: Restrict)
+  code     CouponCode? @relation(fields: [couponCodeId], references: [id], onDelete: SetNull)
+  order    Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  customer Customer?   @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  @@unique([orderId, couponId])
+  @@index([couponId, status])
+  @@index([customerId])
+  @@index([phone])
+  @@index([visitorId])
+  @@map("coupon_redemptions")
+}
+
+model FlashSale {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  nameEn    String   @map("name_en")
+  nameBn    String?  @map("name_bn")
+  startsAt  DateTime @map("starts_at") @db.Timestamptz
+  endsAt    DateTime @map("ends_at") @db.Timestamptz
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  items FlashSaleItem[]
+
+  @@index([startsAt, endsAt])
+  @@map("flash_sales")
+}
+
+/// A variant is in at most one overlapping flash sale (checked on save). Check constraint: 0 <= qty_sold <= qty_limit.
+model FlashSaleItem {
+  id               String @id @default(uuid(7)) @db.Uuid
+  flashSaleId      String @map("flash_sale_id") @db.Uuid
+  variantId        String @map("variant_id") @db.Uuid
+  flashPriceP      Int    @map("flash_price_p")
+  qtyLimit         Int    @map("qty_limit")
+  qtySold          Int    @default(0) @map("qty_sold")
+  perCustomerLimit Int?   @map("per_customer_limit")
+  sort             Int    @default(0)
+
+  flashSale FlashSale @relation(fields: [flashSaleId], references: [id], onDelete: Cascade)
+  variant   Variant   @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@unique([flashSaleId, variantId])
+  @@index([variantId])
+  @@map("flash_sale_items")
+}
+
+/// Bulk sale (C58): one admin action that wrote sale prices onto many variants; undo restores the previous values.
+model SaleBatch {
+  id          String    @id @default(uuid(7)) @db.Uuid
+  name        String
+  /// {mode:'percent'|'fixed', value:number(bp|paisa), scope:{productIds?,categoryIds?,brandIds?}}
+  config      Json
+  startsAt    DateTime? @map("starts_at") @db.Timestamptz
+  endsAt      DateTime? @map("ends_at") @db.Timestamptz
+  createdById String?   @map("created_by_id") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  undoneAt    DateTime? @map("undone_at") @db.Timestamptz
+
+  items SaleBatchItem[]
+
+  @@map("sale_batches")
+}
+
+model SaleBatchItem {
+  id               String    @id @default(uuid(7)) @db.Uuid
+  batchId          String    @map("batch_id") @db.Uuid
+  variantId        String    @map("variant_id") @db.Uuid
+  prevSalePriceP   Int?      @map("prev_sale_price_p")
+  prevSaleStartsAt DateTime? @map("prev_sale_starts_at") @db.Timestamptz
+  prevSaleEndsAt   DateTime? @map("prev_sale_ends_at") @db.Timestamptz
+  newSalePriceP    Int       @map("new_sale_price_p")
+
+  batch   SaleBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  variant Variant   @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@index([batchId])
+  @@index([variantId])
+  @@map("sale_batch_items")
 }

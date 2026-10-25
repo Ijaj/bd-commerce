@@ -74,6 +74,14 @@ export const PERMISSIONS = {
     group: 'Settings',
     description: 'Manage delivery zones, charges and zone locations',
   },
+  // Step 6: promotions.
+  'coupons.view': { group: 'Promotions', description: 'View coupons and their reports' },
+  'coupons.manage': {
+    group: 'Promotions',
+    description: 'Create, edit, pause coupons and bulk codes',
+  },
+  'flash_sales.manage': { group: 'Promotions', description: 'Create and edit flash sales' },
+  'bulk_sales.manage': { group: 'Promotions', description: 'Run and undo bulk sale price changes' },
   // Step 7: SR / B2B (R10–R20) and purchasing (Q62).
   'sr.portal': {
     group: 'SR / B2B',

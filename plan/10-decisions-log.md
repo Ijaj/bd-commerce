@@ -295,3 +295,7 @@ Note on S6: our order tracking covers status until the parcel is handed to the c
 | C52 | Step 5 docs: **A4 invoice** (VAT portion + BIN per Q95, EN/BN) and **4x6in label PDF** (order no, address, COD amount, barcode) |
 | C53 | Step 5 call queue: **auto-flag risky only** (velocity rules Q54, COD above setting threshold, first-time guest); staff confirm/cancel/note; non-blocking per Q53; others go straight to processing |
 | C54 | Step 5 returns: **request → approve → receive → refund/reject**; per-item qty + reason, within 7-day window (Q59), restock or write-off on receive, refund to wallet credit or original method (manual mark-paid until online payments), return shipping per Q87 |
+| C55 | Scheduled jobs (`sync-couriers`, `complete-orders`): **in-app scheduler** in the API (Nest schedule + Redis lock so one instance runs; env flag to disable) |
+| C56 | Step 6 flash sales: **qty is capped** at what is left at flash price and at the per-customer limit (cart refuses more, "only N left at flash price"); no split lines |
+| C57 | Step 6 combining: **all eligible auto discounts that stack with each other + at most 1 code**; a 2nd code only if both coupons allow stacking with other coupons (Q43 toggles stay) |
+| C58 | Step 6 product discounts: **bulk sale tool** in admin (category/brand/products, % or fixed off, window → writes variant sale prices, one-click undo). Events + page builder stay P3 (R7); payment-method discount condition stored but only `cod` is live until online payments |

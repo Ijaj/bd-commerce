@@ -22,7 +22,11 @@ export type CommerceErrorCode =
   | 'TOO_MANY_REQUESTS'
   | 'GUEST_REQUIRED'
   | 'TOO_MANY_ORDERS'
-  | 'GUEST_LIMIT';
+  | 'GUEST_LIMIT'
+  | 'FLASH_LIMIT'
+  | 'FLASH_SOLD_OUT'
+  | 'COUPON_INVALID'
+  | 'COUPON_LIMIT';
 
 /** Error with a stable machine-readable `code` next to the human `message`. */
 export class CommerceError extends HttpException {

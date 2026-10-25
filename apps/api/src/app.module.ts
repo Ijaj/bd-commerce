@@ -15,6 +15,10 @@ import { MailModule } from './mail/mail.module';
 import { MediaModule } from './media/media.module';
 import { OrdersAdminModule } from './orders-admin/orders-admin.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { BulkSaleModule } from './promotions/bulk-sale/bulk-sale.module';
+import { CouponsModule } from './promotions/coupons/coupons.module';
+import { FlashModule } from './promotions/flash/flash.module';
+import { PromotionsModule } from './promotions/promotions.module';
 import { RedisModule } from './redis/redis.module';
 import { ReturnsModule } from './returns/returns.module';
 import { SettingsModule } from './settings/settings.module';
@@ -48,6 +52,10 @@ import { StorefrontModule } from './storefront/storefront.module';
     ShipmentsModule,
     DocumentsModule,
     ReturnsModule,
+    PromotionsModule,
+    CouponsModule,
+    FlashModule,
+    BulkSaleModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_PIPE, useClass: ZodValidationPipe }],
