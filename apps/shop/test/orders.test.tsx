@@ -120,6 +120,8 @@ describe('OrderDetailView', () => {
     customerNote: 'Call before coming',
     items: [
       {
+        orderItemId: 'oi1',
+        returnableQty: 0,
         productId: 'p',
         variantId: 'v',
         slug: 'iron',

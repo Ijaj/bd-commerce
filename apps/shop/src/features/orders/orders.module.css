@@ -311,3 +311,8 @@
   gap: var(--s2);
   align-items: center;
 }
+.actions {
+  display: flex;
+  gap: var(--s3);
+  flex-wrap: wrap;
+}

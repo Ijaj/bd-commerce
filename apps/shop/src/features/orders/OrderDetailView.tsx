@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { Img } from '~/components/Img';
 import { etaText } from '~/features/checkout/eta';
+import { canRequestReturn, canViewInvoice } from '~/features/returns/logic';
+import type { OrderForReturn } from '~/features/returns/types';
 import { dict, fmt, type Lang } from '~/i18n';
 import { href } from '~/i18n/routing';
 import { formatPrice, localizeDigits } from '~/lib/format';
@@ -12,7 +14,9 @@ import type { OrderDetail } from './types';
 /** Full order for the logged-in customer: items, money, ship-to, status timeline. */
 export function OrderDetailView({ lang, o }: { lang: Lang; o: OrderDetail }) {
   const d = dict(lang).orders;
+  const rd = dict(lang).returns;
   const m = o.money;
+  const ret = o as OrderForReturn;
   const paymentStatuses = d.paymentStatuses as Record<string, string>;
   return (
     <div className={s.detail}>
@@ -128,6 +132,24 @@ export function OrderDetailView({ lang, o }: { lang: Lang; o: OrderDetail }) {
           </section>
         </div>
       </div>
+
+      {canViewInvoice(o) || canRequestReturn(ret) ? (
+        <p className={s.actions}>
+          {canViewInvoice(o) ? (
+            <Link className="btn btn-ghost btn-sm" href={href(lang, `/order/${o.orderNo}/invoice`)}>
+              {rd.invoice}
+            </Link>
+          ) : null}
+          {canRequestReturn(ret) ? (
+            <Link
+              className="btn btn-ghost btn-sm"
+              href={`${href(lang, '/account/returns/new')}?order=${encodeURIComponent(o.orderNo)}`}
+            >
+              {rd.requestReturn}
+            </Link>
+          ) : null}
+        </p>
+      ) : null}
 
       <p>
         <Link className="link" href={href(lang, '/account/orders')}>

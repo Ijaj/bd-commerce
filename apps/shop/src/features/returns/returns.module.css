@@ -1,0 +1,218 @@
+.muted {
+  color: var(--muted);
+}
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+}
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s3);
+  background: var(--surface);
+  border: var(--card-bd);
+  border-radius: var(--r-lg);
+  transition: border-color 0.15s;
+}
+.row:hover {
+  border-color: var(--primary);
+}
+.rowText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--badge-r);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.st_closed,
+.st_inspected {
+  background: var(--success);
+  color: var(--on-success);
+}
+.st_rejected {
+  background: var(--danger);
+  color: #fff;
+}
+.pager {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--s4);
+}
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+  max-width: 720px;
+}
+.detailHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--s3);
+}
+.detailHead h1,
+.detailHead p {
+  margin: 0;
+}
+.card {
+  padding: var(--s4);
+  background: var(--surface);
+  border: var(--card-bd);
+  border-radius: var(--r-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+}
+.card p {
+  margin: 0;
+}
+.cardTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 400;
+}
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+.steps li {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+}
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  flex: none;
+}
+.step_done .dot {
+  background: var(--success);
+  border-color: var(--success);
+}
+.step_current .dot {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.step_upcoming {
+  color: var(--muted);
+}
+.items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+}
+.items li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+  max-width: 640px;
+}
+.lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+}
+.line {
+  padding: var(--s3);
+  background: var(--surface);
+  border: var(--card-bd);
+  border-radius: var(--r-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+}
+.lineHead {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  cursor: pointer;
+}
+.lineHead input {
+  width: 20px;
+  height: 20px;
+  flex: none;
+}
+.thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--r);
+  overflow: hidden;
+  background: var(--surface-2);
+  flex: none;
+}
+.thumb img,
+.thumb > div {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.lineText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.lineFields {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--s3);
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+}
+.actions {
+  display: flex;
+  gap: var(--s3);
+  flex-wrap: wrap;
+}
+.topRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--s3);
+  margin-bottom: var(--s3);
+}
+.topRow h1 {
+  margin: 0;
+}
+@media (min-width: 640px) {
+  .lineFields {
+    grid-template-columns: 120px 1fr;
+  }
+  .wide {
+    grid-column: 1 / -1;
+  }
+}
