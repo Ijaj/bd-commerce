@@ -1,4 +1,5 @@
-import { Alert, Badge, Group, Select, Text } from '@mantine/core';
+import { Toolbar } from '@bdc/ui';
+import { Alert, Badge, Select } from '@mantine/core';
 import { MonthPickerInput } from '@mantine/dates';
 import { useDebouncedValue } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
@@ -12,6 +13,7 @@ import type { SaleFilters } from './api';
 import { dateToMonth, monthToDate, type SaleStatusX, STATUS_COLOR, STATUS_LABEL } from './logic';
 import { type Sale, salesQuery, srListQuery } from './queries';
 import { SaleDrawer } from './SaleDrawer';
+import classes from './sr.module.css';
 
 const ANY = 'any';
 
@@ -85,9 +87,7 @@ export function SalesPage({ search }: { search: SalesSearch }) {
       header: 'Due',
       align: 'right',
       render: (s) => (
-        <Text size="sm" c={s.dueP > 0 ? 'red' : undefined}>
-          {formatPrice(s.dueP)}
-        </Text>
+        <span className={s.dueP > 0 ? classes.due : undefined}>{formatPrice(s.dueP)}</span>
       ),
     },
     {
@@ -101,7 +101,7 @@ export function SalesPage({ search }: { search: SalesSearch }) {
       render: (s) => {
         const st = s.status as SaleStatusX;
         return (
-          <Badge size="sm" variant="light" color={STATUS_COLOR[st]}>
+          <Badge size="sm" color={STATUS_COLOR[st]}>
             {STATUS_LABEL[st]}
           </Badge>
         );
@@ -113,9 +113,10 @@ export function SalesPage({ search }: { search: SalesSearch }) {
     <div>
       <PageHeader
         title="SR sales"
+        crumbs={['People & partners', 'SR approvals']}
         description="Sales entered by reps. Approve to post the due and the memo; mark delivered to deduct stock."
       />
-      <Group mb="sm" align="flex-end">
+      <Toolbar>
         <Select
           label="Status"
           w={180}
@@ -161,7 +162,7 @@ export function SalesPage({ search }: { search: SalesSearch }) {
           onChange={(v) => set({ shopId: v ?? undefined })}
           filter={({ options }) => options}
         />
-      </Group>
+      </Toolbar>
       {list.isError && <Alert color="red">{(list.error as Error).message}</Alert>}
       <DataTable
         columns={columns}

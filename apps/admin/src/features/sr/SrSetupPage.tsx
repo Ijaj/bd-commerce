@@ -9,6 +9,7 @@ export function SrSetupPage() {
     <div>
       <PageHeader
         title="SR team"
+        crumbs={['People & partners', 'SR team']}
         description="Sales rep profiles, monthly targets and commissions."
       />
       <Tabs defaultValue="team" keepMounted={false}>

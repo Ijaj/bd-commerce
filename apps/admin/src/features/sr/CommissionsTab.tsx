@@ -96,7 +96,7 @@ export function CommissionsTab() {
         ) : (
           <div>
             <Button
-              size="compact-xs"
+              size="compact-sm"
               variant="subtle"
               color="orange"
               aria-expanded={open.has(c.id)}
@@ -138,11 +138,11 @@ export function CommissionsTab() {
       align: 'right',
       render: (c) =>
         c.status === 'pending' ? (
-          <Button size="compact-xs" onClick={() => setActing({ row: c, kind: 'approve' })}>
+          <Button size="compact-sm" onClick={() => setActing({ row: c, kind: 'approve' })}>
             Approve
           </Button>
         ) : c.status === 'approved' ? (
-          <Button size="compact-xs" onClick={() => setActing({ row: c, kind: 'paid' })}>
+          <Button size="compact-sm" onClick={() => setActing({ row: c, kind: 'paid' })}>
             Mark paid
           </Button>
         ) : null,

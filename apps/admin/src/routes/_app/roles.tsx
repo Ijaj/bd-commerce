@@ -1,3 +1,4 @@
+import { Icon, SectionCard } from '@bdc/ui';
 import {
   Alert,
   Badge,
@@ -5,7 +6,6 @@ import {
   Checkbox,
   Group,
   Modal,
-  SimpleGrid,
   Stack,
   Text,
   Textarea,
@@ -25,6 +25,7 @@ import {
   type RoleRow,
   rolesQuery,
 } from '~/features/staff/queries';
+import classes from '~/features/staff/roles.module.css';
 import { useCan } from '~/lib/perm';
 
 export const Route = createFileRoute('/_app/roles')({ component: RolesPage });
@@ -106,7 +107,7 @@ function RoleModal({
           </Alert>
         )}
         {locked && (
-          <Alert color="indigo" variant="light">
+          <Alert color="blue" variant="light">
             System role: it always keeps every permission and cannot be renamed.
           </Alert>
         )}
@@ -128,35 +129,37 @@ function RoleModal({
         <Text size="sm" fw={500}>
           Permissions ({perms.size})
         </Text>
-        <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+        <div className={classes.matrix}>
           {groups.map(([group, items]) => {
             const keys = items.map((p) => p.key as string);
             const selected = keys.filter((k) => perms.has(k)).length;
             return (
-              <Stack key={group} gap={4}>
-                <Checkbox
-                  label={group}
-                  fw={700}
-                  disabled={locked}
-                  checked={selected === keys.length}
-                  indeterminate={selected > 0 && selected < keys.length}
-                  onChange={(e) => toggle(keys, e.currentTarget.checked)}
-                />
-                {items.map((p) => (
+              <div key={group}>
+                <div className={classes.group}>
                   <Checkbox
-                    key={p.key}
-                    ml="md"
-                    label={p.description}
-                    description={p.key}
+                    label={group}
+                    fw={800}
                     disabled={locked}
-                    checked={perms.has(p.key)}
-                    onChange={(e) => toggle([p.key], e.currentTarget.checked)}
+                    checked={selected === keys.length}
+                    indeterminate={selected > 0 && selected < keys.length}
+                    onChange={(e) => toggle(keys, e.currentTarget.checked)}
                   />
+                </div>
+                {items.map((p) => (
+                  <div key={p.key} className={classes.row}>
+                    <Checkbox
+                      label={p.description}
+                      description={p.key}
+                      disabled={locked}
+                      checked={perms.has(p.key)}
+                      onChange={(e) => toggle([p.key], e.currentTarget.checked)}
+                    />
+                  </div>
                 ))}
-              </Stack>
+              </div>
             );
           })}
-        </SimpleGrid>
+        </div>
         <Group justify="flex-end">
           <Button variant="default" onClick={onClose}>
             Cancel
@@ -194,21 +197,10 @@ function RolesPage() {
       header: 'Role',
       render: (r) => (
         <div>
-          <Group gap={6}>
-            <Text size="sm" fw={600}>
-              {r.name}
-            </Text>
-            {r.isSystem && (
-              <Badge color="indigo" variant="light">
-                System
-              </Badge>
-            )}
-          </Group>
-          {r.description && (
-            <Text size="xs" c="dimmed">
-              {r.description}
-            </Text>
-          )}
+          <b>
+            {r.name} {r.isSystem && <Badge color="red">System</Badge>}
+          </b>
+          {r.description && <span className="sub">{r.description}</span>}
         </div>
       ),
     },
@@ -220,11 +212,11 @@ function RolesPage() {
       align: 'right',
       render: (r) => (
         <Group gap={4} justify="flex-end" wrap="nowrap">
-          <Button size="compact-xs" variant="default" onClick={() => setModal({ role: r })}>
+          <Button size="compact-sm" variant="default" onClick={() => setModal({ role: r })}>
             {canManage && !r.isSystem ? 'Edit' : 'View'}
           </Button>
           {canManage && !r.isSystem && (
-            <Button size="compact-xs" variant="default" color="red" onClick={() => setDeleting(r)}>
+            <Button size="compact-sm" color="red" onClick={() => setDeleting(r)}>
               Delete
             </Button>
           )}
@@ -237,13 +229,32 @@ function RolesPage() {
     <>
       <PageHeader
         title="Roles"
+        crumbs={['Admin', 'System', 'Roles & permissions']}
         description="A role is a set of permissions. Staff can hold several roles."
-        actions={canManage && <Button onClick={() => setModal({ role: null })}>New role</Button>}
+        actions={
+          canManage && (
+            <Button
+              leftSection={<Icon name="plus" size={15} />}
+              onClick={() => setModal({ role: null })}
+            >
+              New role
+            </Button>
+          )
+        }
       />
       {error ? (
         <Alert color="red">{error.message}</Alert>
       ) : (
-        <DataTable columns={columns} rows={data} rowKey={(r) => r.id} loading={isPending} />
+        <SectionCard
+          title={
+            <>
+              Roles <span className="a-count">{data?.length ?? 0}</span>
+            </>
+          }
+          flush
+        >
+          <DataTable columns={columns} rows={data} rowKey={(r) => r.id} loading={isPending} />
+        </SectionCard>
       )}
       <RoleModal opened={!!modal} role={modal?.role ?? null} onClose={() => setModal(null)} />
       <ConfirmDelete

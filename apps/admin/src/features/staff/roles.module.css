@@ -1,0 +1,46 @@
+/* Permission matrix look from plan/mockups/admin/shared/system.css (.perm-matrix). */
+.matrix {
+  border: 1px solid var(--bdc-border);
+  border-radius: var(--bdc-r);
+  background: var(--bdc-surface);
+  max-height: 60vh;
+  overflow: auto;
+}
+
+.group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 14px;
+  background: var(--bdc-surface-2);
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 800;
+  color: var(--bdc-primary);
+  border-top: 1px solid var(--bdc-border);
+  border-bottom: 1px solid var(--bdc-border);
+}
+
+.group:first-child {
+  border-top: 0;
+}
+
+.row {
+  padding: 7px 14px;
+  border-bottom: 1px solid var(--bdc-border);
+}
+
+.row:hover {
+  background: var(--bdc-bg-hover);
+}
+
+.row:last-child {
+  border-bottom: 0;
+}
+
+.count {
+  margin-right: auto;
+  color: var(--bdc-muted);
+  font-size: 12.5px;
+}
