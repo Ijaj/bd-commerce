@@ -13,6 +13,7 @@ General-purpose e-commerce for Bangladesh. Planning gates 1–7 done (`plan/READ
 - Old reference project: `~/webdev/baby-commerce` (lessons in `plan/09-baby-commerce-reuse.md`).
 
 ## Resume state (last updated 2026-10-25, session 12)
+
 - **UI fidelity (C60/C61): step 6b done in session 12 (PR Ijaj/bd-commerce#1), awaiting owner review in a browser.** Rule stays: every UI task opens the matching mockup first and uses `@bdc/ui`; unbuilt mockup parts are in `plan/15-ui-mockup-gaps.md`.
 
 - Gates 1–7 done; SR mockups approved (C1). **Gate 8 coding in progress.** Decisions C1–C8 in doc 10: step 1 in 4 sub-steps (1a stack/CI, 1b Prisma+Nest+OpenAPI, 1c staff auth/2FA/sessions/RBAC, 1d settings/flags/EN-BN/maintenance), foundation tables only, commit to main, Node 24, Garage (not MinIO), Biome, TypeScript 7 (fall back to 6.0 per app if a tool breaks).
