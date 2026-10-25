@@ -1,5 +1,5 @@
-import { ActionIcon, Badge, Button, Group, Image, Loader, Paper, Stack, Text } from '@mantine/core';
-import { IconPencil, IconPlus, IconTrash } from '@tabler/icons-react';
+import { Banner, EmptyState, Icon, SectionCard } from '@bdc/ui';
+import { ActionIcon, Badge, Button, Loader } from '@mantine/core';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { type ReactNode, useState } from 'react';
 import { ConfirmDelete } from '~/components/ConfirmDelete';
@@ -9,6 +9,7 @@ import { SortableItem, SortableList } from '~/features/products/Sortable';
 import { formatDateTime } from '~/lib/format';
 import { useCan } from '~/lib/perm';
 import { type CarouselSlide, carouselApi } from './api';
+import classes from './Carousel.module.css';
 import { LANG_OPTIONS, STATUS_COLOR, STATUS_LABEL, slideStatus } from './logic';
 import { carouselQuery, useInvalidateCarousel } from './queries';
 import { SlideModal } from './SlideModal';
@@ -46,12 +47,13 @@ export function CarouselPage() {
     <div>
       <PageHeader
         title="Home carousel"
+        crumbs={['Marketing', 'Home & feed']}
         description="Banners at the top of the storefront home page. Drag to reorder; the first live slide shows first."
         actions={
           canEdit && (
             <Button
               size="xs"
-              leftSection={<IconPlus size={14} />}
+              leftSection={<Icon name="plus" size={14} />}
               onClick={() => setForm({ slide: null })}
             >
               Add slide
@@ -60,41 +62,44 @@ export function CarouselPage() {
         }
       />
 
-      {list.isLoading && <Loader size="sm" aria-label="Loading" />}
-      {list.isError && (
-        <Text c="red" size="sm">
-          {(list.error as Error).message}
-        </Text>
-      )}
-      {list.data && list.data.length === 0 && (
-        <Text c="dimmed" size="sm">
-          No slides yet. The home page shows no carousel until a slide is live.
-        </Text>
-      )}
+      <SectionCard title="Carousel slides">
+        {list.isLoading && (
+          <div className="a-empty">
+            <Loader size="sm" aria-label="Loading" />
+          </div>
+        )}
+        {list.isError && <Banner tone="danger">{(list.error as Error).message}</Banner>}
+        {list.data && list.data.length === 0 && (
+          <EmptyState icon="home" title="No slides yet">
+            No slides yet. The home page shows no carousel until a slide is live.
+          </EmptyState>
+        )}
 
-      <SortableList
-        items={rows}
-        getId={(s) => s.id}
-        onReorder={(next) => {
-          setPendingOrder(next);
-          reorder.mutate(next.map((s) => s.id));
-        }}
-      >
-        <Stack gap={0}>
-          {rows.map((s) => (
-            <SortableItem key={s.id} id={s.id} disabled={!canEdit}>
-              {(handle) => (
-                <SlideRow
-                  slide={s}
-                  handle={canEdit ? handle : null}
-                  onEdit={canEdit ? () => setForm({ slide: s }) : null}
-                  onDelete={canEdit ? () => setDeleting(s) : null}
-                />
-              )}
-            </SortableItem>
-          ))}
-        </Stack>
-      </SortableList>
+        <SortableList
+          items={rows}
+          getId={(s) => s.id}
+          onReorder={(next) => {
+            setPendingOrder(next);
+            reorder.mutate(next.map((s) => s.id));
+          }}
+        >
+          <div>
+            {rows.map((s, idx) => (
+              <SortableItem key={s.id} id={s.id} disabled={!canEdit}>
+                {(handle) => (
+                  <SlideRow
+                    slide={s}
+                    index={idx + 1}
+                    handle={canEdit ? handle : null}
+                    onEdit={canEdit ? () => setForm({ slide: s }) : null}
+                    onDelete={canEdit ? () => setDeleting(s) : null}
+                  />
+                )}
+              </SortableItem>
+            ))}
+          </div>
+        </SortableList>
+      </SectionCard>
 
       {form && (
         <SlideModal
@@ -126,11 +131,13 @@ function windowText(s: CarouselSlide): string {
 
 function SlideRow({
   slide: s,
+  index,
   handle,
   onEdit,
   onDelete,
 }: {
   slide: CarouselSlide;
+  index: number;
   handle: ReactNode | null;
   onEdit: (() => void) | null;
   onDelete: (() => void) | null;
@@ -138,38 +145,29 @@ function SlideRow({
   const status = slideStatus(s);
   const lang = LANG_OPTIONS.find((o) => o.value === s.lang)?.label ?? s.lang;
   return (
-    <Paper withBorder p="sm" mb="xs">
-      <Group wrap="nowrap" gap="sm" align="center">
-        {handle}
-        <Image
-          src={s.imageDesktop.thumbUrl}
-          alt=""
-          w={96}
-          h={54}
-          radius="sm"
-          fit="cover"
-          style={{ flex: '0 0 auto' }}
-        />
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <Group gap="xs" wrap="nowrap">
-            <Text size="sm" fw={500} truncate="end">
-              {s.title}
-            </Text>
-            <Badge size="xs" variant="outline" color="gray">
-              {lang}
-            </Badge>
-          </Group>
-          <Text size="xs" c="dimmed" truncate="end">
-            {windowText(s)}
-            {s.linkUrl ? ` · ${s.linkUrl}` : ''}
-          </Text>
+    <div className={classes.slide}>
+      <span className={classes.ord}>{index}</span>
+      <span className={classes.handle}>{handle}</span>
+      <img src={s.imageDesktop.thumbUrl} alt="" className={classes.thumb} />
+      <div className={classes.main}>
+        <div className={classes.title}>
+          <span>{s.title}</span>
+          <Badge size="xs" variant="outline" color="gray">
+            {lang}
+          </Badge>
+        </div>
+        <div className={classes.meta}>
+          {windowText(s)}
+          {s.linkUrl ? ` · ${s.linkUrl}` : ''}
         </div>
         <Badge size="sm" variant="light" color={STATUS_COLOR[status]}>
           {STATUS_LABEL[status]}
         </Badge>
+      </div>
+      <div className={classes.acts}>
         {onEdit && (
           <ActionIcon variant="subtle" aria-label={`Edit ${s.title}`} onClick={onEdit}>
-            <IconPencil size={16} />
+            <Icon name="edit" size={15} />
           </ActionIcon>
         )}
         {onDelete && (
@@ -179,10 +177,10 @@ function SlideRow({
             aria-label={`Delete ${s.title}`}
             onClick={onDelete}
           >
-            <IconTrash size={16} />
+            <Icon name="trash" size={15} />
           </ActionIcon>
         )}
-      </Group>
-    </Paper>
+      </div>
+    </div>
   );
 }

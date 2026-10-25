@@ -1,4 +1,5 @@
-import { Alert, Button, Group, Stack, Switch } from '@mantine/core';
+import { SectionCard } from '@bdc/ui';
+import { Alert, Button, Group, Switch } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { useMutation } from '@tanstack/react-query';
@@ -6,6 +7,7 @@ import { BilingualTextInput } from '~/components/BilingualTextInput';
 import { isoToLocal, localToIso } from '~/features/carousel/logic';
 import { notifyOk } from '~/features/categories/queries';
 import { flashApi } from './api';
+import classes from './FlashSales.module.css';
 import { flashErrorMessage } from './logic';
 import type { FlashDetail } from './queries';
 import { useInvalidateFlash } from './queries';
@@ -70,8 +72,8 @@ export function SaleDetailsForm({
   });
 
   return (
-    <form onSubmit={form.onSubmit((v) => save.mutate(v))}>
-      <Stack gap="md" maw={720}>
+    <form onSubmit={form.onSubmit((v) => save.mutate(v))} className={classes.formWrap}>
+      <SectionCard title="Sale" bodyClassName={classes.form}>
         <BilingualTextInput
           label="Name"
           required
@@ -118,7 +120,7 @@ export function SaleDetailsForm({
             </Button>
           </Group>
         )}
-      </Stack>
+      </SectionCard>
     </form>
   );
 }

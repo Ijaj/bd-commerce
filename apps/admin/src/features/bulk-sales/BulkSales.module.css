@@ -1,0 +1,40 @@
+/* coupons.html editor style (marketing.css .m-sec / .m-note / .m-muted) */
+.form {
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.sub {
+  display: block;
+  color: var(--bdc-muted);
+  font-size: 12px;
+}
+.muted {
+  color: var(--bdc-muted);
+  font-size: 12px;
+}
+.sec {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--bdc-muted);
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+.notes {
+  margin: 0 0 8px;
+  padding-left: 18px;
+  font-size: 13px;
+}
+.banners {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}

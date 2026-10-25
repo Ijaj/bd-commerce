@@ -12,9 +12,9 @@ export const PHASE_LABEL: Record<FlashPhase, string> = {
 
 export const PHASE_COLOR: Record<FlashPhase, string> = {
   scheduled: 'blue',
-  live: 'green',
+  live: 'red',
   ended: 'gray',
-  inactive: 'orange',
+  inactive: 'yellow',
 };
 
 /** One editable row of the items table. Numbers are kept as paisa / units, null while the field is empty. */

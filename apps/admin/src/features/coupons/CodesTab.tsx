@@ -1,3 +1,4 @@
+import { SectionCard, Toolbar } from '@bdc/ui';
 import {
   Alert,
   Badge,
@@ -5,12 +6,10 @@ import {
   CloseButton,
   Group,
   NumberInput,
-  Paper,
   Select,
   Stack,
   Text,
   TextInput,
-  Title,
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -19,6 +18,7 @@ import { type Column, DataTable } from '~/components/DataTable';
 import { notifyOk } from '~/features/categories/queries';
 import { formatDateTime } from '~/lib/format';
 import { couponsApi } from './api';
+import classes from './Coupons.module.css';
 import { notifyCouponError } from './errors';
 import type { CustomerRef } from './form';
 import type { CouponDetail } from './logic';
@@ -74,7 +74,7 @@ export function CodesTab({ coupon }: { coupon: CouponDetail }) {
   });
 
   const columns: Column<CodeRow>[] = [
-    { key: 'code', header: 'Code', render: (r) => <code>{r.code}</code> },
+    { key: 'code', header: 'Code', render: (r) => <span className={classes.code}>{r.code}</span> },
     {
       key: 'state',
       header: 'Status',
@@ -106,9 +106,8 @@ export function CodesTab({ coupon }: { coupon: CouponDetail }) {
         {total} codes, {used} used, {assignedCount} assigned to customers, {total - used} unused.
       </Text>
 
-      <Paper withBorder p="md" radius="md">
-        <Stack gap="sm">
-          <Title order={4}>Generate codes</Title>
+      <SectionCard title="Generate codes" bodyClassName={classes.sectionBody}>
+        <>
           <Group align="flex-end">
             <NumberInput
               label="How many"
@@ -145,12 +144,11 @@ export function CodesTab({ coupon }: { coupon: CouponDetail }) {
               Generate
             </Button>
           </Group>
-        </Stack>
-      </Paper>
+        </>
+      </SectionCard>
 
-      <Paper withBorder p="md" radius="md">
-        <Stack gap="sm">
-          <Title order={4}>Give codes to a customer</Title>
+      <SectionCard title="Give codes to a customer" bodyClassName={classes.sectionBody}>
+        <>
           {customer ? (
             <Group gap="xs">
               <Text size="sm">
@@ -197,10 +195,10 @@ export function CodesTab({ coupon }: { coupon: CouponDetail }) {
               {assigned.join(', ')}
             </Alert>
           )}
-        </Stack>
-      </Paper>
+        </>
+      </SectionCard>
 
-      <Group align="flex-end" justify="space-between">
+      <Toolbar className={classes.toolbar}>
         <Group align="flex-end">
           <TextInput
             label="Search"
@@ -228,10 +226,11 @@ export function CodesTab({ coupon }: { coupon: CouponDetail }) {
             }}
           />
         </Group>
+        <span className="a-sp" />
         <Button variant="default" loading={exportCsv.isPending} onClick={() => exportCsv.mutate()}>
           Export CSV
         </Button>
-      </Group>
+      </Toolbar>
       <DataTable
         columns={columns}
         rows={list.data?.items}

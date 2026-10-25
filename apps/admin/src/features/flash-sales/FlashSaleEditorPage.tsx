@@ -1,5 +1,5 @@
-import { Alert, Button, Divider, Group, Loader, Text, Title } from '@mantine/core';
-import { IconArrowLeft } from '@tabler/icons-react';
+import { Banner, SectionCard } from '@bdc/ui';
+import { Button, Loader } from '@mantine/core';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -10,6 +10,7 @@ import { formatDateTime } from '~/lib/format';
 import { useCan } from '~/lib/perm';
 import { flashApi } from './api';
 import { FlashItemsEditor } from './FlashItemsEditor';
+import classes from './FlashSales.module.css';
 import { flashErrorMessage } from './logic';
 import { PhaseBadge } from './PhaseBadge';
 import { flashDetailQuery, useInvalidateFlash } from './queries';
@@ -33,14 +34,7 @@ export function FlashSaleEditorPage({ id }: { id?: string }) {
   });
 
   const back = (
-    <Button
-      component={Link}
-      to="/promotions/flash-sales"
-      variant="subtle"
-      size="xs"
-      leftSection={<IconArrowLeft size={14} />}
-      mb="xs"
-    >
+    <Button component={Link} to="/promotions/flash-sales" variant="subtle" size="xs" mb="xs">
       All flash sales
     </Button>
   );
@@ -51,6 +45,7 @@ export function FlashSaleEditorPage({ id }: { id?: string }) {
         {back}
         <PageHeader
           title="New flash sale"
+          crumbs={['Marketing', 'Flash sales', 'New']}
           description="Items are added after the sale is created."
         />
         <SaleDetailsForm
@@ -63,12 +58,20 @@ export function FlashSaleEditorPage({ id }: { id?: string }) {
     );
   }
 
-  if (detail.isLoading) return <Loader />;
+  if (detail.isLoading) {
+    return (
+      <div className="a-card">
+        <div className="a-empty">
+          <Loader size="sm" />
+        </div>
+      </div>
+    );
+  }
   if (detail.error || !detail.data) {
     return (
-      <Alert color="red" role="alert">
+      <Banner tone="danger">
         {flashErrorMessage(detail.error, 'Could not load this flash sale')}
-      </Alert>
+      </Banner>
     );
   }
   const sale = detail.data;
@@ -78,6 +81,7 @@ export function FlashSaleEditorPage({ id }: { id?: string }) {
       {back}
       <PageHeader
         title={sale.nameEn}
+        crumbs={['Marketing', 'Flash sales', sale.nameEn]}
         description={`${formatDateTime(sale.startsAt)} to ${formatDateTime(sale.endsAt)}`}
         actions={
           <>
@@ -90,25 +94,23 @@ export function FlashSaleEditorPage({ id }: { id?: string }) {
           </>
         }
       />
-      <Group gap="xl" mb="md">
-        <Text size="sm">Items: {sale.itemCount}</Text>
-        <Text size="sm">Units sold: {sale.unitsSold}</Text>
-      </Group>
+      <div className={classes.stats}>
+        <span>Items: {sale.itemCount}</span>
+        <span>Units sold: {sale.unitsSold}</span>
+      </div>
       {/* key: a save from elsewhere (or the server normalising dates) must reset the form */}
       <SaleDetailsForm
         key={`${sale.startsAt}|${sale.endsAt}|${sale.nameEn}|${sale.isActive}`}
         sale={sale}
         canManage={canManage}
       />
-      <Divider my="xl" />
-      <Title order={3} mb="sm">
-        Items
-      </Title>
-      <FlashItemsEditor
-        key={sale.items.map((i) => `${i.id}:${i.qtySold}`).join(',')}
-        sale={sale}
-        canManage={canManage}
-      />
+      <SectionCard title="Items">
+        <FlashItemsEditor
+          key={sale.items.map((i) => `${i.id}:${i.qtySold}`).join(',')}
+          sale={sale}
+          canManage={canManage}
+        />
+      </SectionCard>
       <ConfirmDelete
         opened={deleting}
         onClose={() => setDeleting(false)}

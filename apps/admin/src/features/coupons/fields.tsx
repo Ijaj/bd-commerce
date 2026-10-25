@@ -1,5 +1,7 @@
-import { Alert, NumberInput, type NumberInputProps, Paper, Stack, Title } from '@mantine/core';
+import { SectionCard } from '@bdc/ui';
+import { Alert, NumberInput, type NumberInputProps } from '@mantine/core';
 import type { ReactNode } from 'react';
+import classes from './Coupons.module.css';
 import type { CouponFormValues } from './form';
 
 /** Props every editor section gets. `disabled` = read-only (no coupons.manage). */
@@ -23,19 +25,16 @@ export function Section({
   children: ReactNode;
 }) {
   return (
-    <Paper withBorder p="md" radius="md">
-      <Stack gap="sm">
-        <Title order={4}>{title}</Title>
-        {issues.length > 0 && (
-          <Alert color="red" variant="light" title="Fix this section">
-            {issues.map((i) => (
-              <div key={i}>{i}</div>
-            ))}
-          </Alert>
-        )}
-        {children}
-      </Stack>
-    </Paper>
+    <SectionCard title={title} bodyClassName={classes.sectionBody}>
+      {issues.length > 0 && (
+        <Alert color="red" variant="light" title="Fix this section">
+          {issues.map((i) => (
+            <div key={i}>{i}</div>
+          ))}
+        </Alert>
+      )}
+      {children}
+    </SectionCard>
   );
 }
 
