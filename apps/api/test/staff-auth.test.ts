@@ -4,6 +4,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { ALL_PERMISSIONS } from '../src/auth/permissions';
 import { MailService } from '../src/mail/mail.service';
 import { PrismaService } from '../src/prisma/prisma.service';
+import { StaffService } from '../src/staff/staff.service';
 import { createApp, createOwner, resetDb, totpCode } from './helpers';
 
 describe('staff auth', () => {
@@ -21,6 +22,24 @@ describe('staff auth', () => {
     const me = await agent.get('/v1/admin/auth/me').expect(200);
     expect(me.body.roles).toEqual([expect.objectContaining({ name: 'Owner' })]);
     expect(me.body.permissions).toEqual([...ALL_PERMISSIONS].sort());
+  });
+
+  it('skips 2FA and completes login when DISABLE_2FA is true', async () => {
+    const bypassApp = await createApp({ env: { DISABLE_2FA: true } });
+    try {
+      const { tempPassword } = await bypassApp
+        .get(StaffService)
+        .createOwner('no-mfa@example.com', 'No MFA');
+      const agent = request.agent(bypassApp.getHttpServer());
+      const login = await agent
+        .post('/v1/admin/auth/login')
+        .send({ email: 'no-mfa@example.com', password: tempPassword })
+        .expect(200);
+      expect(login.body).toEqual({ next: 'authenticated' });
+      await agent.get('/v1/admin/auth/me').expect(200);
+    } finally {
+      await bypassApp.close();
+    }
   });
 
   it('blocks everything but 2FA endpoints until the second factor passes', async () => {

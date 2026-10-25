@@ -3141,7 +3141,7 @@ export interface components {
         };
         LoginResultDto: {
             /** @enum {string} */
-            next: "mfa_setup" | "mfa_verify";
+            next: "authenticated" | "mfa_setup" | "mfa_verify";
         };
         TotpSetupDto: {
             secret: string;

@@ -10,7 +10,7 @@ export class LoginDto extends createZodDto(
 ) {}
 
 export class LoginResultDto extends createZodDto(
-  z.object({ next: z.enum(['mfa_setup', 'mfa_verify']) }),
+  z.object({ next: z.enum(['authenticated', 'mfa_setup', 'mfa_verify']) }),
 ) {}
 
 export class TotpSetupDto extends createZodDto(

@@ -29,6 +29,10 @@ function LoginPage() {
       unwrap(api.POST('/v1/admin/auth/login', { body: v })),
     onSuccess: ({ next }) => {
       qc.removeQueries({ queryKey: ['me'] });
+      if (next === 'authenticated') {
+        window.location.assign(redirect ?? '/');
+        return;
+      }
       void navigate({
         to: next === 'mfa_setup' ? '/2fa/setup' : '/2fa/verify',
         search: { redirect },

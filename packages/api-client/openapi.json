@@ -10506,6 +10506,7 @@
           "next": {
             "type": "string",
             "enum": [
+              "authenticated",
               "mfa_setup",
               "mfa_verify"
             ]

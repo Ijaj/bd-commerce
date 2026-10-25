@@ -84,7 +84,7 @@ export class StaffAuthService {
     await this.throttle.clear(emailKey);
 
     const token = newToken();
-    await this.prisma.staffSession.create({
+    const session = await this.prisma.staffSession.create({
       data: {
         staffId: staff.id,
         tokenHash: sha256(token),
@@ -93,6 +93,10 @@ export class StaffAuthService {
         expiresAt: new Date(Date.now() + PENDING_TTL_MS),
       },
     });
+    if (this.env.DISABLE_2FA) {
+      const deviceToken = await this.completeLogin({ staff, session }, meta);
+      return { token, next: 'authenticated' as const, deviceToken };
+    }
     return { token, next: staff.totpEnabledAt ? ('mfa_verify' as const) : ('mfa_setup' as const) };
   }
 
@@ -239,7 +243,10 @@ export class StaffAuthService {
    * the browser had none (caller sets the cookie). Alerts by email on an unknown device,
    * except the very first one.
    */
-  private async completeLogin({ staff, session }: StaffAuthContext, meta: RequestMeta) {
+  private async completeLogin(
+    { staff, session }: Pick<StaffAuthContext, 'staff' | 'session'>,
+    meta: RequestMeta,
+  ) {
     const now = new Date();
     await this.prisma.$transaction([
       this.prisma.staffSession.update({

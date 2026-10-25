@@ -4,7 +4,7 @@ import type { MessageKey } from './en';
 export const bn: Record<MessageKey, string> = {
   appName: 'ShopName পার্টনার',
   signIn: 'সাইন ইন',
-  signInSub: 'শুধু স্টাফ ও পার্টনারদের জন্য। টু-ফ্যাক্টর যাচাই আবশ্যক।',
+  signInSub: 'শুধু স্টাফ ও পার্টনারদের জন্য।',
   email: 'ইমেইল',
   password: 'পাসওয়ার্ড',
   continue: 'এগিয়ে যান',

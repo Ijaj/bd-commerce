@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>ShopName - Mockups</title>
+<style>
+:root { --bg:#f6f5f2; --surface:#fff; --text:#1c1c22; --muted:#585863; --border:#deddd6; --link:#1d4ed8; }
+@media (prefers-color-scheme: dark) { :root { --bg:#111114; --surface:#1b1b20; --text:#f0f0f4; --muted:#a8a8b4; --border:#33333b; --link:#8ab4ff; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 980px; margin: 0 auto; padding: 48px 16px; }
+h1 { margin: 0 0 8px; font-size: 28px; }
+.lead { margin: 0 0 32px; color: var(--muted); }
+.opts-d { margin-bottom: 8px; }
+.opt-final { border: 2px solid var(--link); }
+.opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 20px; }
+.opt { display: flex; flex-direction: column; gap: 12px; padding: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; color: inherit; text-decoration: none; transition: transform .18s, box-shadow .18s; }
+.opt:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,.14); }
+.opt:focus-visible { outline: 3px solid var(--link); outline-offset: 3px; }
+.tag { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.opt h2 { margin: 0; font-size: 22px; }
+.opt p { margin: 0; color: var(--muted); font-size: 15px; }
+.sw { display: flex; height: 44px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+.sw i { flex: 1; }
+.go { margin-top: auto; font-weight: 700; color: var(--link); }
+.ph2 { margin: 40px 0 4px; font-size: 22px; }
+.sm { margin-bottom: 16px; font-size: 14px; }
+.plist { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.plist a, .plist .ln { display: flex; flex-direction: column; gap: 2px; padding: 14px 18px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; color: inherit; text-decoration: none; }
+.plist a:hover { border-color: var(--link); }
+.plist a:focus-visible { outline: 3px solid var(--link); outline-offset: 2px; }
+.plist span { color: var(--muted); font-size: 14px; }
+.grp { margin: 28px 0 10px; font-size: 15px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+code { padding: 1px 5px; border-radius: 4px; background: var(--bg); font-size: 13px; }
+.note { margin-top: 32px; padding: 16px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; color: var(--muted); font-size: 14px; }
+.note b { color: var(--text); }
+.phases { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.phases .note { margin-top: 0; }
+.phases ul { margin: 8px 0 0; padding-left: 20px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>ShopName mockups</h1>
+  <p class="lead">The owner chose the final brand: <b>D</b> (brand B's dense deal-marketplace style in brand C's indigo and teal colours). D is the default. A, B and C stay available as older options: switch with the A / B / C / D buttons (bottom right); the choice is remembered across pages. Every page has dark mode, EN / বাং and a mobile preview toggle. In BN mode all numbers use Bangla digits (order IDs, phone numbers, tracking IDs, coupon codes and typed input stay English).</p>
+  <div class="opts opts-d">
+    <a class="opt opt-final" href="home.html?brand=d">
+      <span class="tag">Final (Q103)</span><h2>D - Final (B style + C colours)</h2>
+      <div class="sw" aria-hidden="true"><i style="background:#4338ca"></i><i style="background:#0f766e"></i><i style="background:#5eead4"></i><i style="background:#1e1b3a"></i><i style="background:#be123c"></i></div>
+      <p>Dense grid, gradient header, angular discount tags, 4px radius, bold flash band, uppercase italic wordmark, in indigo + teal with C's light and dark tokens. Poppins + Hind Siliguri.</p>
+      <span class="go">Preview D &rarr;</span>
+    </a>
+  </div>
+  <h3 class="grp">Older options</h3>
+  <div class="opts">
+    <a class="opt" href="home.html?brand=a">
+      <span class="tag">Option A</span><h2>Trust</h2>
+      <div class="sw" aria-hidden="true"><i style="background:#0f6b4f"></i><i style="background:#f2a516"></i><i style="background:#fbf7ef"></i><i style="background:#1d2a24"></i><i style="background:#c0351f"></i></div>
+      <p>Deep green and saffron on warm off-white. Local, reliable, friendly. Nunito Sans + Hind Siliguri.</p>
+      <span class="go">Preview A &rarr;</span>
+    </a>
+    <a class="opt" href="home.html?brand=b">
+      <span class="tag">Option B</span><h2>Deal marketplace</h2>
+      <div class="sw" aria-hidden="true"><i style="background:#c93400"></i><i style="background:#ffc400"></i><i style="background:#f2f2f5"></i><i style="background:#17171a"></i><i style="background:#e60023"></i></div>
+      <p>Bold orange-red, dense grid, sharp corners, loud sale badges. Poppins + Hind Siliguri.</p>
+      <span class="go">Preview B &rarr;</span>
+    </a>
+    <a class="opt" href="home.html?brand=c">
+      <span class="tag">Option C</span><h2>Modern calm</h2>
+      <div class="sw" aria-hidden="true"><i style="background:#4338ca"></i><i style="background:#0f766e"></i><i style="background:#fafaff"></i><i style="background:#1e1b3a"></i><i style="background:#ffe4ec"></i></div>
+      <p>Indigo and teal, airy spacing, big soft radius, pill badges, premium feel. DM Sans + Noto Sans Bengali.</p>
+      <span class="go">Preview C &rarr;</span>
+    </a>
+  </div>
+  <h2 class="ph2">Launch / Full phase switch</h2>
+  <p class="lead sm">The "Launch / Full" switch (bottom right, next to the brand buttons; also <code>?phase=launch|full</code>, remembered in localStorage, default <b>Launch</b>) shows what the shop looks like at launch versus later.</p>
+  <div class="phases">
+    <div class="note"><b>Launch (COD only)</b><ul>
+      <li>Only cash on delivery in checkout; no bKash / Nagad / gateway methods, no method discounts or cashback banner</li>
+      <li>No advance payment anywhere: the delivery fee is collected on delivery, no "Pay now" line</li>
+      <li>Pre-order is hidden: no pre-order badges, <code>product.html?p=preorder</code> shows "Coming soon / Notify me"</li>
+      <li><code>payment.html</code> shows "Online payments not enabled at launch" with a link back</li>
+      <li>Wallet, points, coupons, free delivery per zone are still visible</li>
+    </ul></div>
+    <div class="note"><b>Full</b><ul>
+      <li>COD, bKash, Nagad and card/mobile banking; bKash 5% / Nagad 3% method discounts; bKash cashback event banner</li>
+      <li>Advance payment on COD orders: a non-free delivery fee is paid in advance; plus an advance % for dropship / flagged items (20-30%), items above ৳50,000 (10%) and risky customers (25%); when several apply their %s are added together, capped at 100% (Q111). "Pay now" breakdown shown in the checkout summary; demo buttons at the bottom of checkout toggle each case</li>
+      <li>Pre-order products, badges and the 20% pre-order advance</li>
+      <li>Online payment page with the 30:00 countdown and mock gateway</li>
+    </ul></div>
+  </div>
+  <h2 class="ph2">Free delivery (Q105)</h2>
+  <p class="lead sm">Free delivery means the customer pays no delivery fee. The threshold is per zone: Inside Dhaka free above ৳1,499, Dhaka suburbs above ৳2,999, outside Dhaka never. The cart progress bar uses the default address zone (Inside Dhaka for guests) and is hidden for zones that are never free.</p>
+  <h2 class="ph2">All pages</h2>
+  <p class="lead sm">Links open in the brand you last picked (default D). Add <code>?brand=b</code> to any URL to force one, or <code>?phase=full</code> to force the phase.</p>
+  <h3 class="grp">Storefront</h3>
+  <ul class="plist">
+    <li><a href="home.html"><b>Home</b><span>Hero + category menu, flash sale, events, infinite-style feed</span></a></li>
+    <li><a href="category.html?c=laptops"><b>Category</b><span>4-level breadcrumb, filters, sort, bottom sheets. Try <code>?c=electronics</code>, <code>?c=smart-tv</code>, <code>?c=gaming-laptops</code></span></a></li>
+    <li><a href="search.html?q=phone"><b>Search</b><span>Results ranked by title and category (smartphones first), related categories. Try <code>?q=samrtphone</code> (did you mean) and <code>?q=zzzz</code> (empty state)</span></a></li>
+    <li><a href="product.html"><b>Product</b><span>Flash price, 2 option types, coupons, delivery box, reviews, Q&amp;A</span></a></li>
+    <li><a href="product.html?p=preorder&amp;phase=full"><b>Product: pre-order</b><span>Full phase: expected date, 20% advance, Pre-order button. Launch phase: "Coming soon / Notify me"</span></a></li>
+    <li><a href="product.html?p=oos"><b>Product: out of stock</b><span>Notify me flow</span></a></li>
+    <li><a href="event.html"><b>Event page (Puja Mega Sale)</b><span>Block-built page: hero + countdown, coupon strip (Collect), category tiles, flash sale, banner pair, bKash offer (Full phase only), deals grid</span></a></li>
+  </ul>
+  <h3 class="grp">Order flow</h3>
+  <ul class="plist">
+    <li><a href="cart.html?demo=1"><b>Cart</b><span>Seeds 3 demo items + wallet coupons. Select boxes, stock warnings, free-delivery bar, coupon picker, mobile sticky total</span></a></li>
+    <li><a href="cart.html"><b>Cart: empty</b><span>Empty state with suggestions (clear the cart first)</span></a></li>
+    <li><a href="checkout.html"><b>Checkout (guest)</b><span>Contact, address form, delivery + parcels, payment methods, discounts, guest COD above ৳3,000 asks an SMS OTP. Pick a district to see the per-zone free-delivery rule. In Full, demo buttons at the bottom trigger the advance cases (50,000+ item, dropship item, risky customer) and pre-order</span></a></li>
+    <li><a href="checkout.html?user=1"><b>Checkout (logged in)</b><span>Saved addresses, store wallet, loyalty points slider</span></a></li>
+    <li><a href="payment.html?o=BD-100163&amp;m=bkash&amp;phase=full"><b>Payment pending (Full phase)</b><span>30:00 countdown, mock gateway. Also <code>&amp;s=failed</code> (retry, other method, switch to COD) and <code>&amp;s=success</code></span></a></li>
+    <li><a href="order-success.html?o=BD-100248"><b>Order confirmed</b><span>Summary, what happens next, create account with this phone (guest orders)</span></a></li>
+    <li><a href="track.html"><b>Track order</b><span>Guest lookup. Demo: BD-100219 with 01711000000 (split shipments), BD-100248 (can cancel), BD-100174 (delivered)</span></a></li>
+  </ul>
+  <h3 class="grp">Account</h3>
+  <ul class="plist">
+    <li><a href="login.html"><b>Login / Sign up</b><span>Phone or email + password, Google / Facebook, forgot password via OTP, sign-up with phone OTP. Same component opens as a modal elsewhere</span></a></li>
+    <li><a href="account.html?user=1#dashboard"><b>Account dashboard</b><span>Logged-in demo user (<code>?user=1</code>). <code>?user=0</code> logs out. Mobile shows the list menu first</span></a></li>
+    <li><a href="account.html?user=1#orders"><b>My orders</b><span>Status tabs, order cards</span></a></li>
+    <li><a href="account.html?user=1#order/BD-100219"><b>Order detail</b><span>Timeline, split shipments with tracking links, cancel / invoice</span></a></li>
+    <li><a href="account.html?user=1#return/BD-100174"><b>Return request</b><span>Items, reasons (who pays shipping), photo upload, refund method</span></a></li>
+    <li><a href="account.html?user=1#wishlist"><b>Wishlist</b><span>Cards from the heart buttons</span></a></li>
+    <li><a href="account.html?user=1#coupons"><b>Coupon wallet</b><span>Collected, expired, available to collect</span></a></li>
+    <li><a href="account.html?user=1#wallet"><b>Store wallet</b><span>Balance + transactions</span></a></li>
+    <li><a href="account.html?user=1#points"><b>Loyalty points</b><span>Balance, rules, expiry, history</span></a></li>
+    <li><a href="account.html?user=1#addresses"><b>Addresses</b><span>Add / edit / delete / default</span></a></li>
+    <li><a href="account.html?user=1#notifications"><b>Notifications</b><span>Inbox + SMS / email / push preferences</span></a></li>
+    <li><a href="account.html?user=1#tickets"><b>Support tickets</b><span>List with threads + new ticket form</span></a></li>
+    <li><a href="account.html?user=1#referral"><b>Refer and earn</b><span>Code, share, stats</span></a></li>
+    <li><a href="account.html?user=1#profile"><b>Profile and security</b><span>Details, phone verify (OTP), password, linked accounts</span></a></li>
+  </ul>
+  <h3 class="grp">Admin panel (English only, brand D tokens)</h3>
+  <p class="lead sm">Start at login (any password, any 6-digit 2FA code) or go straight to the dashboard. Use "View as" in the top bar to switch demo roles; menu items and buttons hide by permission. Edits are in-memory and reset on reload.</p>
+  <ul class="plist">
+    <li><a href="admin/login.html"><b>Admin login</b><span>Password → 2FA, new-device notice. <code>?expired=1</code> shows session timeout</span></a></li>
+    <li><a href="admin/index.html"><b>Dashboard</b><span>KPIs, sales chart, status donut, top products, traffic sources, alerts, "Launch mode: COD only" banner</span></a></li>
+    <li><a href="admin/orders.html"><b>Orders</b><span>Status tabs, filters, risk flags, bulk courier booking, CSV export</span></a></li>
+    <li><a href="admin/order.html"><b>Order detail</b><span>Split shipments, Pathao/Steadfast booking, edit before hand-off (audit note), call log, refund/cancel</span></a></li>
+    <li><a href="admin/returns.html"><b>Returns &amp; refunds</b><span>Inspection, refund to method or wallet, approval above ৳X</span></a></li>
+    <li><a href="admin/tickets.html"><b>Support tickets</b><span>Thread view, macros, log phone call</span></a></li>
+    <li><a href="admin/products.html"><b>Products</b><span>Tabs, filters, bulk actions, delete → archive if orders</span></a></li>
+    <li><a href="admin/product-edit.html"><b>Product editor</b><span>EN/BN fields, WYSIWYG + view HTML, 2-option variants, supplier, advance %, pre-order, SEO</span></a></li>
+    <li><a href="admin/categories.html"><b>Categories &amp; attributes</b><span>4-level tree, inherited attributes, delete dialog (move vs delete)</span></a></li>
+    <li><a href="admin/inventory.html"><b>Inventory</b><span>Per-variant stock, reserved, adjustments + history, reorder → PO</span></a></li>
+    <li><a href="admin/reviews.html"><b>Reviews &amp; Q&amp;A</b><span>Hide/unhide, public replies, unanswered questions first</span></a></li>
+    <li><a href="admin/coupons.html"><b>Coupons &amp; discounts</b><span>Full coupon editor, auto + payment-method discounts</span></a></li>
+    <li><a href="admin/flash-sales.html"><b>Flash sales</b><span>Live/scheduled/ended, product picker, limits</span></a></li>
+    <li><a href="admin/events.html"><b>Event pages</b><span>Block builder, event prices, one event at a time</span></a></li>
+    <li><a href="admin/home-feed.html"><b>Home &amp; feed</b><span>Slides, category tiles, feed weight sliders with live sample order</span></a></li>
+    <li><a href="admin/loyalty.html"><b>Loyalty, referral &amp; wallet</b><span>Points rules + calculator, referral rewards, wallet</span></a></li>
+    <li><a href="admin/affiliates.html"><b>Affiliates</b><span>Applications, commissions, monthly payouts</span></a></li>
+    <li><a href="admin/campaigns.html"><b>Notifications &amp; campaigns</b><span>SMS/email/inbox/push, audience builder, SMS part counter, templates</span></a></li>
+    <li><a href="admin/customers.html"><b>Customers</b><span>Risk/returns filters; detail: wallet/points adjust, risky flag, devices</span></a></li>
+    <li><a href="admin/suppliers.html"><b>Suppliers</b><span>Dropship route, portal users, forwarding queue</span></a></li>
+    <li><a href="admin/purchase-orders.html"><b>Purchase orders</b><span>PO editor, receive goods → stock</span></a></li>
+    <li><a href="admin/delivery.html"><b>Delivery &amp; couriers</b><span>Zones with per-zone free threshold, location mapping, calculator, Pathao/Steadfast</span></a></li>
+    <li><a href="admin/reports.html"><b>Reports</b><span>Sales, products, customers, traffic, VAT, affiliates, returns; CSV export</span></a></li>
+    <li><a href="admin/sr-approvals.html"><b>SR approvals</b><span>Pending SR sales (SR price vs list price, new-shop flag), approve/reject with reason, confirm due collections</span></a></li>
+    <li><a href="admin/b2b-shops.html"><b>B2B shops</b><span>Buyer shops added by SRs, "new: review" flag, sales history and due ledger drawer</span></a></li>
+    <li><a href="admin/sr-team.html"><b>SR team</b><span>Targets, achieved, collected, commission % and earned, dues per SR; commission payouts</span></a></li>
+    <li><a href="admin/b2b-dues.html"><b>B2B dues</b><span>Dues by shop and by SR with 0-30 / 31-60 / 60+ day aging</span></a></li>
+    <li><a href="admin/staff.html"><b>Staff</b><span>Invite, multi-role, 2FA reset, new-device alerts</span></a></li>
+    <li><a href="admin/roles.html"><b>Roles &amp; permissions</b><span>Permission matrix; can't grant what you don't have (try "Team lead" in View as)</span></a></li>
+    <li><a href="admin/settings.html"><b>Settings</b><span>Store/VAT, payments + launch feature flags, advance rules, orders, notifications, security</span></a></li>
+    <li><a href="admin/audit.html"><b>Audit log</b><span>Filters, before/after diff</span></a></li>
+  </ul>
+  <h3 class="grp">Partner portals</h3>
+  <ul class="plist">
+    <li><a href="supplier/index.html"><b>Supplier portal</b><span>Orders to fulfil, confirm stock / out of stock, mark ready for pickup, product stock</span></a></li>
+    <li><a href="sr/index.html"><b>SR portal</b><span>Phone-first: new sale for a buyer shop, my sales and memos (EN/BN, print), shops and due ledger, collect due, targets and commission</span></a></li>
+    <li><a href="affiliate/index.html"><b>Affiliate dashboard</b><span>Clicks, orders, earnings, link generator, payouts</span></a></li>
+  </ul>
+  <p class="note"><b>Tips:</b> use the floating "Mobile preview" button (bottom right) to see the mobile layout in a 390px frame. Add <code>?resetcookie</code> to a page URL to bring the cookie bar back; <code>?lang=bn</code>, <code>?theme=dark</code> and <code>?phase=full</code> also work. Brand, theme, language, phase, cart and wishlist are remembered between pages (localStorage).</p>
+</main>
+</body>
+</html>

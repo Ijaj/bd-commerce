@@ -2,6 +2,11 @@ import { z } from 'zod';
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  /// Local convenience only; production startup refuses to disable staff 2FA.
+  DISABLE_2FA: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((value) => value === 'true'),
   PORT: z.coerce.number().int().positive().default(4000),
   DATABASE_URL: z.url(),
   REDIS_URL: z.url(),
@@ -66,6 +71,9 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
   if (env.NODE_ENV === 'production') {
     if (!env.OTP_SECRET)
       throw new Error('Invalid environment:\nOTP_SECRET is required in production');
+    if (env.DISABLE_2FA) {
+      throw new Error('Invalid environment:\nDISABLE_2FA must not be true in production');
+    }
     if (env.E2E_EXPOSE_OTP === '1') {
       throw new Error('Invalid environment:\nE2E_EXPOSE_OTP must not be set in production');
     }

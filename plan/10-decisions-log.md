@@ -299,3 +299,4 @@ Note on S6: our order tracking covers status until the parcel is handed to the c
 | C56 | Step 6 flash sales: **qty is capped** at what is left at flash price and at the per-customer limit (cart refuses more, "only N left at flash price"); no split lines |
 | C57 | Step 6 combining: **all eligible auto discounts that stack with each other + at most 1 code**; a 2nd code only if both coupons allow stacking with other coupons (Q43 toggles stay) |
 | C58 | Step 6 product discounts: **bulk sale tool** in admin (category/brand/products, % or fixed off, window → writes variant sale prices, one-click undo). Events + page builder stay P3 (R7); payment-method discount condition stored but only `cod` is live until online payments |
+| C59 | Local staff sign-in: `.env` sets `DISABLE_2FA=true` for easier development; production refuses that setting, and API/e2e tests explicitly keep 2FA enabled |

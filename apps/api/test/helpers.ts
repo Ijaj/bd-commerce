@@ -7,14 +7,20 @@ import request from 'supertest';
 import { expect } from 'vitest';
 import { AppModule } from '../src/app.module';
 import type { PermissionKey } from '../src/auth/permissions';
+import { ENV, type Env, loadEnv } from '../src/config/env';
 import { MailService } from '../src/mail/mail.service';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { REDIS } from '../src/redis/redis.module';
 import { configureApp } from '../src/setup';
 import { StaffService } from '../src/staff/staff.service';
 
-export async function createApp() {
-  const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+export async function createApp(options: { env?: Partial<Env> } = {}) {
+  const testingModule = Test.createTestingModule({ imports: [AppModule] });
+  testingModule.overrideProvider(ENV).useValue({
+    ...loadEnv({ ...process.env, DISABLE_2FA: 'false' }),
+    ...options.env,
+  });
+  const moduleRef = await testingModule.compile();
   const app = moduleRef.createNestApplication();
   configureApp(app);
   await app.init();

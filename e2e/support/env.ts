@@ -32,6 +32,8 @@ export function apiEnv(): NodeJS.ProcessEnv {
     DATABASE_URL,
     REDIS_URL,
     ADMIN_ORIGIN: ADMIN_URL,
+    // Keep browser tests exercising the normal MFA flow even when local development disables it.
+    DISABLE_2FA: 'false',
     // Lets the e2e read SMS codes (GET /v1/test/last-sms) and builds memo links on the e2e origin.
     E2E_EXPOSE_OTP: '1',
     PUBLIC_API_URL: API_URL,

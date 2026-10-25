@@ -55,6 +55,17 @@ describe('environment guards', () => {
         E2E_EXPOSE_OTP: '1',
       }),
     ).toThrow(/E2E_EXPOSE_OTP/);
+    expect(loadEnv({ ...BASE_ENV, DISABLE_2FA: 'true', NODE_ENV: 'development' }).DISABLE_2FA).toBe(
+      true,
+    );
+    expect(() =>
+      loadEnv({
+        ...BASE_ENV,
+        DISABLE_2FA: 'true',
+        NODE_ENV: 'production',
+        OTP_SECRET: 'x'.repeat(32),
+      }),
+    ).toThrow(/DISABLE_2FA/);
     expect(loadEnv({ ...BASE_ENV, NODE_ENV: 'development' }).OTP_SECRET).toBeTruthy();
   });
 

@@ -53,12 +53,13 @@ export class StaffAuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<LoginResultDto> {
-    const { token, next } = await this.auth.login(
+    const { token, next, deviceToken } = await this.auth.login(
       body.email,
       body.password,
       requestMeta(req, DEVICE_COOKIE),
     );
     res.cookie(SESSION_COOKIE, token, this.cookie(SESSION_MAX_MS));
+    this.setDevice(res, deviceToken);
     return { next };
   }
 

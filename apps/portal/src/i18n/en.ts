@@ -2,7 +2,7 @@
 export const en = {
   appName: 'ShopName Partner',
   signIn: 'Sign in',
-  signInSub: 'Staff and partners only. Two-factor authentication is required.',
+  signInSub: 'Staff and partners only.',
   email: 'Email',
   password: 'Password',
   continue: 'Continue',
