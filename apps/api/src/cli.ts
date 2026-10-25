@@ -24,6 +24,7 @@ async function run([command, ...args]: string[]) {
   if (command === 'seed-demo' && process.env.NODE_ENV === 'production') {
     throw new Error('seed-demo is dev-only and refuses to run when NODE_ENV=production');
   }
+  process.env.SCHEDULER = '0';
   const app = await NestFactory.createApplicationContext(AppModule, { logger: ['error', 'warn'] });
   try {
     const staff = app.get(StaffService);

@@ -98,7 +98,7 @@ export async function claimFlash(tx: Db, claims: { itemId: string; qty: number }
 /** Gives flash stock back when an order is cancelled (called once, from the order status machine). */
 export async function releaseFlash(tx: Db, orderId: string) {
   await tx.$executeRaw`UPDATE flash_sale_items f SET qty_sold = greatest(f.qty_sold - x.q, 0)
-    FROM (SELECT flash_sale_item_id AS id, sum(qty - qty_cancelled)::int AS q FROM order_items
+    FROM (SELECT flash_sale_item_id AS id, sum(qty)::int AS q FROM order_items
           WHERE order_id = ${orderId}::uuid AND flash_sale_item_id IS NOT NULL
           GROUP BY flash_sale_item_id) x
     WHERE f.id = x.id`;

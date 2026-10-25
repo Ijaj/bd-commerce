@@ -21,6 +21,7 @@ import { FlashModule } from './promotions/flash/flash.module';
 import { PromotionsModule } from './promotions/promotions.module';
 import { RedisModule } from './redis/redis.module';
 import { ReturnsModule } from './returns/returns.module';
+import { SchedulerModule } from './scheduler/scheduler.module';
 import { SettingsModule } from './settings/settings.module';
 import { ShipmentsModule } from './shipments/shipments.module';
 import { SmsModule } from './sms/sms.module';
@@ -56,6 +57,7 @@ import { StorefrontModule } from './storefront/storefront.module';
     CouponsModule,
     FlashModule,
     BulkSaleModule,
+    SchedulerModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_PIPE, useClass: ZodValidationPipe }],

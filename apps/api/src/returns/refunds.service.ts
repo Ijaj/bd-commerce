@@ -75,7 +75,7 @@ export class RefundsService {
       const items = ret.items.map((i) => ({
         orderItemId: i.orderItemId,
         qty: i.qty,
-        amountP: lineRefundP(ret.order, i.orderItem.unitPriceP, i.qty),
+        amountP: lineRefundP(i.orderItem, i.qty),
       }));
       const lines = items.reduce((s, i) => s + i.amountP, 0);
       const deduction = ret.fault === 'customer' ? ret.returnShippingP : 0;
@@ -132,7 +132,7 @@ export class RefundsService {
         items.push({
           orderItemId: line.id,
           qty: w.qty,
-          amountP: lineRefundP(order, line.unitPriceP, w.qty),
+          amountP: lineRefundP(line, w.qty),
         });
       }
       const amountP = dto.amountP ?? items.reduce((s, i) => s + i.amountP, 0);

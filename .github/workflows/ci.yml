@@ -42,3 +42,52 @@ jobs:
       - run: pnpm turbo run typecheck test build
       - name: API client matches API
         run: pnpm api:gen && git diff --exit-code packages/api-client
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: bdc
+          POSTGRES_PASSWORD: bdc_dev
+          POSTGRES_DB: bdc_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U bdc" --health-interval 5s --health-retries 10
+      redis:
+        image: redis:8-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s --health-retries 10
+      # New-device and order emails go through SMTP; tests do not read them.
+      mailpit:
+        image: axllent/mailpit:latest
+        ports: ["1025:1025"]
+    env:
+      # Plain localhost services: the e2e talks to them with psql/redis-cli instead of container exec.
+      E2E_DIRECT: "1"
+      REDIS_URL: redis://localhost:6379
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends postgresql-client redis-tools
+      - run: pnpm --filter @bdc/e2e exec playwright install --with-deps chromium
+      - run: pnpm turbo run build --filter='./packages/*'
+      # Dev-only values; the e2e overrides database, Redis db and ports itself.
+      - run: cp .env.example .env
+      - run: pnpm --filter @bdc/e2e test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            e2e/playwright-report
+            e2e/test-results
+          retention-days: 7

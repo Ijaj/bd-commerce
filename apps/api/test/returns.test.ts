@@ -71,6 +71,8 @@ describe('returns and refunds', () => {
     const coupon = o.coupon ?? 13_000;
     const grand = 130_000 - coupon + 6000;
     const paid = o.paid === false ? 0 : grand;
+    // The order-level coupon is allocated to the lines (step 6): A takes its floored share, B the rest.
+    const discA = Math.floor((100_000 * coupon) / 130_000);
     const deliveredAt = new Date(Date.now() - (o.daysAgo ?? 1) * 86_400_000);
     const order = await prisma.order.create({
       data: {
@@ -94,7 +96,10 @@ describe('returns and refunds', () => {
         codDueP: grand - paid,
         deliveredAt: (o.status ?? 'delivered') === 'processing' ? null : deliveredAt,
         items: {
-          create: [line(a, 2, 50_000, o.windowA ?? null), line(b, 1, 30_000, null)],
+          create: [
+            line(a, 2, 50_000, o.windowA ?? null, discA),
+            line(b, 1, 30_000, null, coupon - discA),
+          ],
         },
       },
       include: { items: { orderBy: { unitPriceP: 'desc' } } },
@@ -125,6 +130,7 @@ describe('returns and refunds', () => {
       qty: number,
       price: number,
       window: number | null,
+      discountP: number,
     ) {
       return {
         sellerId: p.product.sellerId,
@@ -136,6 +142,7 @@ describe('returns and refunds', () => {
         unitBaseP: price,
         unitPriceP: price,
         priceSource: 'base',
+        discountP,
         returnWindowDays: window,
         lineTotalP: price * qty,
       };
@@ -508,12 +515,12 @@ describe('returns and refunds', () => {
 
     it('uses the full line value when fault is ours and floors odd paisa', async () => {
       const r = await inspectedReturn('ours', 7000, 10_000);
-      // 50_000 * 120_000 / 130_000 = 46153.8 -> 46153; nothing deducted
+      // Line A paid 100_000 - 7_692 (its share of the coupon) for 2 units -> 46_154 each; nothing deducted
       const f = await refunder.agent
         .post(`/v1/admin/returns/${r.returnId}/refund`)
         .send({ method: 'original' })
         .expect(201);
-      expect(f.body.amountP).toBe(46_153);
+      expect(f.body.amountP).toBe(46_154);
     });
 
     it('needs an inspected return', async () => {

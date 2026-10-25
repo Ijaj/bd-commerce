@@ -19,21 +19,16 @@ export async function nextReturnNo(tx: Prisma.TransactionClient) {
   return `RET-${yymm(new Date())}-${String(rows[0]?.n ?? 0n).padStart(5, '0')}`;
 }
 
-export interface MoneyOrder {
-  subtotalP: number;
-  autoDiscountP: number;
-  couponDiscountP: number;
-}
-
 /**
- * Refund value of `qty` units of a line: unit price times qty, scaled by how much of the
- * subtotal survived order-level discounts. Floor, so lines never add up to more than was paid.
+ * Refund value of `qty` units of a line: what the customer paid for them, i.e. the line total minus
+ * the discount allocated to the line (step 6), pro rata. Floor, so units never add up to more than was paid.
  */
-export function lineRefundP(order: MoneyOrder, unitPriceP: number, qty: number) {
-  const gross = unitPriceP * qty;
-  if (order.subtotalP <= 0) return 0;
-  const net = Math.max(0, order.subtotalP - order.autoDiscountP - order.couponDiscountP);
-  return Math.floor((gross * net) / order.subtotalP);
+export function lineRefundP(
+  item: { unitPriceP: number; qty: number; discountP: number },
+  qty: number,
+) {
+  const paid = Math.max(0, item.unitPriceP * item.qty - item.discountP);
+  return item.qty <= 0 ? 0 : Math.floor((paid * qty) / item.qty);
 }
 
 /** Locks the order row for the rest of the transaction (serialises return/refund writes per order). */

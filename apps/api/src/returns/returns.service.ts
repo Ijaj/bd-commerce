@@ -347,7 +347,7 @@ export class ReturnsService {
         note: i.note,
         condition: i.condition,
         restock: i.restock,
-        refundValueP: lineRefundP(r.order, i.orderItem.unitPriceP, i.qty),
+        refundValueP: lineRefundP(i.orderItem, i.qty),
       })),
       mediaIds: r.media.map((m) => m.mediaId),
       refunds: await this.refunds.forReturn(r.id),

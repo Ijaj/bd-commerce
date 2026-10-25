@@ -1,8 +1,11 @@
 import '@testing-library/jest-dom/vitest';
-import { cleanup } from '@testing-library/react';
+import { cleanup, configure } from '@testing-library/react';
 import { afterEach, vi } from 'vitest';
 
 afterEach(() => cleanup());
+
+// Form screens type character by character; the 1 s default flakes on a loaded CI runner.
+configure({ asyncUtilTimeout: 5000 });
 
 // Mantine needs these browser APIs, jsdom lacks them.
 window.matchMedia ??= ((query: string) => ({

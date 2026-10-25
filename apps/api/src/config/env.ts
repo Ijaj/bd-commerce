@@ -43,6 +43,10 @@ const envSchema = z.object({
   TRUST_CF_HEADER: z.enum(['0', '1']).default('0'),
   /// Express `trust proxy`: false, true, a hop count, or a comma list of subnets.
   TRUST_PROXY: z.string().default('false'),
+  /// In-app scheduler (C55). Unset: on except under NODE_ENV=test. The CLI forces it off.
+  SCHEDULER: z.enum(['0', '1']).optional(),
+  SCHEDULER_SYNC_COURIERS_MIN: z.coerce.number().int().min(1).default(10),
+  SCHEDULER_COMPLETE_ORDERS_MIN: z.coerce.number().int().min(1).default(60),
   /// Listen address. Default: 127.0.0.1 in production, 0.0.0.0 otherwise.
   HOST: z.string().min(1).optional(),
 });
