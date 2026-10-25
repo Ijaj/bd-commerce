@@ -1,0 +1,82 @@
+.box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  padding-top: var(--s3);
+  border-top: 1px solid var(--border);
+}
+.title {
+  margin: 0;
+  font-size: 14px;
+}
+.form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--s2);
+  align-items: center;
+}
+.err {
+  margin: 0;
+  font-size: 12px;
+  color: var(--danger);
+}
+.applied {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+.appliedRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s2);
+  font-size: 14px;
+}
+.appliedName {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  align-items: baseline;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.codeTag {
+  padding: 0 6px;
+  border: 1px dashed var(--primary);
+  border-radius: var(--badge-r);
+  font-size: 12px;
+  color: var(--primary);
+}
+.good {
+  color: var(--success);
+}
+.removeBtn,
+.suggestBtn {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--primary);
+  font: inherit;
+  font-size: 12px;
+  text-decoration: underline;
+  cursor: pointer;
+  text-align: start;
+}
+.removeBtn {
+  flex-basis: 100%;
+}
+.suggest {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+.suggestBtn {
+  font-size: 13px;
+}

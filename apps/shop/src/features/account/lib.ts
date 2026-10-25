@@ -41,6 +41,8 @@ export type ApiFail = {
   retryAfterSec?: number;
   /** Sub-reason of a code, e.g. GUEST_LIMIT: open_orders | daily_cap. */
   reason?: string;
+  /** Raw error body, for codes that carry details (FLASH_LIMIT remaining, COUPON_INVALID couponCode). */
+  body?: Record<string, unknown>;
 };
 export type ApiOk<T> = { ok: true; data: T };
 export type ApiResult<T> = ApiOk<T> | ApiFail;
@@ -65,6 +67,9 @@ export async function call<T>(p: Promise<Fetched<T>>): Promise<ApiResult<T>> {
       message: typeof e.message === 'string' ? e.message : null,
       ...(typeof e.retryAfterSec === 'number' ? { retryAfterSec: e.retryAfterSec } : {}),
       ...(typeof e.reason === 'string' ? { reason: e.reason } : {}),
+      ...(r.error && typeof r.error === 'object'
+        ? { body: r.error as Record<string, unknown> }
+        : {}),
     };
   } catch {
     return { ok: false, status: 0, code: 'NETWORK', message: null };

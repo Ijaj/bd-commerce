@@ -133,8 +133,10 @@ describe('OrderDetailView', () => {
         qtyCancelled: 0,
         unitPriceP: 119000,
         lineTotalP: 119000,
+        discountP: 0,
       },
     ],
+    discounts: [],
     money: {
       subtotalP: 119000,
       autoDiscountP: 0,

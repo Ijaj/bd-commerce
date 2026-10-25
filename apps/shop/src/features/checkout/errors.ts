@@ -1,4 +1,5 @@
 import type { ApiFail } from '~/features/account/lib';
+import type { CartNotice } from '~/features/cart/types';
 import { fmt } from '~/i18n';
 import { localizeDigits } from '~/lib/format';
 import type { CheckoutDict } from './strings.en';
@@ -30,11 +31,25 @@ export function checkoutError(
 }
 
 /** Codes that mean "the cart is not what the customer saw": send them back to the cart. */
-export function cartNoticeFor(code: string | null): 'changed' | 'stock' | 'empty' | null {
-  if (code === 'CART_CHANGED') return 'changed';
-  if (code === 'OUT_OF_STOCK') return 'stock';
-  if (code === 'CART_EMPTY') return 'empty';
-  return null;
+export function cartNoticeFor(code: string | null): CartNotice | null {
+  switch (code) {
+    case 'CART_CHANGED':
+      return 'changed';
+    case 'OUT_OF_STOCK':
+      return 'stock';
+    case 'CART_EMPTY':
+      return 'empty';
+    case 'FLASH_LIMIT':
+      return 'flash';
+    case 'FLASH_SOLD_OUT':
+      return 'flash_sold';
+    case 'COUPON_INVALID':
+      return 'coupon';
+    case 'COUPON_LIMIT':
+      return 'coupon_limit';
+    default:
+      return null;
+  }
 }
 
 /** What the success page shows right after placing (guests cannot load the order from the API). */
@@ -45,6 +60,15 @@ export type PlacedOrder = {
   etaMinDays: number | null;
   etaMaxDays: number | null;
   zoneName: string | null;
+  /** What the customer saved, per offer (older stored entries have none). */
+  discounts?: PlacedDiscount[];
+};
+
+export type PlacedDiscount = {
+  name: string;
+  code: string | null;
+  amountP: number;
+  freeDelivery: boolean;
 };
 
 const KEY = 'bdc_placed';

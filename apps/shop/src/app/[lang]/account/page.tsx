@@ -24,12 +24,14 @@ export default async function Page({ params }: LangProps) {
   const { lang } = await routeParams(params);
   const d = dict(lang).account;
   const r = dict(lang).returns;
+  const w = dict(lang).promos.wallet;
   const { me } = await requireCustomer(lang, '/account');
 
   // Orders and addresses are built in step 4; the links are ready for them.
   const tiles: { path: string; icon: IconName; title: string; hint: string }[] = [
     { path: '/account/orders', icon: 'pkg', title: d.orders, hint: d.ordersHint },
     { path: '/account/returns', icon: 'tag', title: r.accountTile, hint: r.accountTileHint },
+    { path: '/account/coupons', icon: 'tag', title: w.accountTile, hint: w.accountTileHint },
     { path: '/account/addresses', icon: 'home', title: d.addresses, hint: d.addressesHint },
     { path: '/wishlist', icon: 'heart', title: d.wishlist, hint: d.wishlistHint },
   ];

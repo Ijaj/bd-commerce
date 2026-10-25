@@ -58,8 +58,10 @@ function order(over: Partial<OrderForReturn> = {}): OrderForReturn {
         qtyCancelled: 0,
         unitPriceP: 119000,
         lineTotalP: 238000,
+        discountP: 0,
       },
     ],
+    discounts: [],
     money: {
       subtotalP: 238000,
       autoDiscountP: 0,

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { Img } from '~/components/Img';
 import type { Cart } from '~/features/cart/types';
+import { rejectText } from '~/features/promotions/logic';
 import { dict, fmt, type Lang, pick } from '~/i18n';
 import { href } from '~/i18n/routing';
 import { formatPrice, localizeDigits } from '~/lib/format';
@@ -25,8 +26,13 @@ export function Summary({
   children: ReactNode;
 }) {
   const d = dict(lang).checkout;
+  const p = dict(lang).promos;
   const subtotal = quote?.subtotalP ?? cart.subtotalP;
   const total = quote?.grandTotalP ?? cart.subtotalP;
+  const saved = quote ? quote.autoDiscountP + quote.couponDiscountP + quote.deliveryDiscountP : 0;
+  const codes = (quote?.appliedCoupons ?? []).flatMap((c) =>
+    c.kind === 'code' && c.code ? [c.code] : [],
+  );
   return (
     <aside className={s.summary} aria-labelledby="co-sum">
       <div className={s.sumHead}>
@@ -63,6 +69,21 @@ export function Summary({
           <dt>{d.subtotal}</dt>
           <dd>{formatPrice(subtotal, lang)}</dd>
         </div>
+        {quote && quote.autoDiscountP > 0 ? (
+          <div className={s.row}>
+            <dt>{p.summary.offers}</dt>
+            <dd className={s.good}>−{formatPrice(quote.autoDiscountP, lang)}</dd>
+          </div>
+        ) : null}
+        {quote && quote.couponDiscountP > 0 ? (
+          <div className={s.row}>
+            <dt>
+              {p.summary.coupon}
+              {codes.length > 0 ? ` (${codes.join(', ')})` : ''}
+            </dt>
+            <dd className={s.good}>−{formatPrice(quote.couponDiscountP, lang)}</dd>
+          </div>
+        ) : null}
         <div className={s.row}>
           <dt>{d.delivery}</dt>
           <dd>
@@ -88,6 +109,17 @@ export function Summary({
           <dd>{formatPrice(total, lang)}</dd>
         </div>
       </dl>
+      {saved > 0 ? (
+        <p className={s.hintGood}>{fmt(p.summary.savedTotal, { amt: formatPrice(saved, lang) })}</p>
+      ) : null}
+      {quote?.rejectedCodes.map((r) => (
+        <p key={r.code} className={s.error} role="alert">
+          {fmt(p.cart.droppedCode, { code: r.code, reason: rejectText(r.reason, p.cart.reasons) })}{' '}
+          <Link className="link" href={href(lang, '/cart')}>
+            {d.editCart}
+          </Link>
+        </p>
+      ))}
       {quote ? (
         <>
           <p className={s.muted}>

@@ -5,15 +5,17 @@ import { Icon } from '~/components/Icon';
 import { Img } from '~/components/Img';
 import { EmptyState } from '~/components/States';
 import { Notice } from '~/features/account/Field';
+import { CartCoupons } from '~/features/promotions/CartCoupons';
+import { FlashTag } from '~/features/promotions/FlashTag';
 import { dict, fmt, type Lang, pick } from '~/i18n';
 import { href } from '~/i18n/routing';
 import { formatPrice, localizeDigits } from '~/lib/format';
 import s from './cart.module.css';
 import { QtyStepper } from './QtyStepper';
-import { refreshCart, removeLine, setCart, setQty, useCart } from './store';
-import type { Cart, CartLine } from './types';
+import { refreshCart, removeLine, setCart, setQtyResult, useCart } from './store';
+import type { Cart, CartLine, CartNotice } from './types';
 
-export type CartNotice = 'changed' | 'stock' | 'empty';
+export type { CartNotice };
 
 /**
  * Cart page body. `initial` is the server-rendered cart (cookies forwarded); the store then
@@ -34,6 +36,8 @@ export function CartView({
   const cart = live ?? initial;
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // FLASH_LIMIT: shown on the line that was refused (the API keeps the old quantity).
+  const [flashMsg, setFlashMsg] = useState<{ variantId: string; text: string } | null>(null);
 
   useEffect(() => {
     if (initial) setCart(initial);
@@ -43,9 +47,26 @@ export function CartView({
   async function update(variantId: string, qty: number) {
     setBusy(variantId);
     setError(null);
-    const next = qty <= 0 ? await removeLine(variantId) : await setQty(variantId, qty);
+    setFlashMsg(null);
+    if (qty <= 0) {
+      const next = await removeLine(variantId);
+      setBusy(null);
+      if (!next) setError(d.updateError);
+      return;
+    }
+    const r = await setQtyResult(variantId, qty);
     setBusy(null);
-    if (!next) setError(d.updateError);
+    if (r.ok) return;
+    if (r.code === 'FLASH_LIMIT') {
+      const left = typeof r.body?.remaining === 'number' ? r.body.remaining : 0;
+      const p = dict(lang).promos.cart;
+      setFlashMsg({
+        variantId,
+        text: left > 0 ? fmt(p.flashLimit, { n: localizeDigits(left, lang) }) : p.flashLimitNone,
+      });
+      return;
+    }
+    setError(d.updateError);
   }
 
   if (!cart) {
@@ -98,6 +119,7 @@ export function CartView({
               line={l}
               lang={lang}
               busy={busy === l.variantId}
+              flashMsg={flashMsg?.variantId === l.variantId ? flashMsg.text : null}
               onQty={(q) => update(l.variantId, q)}
             />
           ))}
@@ -111,11 +133,18 @@ export function CartView({
               <dt>{d.subtotal}</dt>
               <dd>{formatPrice(cart.subtotalP, lang)}</dd>
             </div>
+            {cart.discountP > 0 ? (
+              <div className={s.row}>
+                <dt>{dict(lang).promos.cart.discount}</dt>
+                <dd className={s.good}>−{formatPrice(cart.discountP, lang)}</dd>
+              </div>
+            ) : null}
             <div className={s.row}>
               <dt>{d.delivery}</dt>
               <dd className={s.muted}>{d.deliveryAtCheckout}</dd>
             </div>
           </dl>
+          <CartCoupons lang={lang} cart={cart} />
           {blocked ? (
             <>
               <button type="button" className="btn btn-primary" disabled>
@@ -155,11 +184,13 @@ function Line({
   line: l,
   lang,
   busy,
+  flashMsg,
   onQty,
 }: {
   line: CartLine;
   lang: Lang;
   busy: boolean;
+  flashMsg: string | null;
   onQty: (qty: number) => void;
 }) {
   const d = dict(lang).cart;
@@ -184,6 +215,17 @@ function Line({
             <s className={s.was}>{formatPrice(l.compareAtP, lang)}</s>
           ) : null}
         </span>
+        {l.flashEndsAt ? <FlashTag endsAt={l.flashEndsAt} lang={lang} /> : null}
+        {l.discountP > 0 ? (
+          <span className={s.lineDisc}>
+            {fmt(dict(lang).promos.cart.lineDiscount, { amt: formatPrice(l.discountP, lang) })}
+          </span>
+        ) : null}
+        {flashMsg ? (
+          <span className={s.problem} role="alert">
+            {flashMsg}
+          </span>
+        ) : null}
         {l.priceChanged ? (
           <span className={s.changed}>
             {fmt(d.priceChanged, {

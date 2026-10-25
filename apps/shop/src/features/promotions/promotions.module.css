@@ -1,0 +1,240 @@
+.countdown {
+  display: inline-block;
+  font-size: 12px;
+  color: var(--sale);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  min-height: 1.5em;
+}
+.flashTag {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  min-height: 20px;
+  flex-wrap: wrap;
+}
+.flashBadge {
+  padding: 1px 6px;
+  border-radius: var(--badge-r);
+  background: var(--sale);
+  color: var(--on-sale);
+  font-size: 11px;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.flashBox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+  padding: var(--s3);
+  border: 1px solid var(--sale);
+  border-radius: var(--r);
+  background: var(--surface);
+}
+.flashHead {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  margin: 0;
+  flex-wrap: wrap;
+}
+.flashLow {
+  margin: 0;
+  font-size: 12px;
+  color: var(--sale);
+}
+.facts {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.terms {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.note {
+  margin: 0;
+  min-height: 1.2em;
+  font-size: 12px;
+  color: var(--muted);
+}
+.note:empty {
+  display: none;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  margin-top: var(--sec-gap);
+}
+.sectionTitle {
+  margin: 0;
+  font-size: 18px;
+}
+.saleHead {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s3);
+  flex-wrap: wrap;
+}
+.cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--gap);
+}
+@media (min-width: 640px) {
+  .cards {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .cards {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+.strip {
+  margin-top: var(--sec-gap);
+}
+.stripRow {
+  list-style: none;
+  margin: var(--s2) 0 0;
+  padding: 0 0 var(--s2);
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(150px, 1fr);
+  gap: var(--gap);
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+}
+.stripRow > li {
+  scroll-snap-align: start;
+}
+
+.coupons {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--s3);
+}
+@media (min-width: 640px) {
+  .coupons {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .coupons {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.coupon {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  padding: var(--s3);
+  background: var(--surface);
+  border: 1px dashed var(--primary);
+  border-radius: var(--r-lg);
+  min-width: 0;
+}
+.couponOff {
+  border-color: var(--border);
+  opacity: 0.75;
+}
+.couponHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--s2);
+  flex-wrap: wrap;
+}
+.couponValue {
+  font-size: 16px;
+  color: var(--primary);
+}
+.couponName {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.couponAct {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  flex-wrap: wrap;
+  margin-top: auto;
+}
+.codeBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: 6px 10px;
+  min-height: 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+.codeBtn:hover {
+  border-color: var(--primary);
+}
+.code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.04em;
+  overflow-wrap: anywhere;
+}
+.collected {
+  color: var(--success);
+  font-size: 14px;
+}
+.state {
+  font-size: 12px;
+  color: var(--muted);
+}
+.stateOn {
+  color: var(--success);
+}
+.walletEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s3);
+  padding: var(--s5) 0;
+}
+
+.discounts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  text-align: start;
+}
+.discountsTitle {
+  margin: 0;
+  font-size: 14px;
+}
+.discountList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+.discountRow {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s3);
+  font-size: 14px;
+}
+.saved {
+  color: var(--success);
+  white-space: nowrap;
+}

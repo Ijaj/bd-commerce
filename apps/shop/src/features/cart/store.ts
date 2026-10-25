@@ -1,8 +1,8 @@
 'use client';
 import { useSyncExternalStore } from 'react';
-import { call } from '~/features/account/lib';
+import { type ApiResult, call } from '~/features/account/lib';
 import { browserApi } from '~/lib/api-browser';
-import type { Cart } from './types';
+import { type Cart, EMPTY_CART } from './types';
 
 /**
  * Client copy of the cart: the cart page, checkout summary and the header badge share it.
@@ -61,13 +61,34 @@ export async function refreshCart(): Promise<Cart | null> {
   return r.data;
 }
 
-/** Absolute quantity (0 removes the line). Returns the new cart, or null if the call failed. */
-export async function setQty(variantId: string, qty: number): Promise<Cart | null> {
+/** Absolute quantity (0 removes the line). Keeps the API error so callers can show FLASH_LIMIT details. */
+export async function setQtyResult(variantId: string, qty: number): Promise<ApiResult<Cart>> {
   const r = await call<Cart>(
     browserApi.PUT('/v1/cart/items/{variantId}', {
       params: { path: { variantId } },
       body: { qty },
     }),
+  );
+  if (r.ok) setCart(r.data);
+  return r;
+}
+
+/** Same, but resolves null when the call failed. */
+export async function setQty(variantId: string, qty: number): Promise<Cart | null> {
+  const r = await setQtyResult(variantId, qty);
+  return r.ok ? r.data : null;
+}
+
+/** Add a typed coupon code to the cart. */
+export async function applyCoupon(code: string): Promise<ApiResult<Cart>> {
+  const r = await call<Cart>(browserApi.POST('/v1/cart/coupon', { body: { code } }));
+  if (r.ok) setCart(r.data);
+  return r;
+}
+
+export async function removeCoupon(code: string): Promise<Cart | null> {
+  const r = await call<Cart>(
+    browserApi.DELETE('/v1/cart/coupon/{code}', { params: { path: { code } } }),
   );
   if (!r.ok) return null;
   setCart(r.data);
@@ -85,7 +106,7 @@ export async function removeLine(variantId: string): Promise<Cart | null> {
 
 /** After an order is placed the server cart is empty; mirror that without another request. */
 export function clearLocalCart() {
-  setCart({ items: [], count: 0, subtotalP: 0 });
+  setCart(EMPTY_CART);
 }
 
 export function useCart(): Cart | null {

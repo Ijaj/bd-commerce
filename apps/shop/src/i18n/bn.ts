@@ -2,6 +2,7 @@ import { browseBn } from '~/features/browse/strings.bn';
 import { cartBn } from '~/features/cart/strings.bn';
 import { checkoutBn } from '~/features/checkout/strings.bn';
 import { ordersBn } from '~/features/orders/strings.bn';
+import { promosBn } from '~/features/promotions/strings.bn';
 import { returnsBn } from '~/features/returns/strings.bn';
 import type { Dict } from './en';
 
@@ -193,5 +194,6 @@ export const bn: Dict = {
   cart: cartBn,
   checkout: checkoutBn,
   orders: ordersBn,
+  promos: promosBn,
   returns: returnsBn,
 };

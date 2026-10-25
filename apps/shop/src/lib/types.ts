@@ -28,6 +28,8 @@ export type ProductCard = {
   priceP: number;
   compareAtP: number | null;
   discountPct: number | null;
+  /** Set while priceP is a live flash price: the countdown target. */
+  flashEndsAt?: string | null;
   ratingAvg: number;
   ratingCount: number;
   soldCount: number;

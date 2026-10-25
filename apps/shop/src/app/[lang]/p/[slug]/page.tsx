@@ -12,6 +12,7 @@ import { RecentlyViewed } from '~/features/browse/RecentlyViewed';
 import { breadcrumbLd, plainText } from '~/features/browse/seo';
 import type { ProductDetail } from '~/features/browse/types';
 import { YouTubeLite } from '~/features/browse/YouTubeLite';
+import { CouponsSection } from '~/features/promotions/CouponsSection';
 import { dict, fmt, type Lang, pick } from '~/i18n';
 import { absoluteUrl, alternatesFor, href } from '~/i18n/routing';
 import { formatCompact, formatRating, localizeDigits } from '~/lib/format';
@@ -208,6 +209,12 @@ export default async function Page({ params }: Props) {
       />
 
       <ProductView product={p} lang={lang} header={header} preorderDate={date} />
+      <CouponsSection
+        lang={lang}
+        slug={p.slug}
+        nextPath={`/p/${p.slug}`}
+        heading={dict(lang).promos.product.title}
+      />
 
       {html ? (
         <section className={s.sec} aria-labelledby="desc-h">

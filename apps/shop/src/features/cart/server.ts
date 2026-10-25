@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { serverApi } from '~/lib/api';
-import type { Cart } from './types';
+import { type Cart, EMPTY_CART } from './types';
 
 /** Cookie header with the customer session and the visitor id: together they identify the cart. */
 export async function cartCookie(): Promise<string | undefined> {
@@ -15,7 +15,7 @@ export async function cartCookie(): Promise<string | undefined> {
 /** Current cart for server components; null when the API fails (the client then retries). */
 export async function getCart(cookie: string | undefined): Promise<Cart | null> {
   // No cookie = nobody has a cart yet. Skipping the call also keeps this page's fetch out of the data cache.
-  if (!cookie) return { items: [], count: 0, subtotalP: 0 };
+  if (!cookie) return EMPTY_CART;
   try {
     const r = await serverApi({ cookie }).GET('/v1/cart');
     return r.response.ok && r.data ? r.data : null;

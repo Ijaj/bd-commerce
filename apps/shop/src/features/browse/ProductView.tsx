@@ -4,6 +4,7 @@ import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { Img } from '~/components/Img';
 import { Price } from '~/components/Price';
 import { WishlistHeart } from '~/features/account/WishlistHeart';
+import { FlashBox } from '~/features/promotions/FlashBox';
 import { dict, fmt, type Lang, pick } from '~/i18n';
 import { href } from '~/i18n/routing';
 import { formatPrice, localizeDigits } from '~/lib/format';
@@ -75,6 +76,15 @@ export function ProductView({
     const r = await addToCart(variant.id, qty, cap);
     setBusy(null);
     if (!r.ok) {
+      if (r.flashRemaining !== undefined) {
+        say(
+          r.flashRemaining > 0
+            ? fmt(dict(lang).promos.cart.flashLimit, { n: localizeDigits(r.flashRemaining, lang) })
+            : dict(lang).promos.cart.flashLimitNone,
+          true,
+        );
+        return;
+      }
       say(d.cartFailed, true);
       return;
     }
@@ -185,6 +195,7 @@ export function ProductView({
             {save > 0 ? (
               <p className={s.save}>{fmt(d.save, { amt: formatPrice(save, lang) })}</p>
             ) : null}
+            {price.flash ? <FlashBox flash={price.flash} lang={lang} /> : null}
           </div>
         ) : null}
 

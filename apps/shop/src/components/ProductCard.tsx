@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { FlashTag } from '~/features/promotions/FlashTag';
 import { dict, type Lang, pick } from '~/i18n';
 import { href } from '~/i18n/routing';
 import { formatCompact, formatRating } from '~/lib/format';
@@ -70,6 +71,7 @@ export function ProductCard({
           compareAtP={p.compareAtP}
           discountPct={p.discountPct}
         />
+        {p.flashEndsAt ? <FlashTag endsAt={p.flashEndsAt} lang={lang} /> : null}
         {!b.isUpcoming && (p.ratingCount > 0 || p.soldCount > 0) ? (
           <div className={s.meta}>
             {p.ratingCount > 0 ? (

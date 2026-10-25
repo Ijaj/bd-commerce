@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Icon } from '~/components/Icon';
+import { DiscountList } from '~/features/promotions/DiscountList';
 import { dict, fmt, type Lang } from '~/i18n';
 import { href } from '~/i18n/routing';
 import { formatPrice } from '~/lib/format';
@@ -95,6 +96,7 @@ export function SuccessView({
             </div>
           ) : null}
         </dl>
+        <DiscountList rows={order.discounts ?? []} lang={lang} />
         {loggedIn ? null : <p className={s.muted}>{d.saveNumber}</p>}
         <section aria-labelledby="co-next">
           <h2 id="co-next" className={s.cardTitle}>

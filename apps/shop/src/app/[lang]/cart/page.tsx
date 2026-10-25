@@ -14,7 +14,15 @@ export async function generateMetadata({ params }: LangProps): Promise<Metadata>
   };
 }
 
-const NOTICES: CartNotice[] = ['changed', 'stock', 'empty'];
+const NOTICES: CartNotice[] = [
+  'changed',
+  'stock',
+  'empty',
+  'flash',
+  'flash_sold',
+  'coupon',
+  'coupon_limit',
+];
 
 export default async function Page({
   params,

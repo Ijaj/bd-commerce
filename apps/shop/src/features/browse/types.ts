@@ -48,6 +48,8 @@ export type ProductVariant = {
   priceP: number;
   compareAtP: number | null;
   discountPct: number | null;
+  /** Live flash price: end time, units left at that price, per-buyer cap. */
+  flash?: { endsAt: string; remaining: number; perCustomerLimit: number | null } | null;
   available: number;
   isActive: boolean;
 };

@@ -226,3 +226,11 @@
     top: 96px;
   }
 }
+
+.good {
+  color: var(--success);
+}
+.lineDisc {
+  font-size: 12px;
+  color: var(--success);
+}

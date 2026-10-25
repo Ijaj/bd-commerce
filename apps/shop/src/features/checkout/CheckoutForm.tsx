@@ -228,6 +228,12 @@ export function CheckoutForm({
       etaMinDays: q.zone.etaMinDays,
       etaMaxDays: q.zone.etaMaxDays,
       zoneName: lang === 'bn' && q.zone.nameBn ? q.zone.nameBn : q.zone.nameEn,
+      discounts: q.appliedCoupons.map((c) => ({
+        name: c.name,
+        code: c.code,
+        amountP: c.amountP,
+        freeDelivery: c.freeDelivery,
+      })),
     });
     if (me && choice === NEW && saveNew) {
       // Best effort: the order is already placed, a failed save must not block the success page.

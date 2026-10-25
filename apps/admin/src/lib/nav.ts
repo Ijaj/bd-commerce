@@ -12,6 +12,9 @@ export interface NavItem {
     | '/shipments'
     | '/returns'
     | '/refunds'
+    | '/promotions/coupons'
+    | '/promotions/flash-sales'
+    | '/promotions/bulk-sales'
     | '/content/carousel'
     | '/b2b/sales'
     | '/b2b/shops'
@@ -56,6 +59,14 @@ export const NAV: NavSection[] = [
       { label: 'Shipments', to: '/shipments', anyOf: ['shipments.manage'] },
       { label: 'Returns', to: '/returns', anyOf: ['returns.manage'] },
       { label: 'Refunds', to: '/refunds', anyOf: ['refunds.manage', 'refunds.approve'] },
+    ],
+  },
+  {
+    heading: 'Promotions',
+    items: [
+      { label: 'Coupons', to: '/promotions/coupons', anyOf: ['coupons.view', 'coupons.manage'] },
+      { label: 'Flash sales', to: '/promotions/flash-sales', anyOf: ['flash_sales.manage'] },
+      { label: 'Bulk sales', to: '/promotions/bulk-sales', anyOf: ['bulk_sales.manage'] },
     ],
   },
   {

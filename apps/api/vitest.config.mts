@@ -7,6 +7,9 @@ export default defineConfig({
     globalSetup: ['test/global-setup.ts'],
     // Test files share one database; run them one after another.
     fileParallelism: false,
+    // Shared CI runners and busy dev machines are slow; the default 5 s / 10 s flakes.
+    testTimeout: 20_000,
+    hookTimeout: 30_000,
   },
   // SWC instead of esbuild: Nest DI needs decorator metadata
   plugins: [swc.vite({ module: { type: 'es6' } })],

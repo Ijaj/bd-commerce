@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Img } from '~/components/Img';
 import { etaText } from '~/features/checkout/eta';
+import { DiscountList } from '~/features/promotions/DiscountList';
 import { canRequestReturn, canViewInvoice } from '~/features/returns/logic';
 import type { OrderForReturn } from '~/features/returns/types';
 import { dict, fmt, type Lang } from '~/i18n';
@@ -71,7 +72,12 @@ export function OrderDetailView({ lang, o }: { lang: Lang; o: OrderDetail }) {
                         : ''}
                     </span>
                   </span>
-                  <span>{formatPrice(it.lineTotalP, lang)}</span>
+                  <span className={s.lineEnd}>
+                    {formatPrice(it.lineTotalP, lang)}
+                    {it.discountP > 0 ? (
+                      <span className={s.lineDisc}>−{formatPrice(it.discountP, lang)}</span>
+                    ) : null}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -83,6 +89,15 @@ export function OrderDetailView({ lang, o }: { lang: Lang; o: OrderDetail }) {
             <h2 id="od-sum" className={s.cardTitle}>
               {d.summary}
             </h2>
+            <DiscountList
+              lang={lang}
+              rows={o.discounts.map((x) => ({
+                name: x.name,
+                code: x.code,
+                amountP: x.amountP + x.deliveryP,
+                freeDelivery: x.deliveryP > 0,
+              }))}
+            />
             <dl className={s.rows}>
               <Row label={d.subtotal} value={formatPrice(m.subtotalP, lang)} />
               {m.autoDiscountP > 0 ? (

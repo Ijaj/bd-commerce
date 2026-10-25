@@ -35,6 +35,12 @@ export default async function Page({ params }: LangProps<{ orderNo: string }>) {
         etaMinDays: o.zone.etaMinDays,
         etaMaxDays: o.zone.etaMaxDays,
         zoneName: lang === 'bn' && o.zone.nameBn ? o.zone.nameBn : o.zone.nameEn,
+        discounts: o.discounts.map((x) => ({
+          name: x.name,
+          code: x.code,
+          amountP: x.amountP + x.deliveryP,
+          freeDelivery: x.deliveryP > 0,
+        })),
       };
     }
   }

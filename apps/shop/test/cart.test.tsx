@@ -49,6 +49,8 @@ function line(over: Partial<CartLine> = {}): CartLine {
     available: 5,
     maxQty: 5,
     problem: null,
+    flashEndsAt: null,
+    discountP: 0,
     ...over,
   };
 }
@@ -56,6 +58,10 @@ const cartOf = (items: CartLine[]): Cart => ({
   items,
   count: items.reduce((n, l) => n + l.qty, 0),
   subtotalP: items.filter((l) => !l.problem).reduce((n, l) => n + l.qty * l.unitPriceP, 0),
+  discountP: 0,
+  appliedCoupons: [],
+  codes: [],
+  rejectedCodes: [],
 });
 
 beforeEach(() => {

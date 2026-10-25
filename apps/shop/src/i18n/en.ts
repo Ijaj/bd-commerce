@@ -2,6 +2,7 @@ import { browseEn } from '~/features/browse/strings.en';
 import { cartEn } from '~/features/cart/strings.en';
 import { checkoutEn } from '~/features/checkout/strings.en';
 import { ordersEn } from '~/features/orders/strings.en';
+import { promosEn } from '~/features/promotions/strings.en';
 import { returnsEn } from '~/features/returns/strings.en';
 /** English UI strings. Add keys by area; bn.ts must have the same shape (type-checked). */
 export const en = {
@@ -198,6 +199,7 @@ export const en = {
   cart: cartEn,
   checkout: checkoutEn,
   orders: ordersEn,
+  promos: promosEn,
   returns: returnsEn,
 };
 

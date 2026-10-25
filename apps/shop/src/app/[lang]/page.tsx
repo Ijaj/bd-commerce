@@ -8,6 +8,7 @@ import { Feed, FeedSkeleton } from '~/features/home/Feed';
 import s from '~/features/home/Feed.module.css';
 import h from '~/features/home/Hero.module.css';
 import { DEFAULT_ROW_EVERY, jsonLd } from '~/features/home/logic';
+import { HomeFlashStrip } from '~/features/promotions/HomeFlashStrip';
 import { dict } from '~/i18n';
 import { absoluteUrl, alternatesFor, href } from '~/i18n/routing';
 import { type LangProps, routeParams } from '~/lib/lang';
@@ -81,6 +82,7 @@ export default async function Page({ params }: LangProps) {
         </section>
       ) : null}
       <FeaturedCategories items={home?.featuredCategories ?? []} lang={lang} />
+      <HomeFlashStrip lang={lang} />
       <section className={`wrap ${s.feed}`} aria-labelledby="h-feed">
         <div className={s.head}>
           <h2 id="h-feed">{d.justForYou}</h2>
