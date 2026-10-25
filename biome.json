@@ -9,6 +9,8 @@
     "includes": [
       "**",
       "!plan",
+      "!mockup",
+      "!**/.agents",
       "!**/src/generated",
       "!packages/api-client/src/schema.ts",
       "!packages/api-client/openapi.json",
