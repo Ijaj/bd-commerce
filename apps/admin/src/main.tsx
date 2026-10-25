@@ -3,6 +3,7 @@ import '@mantine/dates/styles.css';
 import '@mantine/dropzone/styles.css';
 import '@mantine/notifications/styles.css';
 import '@mantine/tiptap/styles.css';
+import '@bdc/ui/styles.css';
 import './styles.css';
 
 import { MantineProvider } from '@mantine/core';
@@ -14,7 +15,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { queryClient, setUnauthorizedHandler } from './api';
 import { router } from './router';
-import { theme } from './theme';
+import { bdcColorSchemeManager, bdcCssVariablesResolver, theme } from './theme';
 
 // Any 401 outside the auth endpoints means the session is gone: go to /login, keep the return path.
 setUnauthorizedHandler(() => {
@@ -32,9 +33,14 @@ if (!root) throw new Error('#root missing');
 
 createRoot(root).render(
   <StrictMode>
-    <MantineProvider theme={theme} defaultColorScheme="auto">
+    <MantineProvider
+      theme={theme}
+      defaultColorScheme="auto"
+      colorSchemeManager={bdcColorSchemeManager}
+      cssVariablesResolver={bdcCssVariablesResolver}
+    >
       <ModalsProvider>
-        <Notifications position="top-right" />
+        <Notifications position="bottom-right" />
         <QueryClientProvider client={queryClient}>
           <RouterProvider router={router} />
         </QueryClientProvider>

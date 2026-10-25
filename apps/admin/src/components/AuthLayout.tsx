@@ -1,7 +1,9 @@
-import { Center, Paper, Stack, Text, Title } from '@mantine/core';
+import { Icon } from '@bdc/ui';
 import type { ReactNode } from 'react';
+import { ThemeSwitch } from '~/features/shell/ThemeSwitch';
+import classes from './AuthLayout.module.css';
 
-/** Centered card used by the login and 2FA screens. */
+/** Login / 2FA split screen (plan/mockups/admin/login.html): brand panel left, form card right. */
 export function AuthLayout({
   title,
   subtitle,
@@ -14,23 +16,41 @@ export function AuthLayout({
   width?: number;
 }) {
   return (
-    <Center mih="100vh" p="md">
-      <Paper w={width} maw="100%" p="xl" shadow="sm">
-        <Stack gap="md">
-          <div>
-            <Text size="xs" fw={700} tt="uppercase" c="indigo" style={{ letterSpacing: '.08em' }}>
-              ShopName Admin
-            </Text>
-            <Title order={2}>{title}</Title>
-            {subtitle && (
-              <Text size="sm" c="dimmed">
-                {subtitle}
-              </Text>
-            )}
+    <div className={classes.wrap}>
+      <section className={classes.art}>
+        <div className={classes.wm}>
+          Shop<b>Name</b>
+        </div>
+        <div>
+          <h2>Run the shop. Ship the orders.</h2>
+          <p>
+            Staff-only admin panel. All sign-ins are logged and protected by two-factor
+            authentication.
+          </p>
+          <ul>
+            <li>
+              <Icon name="lock" />
+              Authenticator-app 2FA on every account
+            </li>
+            <li>
+              <Icon name="device" />
+              New-device login alerts
+            </li>
+          </ul>
+        </div>
+        <div className={classes.foot}>ShopName admin</div>
+      </section>
+      <section className={classes.form}>
+        <ThemeSwitch className={classes.top} />
+        <div className={classes.card} style={{ maxWidth: width }}>
+          <div className={`${classes.wm} ${classes.mobileWm}`}>
+            Shop<b>Name</b>
           </div>
+          <h1>{title}</h1>
+          {subtitle && <p className={classes.sub}>{subtitle}</p>}
           {children}
-        </Stack>
-      </Paper>
-    </Center>
+        </div>
+      </section>
+    </div>
   );
 }

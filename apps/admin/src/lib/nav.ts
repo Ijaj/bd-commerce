@@ -1,5 +1,8 @@
+import type { IconName } from '@bdc/ui';
+
 export interface NavItem {
   label: string;
+  icon: IconName;
   to:
     | '/'
     | '/catalog/products'
@@ -30,71 +33,109 @@ export interface NavItem {
 }
 
 export interface NavSection {
-  heading?: string;
+  heading: string;
   items: NavItem[];
 }
 
-/** Sidebar structure (matches plan/mockups/admin). Later steps add Orders, Customers, Marketing... */
+/** Sidebar: groups, order, labels and icons from plan/mockups/admin (admin-core.js NAV), C60. */
 export const NAV: NavSection[] = [
-  { items: [{ label: 'Dashboard', to: '/' }] },
+  { heading: 'Overview', items: [{ label: 'Dashboard', icon: 'dashboard', to: '/' }] },
+  {
+    heading: 'Sales',
+    items: [
+      { label: 'Orders', icon: 'orders', to: '/orders', anyOf: ['orders.view'] },
+      { label: 'Call queue', icon: 'phone', to: '/call-queue', anyOf: ['orders.call'] },
+      { label: 'Shipments', icon: 'truck', to: '/shipments', anyOf: ['shipments.manage'] },
+      { label: 'Returns & refunds', icon: 'returns', to: '/returns', anyOf: ['returns.manage'] },
+      {
+        label: 'Refunds',
+        icon: 'wallet',
+        to: '/refunds',
+        anyOf: ['refunds.manage', 'refunds.approve'],
+      },
+    ],
+  },
   {
     heading: 'Catalog',
     items: [
-      { label: 'Products', to: '/catalog/products', anyOf: ['products.view'] },
-      { label: 'Categories', to: '/catalog/categories', anyOf: ['categories.view'] },
-      { label: 'Brands', to: '/catalog/brands', anyOf: ['products.view'] },
-      { label: 'Inventory', to: '/catalog/inventory', anyOf: ['inventory.view'] },
+      { label: 'Products', icon: 'products', to: '/catalog/products', anyOf: ['products.view'] },
+      {
+        label: 'Categories & attributes',
+        icon: 'categories',
+        to: '/catalog/categories',
+        anyOf: ['categories.view'],
+      },
+      { label: 'Brands', icon: 'products', to: '/catalog/brands', anyOf: ['products.view'] },
+      {
+        label: 'Inventory',
+        icon: 'inventory',
+        to: '/catalog/inventory',
+        anyOf: ['inventory.view'],
+      },
       {
         label: 'Import / Export',
+        icon: 'upload',
         to: '/catalog/import-export',
         anyOf: ['products.import', 'products.export', 'inventory.export'],
       },
     ],
   },
   {
-    heading: 'Orders',
+    heading: 'Marketing',
     items: [
-      { label: 'Orders', to: '/orders', anyOf: ['orders.view'] },
-      { label: 'Call queue', to: '/call-queue', anyOf: ['orders.call'] },
-      { label: 'Shipments', to: '/shipments', anyOf: ['shipments.manage'] },
-      { label: 'Returns', to: '/returns', anyOf: ['returns.manage'] },
-      { label: 'Refunds', to: '/refunds', anyOf: ['refunds.manage', 'refunds.approve'] },
+      {
+        label: 'Coupons & discounts',
+        icon: 'coupons',
+        to: '/promotions/coupons',
+        anyOf: ['coupons.view', 'coupons.manage'],
+      },
+      {
+        label: 'Flash sales',
+        icon: 'flash',
+        to: '/promotions/flash-sales',
+        anyOf: ['flash_sales.manage'],
+      },
+      {
+        label: 'Bulk sales',
+        icon: 'coupons',
+        to: '/promotions/bulk-sales',
+        anyOf: ['bulk_sales.manage'],
+      },
+      { label: 'Home & feed', icon: 'home', to: '/content/carousel', anyOf: ['content.manage'] },
     ],
   },
   {
-    heading: 'Promotions',
+    heading: 'People & partners',
     items: [
-      { label: 'Coupons', to: '/promotions/coupons', anyOf: ['coupons.view', 'coupons.manage'] },
-      { label: 'Flash sales', to: '/promotions/flash-sales', anyOf: ['flash_sales.manage'] },
-      { label: 'Bulk sales', to: '/promotions/bulk-sales', anyOf: ['bulk_sales.manage'] },
+      { label: 'SR approvals', icon: 'check', to: '/b2b/sales', anyOf: ['b2b.view'] },
+      { label: 'B2B shops', icon: 'suppliers', to: '/b2b/shops', anyOf: ['b2b.view'] },
+      {
+        label: 'Collections',
+        icon: 'wallet',
+        to: '/b2b/collections',
+        anyOf: ['b2b.view', 'sr.approve'],
+      },
+      { label: 'SR team', icon: 'staff', to: '/sr/team', anyOf: ['sr.manage'] },
+      { label: 'B2B dues', icon: 'wallet', to: '/b2b/dues', anyOf: ['b2b.view'] },
+      {
+        label: 'Delivery & couriers',
+        icon: 'delivery',
+        to: '/delivery',
+        anyOf: ['delivery.manage'],
+      },
     ],
   },
   {
-    heading: 'Content',
-    items: [{ label: 'Home carousel', to: '/content/carousel', anyOf: ['content.manage'] }],
-  },
-  {
-    heading: 'B2B / SR',
+    heading: 'System',
     items: [
-      { label: 'SR sales', to: '/b2b/sales', anyOf: ['b2b.view'] },
-      { label: 'Buyer shops', to: '/b2b/shops', anyOf: ['b2b.view'] },
-      { label: 'Collections', to: '/b2b/collections', anyOf: ['b2b.view', 'sr.approve'] },
-      { label: 'Dues ageing', to: '/b2b/dues', anyOf: ['b2b.view'] },
-      { label: 'SR team', to: '/sr/team', anyOf: ['sr.manage'] },
-    ],
-  },
-  {
-    heading: 'Staff',
-    items: [
-      { label: 'Staff', to: '/staff', anyOf: ['staff.view'] },
-      { label: 'Roles', to: '/roles', anyOf: ['staff.view', 'roles.manage'] },
-    ],
-  },
-  {
-    heading: 'Settings',
-    items: [
-      { label: 'Settings', to: '/settings', anyOf: ['settings.view'] },
-      { label: 'Delivery zones', to: '/delivery', anyOf: ['delivery.manage'] },
+      { label: 'Staff', icon: 'staff', to: '/staff', anyOf: ['staff.view'] },
+      {
+        label: 'Roles & permissions',
+        icon: 'roles',
+        to: '/roles',
+        anyOf: ['staff.view', 'roles.manage'],
+      },
+      { label: 'Settings', icon: 'settings', to: '/settings', anyOf: ['settings.view'] },
     ],
   },
 ];

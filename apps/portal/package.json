@@ -12,6 +12,7 @@
   "dependencies": {
     "@bdc/api-client": "workspace:*",
     "@bdc/i18n": "workspace:*",
+    "@bdc/ui": "workspace:*",
     "@mantine/core": "9.7.3",
     "@mantine/form": "9.7.3",
     "@mantine/hooks": "9.7.3",

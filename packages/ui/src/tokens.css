@@ -1,0 +1,157 @@
+/* Brand D tokens (C60). Source of truth: plan/mockups/shared/brand-d.css + plan/mockups/admin/shared/admin.css.
+   Convention: every token is `--bdc-<name>`. The bare mockup names (`--primary`, `--surface`, `--a-c1`, ...) are
+   aliases so mockup CSS can be copied almost unchanged. Mantine's `data-mantine-color-scheme` drives light/dark.
+   `.bdc-light` forces the light palette on a subtree (print views). */
+:root,
+.bdc-light {
+  color-scheme: light;
+  --bdc-font: "DM Sans", "Noto Sans Bengali", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --bdc-font-mono: ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --bdc-primary: #4338ca;
+  --bdc-on-primary: #fff;
+  --bdc-accent: #0f766e;
+  --bdc-on-accent: #fff;
+  --bdc-hl: #5eead4;
+  --bdc-on-hl: #1e1b4b;
+  --bdc-bg: #f4f4fb;
+  --bdc-surface: #fff;
+  --bdc-surface-2: #ecebf8;
+  --bdc-text: #1e1b3a;
+  --bdc-muted: #5d5b7c;
+  --bdc-border: #dcdbef;
+  --bdc-success: #15803d;
+  --bdc-on-success: #fff;
+  --bdc-danger: #be123c;
+  --bdc-sale: #be123c;
+  --bdc-on-sale: #fff;
+  --bdc-warn: #b45309;
+  --bdc-on-warn: #fff;
+  --bdc-info: #0369a1;
+  /* Text on any filled (solid) control: white in light, near-black in dark (all dark fills are pastel). */
+  --bdc-on-filled: #fff;
+
+  --bdc-hdr-bg: linear-gradient(90deg, #312e81, #4338ca);
+  --bdc-hdr-fg: #fff;
+  --bdc-util-bg: #1e1b3a;
+  --bdc-sidebar-bg: #1e1b3a;
+  --bdc-sidebar-fg: #cfcdf0;
+  --bdc-sidebar-h: #8f8cc0;
+  --bdc-search-bg: rgba(255, 255, 255, 0.96);
+  --bdc-search-fg: #1e1b3a;
+  --bdc-sl1: linear-gradient(115deg, #312e81 0%, #4338ca 60%, #6366f1 100%);
+  --bdc-sl2: linear-gradient(115deg, #115e59 0%, #0f766e 60%, #14958a 100%);
+
+  --bdc-r-sm: 3px;
+  --bdc-r: 4px;
+  --bdc-r-lg: 6px;
+  --bdc-badge-r: 3px;
+  --bdc-sh-1: 0 1px 0 rgba(30, 27, 58, 0.06);
+  --bdc-sh-2: 0 6px 16px rgba(30, 27, 58, 0.22);
+
+  --bdc-c1: #4338ca;
+  --bdc-c2: #0f766e;
+  --bdc-c3: #0369a1;
+  --bdc-c4: #b45309;
+  --bdc-c5: #be123c;
+  --bdc-c6: #7c3aed;
+
+  --bdc-side-w: 236px;
+  --bdc-top-h: 54px;
+  --bdc-ring: 0 0 0 3px color-mix(in srgb, var(--bdc-primary) 30%, transparent);
+  --bdc-bg-hover: color-mix(in srgb, var(--bdc-primary) 6%, var(--bdc-surface));
+  --bdc-scrim: rgba(10, 9, 28, 0.55);
+}
+
+:root[data-mantine-color-scheme="dark"] {
+  color-scheme: dark;
+  --bdc-primary: #9a94ff;
+  --bdc-on-primary: #0f0e1d;
+  --bdc-accent: #2dd4bf;
+  --bdc-on-accent: #04201c;
+  --bdc-hl: #5eead4;
+  --bdc-on-hl: #1e1b4b;
+  --bdc-bg: #0e0d1c;
+  --bdc-surface: #171630;
+  --bdc-surface-2: #201f3f;
+  --bdc-text: #ecebff;
+  --bdc-muted: #a5a3c6;
+  --bdc-border: #2e2c54;
+  --bdc-success: #4ade80;
+  --bdc-on-success: #04210f;
+  --bdc-danger: #fb7185;
+  --bdc-sale: #e11d48;
+  --bdc-on-sale: #fff;
+  --bdc-warn: #fbbf24;
+  --bdc-on-warn: #1c1303;
+  --bdc-info: #38bdf8;
+  --bdc-on-filled: #0f0e1d;
+
+  --bdc-hdr-bg: linear-gradient(90deg, #1e1b4b, #2b2a7a);
+  --bdc-util-bg: #0b0a18;
+  --bdc-sidebar-bg: #0b0a18;
+  --bdc-sidebar-fg: #bdbbe0;
+  --bdc-sidebar-h: #7d7aa8;
+  --bdc-search-bg: #201f3f;
+  --bdc-search-fg: #ecebff;
+
+  --bdc-sh-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --bdc-sh-2: 0 8px 24px rgba(0, 0, 0, 0.5);
+
+  --bdc-c1: #9a94ff;
+  --bdc-c2: #2dd4bf;
+  --bdc-c3: #38bdf8;
+  --bdc-c4: #fbbf24;
+  --bdc-c5: #fb7185;
+  --bdc-c6: #c4a5ff;
+}
+
+/* Bare mockup names → prefixed tokens (copy mockup CSS as-is). */
+:root,
+.bdc-light {
+  --primary: var(--bdc-primary);
+  --on-primary: var(--bdc-on-primary);
+  --accent: var(--bdc-accent);
+  --on-accent: var(--bdc-on-accent);
+  --hl: var(--bdc-hl);
+  --on-hl: var(--bdc-on-hl);
+  --bg: var(--bdc-bg);
+  --surface: var(--bdc-surface);
+  --surface-2: var(--bdc-surface-2);
+  --text: var(--bdc-text);
+  --muted: var(--bdc-muted);
+  --border: var(--bdc-border);
+  --success: var(--bdc-success);
+  --on-success: var(--bdc-on-success);
+  --danger: var(--bdc-danger);
+  --sale: var(--bdc-sale);
+  --on-sale: var(--bdc-on-sale);
+  --warn: var(--bdc-warn);
+  --on-warn: var(--bdc-on-warn);
+  --info: var(--bdc-info);
+  --hdr-bg: var(--bdc-hdr-bg);
+  --hdr-fg: var(--bdc-hdr-fg);
+  --util-bg: var(--bdc-util-bg);
+  --sl1: var(--bdc-sl1);
+  --sl2: var(--bdc-sl2);
+  --r-sm: var(--bdc-r-sm);
+  --r: var(--bdc-r);
+  --r-lg: var(--bdc-r-lg);
+  --badge-r: var(--bdc-badge-r);
+  --sh-1: var(--bdc-sh-1);
+  --sh-2: var(--bdc-sh-2);
+  --a-font: var(--bdc-font);
+  --a-sidebar-bg: var(--bdc-sidebar-bg);
+  --a-sidebar-fg: var(--bdc-sidebar-fg);
+  --a-sidebar-h: var(--bdc-sidebar-h);
+  --a-c1: var(--bdc-c1);
+  --a-c2: var(--bdc-c2);
+  --a-c3: var(--bdc-c3);
+  --a-c4: var(--bdc-c4);
+  --a-c5: var(--bdc-c5);
+  --a-c6: var(--bdc-c6);
+  --a-side-w: var(--bdc-side-w);
+  --a-top-h: var(--bdc-top-h);
+  --a-ring: var(--bdc-ring);
+  --a-bg-hover: var(--bdc-bg-hover);
+}
