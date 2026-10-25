@@ -7,6 +7,11 @@ export interface NavItem {
     | '/catalog/brands'
     | '/catalog/inventory'
     | '/catalog/import-export'
+    | '/orders'
+    | '/call-queue'
+    | '/shipments'
+    | '/returns'
+    | '/refunds'
     | '/content/carousel'
     | '/b2b/sales'
     | '/b2b/shops'
@@ -41,6 +46,16 @@ export const NAV: NavSection[] = [
         to: '/catalog/import-export',
         anyOf: ['products.import', 'products.export', 'inventory.export'],
       },
+    ],
+  },
+  {
+    heading: 'Orders',
+    items: [
+      { label: 'Orders', to: '/orders', anyOf: ['orders.view'] },
+      { label: 'Call queue', to: '/call-queue', anyOf: ['orders.call'] },
+      { label: 'Shipments', to: '/shipments', anyOf: ['shipments.manage'] },
+      { label: 'Returns', to: '/returns', anyOf: ['returns.manage'] },
+      { label: 'Refunds', to: '/refunds', anyOf: ['refunds.manage', 'refunds.approve'] },
     ],
   },
   {

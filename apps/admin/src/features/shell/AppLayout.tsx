@@ -1,9 +1,20 @@
-import { AppShell, Burger, Button, Group, Menu, NavLink, ScrollArea, Text } from '@mantine/core';
+import {
+  AppShell,
+  Badge,
+  Burger,
+  Button,
+  Group,
+  Menu,
+  NavLink,
+  ScrollArea,
+  Text,
+} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Outlet, useNavigate, useRouterState } from '@tanstack/react-router';
 import { useState } from 'react';
 import { api } from '~/api';
+import { useCallQueueCount } from '~/features/orders/queries';
 import { meQuery } from '~/lib/auth';
 import { isActive, visibleNav } from '~/lib/nav';
 import { ChangePasswordModal } from './ChangePasswordModal';
@@ -17,6 +28,7 @@ export function AppLayout() {
   const qc = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const nav = visibleNav(me?.permissions ?? []);
+  const callQueueCount = useCallQueueCount();
 
   async function logout() {
     await api.POST('/v1/admin/auth/logout').catch(() => undefined);
@@ -92,6 +104,13 @@ export function AppLayout() {
                   href={item.to}
                   label={item.label}
                   active={isActive(item.to, pathname)}
+                  rightSection={
+                    item.to === '/call-queue' && callQueueCount ? (
+                      <Badge size="sm" color="red" circle>
+                        {callQueueCount}
+                      </Badge>
+                    ) : undefined
+                  }
                   onClick={(e) => {
                     e.preventDefault();
                     closeMobile();
