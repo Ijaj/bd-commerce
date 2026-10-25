@@ -1,5 +1,5 @@
+import { Icon, PageHeader } from '@bdc/ui';
 import {
-  ActionIcon,
   Alert,
   Button,
   Center,
@@ -10,11 +10,10 @@ import {
   Stack,
   Tabs,
   Text,
-  Title,
   Tooltip,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconArchive, IconArrowLeft, IconEye, IconEyeOff } from '@tabler/icons-react';
+import { IconArchive, IconEye, IconEyeOff } from '@tabler/icons-react';
 import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useBlocker, useNavigate } from '@tanstack/react-router';
 import { useMemo, useRef, useState } from 'react';
@@ -29,6 +28,7 @@ import { DescriptionTab } from './DescriptionTab';
 import { call, ProductApiError } from './http';
 import { MediaTab } from './MediaTab';
 import { ProblemsModal } from './ProblemsModal';
+import classes from './ProductEditor.module.css';
 import {
   buildImagesPayload,
   buildProductPayload,
@@ -276,25 +276,36 @@ function EditorForm({ id, detail, tab, onTab, onDiscard, onSaved }: FormProps) {
 
   return (
     <>
-      <Group justify="space-between" align="center" mb="md" wrap="nowrap">
-        <Group gap="sm" wrap="nowrap" style={{ minWidth: 0 }}>
-          <ActionIcon
-            component={Link}
-            to="/catalog/products"
-            variant="subtle"
-            color="gray"
-            aria-label="Back to products"
-          >
-            <IconArrowLeft size={18} />
-          </ActionIcon>
-          <Title order={2} lineClamp={1}>
+      <PageHeader
+        title={
+          <>
             {form.titleEn.trim() || (isNew ? 'New product' : 'Untitled product')}
-          </Title>
-          {status && <StatusBadge status={status} />}
-        </Group>
-        {!isNew && (
-          <Group gap="xs">
-            {canPublish && status !== 'active' && (
+            {status && (
+              <span className={classes.titleBadge}>
+                <StatusBadge status={status} />
+              </span>
+            )}
+          </>
+        }
+        crumbs={[
+          'Catalog',
+          <Link key="list" to="/catalog/products">
+            Products
+          </Link>,
+          detail?.titleEn ?? 'New product',
+        ]}
+        actions={
+          <>
+            <Button
+              component={Link}
+              to="/catalog/products"
+              variant="subtle"
+              aria-label="Back to products"
+              leftSection={<Icon name="chevron" size={14} className={classes.back} />}
+            >
+              Back to list
+            </Button>
+            {!isNew && canPublish && status !== 'active' && (
               <Tooltip label="Save your changes first" disabled={!dirty}>
                 <Button
                   leftSection={<IconEye size={16} />}
@@ -306,7 +317,7 @@ function EditorForm({ id, detail, tab, onTab, onDiscard, onSaved }: FormProps) {
                 </Button>
               </Tooltip>
             )}
-            {canPublish && status === 'active' && (
+            {!isNew && canPublish && status === 'active' && (
               <Tooltip label="Save your changes first" disabled={!dirty}>
                 <Button
                   variant="default"
@@ -319,7 +330,7 @@ function EditorForm({ id, detail, tab, onTab, onDiscard, onSaved }: FormProps) {
                 </Button>
               </Tooltip>
             )}
-            {canDelete && status !== 'archived' && (
+            {!isNew && canDelete && status !== 'archived' && (
               <Button
                 variant="default"
                 leftSection={<IconArchive size={16} />}
@@ -330,12 +341,12 @@ function EditorForm({ id, detail, tab, onTab, onDiscard, onSaved }: FormProps) {
                 Archive
               </Button>
             )}
-          </Group>
-        )}
-      </Group>
+          </>
+        }
+      />
 
       {!canEdit && (
-        <Alert color="gray" variant="light" mb="md">
+        <Alert color="gray" variant="light" mb="md" className={classes.notice}>
           You can view this product but not change it.
         </Alert>
       )}
@@ -411,15 +422,9 @@ function EditorForm({ id, detail, tab, onTab, onDiscard, onSaved }: FormProps) {
       </Tabs>
 
       {canEdit && (
-        <Paper
-          withBorder
-          shadow="sm"
-          p="sm"
-          style={{ position: 'sticky', bottom: 0, zIndex: 10 }}
-          data-testid="save-bar"
-        >
-          <Group justify="space-between">
-            <Text size="sm" c={dirty ? 'orange' : 'dimmed'}>
+        <div className={classes.savebar} data-testid="save-bar">
+          <Group justify="space-between" className={classes.saveRow}>
+            <Text size="sm" className={dirty ? classes.dirty : classes.msg}>
               {dirty
                 ? 'You have unsaved changes'
                 : isNew
@@ -441,7 +446,7 @@ function EditorForm({ id, detail, tab, onTab, onDiscard, onSaved }: FormProps) {
               </Button>
             </Group>
           </Group>
-        </Paper>
+        </div>
       )}
 
       <ProblemsModal problems={actions.problems} onClose={actions.clearProblems} />

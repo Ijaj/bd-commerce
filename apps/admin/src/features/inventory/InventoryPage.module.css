@@ -1,0 +1,24 @@
+/* plan/mockups/admin/shared/catalog.css: .c-qty, .c-low, .c-out, .c-mono */
+.toolbar {
+  align-items: flex-end;
+  margin-bottom: 12px;
+}
+.mono {
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 12px;
+}
+.qty {
+  display: inline-block;
+  min-width: 34px;
+  text-align: right;
+  font-weight: 700;
+}
+.low {
+  color: var(--bdc-warn);
+}
+.out {
+  color: var(--bdc-danger);
+}
+.chip {
+  cursor: pointer;
+}

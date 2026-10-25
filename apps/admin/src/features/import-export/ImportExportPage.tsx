@@ -12,6 +12,7 @@ export function ImportExportPage() {
     <>
       <PageHeader
         title="Import / Export"
+        crumbs={['Catalog', 'Import / Export']}
         description="Bulk-edit products and stock in a spreadsheet."
       />
       <Stack gap="md" maw={900}>

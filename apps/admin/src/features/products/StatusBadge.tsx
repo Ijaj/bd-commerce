@@ -1,16 +1,13 @@
-import { Badge } from '@mantine/core';
+import { type Tone, StatusBadge as UiStatusBadge } from '@bdc/ui';
 import type { ProductStatus } from './types';
 
-const COLORS: Record<ProductStatus, string> = {
-  draft: 'gray',
-  active: 'green',
-  archived: 'orange',
+// plan/mockups/admin/shared/page-products.js stBadge: active ok, draft warn, anything else muted.
+const TONES: Record<ProductStatus, Tone> = {
+  draft: 'warn',
+  active: 'ok',
+  archived: 'muted',
 };
 
 export function StatusBadge({ status }: { status: ProductStatus }) {
-  return (
-    <Badge color={COLORS[status]} variant="light" tt="capitalize">
-      {status}
-    </Badge>
-  );
+  return <UiStatusBadge tone={TONES[status]}>{status}</UiStatusBadge>;
 }

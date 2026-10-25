@@ -276,7 +276,7 @@ function OptionRowView({
         transform: CSS.Translate.toString(transform),
         transition,
         opacity: isDragging ? 0.6 : 1,
-        background: 'var(--mantine-color-body)',
+        background: 'var(--bdc-surface)',
       }}
     >
       <ActionIcon

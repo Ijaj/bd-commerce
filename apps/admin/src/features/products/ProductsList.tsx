@@ -1,12 +1,11 @@
+import { Icon, Toolbar } from '@bdc/ui';
 import {
   ActionIcon,
   Button,
   Checkbox,
   Group,
-  Image,
   Menu,
   Modal,
-  Paper,
   Select,
   Stack,
   Text,
@@ -36,6 +35,7 @@ import { useCan } from '~/lib/perm';
 import { useDeleteProduct, useProductActions } from './actions';
 import { categoryOptions } from './categoryTree';
 import { ProblemsModal } from './ProblemsModal';
+import classes from './ProductsList.module.css';
 import { brandsQuery, categoriesQuery, productListQuery } from './queries';
 import { StatusBadge } from './StatusBadge';
 import type { ProductListItem } from './types';
@@ -156,36 +156,25 @@ export function ProductsList({ search }: { search: ProductsSearch }) {
 
   const columns: Column<ProductListItem>[] = [
     {
-      key: 'thumb',
-      header: '',
-      width: 56,
-      render: (p) =>
-        p.thumbnailUrl ? (
-          <Image src={p.thumbnailUrl} alt="" w={40} h={40} radius="sm" fit="cover" />
-        ) : (
-          <div
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 4,
-              background: 'var(--mantine-color-gray-1)',
-            }}
-          />
-        ),
-    },
-    {
       key: 'title',
       header: 'Product',
       render: (p) => (
-        <div>
-          <Text size="sm" fw={500} lineClamp={1}>
-            {p.titleEn}
-          </Text>
-          {p.titleBn && (
-            <Text size="xs" c="dimmed" lang="bn" lineClamp={1}>
-              {p.titleBn}
-            </Text>
-          )}
+        <div className={classes.cell}>
+          <span className={classes.thumb}>
+            {p.thumbnailUrl ? (
+              <img src={p.thumbnailUrl} alt="" />
+            ) : (
+              <Icon name="products" size={18} />
+            )}
+          </span>
+          <div>
+            <span className={classes.name}>{p.titleEn}</span>
+            {p.titleBn && (
+              <span className={classes.sub} lang="bn">
+                {p.titleBn}
+              </span>
+            )}
+          </div>
         </div>
       ),
     },
@@ -193,19 +182,20 @@ export function ProductsList({ search }: { search: ProductsSearch }) {
     { key: 'brand', header: 'Brand', render: (p) => p.brand?.nameEn ?? '-' },
     { key: 'category', header: 'Category', render: (p) => p.primaryCategory.nameEn },
     { key: 'variants', header: 'Variants', align: 'right', render: (p) => p.variantCount },
-    { key: 'price', header: 'Price', align: 'right', render: priceRange },
+    {
+      key: 'price',
+      header: 'Price',
+      align: 'right',
+      render: (p) => <b>{priceRange(p)}</b>,
+    },
     {
       key: 'stock',
       header: 'Available',
       align: 'right',
       render: (p) => (
-        <Text
-          size="sm"
-          c={p.totalAvailable <= 0 ? 'red' : undefined}
-          fw={p.totalAvailable <= 0 ? 600 : 400}
-        >
+        <span className={p.totalAvailable <= 0 ? classes.out : undefined}>
           {formatNumber(p.totalAvailable, 0)}
-        </Text>
+        </span>
       ),
     },
     {
@@ -284,6 +274,7 @@ export function ProductsList({ search }: { search: ProductsSearch }) {
     <>
       <PageHeader
         title="Products"
+        crumbs={['Catalog', 'Products']}
         description="Catalog items, variants and stock levels."
         actions={
           canCreate && (
@@ -297,101 +288,95 @@ export function ProductsList({ search }: { search: ProductsSearch }) {
         }
       />
 
-      <Paper withBorder p="sm" mb="md">
-        <Stack gap="xs">
-          <Group gap="xs" align="flex-end">
-            <TextInput
-              placeholder="Search title or SKU"
-              aria-label="Search products"
-              leftSection={<IconSearch size={14} />}
-              value={qText}
-              onChange={(e) => setQText(e.currentTarget.value)}
-              w={240}
-            />
-            <Select
-              placeholder="Status"
-              aria-label="Status"
-              clearable
-              w={130}
-              data={['draft', 'active', 'archived']}
-              value={search.status ?? null}
-              onChange={(v) => setSearch({ status: (v as ProductsSearch['status']) ?? undefined })}
-            />
-            <Select
-              placeholder="Category"
-              aria-label="Category"
-              clearable
-              searchable
-              w={220}
-              data={categorySelect}
-              value={search.category ?? null}
-              onChange={(v) => setSearch({ category: v ?? undefined })}
-            />
-            <Select
-              placeholder="Brand"
-              aria-label="Brand"
-              clearable
-              searchable
-              w={160}
-              data={brandSelect}
-              value={search.brand ?? null}
-              onChange={(v) => setSearch({ brand: v ?? undefined })}
-            />
-            <Select
-              placeholder="Fulfillment"
-              aria-label="Fulfillment"
-              clearable
-              w={140}
-              data={[
-                { value: 'stock', label: 'Stock' },
-                { value: 'dropship', label: 'Dropship' },
-              ]}
-              value={search.fulfillment ?? null}
-              onChange={(v) =>
-                setSearch({ fulfillment: (v as ProductsSearch['fulfillment']) ?? undefined })
-              }
-            />
-          </Group>
-          <Group gap="md" justify="space-between">
-            <Group gap="md">
-              <Checkbox
-                label="Upcoming"
-                checked={!!search.upcoming}
-                onChange={(e) => setSearch({ upcoming: e.currentTarget.checked || undefined })}
-              />
-              <Checkbox
-                label="Pre-order"
-                checked={!!search.preorder}
-                onChange={(e) => setSearch({ preorder: e.currentTarget.checked || undefined })}
-              />
-              <Checkbox
-                label="Low stock"
-                checked={!!search.lowStock}
-                onChange={(e) => setSearch({ lowStock: e.currentTarget.checked || undefined })}
-              />
-            </Group>
-            <Group gap="xs">
-              <Select
-                aria-label="Sort by"
-                w={120}
-                allowDeselect={false}
-                data={SORTS}
-                value={sort}
-                onChange={(v) => v && setSearch({ sort: v as ProductsSearch['sort'] })}
-              />
-              <ActionIcon
-                variant="default"
-                size="lg"
-                aria-label={order === 'asc' ? 'Ascending' : 'Descending'}
-                title={order === 'asc' ? 'Ascending' : 'Descending'}
-                onClick={() => setSearch({ order: order === 'asc' ? 'desc' : 'asc' })}
-              >
-                <IconArrowsSort size={16} />
-              </ActionIcon>
-            </Group>
-          </Group>
-        </Stack>
-      </Paper>
+      <Toolbar className={classes.filters}>
+        <TextInput
+          placeholder="Search title or SKU"
+          aria-label="Search products"
+          leftSection={<IconSearch size={14} />}
+          value={qText}
+          onChange={(e) => setQText(e.currentTarget.value)}
+          className="grow"
+        />
+        <Select
+          placeholder="Status"
+          aria-label="Status"
+          clearable
+          w={130}
+          data={['draft', 'active', 'archived']}
+          value={search.status ?? null}
+          onChange={(v) => setSearch({ status: (v as ProductsSearch['status']) ?? undefined })}
+        />
+        <Select
+          placeholder="Category"
+          aria-label="Category"
+          clearable
+          searchable
+          w={220}
+          data={categorySelect}
+          value={search.category ?? null}
+          onChange={(v) => setSearch({ category: v ?? undefined })}
+        />
+        <Select
+          placeholder="Brand"
+          aria-label="Brand"
+          clearable
+          searchable
+          w={160}
+          data={brandSelect}
+          value={search.brand ?? null}
+          onChange={(v) => setSearch({ brand: v ?? undefined })}
+        />
+        <Select
+          placeholder="Fulfillment"
+          aria-label="Fulfillment"
+          clearable
+          w={140}
+          data={[
+            { value: 'stock', label: 'Stock' },
+            { value: 'dropship', label: 'Dropship' },
+          ]}
+          value={search.fulfillment ?? null}
+          onChange={(v) =>
+            setSearch({ fulfillment: (v as ProductsSearch['fulfillment']) ?? undefined })
+          }
+        />
+        <div className={classes.checks}>
+          <Checkbox
+            label="Upcoming"
+            checked={!!search.upcoming}
+            onChange={(e) => setSearch({ upcoming: e.currentTarget.checked || undefined })}
+          />
+          <Checkbox
+            label="Pre-order"
+            checked={!!search.preorder}
+            onChange={(e) => setSearch({ preorder: e.currentTarget.checked || undefined })}
+          />
+          <Checkbox
+            label="Low stock"
+            checked={!!search.lowStock}
+            onChange={(e) => setSearch({ lowStock: e.currentTarget.checked || undefined })}
+          />
+        </div>
+        <div className={classes.sortGroup}>
+          <Select
+            aria-label="Sort by"
+            w={120}
+            allowDeselect={false}
+            data={SORTS}
+            value={sort}
+            onChange={(v) => v && setSearch({ sort: v as ProductsSearch['sort'] })}
+          />
+          <ActionIcon
+            variant="default"
+            size="lg"
+            aria-label={order === 'asc' ? 'Ascending' : 'Descending'}
+            title={order === 'asc' ? 'Ascending' : 'Descending'}
+            onClick={() => setSearch({ order: order === 'asc' ? 'desc' : 'asc' })}
+          >
+            <IconArrowsSort size={16} />
+          </ActionIcon>
+        </div>
+      </Toolbar>
 
       <DataTable
         columns={columns}

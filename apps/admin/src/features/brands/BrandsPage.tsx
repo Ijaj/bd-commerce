@@ -1,4 +1,5 @@
-import { ActionIcon, Alert, Badge, Button, Group, Image, Modal, Stack, Text } from '@mantine/core';
+import { Banner, StatusBadge } from '@bdc/ui';
+import { ActionIcon, Alert, Button, Group, Image, Modal, Stack, Text } from '@mantine/core';
 import { IconPencil, IconPlus, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -10,6 +11,7 @@ import { notifyError, notifyOk } from '~/features/categories/queries';
 import { useCan } from '~/lib/perm';
 import { brandsApi } from './api';
 import { BrandModal } from './BrandModal';
+import classes from './BrandsPage.module.css';
 import { type Brand, brandsQuery, useInvalidateBrands } from './queries';
 
 export function BrandsPage() {
@@ -50,14 +52,7 @@ export function BrandsPage() {
         b.logoUrl ? (
           <Image src={b.logoUrl} alt="" w={36} h={36} fit="contain" radius="sm" />
         ) : (
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 4,
-              background: 'var(--mantine-color-gray-1)',
-            }}
-          />
+          <div className={classes.logo} />
         ),
     },
     {
@@ -79,20 +74,16 @@ export function BrandsPage() {
     {
       key: 'slug',
       header: 'Slug',
-      render: (b) => (
-        <Text size="xs" c="dimmed" ff="monospace">
-          {b.slug}
-        </Text>
-      ),
+      render: (b) => <span className={classes.mono}>{b.slug}</span>,
     },
     { key: 'products', header: 'Products', align: 'right', render: (b) => b.productCount },
     {
       key: 'active',
       header: 'Status',
       render: (b) => (
-        <Badge size="sm" variant="light" color={b.active ? 'teal' : 'gray'}>
+        <StatusBadge tone={b.active ? 'ok' : 'muted'}>
           {b.active ? 'Active' : 'Inactive'}
-        </Badge>
+        </StatusBadge>
       ),
     },
     {
@@ -129,6 +120,7 @@ export function BrandsPage() {
     <div>
       <PageHeader
         title="Brands"
+        crumbs={['Catalog', 'Brands']}
         description="Brands you can assign to products."
         actions={
           canCreate && (
@@ -142,7 +134,7 @@ export function BrandsPage() {
           )
         }
       />
-      {list.isError && <Alert color="red">{(list.error as Error).message}</Alert>}
+      {list.isError && <Banner tone="danger">{(list.error as Error).message}</Banner>}
       <DataTable
         columns={columns}
         rows={list.data}

@@ -1,14 +1,5 @@
-import {
-  Anchor,
-  Badge,
-  Button,
-  Checkbox,
-  Group,
-  Paper,
-  Select,
-  Text,
-  TextInput,
-} from '@mantine/core';
+import { StatusBadge, Toolbar } from '@bdc/ui';
+import { Anchor, Badge, Button, Checkbox, Group, Select, Text, TextInput } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { IconSearch } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
@@ -21,6 +12,7 @@ import { useCan } from '~/lib/perm';
 import { AdjustModal } from './AdjustModal';
 import { CategorySelect } from './CategorySelect';
 import { HistoryDrawer } from './HistoryDrawer';
+import classes from './InventoryPage.module.css';
 import { optionText } from './logic';
 import { type InventoryRow, inventoryListQuery, lowStockCountQuery } from './queries';
 import { DEFAULT_PAGE_SIZE, type InventorySearch, PAGE_SIZES } from './search';
@@ -78,21 +70,13 @@ export function InventoryPage({ search, onSearch }: Props) {
     {
       key: 'sku',
       header: 'SKU',
-      render: (r) => (
-        <Text size="sm" ff="monospace">
-          {r.sku}
-        </Text>
-      ),
+      render: (r) => <span className={classes.mono}>{r.sku}</span>,
     },
     {
       key: 'fulfillment',
       header: '',
       render: (r) =>
-        r.fulfillment === 'dropship' ? (
-          <Badge size="sm" variant="light" color="grape">
-            Dropship
-          </Badge>
-        ) : null,
+        r.fulfillment === 'dropship' ? <StatusBadge tone="info">Dropship</StatusBadge> : null,
     },
     { key: 'onHand', header: 'On hand', align: 'right', render: (r) => formatNumber(r.onHand) },
     {
@@ -108,8 +92,7 @@ export function InventoryPage({ search, onSearch }: Props) {
       render: (r) => (
         <Text
           span
-          fw={700}
-          c={r.available <= 0 ? 'red' : r.isLow ? 'orange' : undefined}
+          className={`${classes.qty} ${r.available <= 0 ? classes.out : r.isLow ? classes.low : ''}`}
           aria-label={r.isLow ? 'Low stock' : undefined}
         >
           {formatNumber(r.available)}
@@ -148,6 +131,7 @@ export function InventoryPage({ search, onSearch }: Props) {
     <>
       <PageHeader
         title="Inventory"
+        crumbs={['Catalog', 'Inventory']}
         description="Stock per variant. Every change is recorded in the stock history."
         actions={
           lowCount !== undefined && (
@@ -155,7 +139,7 @@ export function InventoryPage({ search, onSearch }: Props) {
               size="lg"
               variant={search.lowStock ? 'filled' : 'light'}
               color={lowCount > 0 ? 'orange' : 'green'}
-              style={{ cursor: 'pointer' }}
+              className={classes.chip}
               onClick={() =>
                 onSearch({ lowStock: search.lowStock ? undefined : true, page: undefined })
               }
@@ -165,64 +149,60 @@ export function InventoryPage({ search, onSearch }: Props) {
           )
         }
       />
-      <Paper withBorder p="sm" mb="sm">
-        <Group align="flex-end" gap="sm">
-          <TextInput
-            label="Search"
-            placeholder="Product or SKU"
-            leftSection={<IconSearch size={14} />}
-            value={qInput}
-            onChange={(e) => setQInput(e.currentTarget.value)}
-            w={240}
-          />
-          <CategorySelect
-            label="Category"
-            w={240}
-            value={search.category}
-            onChange={(id) => onSearch({ category: id ?? undefined, page: undefined })}
-          />
-          <Select
-            label="Fulfillment"
-            w={150}
-            placeholder="All"
-            clearable
-            data={[
-              { value: 'stock', label: 'Own stock' },
-              { value: 'dropship', label: 'Dropship' },
-            ]}
-            value={search.fulfillment ?? null}
-            onChange={(v) =>
-              onSearch({
-                fulfillment: (v as 'stock' | 'dropship' | null) ?? undefined,
-                page: undefined,
-              })
-            }
-          />
-          <Checkbox
-            label="Low stock only"
-            pb={6}
-            checked={!!search.lowStock}
-            onChange={(e) =>
-              onSearch({ lowStock: e.currentTarget.checked ? true : undefined, page: undefined })
-            }
-          />
-        </Group>
-      </Paper>
-      <Paper withBorder p="sm">
-        <DataTable
-          columns={columns}
-          rows={list.data?.items}
-          rowKey={(r) => r.variantId}
-          loading={list.isLoading}
-          emptyMessage="No variants match these filters."
-          page={search.page ?? 1}
-          pageSize={pageSize}
-          total={list.data?.total}
-          onPageChange={(p) => onSearch({ page: p > 1 ? p : undefined })}
-          onPageSizeChange={(s) => onSearch({ size: s, page: undefined })}
-          pageSizeOptions={PAGE_SIZES}
+      <Toolbar className={classes.toolbar}>
+        <TextInput
+          label="Search"
+          placeholder="Product or SKU"
+          leftSection={<IconSearch size={14} />}
+          value={qInput}
+          onChange={(e) => setQInput(e.currentTarget.value)}
+          className="grow"
         />
-      </Paper>
+        <CategorySelect
+          label="Category"
+          w={240}
+          value={search.category}
+          onChange={(id) => onSearch({ category: id ?? undefined, page: undefined })}
+        />
+        <Select
+          label="Fulfillment"
+          w={150}
+          placeholder="All"
+          clearable
+          data={[
+            { value: 'stock', label: 'Own stock' },
+            { value: 'dropship', label: 'Dropship' },
+          ]}
+          value={search.fulfillment ?? null}
+          onChange={(v) =>
+            onSearch({
+              fulfillment: (v as 'stock' | 'dropship' | null) ?? undefined,
+              page: undefined,
+            })
+          }
+        />
+        <Checkbox
+          label="Low stock only"
+          pb={6}
+          checked={!!search.lowStock}
+          onChange={(e) =>
+            onSearch({ lowStock: e.currentTarget.checked ? true : undefined, page: undefined })
+          }
+        />
+      </Toolbar>
+      <DataTable
+        columns={columns}
+        rows={list.data?.items}
+        rowKey={(r) => r.variantId}
+        loading={list.isLoading}
+        emptyMessage="No variants match these filters."
+        page={search.page ?? 1}
+        pageSize={pageSize}
+        total={list.data?.total}
+        onPageChange={(p) => onSearch({ page: p > 1 ? p : undefined })}
+        onPageSizeChange={(s) => onSearch({ size: s, page: undefined })}
+        pageSizeOptions={PAGE_SIZES}
+      />
       <AdjustModal row={adjusting} onClose={() => setAdjusting(null)} />
       <HistoryDrawer row={history} onClose={() => setHistory(null)} />
     </>

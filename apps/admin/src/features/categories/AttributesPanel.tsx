@@ -38,6 +38,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { ConfirmDelete } from '~/components/ConfirmDelete';
 import { AttributeFormModal } from './AttributeFormModal';
+import classes from './AttributesPanel.module.css';
 import { categoriesApi } from './api';
 import { conflictBody } from './http';
 import { OptionEditor } from './OptionEditor';
@@ -161,7 +162,7 @@ export function AttributesPanel({
           <Text fw={600}>Inherited attributes</Text>
           <Stack gap="xs">
             {category.inheritedAttributes.map((a) => (
-              <Paper key={a.id} withBorder p="xs" bg="var(--mantine-color-gray-0)">
+              <Paper key={a.id} withBorder p="xs" className={classes.inherited}>
                 <Group justify="space-between" wrap="nowrap">
                   <div>
                     <Group gap="xs">
@@ -289,7 +290,7 @@ function AttributeRow({
               variant="subtle"
               color="gray"
               aria-label={`Drag ${attr.nameEn}`}
-              style={{ cursor: 'grab', touchAction: 'none' }}
+              className={classes.grip}
               {...attributes}
               {...listeners}
             >

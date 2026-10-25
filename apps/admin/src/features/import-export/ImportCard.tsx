@@ -1,4 +1,5 @@
-import { Alert, Badge, Button, Card, Group, Select, Stack, Table, Text } from '@mantine/core';
+import { SectionCard } from '@bdc/ui';
+import { Alert, Badge, Button, Group, Select, Stack, Table, Text } from '@mantine/core';
 import { Dropzone, MIME_TYPES } from '@mantine/dropzone';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -129,35 +130,33 @@ export function ImportCard() {
   const canImport = !!file && !!checked && checked.errorCount === 0 && !run.isPending;
 
   return (
-    <Card withBorder padding="md">
-      <Stack gap="sm">
-        <Group justify="space-between" align="flex-start">
-          <div>
-            <Text fw={600}>Import products</Text>
-            <Text size="sm" c="dimmed">
-              XLSX or CSV, up to 10 MB. The file is checked first; nothing is saved until you
-              import.
-            </Text>
-          </div>
-          <Group gap="xs">
-            <Button
-              size="compact-sm"
-              variant="default"
-              loading={template.isPending && template.variables === 'xlsx'}
-              onClick={() => template.mutate('xlsx')}
-            >
-              Template XLSX
-            </Button>
-            <Button
-              size="compact-sm"
-              variant="default"
-              loading={template.isPending && template.variables === 'csv'}
-              onClick={() => template.mutate('csv')}
-            >
-              Template CSV
-            </Button>
-          </Group>
+    <SectionCard
+      title="Import products"
+      actions={
+        <Group gap="xs">
+          <Button
+            size="compact-sm"
+            variant="default"
+            loading={template.isPending && template.variables === 'xlsx'}
+            onClick={() => template.mutate('xlsx')}
+          >
+            Template XLSX
+          </Button>
+          <Button
+            size="compact-sm"
+            variant="default"
+            loading={template.isPending && template.variables === 'csv'}
+            onClick={() => template.mutate('csv')}
+          >
+            Template CSV
+          </Button>
         </Group>
+      }
+    >
+      <Stack gap="sm">
+        <p className="a-hint">
+          XLSX or CSV, up to 10 MB. The file is checked first; nothing is saved until you import.
+        </p>
 
         <Dropzone
           onDrop={(files) => {
@@ -259,6 +258,6 @@ export function ImportCard() {
           </Stack>
         )}
       </Stack>
-    </Card>
+    </SectionCard>
   );
 }

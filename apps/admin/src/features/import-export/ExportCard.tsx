@@ -1,13 +1,5 @@
-import {
-  Button,
-  Card,
-  Group,
-  SegmentedControl,
-  Select,
-  Stack,
-  Text,
-  TextInput,
-} from '@mantine/core';
+import { SectionCard } from '@bdc/ui';
+import { Button, Group, SegmentedControl, Select, Stack, TextInput } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -49,14 +41,9 @@ export function ExportCard() {
   });
 
   return (
-    <Card withBorder padding="md">
+    <SectionCard title="Export products">
       <Stack gap="sm">
-        <div>
-          <Text fw={600}>Export products</Text>
-          <Text size="sm" c="dimmed">
-            One row per variant. Leave the filters empty to export everything.
-          </Text>
-        </div>
+        <p className="a-hint">One row per variant. Leave the filters empty to export everything.</p>
         <SegmentedControl
           w={180}
           value={format}
@@ -106,6 +93,6 @@ export function ExportCard() {
           </Button>
         </Group>
       </Stack>
-    </Card>
+    </SectionCard>
   );
 }
