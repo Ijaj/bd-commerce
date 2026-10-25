@@ -20,9 +20,11 @@ export function QueryBoundary<T>({
 }) {
   if (query.isPending) {
     return (
-      <Center py="xl" role="status" aria-label={t('loading')}>
-        <Loader size="sm" />
-      </Center>
+      <div className="sr-card">
+        <Center py="md" role="status" aria-label={t('loading')}>
+          <Loader size="sm" />
+        </Center>
+      </div>
     );
   }
   if (query.isError) {

@@ -141,3 +141,27 @@ Not in the admin menu until built. Mockup: `plan/mockups/admin/<page>.html` + `s
 ## Wording kept for tests (mockup differs)
 
 Page titles stay as the app has them because unit tests and e2e select them: "Categories" (mockup: Categories & attributes), "SR sales" (SR approvals), "Buyer shops" (B2B shops), "Dues ageing" (B2B dues), "Delivery zones" (Delivery & couriers), "Roles" (Roles & permissions). The sidebar already uses the mockup labels.
+
+## SR portal (`plan/mockups/sr/`)
+
+- "Me" / performance tab and `#/perf` view: month chips, target ring, commission breakdown, by-month table, account card. The fifth tab is still Collect.
+- Sign-in with OTP and the SR's first name in the top bar. The portal signs in with email + password, and the shell has no name.
+- Sale detail:
+  - "Edit and resubmit" for rejected sales
+  - "Our list total" row
+  - "% below list" flag on items
+  - "Approved by / Delivered by" lines
+- Home:
+  - rejected-sale and awaiting-collection notes
+  - "stock reserved" and "N shops owe" lines on the tiles
+  - collected-at-sale vs due-collections split in the commission note
+- In-app memo view (`#/memo`: EN/BN switch, print, WhatsApp). The app opens the API memo URL instead.
+- New sale:
+  - live "list total" row in the summary
+  - "Other" collection method
+- Shop detail:
+  - "Total bought" stat
+  - "Customer since" row
+  - running balance column in the ledger
+- Add shop: area suggestions.
+- Collections: current-due hint under the amount.

@@ -62,7 +62,7 @@ function LoginPage() {
             autoComplete="current-password"
             {...form.getInputProps('password')}
           />
-          <Button type="submit" loading={login.isPending}>
+          <Button type="submit" fullWidth loading={login.isPending}>
             {t('continue')}
           </Button>
         </Stack>

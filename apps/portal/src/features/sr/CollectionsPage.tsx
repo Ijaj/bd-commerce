@@ -1,16 +1,4 @@
-import {
-  Alert,
-  Badge,
-  Button,
-  Group,
-  NumberInput,
-  Paper,
-  Select,
-  Stack,
-  Text,
-  TextInput,
-  Title,
-} from '@mantine/core';
+import { Alert, Badge, Button, NumberInput, Select, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDebouncedValue } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
@@ -90,7 +78,7 @@ export function CollectionsPage({ initialShopId }: { initialShopId?: string }) {
   return (
     <Stack gap="md">
       <PageTitle>{t('recordCollection')}</PageTitle>
-      <Alert variant="light">{t('collectionNote')}</Alert>
+      <div className="sr-note">{t('collectionNote')}</div>
       <form onSubmit={form.onSubmit((v) => submit.mutate(v))} noValidate>
         <Stack gap="sm">
           {submit.error && (
@@ -130,52 +118,48 @@ export function CollectionsPage({ initialShopId }: { initialShopId?: string }) {
             placeholder={t('noteRefPlaceholder')}
             {...form.getInputProps('note')}
           />
-          <Button type="submit" loading={submit.isPending}>
+          <Button type="submit" fullWidth loading={submit.isPending}>
             {t('submitCollection')}
           </Button>
         </Stack>
       </form>
 
-      <Title order={2}>{t('recentCollections')}</Title>
+      <h2 className="sr-h2 sr-h2-gap">{t('recentCollections')}</h2>
       <QueryBoundary query={collections}>
         {(data) => {
           const list = data.pages.flatMap((p) => p.items);
           return list.length === 0 ? (
-            <Text c="dimmed">{t('noCollections')}</Text>
+            <div className="sr-empty">{t('noCollections')}</div>
           ) : (
             <>
-              <Paper py={4}>
-                {list.map((c) => (
-                  <div key={c.id} className="portal-item">
-                    <Group justify="space-between" wrap="nowrap">
-                      <Text truncate td={c.rejected ? 'line-through' : undefined}>
-                        {c.shopName}
-                      </Text>
-                      <Text>{formatPrice(Math.abs(c.amountP))}</Text>
-                    </Group>
-                    <Group justify="space-between" wrap="nowrap">
-                      <Text size="sm" c="dimmed">
-                        {formatDate(c.at)} · {METHODS.find((m) => m.value === c.method)?.label()}
-                      </Text>
-                      <Badge
-                        color={c.rejected ? 'red' : c.confirmed ? 'green' : 'yellow'}
-                        variant="light"
-                      >
-                        {c.rejected
-                          ? t('collectionRejected')
-                          : c.confirmed
-                            ? t('confirmed')
-                            : t('pendingConfirm')}
-                      </Badge>
-                    </Group>
-                    {c.rejected && (
-                      <Text size="sm" c="red">
-                        {t('collectionRejectedReason', { reason: c.rejectReason ?? '-' })}
-                      </Text>
-                    )}
+              {list.map((c) => (
+                <div key={c.id} className="sr-item">
+                  <div className="t">
+                    <span className={c.rejected ? 'sr-void' : undefined}>{c.shopName}</span>
+                    <b>{formatPrice(Math.abs(c.amountP))}</b>
                   </div>
-                ))}
-              </Paper>
+                  <div className="s">
+                    <span>
+                      {formatDate(c.at)} · {METHODS.find((m) => m.value === c.method)?.label()}
+                    </span>
+                    <Badge
+                      color={c.rejected ? 'red' : c.confirmed ? 'green' : 'yellow'}
+                      variant="light"
+                    >
+                      {c.rejected
+                        ? t('collectionRejected')
+                        : c.confirmed
+                          ? t('confirmed')
+                          : t('pendingConfirm')}
+                    </Badge>
+                  </div>
+                  {c.rejected && (
+                    <div className="sr-due sr-note-line">
+                      {t('collectionRejectedReason', { reason: c.rejectReason ?? '-' })}
+                    </div>
+                  )}
+                </div>
+              ))}
               <LoadMore query={collections} />
             </>
           );

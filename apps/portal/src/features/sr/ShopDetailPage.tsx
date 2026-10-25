@@ -1,17 +1,6 @@
-import {
-  Anchor,
-  Button,
-  Group,
-  Paper,
-  SegmentedControl,
-  SimpleGrid,
-  Stack,
-  Table,
-  Text,
-} from '@mantine/core';
-import { IconCash, IconPlus } from '@tabler/icons-react';
+import { Icon } from '@bdc/ui';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from '@tanstack/react-router';
+import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
 import { BackLink, PageTitle } from '~/components/PageTitle';
 import { QueryBoundary } from '~/components/QueryBoundary';
@@ -23,7 +12,6 @@ import { SaleItem } from './SaleItem';
 import { NewBadge } from './ShopsPage';
 
 export function ShopDetailPage({ id }: { id: string }) {
-  const navigate = useNavigate();
   const shop = useQuery(srShopQuery(id));
   const sales = useQuery(srRecentHundredQuery);
   const [tab, setTab] = useState<'sales' | 'ledger'>('sales');
@@ -33,120 +21,109 @@ export function ShopDetailPage({ id }: { id: string }) {
         const shopSales = sales.data?.items.filter((x) => x.shop.id === id) ?? [];
         const rows = ledgerNewestFirst(s.ledger);
         return (
-          <Stack gap="md">
-            <div>
-              <BackLink to="/sr/shops">{t('backShops')}</BackLink>
-              <PageTitle>
-                {s.name}
-                {s.isNew && <NewBadge />}
-              </PageTitle>
-            </div>
-            <Paper>
-              <Stack gap={4}>
-                <Group justify="space-between" wrap="nowrap">
-                  <Text c="dimmed">{t('owner')}</Text>
-                  <Text>{s.ownerName ?? '-'}</Text>
-                </Group>
-                <Group justify="space-between" wrap="nowrap">
-                  <Text c="dimmed">{t('phone')}</Text>
-                  <Anchor href={`tel:${s.phone}`}>{s.phone}</Anchor>
-                </Group>
-                <Group justify="space-between" align="flex-start" wrap="nowrap">
-                  <Text c="dimmed">{t('address')}</Text>
-                  <Text ta="right">{[s.address, s.area].filter(Boolean).join(', ')}</Text>
-                </Group>
-              </Stack>
-              <SimpleGrid cols={1} mt="md">
-                <div>
-                  <Text size="sm" c="dimmed">
-                    {t('currentDueLabel')}
-                  </Text>
-                  <Text fz="xl" c={s.dueBalanceP > 0 ? 'red' : undefined} data-testid="shop-due">
+          <>
+            <BackLink to="/sr/shops">{t('backShops')}</BackLink>
+            <PageTitle>
+              {s.name}
+              {s.isNew && <NewBadge />}
+            </PageTitle>
+            <div className="sr-card">
+              <dl className="a-kv">
+                <dt>{t('owner')}</dt>
+                <dd>{s.ownerName ?? '-'}</dd>
+                <dt>{t('phone')}</dt>
+                <dd>
+                  <a href={`tel:${s.phone}`}>{s.phone}</a>
+                </dd>
+                <dt>{t('address')}</dt>
+                <dd>{[s.address, s.area].filter(Boolean).join(', ')}</dd>
+              </dl>
+              <div className="sr-grid2 sr-grid2-in">
+                <div className="a-stat">
+                  <div className="l">{t('currentDueLabel')}</div>
+                  <div className={s.dueBalanceP > 0 ? 'v sr-due' : 'v'} data-testid="shop-due">
                     {formatPrice(s.dueBalanceP)}
-                  </Text>
+                  </div>
                 </div>
-              </SimpleGrid>
-            </Paper>
-            <SimpleGrid cols={2}>
-              <Button
-                onClick={() => void navigate({ to: '/sr/new-sale', search: { shop: s.id } })}
-                variant="light"
-                leftSection={<IconPlus size={16} />}
-              >
+              </div>
+            </div>
+            <div className="sr-qa two">
+              <Link to="/sr/new-sale" search={{ shop: s.id }}>
+                <Icon name="plus" size={18} />
                 {t('quickNewSale')}
-              </Button>
-              <Button
-                onClick={() => void navigate({ to: '/sr/collections', search: { shop: s.id } })}
-                variant="light"
-                leftSection={<IconCash size={16} />}
-              >
+              </Link>
+              <Link to="/sr/collections" search={{ shop: s.id }}>
+                <Icon name="wallet" size={18} />
                 {t('quickCollect')}
-              </Button>
-            </SimpleGrid>
-            <SegmentedControl
-              fullWidth
-              value={tab}
-              onChange={(v) => setTab(v as 'sales' | 'ledger')}
-              data={[
-                { value: 'sales', label: `${t('tabShopSales')} (${num(shopSales.length)})` },
-                { value: 'ledger', label: t('tabLedger') },
-              ]}
-            />
+              </Link>
+            </div>
+            <div className="sr-tabs" role="tablist">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={tab === 'sales'}
+                onClick={() => setTab('sales')}
+              >
+                {`${t('tabShopSales')} (${num(shopSales.length)})`}
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={tab === 'ledger'}
+                onClick={() => setTab('ledger')}
+              >
+                {t('tabLedger')}
+              </button>
+            </div>
             {tab === 'sales' ? (
-              <Paper py={4}>
-                {shopSales.length === 0 ? (
-                  <Text c="dimmed" ta="center" py="md">
-                    {t('noSales')}
-                  </Text>
-                ) : (
-                  shopSales.map((x) => <SaleItem key={x.id} sale={x} />)
-                )}
-              </Paper>
+              shopSales.length === 0 ? (
+                <div className="sr-empty">{t('noSales')}</div>
+              ) : (
+                shopSales.map((x) => <SaleItem key={x.id} sale={x} />)
+              )
             ) : rows.length === 0 ? (
-              <Text c="dimmed" ta="center" py="md">
-                {t('noLedger')}
-              </Text>
+              <div className="sr-empty">{t('noLedger')}</div>
             ) : (
-              <Paper p="xs">
-                <Table>
-                  <Table.Thead>
-                    <Table.Tr>
-                      <Table.Th>{t('ledgerDate')}</Table.Th>
-                      <Table.Th>{t('ledgerEntry')}</Table.Th>
-                      <Table.Th ta="right">{t('ledgerAmount')}</Table.Th>
-                    </Table.Tr>
-                  </Table.Thead>
-                  <Table.Tbody>
-                    {rows.map((r) => (
-                      <Table.Tr key={r.id} c={r.confirmed ? undefined : 'dimmed'}>
-                        <Table.Td>{formatDate(r.at)}</Table.Td>
-                        <Table.Td>
-                          {ledgerLabel(r.type)}
-                          <Text size="xs" c="dimmed">
-                            {r.memoNo ?? r.note ?? ''}
-                            {!r.confirmed && !r.rejected && ` ${t('awaitingConfirm')}`}
-                          </Text>
-                          {r.rejected && (
-                            <Text size="xs" c="red">
-                              {t('collectionRejectedReason', { reason: r.rejectReason ?? '-' })}
-                            </Text>
-                          )}
-                        </Table.Td>
-                        <Table.Td ta="right" td={r.rejected ? 'line-through' : undefined}>
-                          {r.confirmed
-                            ? `${r.amountP > 0 ? '+' : '-'}${formatPrice(Math.abs(r.amountP))}`
-                            : `(${formatPrice(Math.abs(r.amountP))})`}
-                        </Table.Td>
-                      </Table.Tr>
-                    ))}
-                  </Table.Tbody>
-                </Table>
-                <Text size="xs" c="dimmed" mt="xs">
-                  {t('ledgerPendingHint')}
-                </Text>
-              </Paper>
+              <>
+                <div className="sr-card sr-card-tbl">
+                  <table className="sr-tbl">
+                    <thead>
+                      <tr>
+                        <th>{t('ledgerDate')}</th>
+                        <th>{t('ledgerEntry')}</th>
+                        <th className="num">{t('ledgerAmount')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rows.map((r) => (
+                        <tr key={r.id} className={r.confirmed ? undefined : 'mute'}>
+                          <td>{formatDate(r.at)}</td>
+                          <td>
+                            {ledgerLabel(r.type)}
+                            <div className="sr-muted">
+                              {r.memoNo ?? r.note ?? ''}
+                              {!r.confirmed && !r.rejected && ` ${t('awaitingConfirm')}`}
+                            </div>
+                            {r.rejected && (
+                              <div className="sr-muted sr-due">
+                                {t('collectionRejectedReason', { reason: r.rejectReason ?? '-' })}
+                              </div>
+                            )}
+                          </td>
+                          <td className={r.rejected ? 'num void' : 'num'}>
+                            {r.confirmed
+                              ? `${r.amountP > 0 ? '+' : '-'}${formatPrice(Math.abs(r.amountP))}`
+                              : `(${formatPrice(Math.abs(r.amountP))})`}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="a-hint">{t('ledgerPendingHint')}</p>
+              </>
             )}
-          </Stack>
+          </>
         );
       }}
     </QueryBoundary>
