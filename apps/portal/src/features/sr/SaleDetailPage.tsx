@@ -1,15 +1,4 @@
-import {
-  Alert,
-  Button,
-  Group,
-  Modal,
-  Paper,
-  Stack,
-  Stepper,
-  Table,
-  Text,
-  Title,
-} from '@mantine/core';
+import { Alert, Button, Group, Modal, Stack, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -62,175 +51,156 @@ export function SaleDetailPage({ id }: { id: string }) {
       {(s) => {
         const closed =
           s.status === 'rejected' || s.status === 'cancelled' || s.status === 'reversed';
+        const step = activeStep(s.status);
         return (
-          <Stack gap="md">
-            <div>
-              <BackLink to="/sr/sales">{t('backSales')}</BackLink>
-              <Group justify="space-between" wrap="nowrap" align="flex-start">
-                <Title order={1}>{s.shop.name}</Title>
-                <StatusBadge status={s.status} />
-              </Group>
+          <>
+            <BackLink to="/sr/sales">{t('backSales')}</BackLink>
+            <div className="sr-h">
+              <h1>{s.shop.name}</h1>
+              <StatusBadge status={s.status} />
             </div>
 
             {!closed && (
-              <Stepper active={activeStep(s.status)} size="xs" allowNextStepsSelect={false}>
-                <Stepper.Step label={t('statusSubmitted')} />
-                <Stepper.Step label={t('filterApproved')} />
-                <Stepper.Step label={t('statusDelivered')} />
-              </Stepper>
+              <div className="sr-steps">
+                <div className="done">{t('statusSubmitted')}</div>
+                <div className={step >= 2 ? 'done' : undefined}>{t('filterApproved')}</div>
+                <div className={step >= 3 ? 'done' : undefined}>{t('statusDelivered')}</div>
+              </div>
             )}
-            {s.status === 'submitted' && (
-              <Alert color="yellow" variant="light">
-                {t('waitingApproval')}
-              </Alert>
-            )}
+            {s.status === 'submitted' && <div className="sr-note warn">{t('waitingApproval')}</div>}
             {s.status === 'reversed' && (
-              <Alert color="grape" variant="light">
+              <div className="sr-note danger">
                 {t('reversedNote', { reason: s.reverseReason ?? '-' })}
-              </Alert>
+              </div>
             )}
             {s.status === 'rejected' && (
-              <Alert color="red" variant="light">
+              <div className="sr-note danger">
                 {t('rejectedBy', { reason: s.rejectedReason ?? '-' })}
-              </Alert>
+              </div>
             )}
 
-            <Paper>
-              <Group justify="space-between" align="center">
-                <div>
-                  <Text size="sm" c="dimmed">
-                    {t('memoNumber')}
-                  </Text>
-                  <Text data-testid="memo-no">{s.memoNo}</Text>
-                  {s.status === 'submitted' && (
-                    <Text size="xs" c="dimmed">
-                      {t('memoPending')}
-                    </Text>
-                  )}
+            <div
+              className={
+                s.status === 'approved' || s.status === 'delivered' ? 'sr-memobox' : 'sr-card'
+              }
+            >
+              <div>
+                <div className="sr-muted">{t('memoNumber')}</div>
+                <b data-testid="memo-no">{s.memoNo}</b>
+                {s.status === 'submitted' && <div className="sr-muted">{t('memoPending')}</div>}
+              </div>
+              {(s.status === 'approved' || s.status === 'delivered') && (
+                <div className="acts">
+                  <Button
+                    component="a"
+                    href={srApi.memoUrl(s.id)}
+                    target="_blank"
+                    rel="noopener"
+                    size="compact-sm"
+                  >
+                    {t('viewMemo')}
+                  </Button>
+                  <Button
+                    component="a"
+                    href={srApi.memoUrl(s.id, 'bn')}
+                    target="_blank"
+                    rel="noopener"
+                    size="compact-sm"
+                    variant="default"
+                  >
+                    বাংলা
+                  </Button>
+                  <Button
+                    size="compact-sm"
+                    variant="default"
+                    loading={share.isPending}
+                    onClick={() => share.mutate(s)}
+                  >
+                    {t('shareMemo')}
+                  </Button>
                 </div>
-                {(s.status === 'approved' || s.status === 'delivered') && (
-                  <Group gap="xs">
-                    <Button
-                      component="a"
-                      href={srApi.memoUrl(s.id)}
-                      target="_blank"
-                      rel="noopener"
-                      size="xs"
-                    >
-                      {t('viewMemo')}
-                    </Button>
-                    <Button
-                      component="a"
-                      href={srApi.memoUrl(s.id, 'bn')}
-                      target="_blank"
-                      rel="noopener"
-                      size="xs"
-                      variant="default"
-                    >
-                      বাংলা
-                    </Button>
-                    <Button
-                      size="xs"
-                      variant="default"
-                      loading={share.isPending}
-                      onClick={() => share.mutate(s)}
-                    >
-                      {t('shareMemo')}
-                    </Button>
-                  </Group>
-                )}
-              </Group>
-            </Paper>
+              )}
+            </div>
 
-            <Paper>
-              <Title order={2} mb="xs">
-                {t('items')}
-              </Title>
-              <Table>
-                <Table.Thead>
-                  <Table.Tr>
-                    <Table.Th>{t('item')}</Table.Th>
-                    <Table.Th ta="right">{t('qty')}</Table.Th>
-                    <Table.Th ta="right">{t('price')}</Table.Th>
-                    <Table.Th ta="right">{t('total')}</Table.Th>
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
+            <div className="sr-card">
+              <h2 className="sr-h2">{t('items')}</h2>
+              <table className="sr-tbl">
+                <thead>
+                  <tr>
+                    <th>{t('item')}</th>
+                    <th className="num">{t('qty')}</th>
+                    <th className="num">{t('price')}</th>
+                    <th className="num">{t('total')}</th>
+                  </tr>
+                </thead>
+                <tbody>
                   {s.items.map((i) => (
-                    <Table.Tr key={i.id}>
-                      <Table.Td>
+                    <tr key={i.id}>
+                      <td>
                         {i.titleEn}
-                        {i.optionsText !== '' && (
-                          <Text size="xs" c="dimmed">
-                            {i.optionsText}
-                          </Text>
-                        )}
-                      </Table.Td>
-                      <Table.Td ta="right">{num(i.qty)}</Table.Td>
-                      <Table.Td ta="right">{formatPrice(i.unitPriceP)}</Table.Td>
-                      <Table.Td ta="right">{formatPrice(i.lineTotalP)}</Table.Td>
-                    </Table.Tr>
+                        {i.optionsText !== '' && <div className="sr-muted">{i.optionsText}</div>}
+                      </td>
+                      <td className="num">{num(i.qty)}</td>
+                      <td className="num">{formatPrice(i.unitPriceP)}</td>
+                      <td className="num">{formatPrice(i.lineTotalP)}</td>
+                    </tr>
                   ))}
-                </Table.Tbody>
-              </Table>
-              <Stack gap={4} mt="sm">
-                <Group justify="space-between">
-                  <Text>{t('total')}</Text>
-                  <Text>{formatPrice(s.totalP)}</Text>
-                </Group>
-                <Group justify="space-between">
-                  <Text>{t('collectedAtSale')}</Text>
-                  <Text>{formatPrice(s.paidAtSaleP)}</Text>
-                </Group>
-                <Group justify="space-between">
-                  <Text>{t('due')}</Text>
-                  <Text c={s.dueP > 0 ? 'red' : 'teal'}>{formatPrice(s.dueP)}</Text>
-                </Group>
-              </Stack>
-            </Paper>
+                </tbody>
+              </table>
+              <div className="sr-mt-10">
+                <div className="sr-row">
+                  <span>{t('total')}</span>
+                  <b>{formatPrice(s.totalP)}</b>
+                </div>
+                <div className="sr-row">
+                  <span>{t('collectedAtSale')}</span>
+                  <b>{formatPrice(s.paidAtSaleP)}</b>
+                </div>
+                <div className="sr-row">
+                  <span>{t('due')}</span>
+                  <b className={s.dueP > 0 ? 'sr-due' : 'sr-ok'}>{formatPrice(s.dueP)}</b>
+                </div>
+              </div>
+            </div>
 
-            <Paper>
-              <Stack gap={4}>
-                <Group justify="space-between">
-                  <Text c="dimmed">{t('shop')}</Text>
+            <div className="sr-card">
+              <dl className="a-kv">
+                <dt>{t('shop')}</dt>
+                <dd>
                   <Link to="/sr/shops/$id" params={{ id: s.shop.id }}>
                     {s.shop.name}
                   </Link>
-                </Group>
-                <Group justify="space-between">
-                  <Text c="dimmed">{t('statusSubmitted')}</Text>
-                  <Text>{formatDate(s.submittedAt)}</Text>
-                </Group>
+                </dd>
+                <dt>{t('statusSubmitted')}</dt>
+                <dd>{formatDate(s.submittedAt)}</dd>
                 {s.approvedAt && (
-                  <Group justify="space-between">
-                    <Text c="dimmed">{t('filterApproved')}</Text>
-                    <Text>{formatDate(s.approvedAt)}</Text>
-                  </Group>
+                  <>
+                    <dt>{t('filterApproved')}</dt>
+                    <dd>{formatDate(s.approvedAt)}</dd>
+                  </>
                 )}
-                <Group justify="space-between">
-                  <Text c="dimmed">{t('deliveryBy')}</Text>
-                  <Text ta="right">
-                    {s.deliveryBy === 'sr' ? t('deliveryBySr') : t('deliveryByStaff')}
-                  </Text>
-                </Group>
+                <dt>{t('deliveryBy')}</dt>
+                <dd>{s.deliveryBy === 'sr' ? t('deliveryBySr') : t('deliveryByStaff')}</dd>
                 {s.deliveredAt && (
-                  <Group justify="space-between">
-                    <Text c="dimmed">{t('statusDelivered')}</Text>
-                    <Text>{formatDate(s.deliveredAt)}</Text>
-                  </Group>
+                  <>
+                    <dt>{t('statusDelivered')}</dt>
+                    <dd>{formatDate(s.deliveredAt)}</dd>
+                  </>
                 )}
                 {s.note && (
-                  <Group justify="space-between" align="flex-start">
-                    <Text c="dimmed">{t('note')}</Text>
-                    <Text ta="right">{s.note}</Text>
-                  </Group>
+                  <>
+                    <dt>{t('note')}</dt>
+                    <dd>{s.note}</dd>
+                  </>
                 )}
-              </Stack>
-            </Paper>
+              </dl>
+            </div>
 
             {s.status === 'approved' && s.deliveryBy === 'sr' && (
               <>
-                <Button onClick={openDeliver}>{t('markDelivered')}</Button>
+                <Button fullWidth onClick={openDeliver}>
+                  {t('markDelivered')}
+                </Button>
                 <Modal
                   opened={deliverOpen}
                   onClose={closeDeliver}
@@ -258,7 +228,7 @@ export function SaleDetailPage({ id }: { id: string }) {
             )}
             {s.status === 'submitted' && (
               <>
-                <Button color="red" variant="light" onClick={open}>
+                <Button fullWidth color="red" onClick={open}>
                   {t('cancelSale')}
                 </Button>
                 <Modal opened={confirmOpen} onClose={close} title={t('cancelSale')} centered>
@@ -285,7 +255,7 @@ export function SaleDetailPage({ id }: { id: string }) {
                 </Modal>
               </>
             )}
-          </Stack>
+          </>
         );
       }}
     </QueryBoundary>

@@ -1,25 +1,18 @@
-import { Button, Group } from '@mantine/core';
 import { setLang, t, useLang } from '~/i18n';
 
-/** EN | বাংলা switch (C39). `dark` styles it for the navy top bar. */
+/** EN | বাংলা switch (C39), the mockup's `.sr-lang`. `dark` styles it for the gradient top bar. */
 export function LangToggle({ dark = false }: { dark?: boolean }) {
   const lang = useLang();
   const btn = (value: 'en' | 'bn', label: string) => (
-    <Button
-      key={value}
-      size="compact-sm"
-      variant={lang === value ? 'filled' : 'subtle'}
-      color={dark ? 'gray' : 'indigo'}
-      aria-pressed={lang === value}
-      onClick={() => setLang(value)}
-    >
+    <button key={value} type="button" aria-pressed={lang === value} onClick={() => setLang(value)}>
       {label}
-    </Button>
+    </button>
   );
   return (
-    <Group gap={2} wrap="nowrap" role="group" aria-label={t('language')}>
+    // biome-ignore lint/a11y/useSemanticElements: segmented button group, a fieldset would add a border and legend
+    <div className={dark ? 'sr-lang dark' : 'sr-lang'} role="group" aria-label={t('language')}>
       {btn('en', t('langEn'))}
       {btn('bn', t('langBn'))}
-    </Group>
+    </div>
   );
 }

@@ -1,3 +1,4 @@
+import { Icon, SectionCard } from '@bdc/ui';
 import {
   Alert,
   Badge,
@@ -232,6 +233,15 @@ function EditStaffModal({ staff, onClose }: { staff: StaffRow | null; onClose: (
   );
 }
 
+function initials(name: string) {
+  return name
+    .split(/\s+/)
+    .map((x) => x[0] ?? '')
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+}
+
 function StaffPage() {
   const canManage = useCan('staff.manage');
   const qc = useQueryClient();
@@ -260,13 +270,12 @@ function StaffPage() {
       key: 'name',
       header: 'Name',
       render: (s) => (
-        <div>
-          <Text size="sm" fw={600}>
-            {s.name}
-          </Text>
-          <Text size="xs" c="dimmed">
-            {s.email}
-          </Text>
+        <div className="a-row">
+          <span className="a-avatar">{initials(s.name)}</span>
+          <div>
+            <b>{s.name}</b>
+            <span className="sub">{s.email}</span>
+          </div>
         </div>
       ),
     },
@@ -276,7 +285,7 @@ function StaffPage() {
       render: (s) => (
         <Group gap={4}>
           {s.roles.map((r) => (
-            <Badge key={r.id} variant="light">
+            <Badge key={r.id} color={r.name === 'Owner' ? 'red' : 'blue'}>
               {r.name}
             </Badge>
           ))}
@@ -288,14 +297,18 @@ function StaffPage() {
       header: 'Status',
       render: (s) => (
         <Group gap={4}>
-          {s.disabled ? <Badge color="red">Disabled</Badge> : <Badge color="teal">Active</Badge>}
-          <Badge variant="outline" color={s.totpEnabled ? 'teal' : 'gray'}>
+          {s.disabled ? <Badge color="gray">Disabled</Badge> : <Badge color="green">Active</Badge>}
+          <Badge color={s.totpEnabled ? 'green' : 'yellow'}>
             {s.totpEnabled ? '2FA on' : '2FA pending'}
           </Badge>
         </Group>
       ),
     },
-    { key: 'last', header: 'Last sign-in', render: (s) => formatDateTime(s.lastLoginAt) },
+    {
+      key: 'last',
+      header: 'Last sign-in',
+      render: (s) => <span className="a-nowrap">{formatDateTime(s.lastLoginAt)}</span>,
+    },
   ];
   if (canManage) {
     columns.push({
@@ -304,11 +317,11 @@ function StaffPage() {
       align: 'right',
       render: (s) => (
         <Group gap={4} justify="flex-end" wrap="nowrap">
-          <Button size="compact-xs" variant="default" onClick={() => setEditing(s)}>
+          <Button size="compact-sm" variant="default" onClick={() => setEditing(s)}>
             Edit
           </Button>
           <Button
-            size="compact-xs"
+            size="compact-sm"
             variant="default"
             disabled={!s.totpEnabled}
             onClick={() => setResetting(s)}
@@ -324,13 +337,29 @@ function StaffPage() {
     <>
       <PageHeader
         title="Staff"
+        crumbs={['Admin', 'System', 'Staff']}
         description="People who can sign in to this admin."
-        actions={canManage && <Button onClick={() => setCreating(true)}>Add staff</Button>}
+        actions={
+          canManage && (
+            <Button leftSection={<Icon name="plus" size={15} />} onClick={() => setCreating(true)}>
+              Add staff
+            </Button>
+          )
+        }
       />
       {error ? (
         <Alert color="red">{error.message}</Alert>
       ) : (
-        <DataTable columns={columns} rows={data} rowKey={(s) => s.id} loading={isPending} />
+        <SectionCard
+          title={
+            <>
+              Team <span className="a-count">{data?.length ?? 0}</span>
+            </>
+          }
+          flush
+        >
+          <DataTable columns={columns} rows={data} rowKey={(s) => s.id} loading={isPending} />
+        </SectionCard>
       )}
       <CreateStaffModal opened={creating} onClose={() => setCreating(false)} onCreated={setTemp} />
       <TempPasswordModal info={temp} onClose={() => setTemp(null)} />

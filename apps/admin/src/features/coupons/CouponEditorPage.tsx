@@ -1,4 +1,5 @@
-import { Alert, Badge, Button, Group, Loader, Stack, Tabs, Text } from '@mantine/core';
+import { Banner } from '@bdc/ui';
+import { Alert, Badge, Button, Group, Loader, Stack, Tabs } from '@mantine/core';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -9,6 +10,7 @@ import { useCan } from '~/lib/perm';
 import { couponsApi } from './api';
 import { CodesTab } from './CodesTab';
 import { ConditionsSection } from './ConditionsSection';
+import classes from './Coupons.module.css';
 import { DiscountSection } from './DiscountSection';
 import { couponErrorMessage, couponIssues, notifyCouponError } from './errors';
 import type { SectionProps } from './fields';
@@ -42,12 +44,24 @@ export function CouponEditorPage({ id }: { id?: string }) {
     return canManage ? (
       <EditorBody detail={null} />
     ) : (
-      <Text c="dimmed">You need the coupons.manage permission to create coupons.</Text>
+      <Banner tone="info" icon="lock">
+        You need the coupons.manage permission to create coupons.
+      </Banner>
     );
   }
-  if (detail.isLoading) return <Loader size="sm" aria-label="Loading" />;
+  if (detail.isLoading) {
+    return (
+      <div className="a-card">
+        <div className="a-empty">
+          <Loader size="sm" aria-label="Loading" />
+        </div>
+      </div>
+    );
+  }
   if (detail.isError || !detail.data) {
-    return <Text c="red">{couponErrorMessage(detail.error, 'Could not load the coupon')}</Text>;
+    return (
+      <Banner tone="danger">{couponErrorMessage(detail.error, 'Could not load the coupon')}</Banner>
+    );
   }
   // Re-mount after each save so the form restarts from what the server stored.
   return <EditorBody key={detail.data.updatedAt} detail={detail.data} />;
@@ -142,7 +156,7 @@ function EditorBody({ detail }: { detail: CouponDetail | null }) {
   });
 
   const form = (
-    <Stack gap="md">
+    <Stack gap="md" className={classes.form}>
       {issues.length > 0 && (
         <Alert color="red" title="The coupon was not saved">
           {issues.map((i) => (
@@ -157,7 +171,7 @@ function EditorBody({ detail }: { detail: CouponDetail | null }) {
       <LimitsSection {...props('limits')} />
       <StackingSection {...props('stacking')} />
       {canManage && (
-        <Group justify="flex-end">
+        <Group justify="flex-end" className={classes.foot}>
           <Button loading={save.isPending} onClick={() => save.mutate()}>
             {isNew ? 'Create coupon' : 'Save changes'}
           </Button>
@@ -169,7 +183,11 @@ function EditorBody({ detail }: { detail: CouponDetail | null }) {
   if (!detail) {
     return (
       <>
-        <PageHeader title="New coupon" description="Saved as a draft; activate it when ready." />
+        <PageHeader
+          title="New coupon"
+          crumbs={['Marketing', 'Coupons', 'New coupon']}
+          description="Saved as a draft; activate it when ready."
+        />
         {form}
       </>
     );
@@ -180,6 +198,7 @@ function EditorBody({ detail }: { detail: CouponDetail | null }) {
     <>
       <PageHeader
         title={detail.name}
+        crumbs={['Marketing', 'Coupons', detail.name]}
         description={detail.code ? `Code ${detail.code}` : undefined}
         actions={
           <>

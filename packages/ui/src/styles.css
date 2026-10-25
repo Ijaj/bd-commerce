@@ -1,0 +1,4 @@
+/* @bdc/ui stylesheet: import AFTER Mantine's own styles (`import '@bdc/ui/styles.css'`). */
+@import "./tokens.css";
+@import "./components.css";
+@import "./mantine.css";

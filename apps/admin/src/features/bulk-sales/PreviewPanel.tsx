@@ -1,5 +1,7 @@
-import { Alert, List, Table, Text } from '@mantine/core';
+import { Banner, TableWrap } from '@bdc/ui';
+import { List, Table, Text } from '@mantine/core';
 import { formatPrice } from '~/lib/format';
+import classes from './BulkSales.module.css';
 import type { BulkPreview } from './queries';
 
 /** Result of the dry run: counts, why variants were skipped, and a sample of old -> new prices. */
@@ -22,42 +24,40 @@ export function PreviewPanel({ preview }: { preview: BulkPreview }) {
         </List>
       )}
       {preview.tooMany && (
-        <Alert color="red" mb="xs" role="alert">
+        <Banner tone="danger">
           This matches too many variants (the limit is {preview.limit}). Narrow the scope before
           applying.
-        </Alert>
+        </Banner>
       )}
       {preview.sample.length > 0 && (
         <>
-          <Table.ScrollContainer minWidth={520}>
-            <Table verticalSpacing="xs">
+          <TableWrap>
+            <Table miw={520}>
               <Table.Thead>
                 <Table.Tr>
                   <Table.Th>Variant</Table.Th>
-                  <Table.Th ta="right">Regular</Table.Th>
-                  <Table.Th ta="right">Now</Table.Th>
-                  <Table.Th ta="right">New sale price</Table.Th>
+                  <Table.Th className="num">Regular</Table.Th>
+                  <Table.Th className="num">Now</Table.Th>
+                  <Table.Th className="num">New sale price</Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
                 {preview.sample.map((s) => (
                   <Table.Tr key={s.variantId}>
                     <Table.Td>
-                      <Text size="sm">{s.title}</Text>
-                      <Text size="xs" c="dimmed">
-                        {s.sku}
-                      </Text>
+                      {s.title}
+                      <span className={classes.sub}>{s.sku}</span>
                     </Table.Td>
-                    <Table.Td ta="right">{formatPrice(s.priceP)}</Table.Td>
-                    <Table.Td ta="right">
+                    <Table.Td className="num">{formatPrice(s.priceP)}</Table.Td>
+                    <Table.Td className="num">
                       {s.currentSalePriceP === null ? '-' : formatPrice(s.currentSalePriceP)}
                     </Table.Td>
-                    <Table.Td ta="right">{formatPrice(s.newSalePriceP)}</Table.Td>
+                    <Table.Td className="num">{formatPrice(s.newSalePriceP)}</Table.Td>
                   </Table.Tr>
                 ))}
               </Table.Tbody>
             </Table>
-          </Table.ScrollContainer>
+          </TableWrap>
           <Text size="xs" c="dimmed" mt={4}>
             Showing {preview.sample.length} of {preview.count}.
           </Text>

@@ -19,6 +19,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { ActionIcon } from '@mantine/core';
 import { IconGripVertical } from '@tabler/icons-react';
 import type { CSSProperties, ReactNode } from 'react';
+import classes from './Sortable.module.css';
 
 interface SortableListProps<T> {
   items: T[];
@@ -86,7 +87,7 @@ export function SortableItem({
       size="sm"
       aria-label="Drag to reorder"
       disabled={disabled}
-      style={{ cursor: disabled ? 'default' : 'grab', touchAction: 'none' }}
+      className={disabled ? classes.gripOff : classes.grip}
       {...attributes}
       {...listeners}
     >

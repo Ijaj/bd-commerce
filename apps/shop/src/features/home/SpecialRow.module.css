@@ -2,11 +2,6 @@
   margin: var(--sec-gap) 0;
   min-width: 0;
 }
-.h {
-  font-size: 20px;
-  line-height: 1.25;
-  margin-bottom: var(--s3);
-}
 .scroll {
   display: flex;
   gap: var(--gap);
@@ -16,8 +11,8 @@
   scrollbar-width: thin;
 }
 .scroll > li {
-  flex: 0 0 150px;
-  width: 150px;
+  flex: 0 0 136px;
+  width: 136px;
   min-width: 0;
   display: flex;
   scroll-snap-align: start;
@@ -27,11 +22,8 @@
   min-width: 0;
 }
 @media (max-width: 640px) {
-  .h {
-    font-size: 17px;
-  }
   .scroll > li {
-    flex-basis: 128px;
-    width: 128px;
+    flex-basis: 112px;
+    width: 112px;
   }
 }

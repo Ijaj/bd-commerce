@@ -1,18 +1,12 @@
-import {
-  ActionIcon,
-  Group,
-  Text,
-  useComputedColorScheme,
-  useMantineColorScheme,
-} from '@mantine/core';
-import { IconLogout, IconMoon, IconSun } from '@tabler/icons-react';
+import { Icon } from '@bdc/ui';
+import { useComputedColorScheme, useMantineColorScheme } from '@mantine/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { Outlet, useNavigate } from '@tanstack/react-router';
 import { api } from '~/api';
 import { LangToggle } from '~/components/LangToggle';
 import { t } from '~/i18n';
 
-/** Fixed top bar + padded main area shared by every portal section. */
+/** Mockup `.sr-shell`: sticky gradient top bar, padded main area; the tab bar is fixed to the bottom. */
 export function PortalFrame() {
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -26,38 +20,34 @@ export function PortalFrame() {
   }
 
   return (
-    <>
-      <header className="portal-top">
-        <Group h={48} px="md" justify="space-between" wrap="nowrap">
-          <Text fw={800} tt="uppercase" fs="italic" fz="lg" style={{ letterSpacing: '-.02em' }}>
-            ShopName <span style={{ color: '#5eead4' }}>Partner</span>
-          </Text>
-          <Group gap={4} wrap="nowrap">
-            <LangToggle dark />
-            <ActionIcon
-              variant="subtle"
-              color="gray"
-              size="lg"
-              aria-label={t('darkMode')}
-              onClick={() => setColorScheme(scheme === 'dark' ? 'light' : 'dark')}
-            >
-              {scheme === 'dark' ? <IconSun size={18} /> : <IconMoon size={18} />}
-            </ActionIcon>
-            <ActionIcon
-              variant="subtle"
-              color="gray"
-              size="lg"
-              aria-label={t('signOut')}
-              onClick={() => void logout()}
-            >
-              <IconLogout size={18} />
-            </ActionIcon>
-          </Group>
-        </Group>
+    <div className="sr-shell">
+      <header className="sr-top">
+        <div className="sr-brand">
+          Shop<b>Name</b> <small>Partner</small>
+        </div>
+        <div className="sr-who">
+          <LangToggle dark />
+          <button
+            type="button"
+            className="a-btn sm icon sr-who-btn"
+            aria-label={t('darkMode')}
+            onClick={() => setColorScheme(scheme === 'dark' ? 'light' : 'dark')}
+          >
+            <Icon name={scheme === 'dark' ? 'sun' : 'moon'} size={16} />
+          </button>
+          <button
+            type="button"
+            className="a-btn sm icon sr-who-btn"
+            aria-label={t('signOut')}
+            onClick={() => void logout()}
+          >
+            <Icon name="logout" size={16} />
+          </button>
+        </div>
       </header>
-      <main className="portal-main">
+      <main className="sr-main">
         <Outlet />
       </main>
-    </>
+    </div>
   );
 }

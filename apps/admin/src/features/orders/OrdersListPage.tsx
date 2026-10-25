@@ -1,12 +1,13 @@
-import { Alert, Anchor, Text } from '@mantine/core';
+import { Banner } from '@bdc/ui';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
 import { type Column, DataTable } from '~/components/DataTable';
 import { PageHeader } from '~/components/PageHeader';
 import { formatDateTime, formatPrice } from '~/lib/format';
-import { OrderBadges } from './badges';
+import { CallBadge, PaymentBadge, RiskBadge, StatusBadge } from './badges';
 import { type FilterState, OrderFilterBar } from './OrderFilters';
+import classes from './Orders.module.css';
 import { type OrderListItem, ordersQuery } from './queries';
 
 const columns: Column<OrderListItem>[] = [
@@ -15,14 +16,10 @@ const columns: Column<OrderListItem>[] = [
     header: 'Order',
     render: (o) => (
       <div>
-        <Link to="/orders/$id" params={{ id: o.id }}>
-          <Anchor component="span" size="sm">
-            {o.orderNo}
-          </Anchor>
+        <Link to="/orders/$id" params={{ id: o.id }} className={classes.orderNo}>
+          {o.orderNo}
         </Link>
-        <Text size="xs" c="dimmed">
-          {formatDateTime(o.placedAt)}
-        </Text>
+        <span className={classes.sub}>{formatDateTime(o.placedAt)}</span>
       </div>
     ),
   },
@@ -31,13 +28,13 @@ const columns: Column<OrderListItem>[] = [
     header: 'Customer',
     render: (o) => (
       <div>
-        <Text size="sm">
+        <b>
           {o.customer.name}
           {o.customer.isGuest ? ' (guest)' : ''}
-        </Text>
-        <Text size="xs" c="dimmed">
+        </b>
+        <span className={classes.sub}>
           {o.customer.phone} · {o.shipPlaceText}
-        </Text>
+        </span>
       </div>
     ),
   },
@@ -48,35 +45,41 @@ const columns: Column<OrderListItem>[] = [
     align: 'right',
     render: (o) => (
       <div>
-        <Text size="sm">{formatPrice(o.grandTotalP)}</Text>
-        {o.codDueP > 0 && (
-          <Text size="xs" c="dimmed">
-            COD {formatPrice(o.codDueP)}
-          </Text>
-        )}
+        <b>{formatPrice(o.grandTotalP)}</b>
+        {o.codDueP > 0 && <span className={classes.sub}>COD {formatPrice(o.codDueP)}</span>}
       </div>
     ),
   },
   {
-    key: 'ship',
-    header: 'Shipments',
+    key: 'payment',
+    header: 'Payment',
+    render: (o) => (
+      <div className={classes.row}>
+        <PaymentBadge status={o.paymentStatus} />
+        <CallBadge status={o.callStatus} />
+      </div>
+    ),
+  },
+  { key: 'status', header: 'Status', render: (o) => <StatusBadge status={o.status} /> },
+  {
+    key: 'risk',
+    header: 'Risk',
     render: (o) =>
-      o.shipmentSummary.total === 0
-        ? '-'
-        : `${o.shipmentSummary.delivered}/${o.shipmentSummary.total} delivered`,
+      o.riskReasons.length === 0 ? (
+        <span className={classes.muted}>–</span>
+      ) : (
+        <RiskBadge score={o.riskScore} reasons={o.riskReasons} />
+      ),
   },
   {
-    key: 'state',
-    header: 'State',
-    render: (o) => (
-      <OrderBadges
-        status={o.status}
-        paymentStatus={o.paymentStatus}
-        callStatus={o.callStatus}
-        riskScore={o.riskScore}
-        riskReasons={o.riskReasons}
-      />
-    ),
+    key: 'ship',
+    header: 'Courier',
+    render: (o) =>
+      o.shipmentSummary.total === 0 ? (
+        <span className={classes.muted}>Not booked</span>
+      ) : (
+        `${o.shipmentSummary.delivered}/${o.shipmentSummary.total} delivered`
+      ),
   },
 ];
 
@@ -88,7 +91,11 @@ export function OrdersListPage() {
 
   return (
     <div>
-      <PageHeader title="Orders" description="Every order, newest first." />
+      <PageHeader
+        title="Orders"
+        crumbs={['Sales', 'Orders']}
+        description="Every order, newest first."
+      />
       <OrderFilterBar
         value={filters}
         onChange={(f) => {
@@ -96,7 +103,11 @@ export function OrdersListPage() {
           setPage(1);
         }}
       />
-      {list.isError && <Alert color="red">{(list.error as Error).message}</Alert>}
+      {list.isError && (
+        <div className={classes.errorCard}>
+          <Banner tone="danger">{(list.error as Error).message}</Banner>
+        </div>
+      )}
       <DataTable
         columns={columns}
         rows={list.data?.items}

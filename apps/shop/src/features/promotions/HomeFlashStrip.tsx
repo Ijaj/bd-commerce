@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Icon } from '~/components/Icon';
 import { ProductCard } from '~/components/ProductCard';
 import { dict, type Lang } from '~/i18n';
 import { href } from '~/i18n/routing';
@@ -23,22 +24,23 @@ export async function HomeFlashStrip({ lang }: { lang: Lang }) {
     .slice(0, CARDS);
   return (
     <section className={`wrap ${s.strip}`} aria-labelledby="h-flash">
-      <div className={s.saleHead}>
-        <h2 id="h-flash" className={s.sectionTitle}>
-          {t.badge}
-        </h2>
-        <Countdown endsAt={sale.endsAt} lang={lang} />
-        <Link className="link" href={href(lang, '/offers')}>
-          {t.seeAll}
-        </Link>
+      <div className={s.band}>
+        <div className="sec-head">
+          <h2 id="h-flash">{t.badge}</h2>
+          <Countdown endsAt={sale.endsAt} lang={lang} className={s.boxed} />
+          <Link className="link" href={href(lang, '/offers')}>
+            {t.seeAll}
+            <Icon name="chevR" size={16} />
+          </Link>
+        </div>
+        <ul className={s.stripRow}>
+          {cards.map((c) => (
+            <li key={c.id}>
+              <ProductCard product={c} lang={lang} sizes="160px" />
+            </li>
+          ))}
+        </ul>
       </div>
-      <ul className={s.stripRow}>
-        {cards.map((c) => (
-          <li key={c.id}>
-            <ProductCard product={c} lang={lang} sizes="160px" />
-          </li>
-        ))}
-      </ul>
     </section>
   );
 }

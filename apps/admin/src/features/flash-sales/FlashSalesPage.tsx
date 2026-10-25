@@ -1,6 +1,6 @@
-import { Button, Group, Select, Text, TextInput } from '@mantine/core';
+import { Icon, Toolbar } from '@bdc/ui';
+import { Button, Select, TextInput } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
-import { IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -8,6 +8,7 @@ import { type Column, DataTable } from '~/components/DataTable';
 import { PageHeader } from '~/components/PageHeader';
 import { formatDateTime } from '~/lib/format';
 import { useCan } from '~/lib/perm';
+import classes from './FlashSales.module.css';
 import { PHASE_LABEL } from './logic';
 import { PhaseBadge } from './PhaseBadge';
 import { type FlashPhase, type FlashRow, flashListQuery } from './queries';
@@ -44,9 +45,9 @@ export function FlashSalesPage() {
       key: 'window',
       header: 'Window',
       render: (r) => (
-        <Text size="sm">
+        <span className={classes.muted}>
           {formatDateTime(r.startsAt)} to {formatDateTime(r.endsAt)}
-        </Text>
+        </span>
       ),
     },
     { key: 'items', header: 'Items', align: 'right', render: (r) => r.itemCount },
@@ -57,20 +58,22 @@ export function FlashSalesPage() {
     <>
       <PageHeader
         title="Flash sales"
+        crumbs={['Marketing', 'Flash sales']}
         description="Time-boxed prices on limited quantities."
         actions={
           canManage && (
             <Button
+              size="xs"
               component={Link}
               to="/promotions/flash-sales/new"
-              leftSection={<IconPlus size={16} />}
+              leftSection={<Icon name="plus" size={14} />}
             >
               New flash sale
             </Button>
           )
         }
       />
-      <Group mb="md" align="flex-end">
+      <Toolbar className={classes.toolbar}>
         <TextInput
           label="Search"
           placeholder="Sale name"
@@ -93,7 +96,7 @@ export function FlashSalesPage() {
           }}
           w={160}
         />
-      </Group>
+      </Toolbar>
       <DataTable
         columns={columns}
         rows={list.data?.items}

@@ -1,4 +1,5 @@
-import { Alert, Badge, Group, Select, Text, TextInput } from '@mantine/core';
+import { Toolbar } from '@bdc/ui';
+import { Alert, Badge, Group, Select, TextInput } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
@@ -7,6 +8,7 @@ import { type Column, DataTable } from '~/components/DataTable';
 import { PageHeader } from '~/components/PageHeader';
 import { formatDateTime, formatPrice } from '~/lib/format';
 import type { ShopFilters } from './api';
+import classes from './b2b.module.css';
 import { type Shop, shopsQuery } from './queries';
 
 const ANY = 'any';
@@ -41,14 +43,8 @@ export function ShopsPage() {
       header: 'Shop',
       render: (s) => (
         <div>
-          <Text size="sm" fw={500}>
-            {s.name}
-          </Text>
-          {s.ownerName && (
-            <Text size="xs" c="dimmed">
-              {s.ownerName}
-            </Text>
-          )}
+          <b>{s.name}</b>
+          {s.ownerName && <span className="sub">{s.ownerName}</span>}
         </div>
       ),
     },
@@ -61,12 +57,12 @@ export function ShopsPage() {
       render: (s) => (
         <Group gap={4}>
           {s.isNew && (
-            <Badge size="sm" variant="light" color="yellow">
+            <Badge size="sm" color="blue">
               New
             </Badge>
           )}
           {s.status === 'blocked' && (
-            <Badge size="sm" variant="light" color="red">
+            <Badge size="sm" color="red">
               Blocked
             </Badge>
           )}
@@ -78,9 +74,9 @@ export function ShopsPage() {
       header: 'Current due',
       align: 'right',
       render: (s) => (
-        <Text size="sm" c={s.dueBalanceP > 0 ? 'red' : undefined}>
+        <span className={s.dueBalanceP > 0 ? classes.due : undefined}>
           {formatPrice(s.dueBalanceP)}
-        </Text>
+        </span>
       ),
     },
     { key: 'created', header: 'Added', render: (s) => formatDateTime(s.createdAt) },
@@ -90,9 +86,10 @@ export function ShopsPage() {
     <div>
       <PageHeader
         title="Buyer shops"
+        crumbs={['People & partners', 'B2B shops']}
         description="Shops that buy through sales reps, and what they owe."
       />
-      <Group mb="sm" align="flex-end">
+      <Toolbar>
         <TextInput
           label="Search"
           placeholder="Name, owner or phone"
@@ -139,7 +136,7 @@ export function ShopsPage() {
             { value: 'false', label: 'No due' },
           ]}
         />
-      </Group>
+      </Toolbar>
       {list.isError && <Alert color="red">{(list.error as Error).message}</Alert>}
       <DataTable
         columns={columns}

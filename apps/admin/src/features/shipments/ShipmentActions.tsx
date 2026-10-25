@@ -34,7 +34,7 @@ export function ShipmentActions({ shipment }: { shipment: Shipment }) {
     <>
       <Menu position="bottom-end" withinPortal>
         <Menu.Target>
-          <Button size="compact-sm" variant="light" loading={sync.isPending}>
+          <Button size="compact-sm" variant="default" loading={sync.isPending}>
             Actions
           </Button>
         </Menu.Target>
@@ -145,7 +145,7 @@ function CourierDialog({
           allowDeselect={false}
         />
         {manualNeeded && (
-          <Alert color="orange">
+          <Alert color="yellow">
             This courier cannot cancel the old booking through its API. Cancel it in the courier's
             own panel first, then confirm below.
           </Alert>
@@ -155,7 +155,7 @@ function CourierDialog({
             Close
           </Button>
           {manualNeeded ? (
-            <Button color="orange" loading={run.isPending} onClick={() => run.mutate(true)}>
+            <Button color="yellow" loading={run.isPending} onClick={() => run.mutate(true)}>
               I cancelled it manually, continue
             </Button>
           ) : (
@@ -193,7 +193,7 @@ function CancelDialog(p: DialogProps) {
           again.
         </Text>
         {manualNeeded && (
-          <Alert color="orange" title="The courier could not cancel it">
+          <Alert color="yellow" title="The courier could not cancel it">
             {manualNeeded} Cancel the parcel in the courier's own panel, then mark it cancelled
             here.
           </Alert>

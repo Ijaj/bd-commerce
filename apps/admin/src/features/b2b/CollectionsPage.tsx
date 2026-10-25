@@ -1,4 +1,5 @@
-import { Alert, Badge, Button, Group, SegmentedControl, Text } from '@mantine/core';
+import { Toolbar } from '@bdc/ui';
+import { Alert, Badge, Button, Group, SegmentedControl } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -8,6 +9,7 @@ import { notifyOk } from '~/features/categories/queries';
 import { formatDateTime, formatPrice } from '~/lib/format';
 import { useCan } from '~/lib/perm';
 import { b2bApi, type CollectionStatus } from './api';
+import classes from './b2b.module.css';
 import { ConfirmAction, ReasonModal } from './components';
 import { ledgerState, rejectReason } from './logic';
 import { collectionsQuery, type LedgerRow, useInvalidateB2b } from './queries';
@@ -30,9 +32,7 @@ export function CollectionsPage() {
       header: 'Shop',
       render: (r) => (
         <Link to="/b2b/shops/$id" params={{ id: r.b2bShopId }}>
-          <Text size="sm" component="span">
-            {r.shopName}
-          </Text>
+          <b>{r.shopName}</b>
         </Link>
       ),
     },
@@ -42,11 +42,9 @@ export function CollectionsPage() {
       header: 'Note',
       render: (r) => (
         <div>
-          <Text size="sm">{r.note ?? '-'}</Text>
+          <span>{r.note ?? '-'}</span>
           {rejectReason(r) && (
-            <Text size="xs" c="red">
-              Rejected: {rejectReason(r)}
-            </Text>
+            <span className={`sub ${classes.due}`}>Rejected: {rejectReason(r)}</span>
           )}
         </div>
       ),
@@ -56,16 +54,16 @@ export function CollectionsPage() {
       key: 'amount',
       header: 'Amount',
       align: 'right',
-      render: (r) => formatPrice(Math.abs(r.amountP)),
+      render: (r) => <b>{formatPrice(Math.abs(r.amountP))}</b>,
     },
     {
       key: 'state',
       header: 'State',
       render: (r) => {
         const s = ledgerState(r);
-        const color = s === 'confirmed' ? 'teal' : s === 'rejected' ? 'red' : 'yellow';
+        const color = s === 'confirmed' ? 'green' : s === 'rejected' ? 'red' : 'yellow';
         return (
-          <Badge size="sm" variant="light" color={color}>
+          <Badge size="sm" color={color}>
             {s[0]?.toUpperCase() + s.slice(1)}
           </Badge>
         );
@@ -79,10 +77,10 @@ export function CollectionsPage() {
       render: (r) =>
         ledgerState(r) === 'pending' ? (
           <Group gap={4} wrap="nowrap" justify="flex-end">
-            <Button size="compact-xs" onClick={() => setConfirming(r)}>
+            <Button size="compact-sm" onClick={() => setConfirming(r)}>
               Confirm
             </Button>
-            <Button size="compact-xs" variant="default" color="red" onClick={() => setRejecting(r)}>
+            <Button size="compact-sm" color="red" onClick={() => setRejecting(r)}>
               Reject
             </Button>
           </Group>
@@ -94,23 +92,25 @@ export function CollectionsPage() {
     <div>
       <PageHeader
         title="Collections"
+        crumbs={['People & partners', 'Collections']}
         description="Cash an SR collected from shops. A collection only reduces the shop's due once you confirm it."
       />
-      <SegmentedControl
-        mb="sm"
-        aria-label="Collection state"
-        value={status}
-        onChange={(v) => {
-          setStatus(v as CollectionStatus);
-          setPage(1);
-        }}
-        data={[
-          { value: 'pending', label: 'Pending' },
-          { value: 'confirmed', label: 'Confirmed' },
-          { value: 'rejected', label: 'Rejected' },
-          { value: 'all', label: 'All' },
-        ]}
-      />
+      <Toolbar>
+        <SegmentedControl
+          aria-label="Collection state"
+          value={status}
+          onChange={(v) => {
+            setStatus(v as CollectionStatus);
+            setPage(1);
+          }}
+          data={[
+            { value: 'pending', label: 'Pending' },
+            { value: 'confirmed', label: 'Confirmed' },
+            { value: 'rejected', label: 'Rejected' },
+            { value: 'all', label: 'All' },
+          ]}
+        />
+      </Toolbar>
       {list.isError && <Alert color="red">{(list.error as Error).message}</Alert>}
       <DataTable
         columns={columns}

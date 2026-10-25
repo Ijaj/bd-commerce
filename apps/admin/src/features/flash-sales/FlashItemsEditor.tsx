@@ -1,11 +1,12 @@
+import { Icon, TableWrap } from '@bdc/ui';
 import { ActionIcon, Alert, Button, Group, NumberInput, Table, Text, Tooltip } from '@mantine/core';
-import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { MoneyInput } from '~/components/MoneyInput';
 import { notifyOk } from '~/features/categories/queries';
 import { formatPrice } from '~/lib/format';
 import { flashApi } from './api';
+import classes from './FlashSales.module.css';
 import {
   discountPercent,
   draftFromItem,
@@ -40,7 +41,7 @@ export function FlashItemsEditor({ sale, canManage }: { sale: FlashDetail; canMa
 
   return (
     <div>
-      <Group justify="space-between" mb="xs">
+      <Group justify="space-between" className={classes.itemsHint}>
         <Text size="sm" c="dimmed">
           A variant can be in only one active flash sale at a time. Items that already sold cannot
           be removed.
@@ -49,23 +50,23 @@ export function FlashItemsEditor({ sale, canManage }: { sale: FlashDetail; canMa
           <Button
             size="xs"
             variant="light"
-            leftSection={<IconPlus size={14} />}
+            leftSection={<Icon name="plus" size={14} />}
             onClick={() => setPicking(true)}
           >
             Add variant
           </Button>
         )}
       </Group>
-      <Table.ScrollContainer minWidth={900}>
-        <Table verticalSpacing="xs">
+      <TableWrap>
+        <Table miw={900}>
           <Table.Thead>
             <Table.Tr>
               <Table.Th>Variant</Table.Th>
-              <Table.Th ta="right">Regular</Table.Th>
+              <Table.Th className="num">Regular</Table.Th>
               <Table.Th>Flash price</Table.Th>
               <Table.Th>Quantity</Table.Th>
               <Table.Th>Per customer</Table.Th>
-              <Table.Th ta="right">Sold</Table.Th>
+              <Table.Th className="num">Sold</Table.Th>
               <Table.Th>Sort</Table.Th>
               <Table.Th />
             </Table.Tr>
@@ -74,9 +75,7 @@ export function FlashItemsEditor({ sale, canManage }: { sale: FlashDetail; canMa
             {drafts.length === 0 && (
               <Table.Tr>
                 <Table.Td colSpan={8}>
-                  <Text size="sm" c="dimmed" ta="center" py="md">
-                    No items yet.
-                  </Text>
+                  <div className="a-empty">No items yet.</div>
                 </Table.Td>
               </Table.Tr>
             )}
@@ -86,17 +85,15 @@ export function FlashItemsEditor({ sale, canManage }: { sale: FlashDetail; canMa
               return (
                 <Table.Tr key={d.variantId}>
                   <Table.Td>
-                    <Text size="sm">{d.productTitleEn}</Text>
-                    <Text size="xs" c="dimmed">
-                      {d.sku}
-                    </Text>
+                    {d.productTitleEn}
+                    <span className={classes.sub}>{d.sku}</span>
                   </Table.Td>
-                  <Table.Td ta="right">
-                    <Text size="sm">{formatPrice(d.priceP)}</Text>
+                  <Table.Td className="num">
+                    {formatPrice(d.priceP)}
                     {d.currentSalePriceP !== null && (
-                      <Text size="xs" c="dimmed">
+                      <span className={classes.sub}>
                         On sale now: {formatPrice(d.currentSalePriceP)}
-                      </Text>
+                      </span>
                     )}
                   </Table.Td>
                   <Table.Td>
@@ -108,11 +105,7 @@ export function FlashItemsEditor({ sale, canManage }: { sale: FlashDetail; canMa
                       onChange={(v) => patch(d.variantId, { flashPriceP: v })}
                       error={problem && d.flashPriceP !== null && d.flashPriceP >= d.priceP}
                     />
-                    {pct !== null && pct > 0 && (
-                      <Text size="xs" c="dimmed">
-                        {pct}% off
-                      </Text>
-                    )}
+                    {pct !== null && pct > 0 && <span className={classes.sub}>{pct}% off</span>}
                   </Table.Td>
                   <Table.Td>
                     <NumberInput
@@ -143,7 +136,7 @@ export function FlashItemsEditor({ sale, canManage }: { sale: FlashDetail; canMa
                       }
                     />
                   </Table.Td>
-                  <Table.Td ta="right">{d.qtySold}</Table.Td>
+                  <Table.Td className="num">{d.qtySold}</Table.Td>
                   <Table.Td>
                     <NumberInput
                       aria-label={`Sort for ${d.sku}`}
@@ -170,7 +163,7 @@ export function FlashItemsEditor({ sale, canManage }: { sale: FlashDetail; canMa
                           disabled={d.qtySold > 0}
                           onClick={() => setDrafts((all) => all.filter((x) => x !== d))}
                         >
-                          <IconTrash size={16} />
+                          <Icon name="trash" size={15} />
                         </ActionIcon>
                       </Tooltip>
                     )}
@@ -180,14 +173,14 @@ export function FlashItemsEditor({ sale, canManage }: { sale: FlashDetail; canMa
             })}
           </Table.Tbody>
         </Table>
-      </Table.ScrollContainer>
+      </TableWrap>
       {problems.some(Boolean) && (
-        <Text size="xs" c="red" mt="xs" role="alert">
+        <p className={classes.problems} role="alert">
           {drafts
             .map((d, i) => (problems[i] ? `${d.sku}: ${problems[i]}` : null))
             .filter(Boolean)
             .join('. ')}
-        </Text>
+        </p>
       )}
       {save.error && (
         <Alert color="red" mt="sm" role="alert">
@@ -195,7 +188,7 @@ export function FlashItemsEditor({ sale, canManage }: { sale: FlashDetail; canMa
         </Alert>
       )}
       {canManage && (
-        <Group mt="md">
+        <Group className={classes.foot}>
           <Button disabled={hasProblem} loading={save.isPending} onClick={() => save.mutate()}>
             Save items
           </Button>

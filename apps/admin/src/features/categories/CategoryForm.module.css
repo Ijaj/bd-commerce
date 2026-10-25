@@ -1,0 +1,10 @@
+/* plan/mockups/admin/shared/catalog.css: .c-cats editor cards */
+.fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.grow {
+  flex: 1;
+}

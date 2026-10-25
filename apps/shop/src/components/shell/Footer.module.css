@@ -3,6 +3,9 @@
   background: var(--foot-bg);
   color: var(--foot-fg);
 }
+.foot :focus-visible {
+  outline-color: var(--foot-fg);
+}
 .foot a:hover {
   text-decoration: underline;
 }
@@ -49,7 +52,7 @@
 }
 @media (min-width: 1024px) {
   .grid {
-    grid-template-columns: 1.6fr 0.8fr 1fr 0.8fr;
+    grid-template-columns: 1.3fr 0.8fr 0.8fr 1.4fr;
   }
 }
 @media (max-width: 640px) {

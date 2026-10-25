@@ -124,7 +124,7 @@ export function SuccessView({
           </Link>
         </div>
         {loggedIn ? null : (
-          <p className={s.muted}>
+          <p className={s.accCta}>
             {d.guestHint}{' '}
             <Link className="link" href={href(lang, '/signup')}>
               {d.signup}

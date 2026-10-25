@@ -1,3 +1,4 @@
+import { StatusBadge } from '@bdc/ui';
 import {
   closestCenter,
   DndContext,
@@ -14,29 +15,19 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import {
-  ActionIcon,
-  Badge,
-  Box,
-  Group,
-  Image,
-  Menu,
-  Text,
-  ThemeIcon,
-  UnstyledButton,
-} from '@mantine/core';
+import { ActionIcon, Box, Group, Image, Menu, Text, UnstyledButton } from '@mantine/core';
 import {
   IconArrowsMove,
   IconChevronDown,
   IconChevronRight,
   IconDotsVertical,
   IconGripVertical,
-  IconHome,
   IconPencil,
   IconPlus,
   IconTrash,
 } from '@tabler/icons-react';
 import { memo } from 'react';
+import classes from './CategoryTree.module.css';
 import { MAX_LEVEL, reorderSiblings, type TreeNode } from './tree';
 import type { Category } from './types';
 
@@ -80,9 +71,18 @@ export function CategoryTree({
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-      <Group wrap="nowrap" px="xs" py={4} gap="xs" c="dimmed" fz="xs" fw={600} tt="uppercase">
+      <Group
+        wrap="nowrap"
+        px="xs"
+        py={6}
+        gap="xs"
+        c="dimmed"
+        fw={700}
+        tt="uppercase"
+        className={classes.head}
+      >
         <Box w={56} />
-        <Box style={{ flex: 1 }}>Category</Box>
+        <Box className={classes.name}>Category</Box>
         <Box w={90}>Slug</Box>
         <Box w={64} ta="right">
           Products
@@ -170,7 +170,7 @@ const Row = memo(function Row({
       px="xs"
       py={6}
       data-testid={`cat-row-${c.slug}`}
-      style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}
+      className={classes.row}
     >
       <Group gap={2} wrap="nowrap" w={56}>
         {actions.canEdit ? (
@@ -179,7 +179,7 @@ const Row = memo(function Row({
             color="gray"
             size="sm"
             aria-label={`Drag ${c.nameEn}`}
-            style={{ cursor: 'grab', touchAction: 'none' }}
+            className={classes.grip}
             {...handleProps}
           >
             <IconGripVertical size={14} />
@@ -197,29 +197,20 @@ const Row = memo(function Row({
           </ActionIcon>
         ) : null}
       </Group>
-      <UnstyledButton onClick={() => actions.onEdit(c)} style={{ flex: 1, minWidth: 0 }}>
+      <UnstyledButton onClick={() => actions.onEdit(c)} className={classes.name}>
         <Group wrap="nowrap" gap="sm" pl={(c.level - 1) * 14}>
+          {/* chip colour is user data (a stored hex), so it stays a dynamic inline value */}
           <span
             title={c.chipColor ?? 'No chip colour'}
-            style={{
-              width: 10,
-              height: 10,
-              borderRadius: '50%',
-              flex: 'none',
-              background: c.chipColor ?? 'transparent',
-              border: '1px solid var(--mantine-color-default-border)',
-            }}
+            className={classes.dot}
+            style={{ background: c.chipColor ?? 'transparent' }}
           />
           {c.image ? (
             <Image src={c.image.url} alt="" w={32} h={32} radius="sm" fit="cover" />
           ) : (
-            <Box
-              w={32}
-              h={32}
-              style={{ borderRadius: 4, background: 'var(--mantine-color-gray-1)' }}
-            />
+            <span className={classes.thumb} />
           )}
-          <div style={{ minWidth: 0 }}>
+          <div className={classes.name}>
             <Text size="sm" fw={500} truncate>
               {c.nameEn}
             </Text>
@@ -231,30 +222,17 @@ const Row = memo(function Row({
           </div>
         </Group>
       </UnstyledButton>
-      <Text size="xs" c="dimmed" w={90} truncate ff="monospace">
+      <Text w={90} truncate className={classes.slug}>
         {c.slug}
       </Text>
-      <Text size="sm" w={64} ta="right">
+      <Text size="sm" w={64} ta="right" className={classes.count}>
         {c.productCount}
       </Text>
       <Group gap={4} w={170} wrap="nowrap">
-        <Badge size="sm" variant="light" color={c.isActive ? 'teal' : 'gray'}>
+        <StatusBadge tone={c.isActive ? 'ok' : 'muted'}>
           {c.isActive ? 'Active' : 'Inactive'}
-        </Badge>
-        {c.showOnHome && (
-          <Badge
-            size="sm"
-            variant="light"
-            color="indigo"
-            leftSection={
-              <ThemeIcon size={10} variant="transparent" color="indigo">
-                <IconHome size={10} />
-              </ThemeIcon>
-            }
-          >
-            Home
-          </Badge>
-        )}
+        </StatusBadge>
+        {c.showOnHome && <StatusBadge tone="info">Home</StatusBadge>}
       </Group>
       <Group gap={2} w={64} justify="flex-end" wrap="nowrap">
         <Menu position="bottom-end" withinPortal>

@@ -208,12 +208,20 @@ export default async function Page({ params }: Props) {
         ]}
       />
 
-      <ProductView product={p} lang={lang} header={header} preorderDate={date} />
-      <CouponsSection
+      <ProductView
+        product={p}
         lang={lang}
-        slug={p.slug}
-        nextPath={`/p/${p.slug}`}
-        heading={dict(lang).promos.product.title}
+        header={header}
+        preorderDate={date}
+        extra={
+          <CouponsSection
+            lang={lang}
+            slug={p.slug}
+            nextPath={`/p/${p.slug}`}
+            heading={dict(lang).promos.product.title}
+            className={s.pdBox}
+          />
+        }
       />
 
       {html ? (

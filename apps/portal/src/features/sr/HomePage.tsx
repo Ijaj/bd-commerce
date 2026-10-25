@@ -1,15 +1,5 @@
-import {
-  Anchor,
-  Button,
-  Group,
-  Paper,
-  Progress,
-  SimpleGrid,
-  Stack,
-  Text,
-  Title,
-} from '@mantine/core';
-import { IconBuildingStore, IconCash, IconPlus } from '@tabler/icons-react';
+import { Icon } from '@bdc/ui';
+import { Button } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
@@ -36,25 +26,23 @@ function InstallCard() {
   }, []);
   if (!ev) return null;
   return (
-    <Paper mb="md">
-      <Group justify="space-between" wrap="nowrap">
-        <div>
-          <Text>{t('installApp')}</Text>
-          <Text size="sm" c="dimmed">
-            {t('installSub')}
-          </Text>
-        </div>
-        <Button
-          size="sm"
-          onClick={() => {
-            void ev.prompt();
-            setEv(null);
-          }}
-        >
-          {t('install')}
-        </Button>
-      </Group>
-    </Paper>
+    <div className="sr-install">
+      <Icon name="device" size={22} />
+      <span>
+        <b>{t('installApp')}</b>
+        <br />
+        {t('installSub')}
+      </span>
+      <Button
+        size="compact-sm"
+        onClick={() => {
+          void ev.prompt();
+          setEv(null);
+        }}
+      >
+        {t('install')}
+      </Button>
+    </div>
   );
 }
 
@@ -70,136 +58,111 @@ export function HomePage() {
         const m = d.month;
         const soldPct = pct(m.soldP, m.targetP);
         return (
-          <Stack gap="md">
+          <>
             <InstallCard />
-            <div>
-              <Title order={1}>{t('hello', { name: d.staff.name.split(' ')[0] ?? '' })}</Title>
-              <Text size="sm" c="dimmed">
-                {formatMonth()}
-              </Text>
+            <div className="sr-h">
+              <h1>{t('hello', { name: d.staff.name.split(' ')[0] ?? '' })}</h1>
+              <span className="sr-muted">{formatMonth()}</span>
             </div>
 
-            <Paper>
-              <Title order={2}>{t('monthTarget')}</Title>
-              <Group align="baseline" gap="xs" mt={4}>
-                <Text fz={28} fw={700} data-testid="sold">
+            <div className="sr-card">
+              <h2 className="sr-h2">{t('monthTarget')}</h2>
+              <div className="sr-row">
+                <div className="sr-big" data-testid="sold">
                   {formatPrice(m.soldP)}
-                </Text>
-                <Text c="dimmed" size="sm">
+                </div>
+                <div className="sr-muted">
                   {m.targetP > 0
                     ? t('ofTarget', { target: formatPrice(m.targetP) })
                     : t('noTarget')}
-                </Text>
-              </Group>
-              <Progress value={Math.min(100, soldPct)} my="xs" />
+                </div>
+              </div>
+              <div className="sr-bar">
+                <i style={{ width: `${Math.min(100, soldPct)}%` }} />
+              </div>
               {m.targetP > 0 && (
-                <Group justify="space-between">
-                  <Text size="sm" c="dimmed">
-                    {t('percentSold', { pct: soldPct })}
-                  </Text>
-                  <Text size="sm" c="dimmed">
+                <div className="sr-row sr-muted">
+                  <span>{t('percentSold', { pct: soldPct })}</span>
+                  <span>
                     {t('toGo', { amount: formatPrice(Math.max(0, m.targetP - m.soldP)) })} ·{' '}
                     {t('daysLeft', { n: daysLeftInMonth() })}
-                  </Text>
-                </Group>
+                  </span>
+                </div>
               )}
-              <Group
-                justify="space-between"
-                mt="md"
-                pt="sm"
-                style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}
-              >
+              <hr className="sr-sep" />
+              <div className="sr-row">
                 <div>
-                  <Text size="sm" c="dimmed">
-                    {t('collectedMonth')}
-                  </Text>
-                  <Text fz="lg" data-testid="collected">
+                  <div className="sr-muted">{t('collectedMonth')}</div>
+                  <b className="sr-stat-v" data-testid="collected">
                     {formatPrice(m.collectedP)}
-                  </Text>
+                  </b>
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <Text size="sm" c="dimmed">
-                    {t('collectionRate')}
-                  </Text>
-                  <Text fz="lg">{num(pct(m.collectedP, m.soldP))}%</Text>
+                <div className="sr-right">
+                  <div className="sr-muted">{t('collectionRate')}</div>
+                  <b className="sr-stat-v">{num(pct(m.collectedP, m.soldP))}%</b>
                 </div>
-              </Group>
-            </Paper>
+              </div>
+              <div className="sr-bar acc">
+                <i style={{ width: `${Math.min(100, pct(m.collectedP, m.soldP))}%` }} />
+              </div>
+            </div>
 
-            <Paper>
-              <Title order={2}>{t('commission')}</Title>
-              <Text fz={26} c="teal" data-testid="commission">
+            <div className="sr-card">
+              <h2 className="sr-h2">{t('commission')}</h2>
+              <div className="sr-big sr-ok" data-testid="commission">
                 {formatPrice(m.commissionP)}
-              </Text>
-              <Text size="sm" c="dimmed">
+              </div>
+              <div className="sr-muted sr-mt">
                 {t('commissionNote', { rate: d.profile.commissionBp / 100 })}
-              </Text>
-            </Paper>
+              </div>
+            </div>
 
-            <SimpleGrid cols={2}>
-              <Paper component={Link} to="/sr/shops" td="none" c="inherit">
-                <Text size="sm" c="dimmed">
-                  {t('dueOutstanding')}
-                </Text>
-                <Text fz="xl" c={m.dueOutstandingP > 0 ? 'red' : undefined} data-testid="due">
+            <div className="sr-grid2">
+              <Link to="/sr/shops" className="a-stat">
+                <div className="l">{t('dueOutstanding')}</div>
+                <div className="v" data-testid="due">
                   {formatPrice(m.dueOutstandingP)}
-                </Text>
-              </Paper>
-              <Paper component={Link} to="/sr/sales" td="none" c="inherit">
-                <Text size="sm" c="dimmed">
-                  {t('filterPending')}
-                </Text>
-                <Text fz="xl">{num(pendingCount)}</Text>
-              </Paper>
-            </SimpleGrid>
+                </div>
+              </Link>
+              <Link to="/sr/sales" className="a-stat">
+                <div className="l">{t('filterPending')}</div>
+                <div className="v">{num(pendingCount)}</div>
+              </Link>
+            </div>
 
-            <SimpleGrid cols={3}>
-              <Button
-                component={Link}
-                to="/sr/new-sale"
-                variant="light"
-                leftSection={<IconPlus size={16} />}
-              >
+            <div className="sr-qa">
+              <Link to="/sr/new-sale">
+                <Icon name="plus" size={18} />
                 {t('quickNewSale')}
-              </Button>
-              <Button
-                component={Link}
-                to="/sr/collections"
-                variant="light"
-                leftSection={<IconCash size={16} />}
-              >
+              </Link>
+              <Link to="/sr/collections">
+                <Icon name="wallet" size={18} />
                 {t('quickCollect')}
-              </Button>
-              <Button
-                component={Link}
-                to="/sr/shops/new"
-                variant="light"
-                leftSection={<IconBuildingStore size={16} />}
-              >
+              </Link>
+              <Link to="/sr/shops/new">
+                <Icon name="customers" size={18} />
                 {t('quickAddShop')}
-              </Button>
-            </SimpleGrid>
+              </Link>
+            </div>
 
-            <Paper>
-              <Group justify="space-between">
-                <Title order={2}>{t('recentSales')}</Title>
-                <Anchor component={Link} to="/sr/sales" size="sm">
+            <div className="sr-card sr-card-list">
+              <div className="sr-row">
+                <h2 className="sr-h2">{t('recentSales')}</h2>
+                <Link to="/sr/sales" className="sr-link-sm">
                   {t('seeAll')}
-                </Anchor>
-              </Group>
+                </Link>
+              </div>
               <QueryBoundary query={sales}>
                 {(list) =>
                   list.items.length === 0 ? (
-                    <Text c="dimmed" py="sm">
-                      {t('noSales')}
-                    </Text>
+                    <div className="sr-empty">{t('noSales')}</div>
                   ) : (
                     list.items.map((s) => <SaleItem key={s.id} sale={s} />)
                   )
                 }
               </QueryBoundary>
-            </Paper>
-          </Stack>
+            </div>
+          </>
         );
       }}
     </QueryBoundary>

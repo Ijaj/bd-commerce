@@ -20,6 +20,7 @@ export function CouponsSection({
   nextPath,
   heading,
   empty,
+  className,
 }: {
   lang: Lang;
   slug?: string;
@@ -28,6 +29,7 @@ export function CouponsSection({
   heading: string;
   /** Shown when there is nothing; omit to render nothing at all. */
   empty?: string;
+  className?: string;
 }) {
   const [items, setItems] = useState<PublicCoupon[] | null>(initial ?? null);
   const { me } = useSession();
@@ -56,8 +58,10 @@ export function CouponsSection({
     return empty ? <p className={s.facts}>{empty}</p> : null;
   }
   return (
-    <section className={s.section} aria-label={heading}>
-      <h2 className={s.sectionTitle}>{heading}</h2>
+    <section className={`${s.section} ${className ?? ''}`} aria-label={heading}>
+      <div className="sec-head">
+        <h2>{heading}</h2>
+      </div>
       <ul className={s.coupons}>
         {items.map((c) => (
           <CouponCard key={c.id} coupon={c} lang={lang} nextPath={nextPath} />

@@ -1,0 +1,12 @@
+/* plan/mockups/admin/shared/catalog.css: .c-vt (variants matrix) */
+.matrix td {
+  vertical-align: middle;
+}
+.bad td {
+  background: color-mix(in srgb, var(--bdc-danger) 10%, var(--bdc-surface));
+}
+.heading {
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}

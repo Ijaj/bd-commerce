@@ -1,32 +1,31 @@
-import { Group, Text } from '@mantine/core';
 import { Link } from '@tanstack/react-router';
 import { StatusBadge } from '~/components/StatusBadge';
 import { t } from '~/i18n';
 import { formatDate, formatPrice } from '~/lib/format';
 import type { SrSaleSummary } from './api';
 
-/** One row in a sale list (home + my sales). */
+/** One row in a sale list (home + my sales): mockup `.sr-item`. */
 export function SaleItem({ sale }: { sale: SrSaleSummary }) {
   return (
-    <Link to="/sr/sales/$id" params={{ id: sale.id }} className="portal-item">
-      <Group justify="space-between" wrap="nowrap" gap="xs">
-        <Text truncate>{sale.shop.name}</Text>
+    <Link to="/sr/sales/$id" params={{ id: sale.id }} className="sr-item">
+      <div className="t">
+        <span>{sale.shop.name}</span>
         <StatusBadge status={sale.status} />
-      </Group>
-      <Group justify="space-between" wrap="nowrap" gap="xs">
-        <Text size="sm" c="dimmed">
+      </div>
+      <div className="s">
+        <span>
           {formatDate(sale.submittedAt)} · {sale.memoNo}
-        </Text>
-        <Text size="sm">
-          {formatPrice(sale.totalP)}
+        </span>
+        <span>
+          <b>{formatPrice(sale.totalP)}</b>
           {sale.dueP > 0 && sale.status !== 'rejected' && sale.status !== 'cancelled' && (
-            <Text span size="sm" c="red">
+            <span className="sr-due">
               {' '}
               · {t('due')} {formatPrice(sale.dueP)}
-            </Text>
+            </span>
           )}
-        </Text>
-      </Group>
+        </span>
+      </div>
     </Link>
   );
 }

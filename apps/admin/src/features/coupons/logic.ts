@@ -44,8 +44,8 @@ export const PHASE_LABEL: Record<CouponPhase, string> = {
 export const PHASE_COLOR: Record<CouponPhase, string> = {
   draft: 'gray',
   scheduled: 'blue',
-  live: 'teal',
-  paused: 'orange',
+  live: 'green',
+  paused: 'yellow',
   expired: 'gray',
   exhausted: 'red',
 };

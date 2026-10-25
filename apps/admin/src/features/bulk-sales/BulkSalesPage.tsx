@@ -1,5 +1,5 @@
-import { Badge, Button, Text } from '@mantine/core';
-import { IconPlus } from '@tabler/icons-react';
+import { Icon, StatusBadge } from '@bdc/ui';
+import { Button } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -32,7 +32,7 @@ export function BulkSalesPage() {
     {
       key: 'by',
       header: 'By',
-      render: (b) => <Text size="sm">{b.createdByName ?? '-'}</Text>,
+      render: (b) => b.createdByName ?? '-',
     },
     { key: 'items', header: 'Variants', align: 'right', render: (b) => b.itemCount },
     {
@@ -40,13 +40,9 @@ export function BulkSalesPage() {
       header: 'Status',
       render: (b) =>
         b.undoneAt ? (
-          <Badge size="sm" variant="light" color="gray">
-            Undone
-          </Badge>
+          <StatusBadge tone="muted">Undone</StatusBadge>
         ) : (
-          <Badge size="sm" variant="light" color="green">
-            Applied
-          </Badge>
+          <StatusBadge tone="ok">Applied</StatusBadge>
         ),
     },
   ];
@@ -55,13 +51,15 @@ export function BulkSalesPage() {
     <>
       <PageHeader
         title="Bulk sales"
+        crumbs={['Marketing', 'Bulk sales']}
         description="Sale prices set on many variants at once, each batch can be undone."
         actions={
           canManage && (
             <Button
+              size="xs"
               component={Link}
               to="/promotions/bulk-sales/new"
-              leftSection={<IconPlus size={16} />}
+              leftSection={<Icon name="plus" size={14} />}
             >
               New bulk sale
             </Button>

@@ -1,16 +1,15 @@
+import { SectionCard } from '@bdc/ui';
 import {
   Alert,
   Button,
   Group,
   NumberInput,
   SegmentedControl,
-  Stack,
   Switch,
   Text,
   TextInput,
 } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
-import { IconArrowLeft } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
@@ -20,6 +19,7 @@ import { PageHeader } from '~/components/PageHeader';
 import { notifyOk } from '~/features/categories/queries';
 import { useCan } from '~/lib/perm';
 import { bulkApi } from './api';
+import classes from './BulkSales.module.css';
 import {
   type BulkForm,
   bulkErrorMessage,
@@ -64,108 +64,112 @@ export function BulkSaleNewPage() {
 
   return (
     <>
-      <Button
-        component={Link}
-        to="/promotions/bulk-sales"
-        variant="subtle"
-        size="xs"
-        leftSection={<IconArrowLeft size={14} />}
-        mb="xs"
-      >
+      <Button component={Link} to="/promotions/bulk-sales" variant="subtle" size="xs" mb="xs">
         All bulk sales
       </Button>
       <PageHeader
         title="New bulk sale"
+        crumbs={['Marketing', 'Bulk sales', 'New']}
         description="Sets sale prices on many variants at once. Preview first; you can undo it later."
       />
-      <Stack gap="md" maw={720}>
-        <TextInput
-          label="Name"
-          required
-          maxLength={120}
-          value={form.name}
-          onChange={(e) => set({ name: e.currentTarget.value })}
-        />
-        <div>
-          <Text size="sm" mb={4}>
-            Discount
-          </Text>
-          <Group align="flex-end">
-            <SegmentedControl
-              value={form.mode}
-              onChange={(v) => set({ mode: v as Mode })}
-              data={[
-                { value: 'percent', label: 'Percent off' },
-                { value: 'fixed', label: 'Amount off' },
-              ]}
+      <div className={classes.form}>
+        <SectionCard title="Discount" bodyClassName={classes.body}>
+          <TextInput
+            label="Name"
+            required
+            maxLength={120}
+            value={form.name}
+            onChange={(e) => set({ name: e.currentTarget.value })}
+          />
+          <div>
+            <Text size="sm" mb={4}>
+              Discount
+            </Text>
+            <Group align="flex-end">
+              <SegmentedControl
+                value={form.mode}
+                onChange={(v) => set({ mode: v as Mode })}
+                data={[
+                  { value: 'percent', label: 'Percent off' },
+                  { value: 'fixed', label: 'Amount off' },
+                ]}
+              />
+              {form.mode === 'percent' ? (
+                <NumberInput
+                  aria-label="Percent off"
+                  suffix="%"
+                  min={0.01}
+                  max={99.99}
+                  decimalScale={2}
+                  hideControls
+                  w={120}
+                  value={form.percent ?? ''}
+                  onChange={(v) => set({ percent: v === '' ? null : Number(v) })}
+                />
+              ) : (
+                <MoneyInput
+                  aria-label="Amount off"
+                  w={140}
+                  value={form.valueP}
+                  onChange={(v) => set({ valueP: v })}
+                />
+              )}
+            </Group>
+          </div>
+        </SectionCard>
+        <SectionCard title="Applies to" bodyClassName={classes.body}>
+          <ScopePicker value={form} onChange={(s) => set(s)} />
+        </SectionCard>
+        <SectionCard title="Sale window" bodyClassName={classes.body}>
+          <Group grow align="flex-start">
+            <DateTimePicker
+              label="Sale starts"
+              description="Empty = right away"
+              clearable
+              valueFormat="DD MMM YYYY HH:mm"
+              value={form.startsAt}
+              onChange={(v) => set({ startsAt: v })}
             />
-            {form.mode === 'percent' ? (
-              <NumberInput
-                aria-label="Percent off"
-                suffix="%"
-                min={0.01}
-                max={99.99}
-                decimalScale={2}
-                hideControls
-                w={120}
-                value={form.percent ?? ''}
-                onChange={(v) => set({ percent: v === '' ? null : Number(v) })}
-              />
-            ) : (
-              <MoneyInput
-                aria-label="Amount off"
-                w={140}
-                value={form.valueP}
-                onChange={(v) => set({ valueP: v })}
-              />
+            <DateTimePicker
+              label="Sale ends"
+              description="Empty = until undone or changed"
+              clearable
+              valueFormat="DD MMM YYYY HH:mm"
+              value={form.endsAt}
+              onChange={(v) => set({ endsAt: v })}
+            />
+          </Group>
+          <Switch
+            label="Skip variants that are already on sale"
+            checked={form.skipExistingSales}
+            onChange={(e) => set({ skipExistingSales: e.currentTarget.checked })}
+          />
+          {runPreview.error && (
+            <Alert color="red" role="alert">
+              {bulkErrorMessage(runPreview.error)}
+            </Alert>
+          )}
+          <Group>
+            <Button
+              variant="default"
+              disabled={!!problem}
+              loading={runPreview.isPending}
+              onClick={() => runPreview.mutate()}
+            >
+              Preview
+            </Button>
+            {problem && (
+              <Text size="xs" c="dimmed">
+                {problem}
+              </Text>
             )}
           </Group>
-        </div>
-        <ScopePicker value={form} onChange={(s) => set(s)} />
-        <Group grow align="flex-start">
-          <DateTimePicker
-            label="Sale starts"
-            description="Empty = right away"
-            clearable
-            valueFormat="DD MMM YYYY HH:mm"
-            value={form.startsAt}
-            onChange={(v) => set({ startsAt: v })}
-          />
-          <DateTimePicker
-            label="Sale ends"
-            description="Empty = until undone or changed"
-            clearable
-            valueFormat="DD MMM YYYY HH:mm"
-            value={form.endsAt}
-            onChange={(v) => set({ endsAt: v })}
-          />
-        </Group>
-        <Switch
-          label="Skip variants that are already on sale"
-          checked={form.skipExistingSales}
-          onChange={(e) => set({ skipExistingSales: e.currentTarget.checked })}
-        />
-        {runPreview.error && (
-          <Alert color="red" role="alert">
-            {bulkErrorMessage(runPreview.error)}
-          </Alert>
+        </SectionCard>
+        {preview && (
+          <SectionCard title="Preview" bodyClassName={classes.body}>
+            <PreviewPanel preview={preview} />
+          </SectionCard>
         )}
-        <Group>
-          <Button
-            variant="default"
-            disabled={!!problem}
-            loading={runPreview.isPending}
-            onClick={() => runPreview.mutate()}
-          >
-            Preview
-          </Button>
-          {problem && (
-            <Text size="xs" c="dimmed">
-              {problem}
-            </Text>
-          )}
-        </Group>
-        {preview && <PreviewPanel preview={preview} />}
         {apply.error && (
           <Alert color="red" role="alert">
             {bulkErrorMessage(apply.error)}
@@ -183,7 +187,7 @@ export function BulkSaleNewPage() {
             )}
           </Group>
         )}
-      </Stack>
+      </div>
       <ConfirmDelete
         opened={confirming}
         onClose={() => setConfirming(false)}

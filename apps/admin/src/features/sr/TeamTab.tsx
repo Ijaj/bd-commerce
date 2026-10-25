@@ -1,14 +1,5 @@
-import {
-  Alert,
-  Badge,
-  Button,
-  Group,
-  Modal,
-  NumberInput,
-  Stack,
-  Text,
-  TextInput,
-} from '@mantine/core';
+import { Banner } from '@bdc/ui';
+import { Alert, Badge, Button, Group, Modal, NumberInput, Stack, TextInput } from '@mantine/core';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { type Column, DataTable } from '~/components/DataTable';
@@ -69,13 +60,12 @@ export function TeamTab() {
       key: 'name',
       header: 'SR',
       render: (p) => (
-        <div>
-          <Text size="sm" fw={500}>
-            {p.name}
-          </Text>
-          <Text size="xs" c="dimmed">
-            {p.email}
-          </Text>
+        <div className="a-row">
+          <span className="a-avatar">{p.name.slice(0, 1).toUpperCase()}</span>
+          <div>
+            <b>{p.name}</b>
+            <span className="sub">{p.email}</span>
+          </div>
         </div>
       ),
     },
@@ -88,7 +78,7 @@ export function TeamTab() {
         <Group gap={6} justify="flex-end">
           {formatPercent(p.effectiveCommissionBp)}
           {p.commissionBp === null && (
-            <Badge size="xs" variant="light" color="gray">
+            <Badge size="xs" color="gray">
               default
             </Badge>
           )}
@@ -99,7 +89,7 @@ export function TeamTab() {
       key: 'status',
       header: 'Account',
       render: (p) => (
-        <Badge size="sm" variant="light" color={p.disabled ? 'red' : 'teal'}>
+        <Badge size="sm" color={p.disabled ? 'red' : 'green'}>
           {p.disabled ? 'Disabled' : 'Active'}
         </Badge>
       ),
@@ -109,7 +99,7 @@ export function TeamTab() {
       header: '',
       align: 'right',
       render: (p) => (
-        <Button size="compact-xs" variant="default" onClick={() => setEditing(p)}>
+        <Button size="compact-sm" onClick={() => setEditing(p)}>
           Edit
         </Button>
       ),
@@ -118,10 +108,10 @@ export function TeamTab() {
 
   return (
     <>
-      <Text size="sm" c="dimmed" mb="sm">
+      <Banner tone="info" icon="info">
         Staff holding the sales rep role. Add a person under Staff and give them the SR role to see
         them here.
-      </Text>
+      </Banner>
       {list.isError && <Alert color="red">{(list.error as Error).message}</Alert>}
       <DataTable
         columns={columns}

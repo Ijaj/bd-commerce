@@ -29,8 +29,8 @@ export const STATUS_LABEL: Record<SlideStatus, string> = {
 export const STATUS_COLOR: Record<SlideStatus, string> = {
   inactive: 'gray',
   scheduled: 'blue',
-  live: 'teal',
-  ended: 'orange',
+  live: 'green',
+  ended: 'yellow',
 };
 
 const SLUG_PATH_RE = /^\/(p|c)\/[a-z0-9]+(?:[-/][a-z0-9]+)*$/;

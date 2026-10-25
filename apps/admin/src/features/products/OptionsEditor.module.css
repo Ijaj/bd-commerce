@@ -1,0 +1,9 @@
+/* plan/mockups/admin/shared/catalog.css: .c-opt */
+.opt {
+  background: var(--bdc-surface-2);
+  border-color: var(--bdc-border);
+  border-radius: var(--bdc-r);
+}
+.grow {
+  flex: 1;
+}

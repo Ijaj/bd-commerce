@@ -1,4 +1,5 @@
-import { ActionIcon, Alert, Badge, Button, Group, Text, Tooltip } from '@mantine/core';
+import { Banner } from '@bdc/ui';
+import { ActionIcon, Alert, Badge, Button, Group, Tooltip } from '@mantine/core';
 import { IconMapPin, IconPencil, IconPlus, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -47,19 +48,17 @@ export function DeliveryPage() {
       render: (z) => (
         <div>
           <Group gap={6}>
-            <Text size="sm" fw={500}>
-              {z.nameEn}
-            </Text>
+            <b>{z.nameEn}</b>
             {z.isDefault && (
-              <Badge size="sm" variant="light" color="blue">
+              <Badge size="sm" color="blue">
                 Default
               </Badge>
             )}
           </Group>
           {z.nameBn && (
-            <Text size="xs" c="dimmed" lang="bn">
+            <span className="sub" lang="bn">
               {z.nameBn}
-            </Text>
+            </span>
           )}
         </div>
       ),
@@ -89,8 +88,7 @@ export function DeliveryPage() {
       render: (z) => (
         <Badge
           size="sm"
-          variant="light"
-          color={z.freeAboveP === null ? 'gray' : z.freeAboveP === 0 ? 'teal' : 'blue'}
+          color={z.freeAboveP === null ? 'gray' : z.freeAboveP === 0 ? 'green' : 'blue'}
         >
           {freeLabel(z.freeAboveP, formatPrice)}
         </Badge>
@@ -99,11 +97,7 @@ export function DeliveryPage() {
     {
       key: 'coverage',
       header: 'Coverage',
-      render: (z) => (
-        <Text size="xs" c="dimmed">
-          {coverage(z)}
-        </Text>
-      ),
+      render: (z) => <span className="a-muted a-sm">{coverage(z)}</span>,
     },
     { key: 'orders', header: 'Orders', align: 'right', render: (z) => z.orderCount },
   ];
@@ -149,14 +143,11 @@ export function DeliveryPage() {
     <div>
       <PageHeader
         title="Delivery zones"
+        crumbs={['People & partners', 'Delivery & couriers']}
         description="One delivery charge per order. Free delivery: never, always, or above a subtotal."
         actions={
           canManage && (
-            <Button
-              size="xs"
-              leftSection={<IconPlus size={14} />}
-              onClick={() => setForm({ zone: null })}
-            >
+            <Button leftSection={<IconPlus size={15} />} onClick={() => setForm({ zone: null })}>
               Add zone
             </Button>
           )
@@ -164,9 +155,9 @@ export function DeliveryPage() {
       />
       {list.isError && <Alert color="red">{(list.error as Error).message}</Alert>}
       {noDefault && (
-        <Alert color="yellow" variant="light" mb="sm">
+        <Banner tone="warn" icon="warn">
           No default zone. Customers outside every zone's coverage cannot check out.
-        </Alert>
+        </Banner>
       )}
       <DataTable
         columns={columns}

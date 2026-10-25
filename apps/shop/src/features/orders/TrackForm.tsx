@@ -131,7 +131,7 @@ export function TrackForm({
           onChange={(e) => setPhone(e.target.value)}
         />
         {problem ? <Notice kind="error">{problem}</Notice> : null}
-        <button type="submit" className="btn btn-primary" disabled={busy}>
+        <button type="submit" className="btn btn-primary btn-block" disabled={busy}>
           {busy ? d.trackSearching : d.trackButton}
         </button>
       </form>

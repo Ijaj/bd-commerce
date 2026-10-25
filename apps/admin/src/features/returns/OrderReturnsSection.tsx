@@ -1,7 +1,9 @@
-import { Alert, Button, Group, Loader, Stack, Table, Text, Title } from '@mantine/core';
+import { Banner, EmptyState, SectionCard, TableWrap } from '@bdc/ui';
+import { Button, Loader, Table } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
+import classes from '~/features/orders/Orders.module.css';
 import { formatPrice } from '~/lib/format';
 import { useCan } from '~/lib/perm';
 import { CreateReturnModal } from './CreateReturnModal';
@@ -19,77 +21,80 @@ export function OrderReturnsSection({ orderId }: { orderId: string }) {
   const [refundId, setRefundId] = useState<string | null>(null);
   const order = q.data;
 
-  if (q.isError) return <Alert color="red">Could not load returns for this order.</Alert>;
+  if (q.isError) return <Banner tone="danger">Could not load returns for this order.</Banner>;
   if (!order) return <Loader size="sm" />;
+  const empty = order.returns.length === 0 && order.refunds.length === 0;
 
   const delivered = order.status === 'delivered' || order.status === 'completed';
   const refundable = order.money.paidP - order.money.refundedP > 0;
   const close = () => setModal(null);
 
   return (
-    <Stack gap="xs">
-      <Group justify="space-between">
-        <Title order={4}>Returns and refunds</Title>
-        <Group gap="xs">
+    <SectionCard
+      title="Returns and refunds"
+      flush={!empty}
+      actions={
+        <span className={classes.row}>
           {canReturn && delivered && (
-            <Button size="compact-md" variant="default" onClick={() => setModal('return')}>
+            <Button size="compact-sm" variant="default" onClick={() => setModal('return')}>
               Create return
             </Button>
           )}
           {canRefund && refundable && (
-            <Button size="compact-md" variant="default" onClick={() => setModal('refund')}>
+            <Button size="compact-sm" variant="default" onClick={() => setModal('refund')}>
               Refund order
             </Button>
           )}
-        </Group>
-      </Group>
-
-      {order.returns.length === 0 && order.refunds.length === 0 ? (
-        <Text size="sm" c="dimmed">
-          No returns or refunds on this order.
-          {!delivered && ' Returns open once the order is delivered.'}
-        </Text>
+        </span>
+      }
+    >
+      {empty ? (
+        <EmptyState icon="returns" title="No returns or refunds on this order.">
+          {!delivered && 'Returns open once the order is delivered.'}
+        </EmptyState>
       ) : (
-        <Table>
-          <Table.Tbody>
-            {order.returns.map((r) => (
-              <Table.Tr key={r.id}>
-                <Table.Td>Return</Table.Td>
-                <Table.Td>
-                  {canReturn ? (
-                    <Link to="/returns/$id" params={{ id: r.id }}>
-                      {r.returnNo}
-                    </Link>
-                  ) : (
-                    r.returnNo
-                  )}
-                </Table.Td>
-                <Table.Td />
-                <Table.Td>
-                  <ReturnStatusBadge status={r.status as never} />
-                </Table.Td>
-              </Table.Tr>
-            ))}
-            {order.refunds.map((r) => (
-              <Table.Tr key={r.id}>
-                <Table.Td>Refund</Table.Td>
-                <Table.Td>
-                  {canRefund ? (
-                    <Button size="compact-sm" variant="subtle" onClick={() => setRefundId(r.id)}>
-                      Details
-                    </Button>
-                  ) : null}
-                </Table.Td>
-                <Table.Td>
-                  {formatPrice(r.amountP)} · {r.method === 'wallet' ? 'wallet' : 'original'}
-                </Table.Td>
-                <Table.Td>
-                  <RefundStatusBadge status={r.status as never} />
-                </Table.Td>
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
+        <TableWrap>
+          <Table miw={420}>
+            <Table.Tbody>
+              {order.returns.map((r) => (
+                <Table.Tr key={r.id}>
+                  <Table.Td>Return</Table.Td>
+                  <Table.Td>
+                    {canReturn ? (
+                      <Link to="/returns/$id" params={{ id: r.id }}>
+                        {r.returnNo}
+                      </Link>
+                    ) : (
+                      r.returnNo
+                    )}
+                  </Table.Td>
+                  <Table.Td />
+                  <Table.Td>
+                    <ReturnStatusBadge status={r.status as never} />
+                  </Table.Td>
+                </Table.Tr>
+              ))}
+              {order.refunds.map((r) => (
+                <Table.Tr key={r.id}>
+                  <Table.Td>Refund</Table.Td>
+                  <Table.Td>
+                    {canRefund ? (
+                      <Button size="compact-sm" variant="subtle" onClick={() => setRefundId(r.id)}>
+                        Details
+                      </Button>
+                    ) : null}
+                  </Table.Td>
+                  <Table.Td>
+                    {formatPrice(r.amountP)} · {r.method === 'wallet' ? 'wallet' : 'original'}
+                  </Table.Td>
+                  <Table.Td>
+                    <RefundStatusBadge status={r.status as never} />
+                  </Table.Td>
+                </Table.Tr>
+              ))}
+            </Table.Tbody>
+          </Table>
+        </TableWrap>
       )}
 
       {modal === 'return' && <CreateReturnModal order={order} opened onClose={close} />}
@@ -97,6 +102,6 @@ export function OrderReturnsSection({ orderId }: { orderId: string }) {
         <RefundFormModal target={{ kind: 'order', order }} opened onClose={close} />
       )}
       <RefundDetailModal id={refundId} onClose={() => setRefundId(null)} />
-    </Stack>
+    </SectionCard>
   );
 }

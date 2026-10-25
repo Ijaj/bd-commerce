@@ -1,0 +1,381 @@
+/* Mantine components restyled to the admin mockup classes (C60). Hooked up through `classNames` in theme.ts.
+   Each block names the mockup class it copies. Only tokens here; mockup hex values live in tokens.css. */
+
+/* Sizes: default control size is `xs` (= .a-btn / .a-field 34px); `compact-sm` = .a-btn.sm (28px). */
+:root {
+  --button-height-xs: 34px;
+  --button-padding-x-xs: 14px;
+  --button-height-compact-sm: 28px;
+  --button-padding-x-compact-sm: 10px;
+  --button-height-compact-xs: 24px;
+  --input-height-xs: 34px;
+  --input-padding-x: 10px;
+}
+
+body {
+  background: var(--bdc-bg);
+  color: var(--bdc-text);
+  font-family: var(--bdc-font);
+}
+
+/* .a-btn */
+.bdc-btn {
+  font-weight: 700;
+  font-size: 12.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-radius: var(--bdc-r);
+  transition:
+    background 0.12s,
+    border-color 0.12s;
+}
+.bdc-btn:hover {
+  text-decoration: none;
+}
+.bdc-btn[data-variant="filled"] {
+  color: var(--bdc-on-filled);
+}
+.bdc-btn[data-variant="default"] {
+  background: var(--bdc-surface);
+  border: 1px solid var(--bdc-border);
+  color: var(--bdc-text);
+}
+.bdc-btn[data-variant="default"]:hover {
+  background: var(--bdc-surface-2);
+  border-color: color-mix(in srgb, var(--bdc-primary) 40%, var(--bdc-border));
+}
+.bdc-btn[data-variant="subtle"]:hover,
+.bdc-btn[data-variant="transparent"]:hover {
+  background: var(--bdc-surface-2);
+}
+.bdc-btn:disabled,
+.bdc-btn[data-disabled] {
+  opacity: 0.45;
+}
+.bdc-btn .mantine-Button-section svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* .a-btn.icon */
+.bdc-action {
+  border-radius: var(--bdc-r);
+}
+.bdc-action[data-variant="filled"] {
+  color: var(--bdc-on-filled);
+}
+.bdc-action[data-variant="default"] {
+  background: var(--bdc-surface);
+  border-color: var(--bdc-border);
+  color: var(--bdc-text);
+}
+.bdc-action[data-variant="default"]:hover,
+.bdc-action[data-variant="subtle"]:hover {
+  background: var(--bdc-surface-2);
+}
+
+/* .a-badge (tone comes from the `color` prop: green=ok, yellow/orange=warn, red=danger, blue=info, gray=muted) */
+.bdc-badge {
+  height: auto;
+  padding: 2px 7px;
+  border-radius: var(--bdc-badge-r);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+.bdc-badge[data-variant="filled"] {
+  color: var(--bdc-on-filled);
+}
+
+/* .a-card */
+.bdc-paper {
+  background: var(--bdc-surface);
+  border-color: var(--bdc-border);
+  border-radius: var(--bdc-r);
+  box-shadow: var(--bdc-sh-1);
+  min-width: 0;
+}
+
+/* .a-table */
+.bdc-table {
+  font-size: 13px;
+  --table-border-color: var(--bdc-border);
+  --table-hover-color: var(--bdc-bg-hover);
+  --table-striped-color: var(--bdc-surface-2);
+}
+.bdc-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--bdc-surface-2);
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  color: var(--bdc-muted);
+  padding: 8px 12px;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--bdc-border);
+}
+.bdc-table tbody td {
+  padding: 9px 12px;
+  vertical-align: middle;
+}
+.bdc-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.bdc-table .act {
+  text-align: right;
+  white-space: nowrap;
+}
+.bdc-table .sub {
+  display: block;
+  color: var(--bdc-muted);
+  font-size: 12px;
+}
+
+/* .a-tabs / .a-tab / .a-count */
+.bdc-tabs-list {
+  gap: 2px;
+  margin-bottom: 14px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  --tab-border-color: var(--bdc-border);
+}
+.bdc-tab {
+  padding: 9px 14px;
+  font-weight: 600;
+  color: var(--bdc-muted);
+  white-space: nowrap;
+  border-bottom-width: 3px;
+}
+.bdc-tab:hover {
+  color: var(--bdc-text);
+  background: transparent;
+}
+.bdc-tab[data-active] {
+  color: var(--bdc-primary);
+  border-color: var(--bdc-primary);
+}
+.bdc-tab[data-active] .a-count {
+  background: var(--bdc-primary);
+  color: var(--bdc-on-primary);
+}
+
+/* .a-field */
+.bdc-input {
+  border-color: var(--bdc-border);
+  background: var(--bdc-surface);
+  color: var(--bdc-text);
+  border-radius: var(--bdc-r);
+}
+.bdc-input:focus,
+.bdc-input:focus-within,
+.bdc-input[data-expanded] {
+  border-color: var(--bdc-primary);
+  box-shadow: var(--bdc-ring);
+  outline: 0;
+}
+.bdc-input[data-error] {
+  border-color: var(--bdc-danger);
+}
+.bdc-input::placeholder {
+  color: var(--bdc-muted);
+  opacity: 0.8;
+}
+.bdc-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--bdc-text);
+  margin-bottom: 4px;
+}
+.bdc-hint {
+  font-size: 11.5px;
+  color: var(--bdc-muted);
+}
+.bdc-err {
+  font-size: 11.5px;
+  color: var(--bdc-danger);
+  font-weight: 600;
+}
+
+/* .a-switch */
+.bdc-switch-track {
+  background: color-mix(in srgb, var(--bdc-muted) 45%, var(--bdc-surface));
+  border-color: transparent;
+  cursor: pointer;
+}
+.bdc-switch-thumb {
+  background: #fff;
+  border-color: transparent;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+/* .a-modal / .a-drawer */
+.bdc-overlay {
+  --overlay-bg: var(--bdc-scrim);
+}
+.bdc-modal {
+  background: var(--bdc-surface);
+  border: 1px solid var(--bdc-border);
+  border-radius: var(--bdc-r-lg);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+}
+.bdc-drawer {
+  background: var(--bdc-surface);
+  border-left: 1px solid var(--bdc-border);
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.3);
+}
+.bdc-modal-h {
+  background: var(--bdc-surface);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--bdc-border);
+  min-height: 0;
+}
+.bdc-modal-t {
+  font-size: 16px;
+  font-weight: 800;
+}
+.bdc-modal-b {
+  padding: 16px;
+}
+
+/* .a-dd-menu */
+.bdc-menu {
+  background: var(--bdc-surface);
+  border: 1px solid var(--bdc-border);
+  border-radius: var(--bdc-r);
+  box-shadow: var(--bdc-sh-2);
+  padding: 4px;
+}
+.bdc-menu-item {
+  border-radius: var(--bdc-r-sm);
+  padding: 7px 10px;
+  font-size: 13px;
+}
+.bdc-menu-item:hover,
+.bdc-menu-item[data-hovered] {
+  background: var(--bdc-surface-2);
+}
+
+/* Tooltip */
+.bdc-tooltip {
+  background: var(--bdc-text);
+  color: var(--bdc-bg);
+  border-radius: var(--bdc-r-sm);
+  font-size: 12px;
+}
+
+/* .a-toast */
+.bdc-toast {
+  background: var(--bdc-text);
+  color: var(--bdc-bg);
+  border-radius: var(--bdc-r);
+  box-shadow: var(--bdc-sh-2);
+  border: 0;
+  border-left: 4px solid var(--notification-color, var(--bdc-success));
+  padding: 9px 14px;
+  font-weight: 600;
+}
+.bdc-toast::before {
+  display: none;
+}
+.bdc-toast-title,
+.bdc-toast-desc {
+  color: var(--bdc-bg);
+}
+.bdc-toast-close {
+  color: var(--bdc-bg);
+}
+.bdc-toast-close:hover {
+  background: color-mix(in srgb, var(--bdc-bg) 15%, transparent);
+}
+
+/* .a-pager */
+.bdc-pg {
+  min-width: 30px;
+  height: 28px;
+  border: 1px solid var(--bdc-border);
+  background: var(--bdc-surface);
+  border-radius: var(--bdc-r-sm);
+  font-weight: 600;
+  color: var(--bdc-text);
+}
+.bdc-pg[data-active] {
+  background: var(--bdc-primary);
+  border-color: var(--bdc-primary);
+  color: var(--bdc-on-primary);
+}
+
+/* .a-timeline */
+.bdc-tl-item {
+  --tl-line: var(--bdc-border);
+}
+.bdc-tl-bullet {
+  background: var(--bdc-surface);
+  border-color: var(--bdc-border);
+}
+.bdc-tl-title {
+  font-weight: 700;
+}
+
+/* .a-steps */
+.bdc-step-icon {
+  background: var(--bdc-surface-2);
+  border: 2px solid var(--bdc-border);
+  font-weight: 700;
+}
+.bdc-step-label {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* .a-banner (Alert) */
+.bdc-alert {
+  border-radius: var(--bdc-r);
+  border: 1px solid color-mix(in srgb, var(--alert-color, var(--bdc-warn)) 45%, var(--bdc-border));
+  background: color-mix(in srgb, var(--alert-color, var(--bdc-warn)) 11%, var(--bdc-surface));
+  color: var(--bdc-text);
+  padding: 9px 14px;
+}
+.bdc-alert-title {
+  font-weight: 700;
+}
+.bdc-alert-msg {
+  color: var(--bdc-text);
+}
+
+/* Segmented control (used as range/period pickers) */
+.bdc-seg {
+  background: var(--bdc-surface-2);
+  border: 1px solid var(--bdc-border);
+  border-radius: var(--bdc-r);
+}
+.bdc-seg-label {
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* Skeleton / loader */
+.bdc-skeleton::after {
+  background: var(--bdc-surface-2);
+}
+
+/* .a-card-h / .a-crumbs links inside Mantine Anchor */
+.bdc-anchor {
+  color: var(--bdc-primary);
+}
+
+.bdc-table tbody tr.click {
+  cursor: pointer;
+}
+.bdc-table tbody tr:last-child td {
+  border-bottom: 0;
+}

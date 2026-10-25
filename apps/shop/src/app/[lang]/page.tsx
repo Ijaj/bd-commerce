@@ -84,7 +84,7 @@ export default async function Page({ params }: LangProps) {
       <FeaturedCategories items={home?.featuredCategories ?? []} lang={lang} />
       <HomeFlashStrip lang={lang} />
       <section className={`wrap ${s.feed}`} aria-labelledby="h-feed">
-        <div className={s.head}>
+        <div className="sec-head">
           <h2 id="h-feed">{d.justForYou}</h2>
         </div>
         <Suspense fallback={<FeedSkeleton lang={lang} />}>

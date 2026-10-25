@@ -1,3 +1,4 @@
+import { Icon } from '@bdc/ui';
 import {
   ActionIcon,
   Alert,
@@ -5,7 +6,6 @@ import {
   Group,
   Image,
   NumberInput,
-  Paper,
   Radio,
   Stack,
   Text,
@@ -14,7 +14,6 @@ import {
   Title,
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
-import { IconPlus, IconSearch, IconX } from '@tabler/icons-react';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -59,56 +58,52 @@ function ShopPicker({
 
   if (shopId) {
     return (
-      <Paper>
-        <Group justify="space-between" wrap="nowrap">
-          <div>
-            <Text>
-              {chosen?.name ?? t('loading')}
-              {chosen?.isNew && <NewBadge />}
-            </Text>
-            {chosen && (
-              <Text size="sm" c="dimmed">
-                {chosen.area}
-                {chosen.dueBalanceP > 0 && (
-                  <>
-                    {' · '}
-                    <Text span size="sm" c="red">
-                      {t('currentDue', { amount: formatPrice(chosen.dueBalanceP) })}
-                    </Text>
-                  </>
-                )}
-              </Text>
-            )}
-          </div>
-          <Button size="xs" variant="default" onClick={() => onChange(null)}>
-            {t('change')}
-          </Button>
-        </Group>
-      </Paper>
+      <div className="sr-chosen">
+        <div>
+          <b>{chosen?.name ?? t('loading')}</b>
+          {chosen?.isNew && <NewBadge />}
+          {chosen && (
+            <div className="sr-muted">
+              {chosen.area}
+              {chosen.dueBalanceP > 0 && (
+                <>
+                  {' · '}
+                  <span className="sr-due">
+                    {t('currentDue', { amount: formatPrice(chosen.dueBalanceP) })}
+                  </span>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+        <Button size="compact-sm" variant="default" onClick={() => onChange(null)}>
+          {t('change')}
+        </Button>
+      </div>
     );
   }
 
   if (adding) {
     return (
-      <Paper>
-        <Group justify="space-between" mb="sm">
-          <Title order={2}>{t('addShopTitle')}</Title>
+      <div className="sr-card">
+        <div className="sr-row sr-mb">
+          <h2 className="sr-h2 sr-h2-flat">{t('addShopTitle')}</h2>
           <ActionIcon
             variant="subtle"
             color="gray"
             aria-label="Close"
             onClick={() => setAdding(false)}
           >
-            <IconX size={16} />
+            <Icon name="x" size={16} />
           </ActionIcon>
-        </Group>
+        </div>
         <AddShopForm
           onCreated={(shop) => {
             setAdding(false);
             onChange(shop.id);
           }}
         />
-      </Paper>
+      </div>
     );
   }
 
@@ -117,7 +112,7 @@ function ShopPicker({
       <TextInput
         type="search"
         placeholder={t('searchShops')}
-        leftSection={<IconSearch size={16} />}
+        leftSection={<Icon name="search" size={16} />}
         value={q}
         error={error}
         onChange={(e) => setQ(e.currentTarget.value)}
@@ -127,44 +122,46 @@ function ShopPicker({
           const matches = data.pages.flatMap((p) => p.items).filter((s) => s.status === 'active');
           return (
             <>
-              <Paper py={4}>
-                {matches.length === 0 ? (
-                  <Text c="dimmed" ta="center" py="sm">
-                    {t('noShops')}
-                  </Text>
-                ) : (
-                  matches.map((s) => (
+              {matches.length === 0 ? (
+                <div className="sr-empty sm">{t('noShops')}</div>
+              ) : (
+                <div className="sr-pick">
+                  {matches.map((s) => (
                     <button
                       key={s.id}
                       type="button"
-                      className="portal-item"
-                      style={{
-                        width: '100%',
-                        textAlign: 'left',
-                        background: 'none',
-                        border: 0,
-                        cursor: 'pointer',
-                        color: 'inherit',
-                      }}
+                      className="sr-item"
                       onClick={() => onChange(s.id)}
                     >
-                      <Text>
-                        {s.name}
-                        {s.isNew && <NewBadge />}
-                      </Text>
-                      <Text size="sm" c="dimmed">
-                        {[s.ownerName, s.area].filter(Boolean).join(' · ')}
-                      </Text>
+                      <div className="t">
+                        <span>
+                          {s.name}
+                          {s.isNew && <NewBadge />}
+                        </span>
+                        {s.dueBalanceP > 0 && (
+                          <span className="sr-due">
+                            {t('currentDue', { amount: formatPrice(s.dueBalanceP) })}
+                          </span>
+                        )}
+                      </div>
+                      <div className="s">
+                        <span>{[s.ownerName, s.area].filter(Boolean).join(' · ')}</span>
+                      </div>
                     </button>
-                  ))
-                )}
-              </Paper>
+                  ))}
+                </div>
+              )}
               <LoadMore query={shops} />
             </>
           );
         }}
       </QueryBoundary>
-      <Button variant="light" leftSection={<IconPlus size={16} />} onClick={() => setAdding(true)}>
+      <Button
+        variant="default"
+        size="compact-sm"
+        leftSection={<Icon name="plus" size={14} />}
+        onClick={() => setAdding(true)}
+      >
         {t('addNewShop')}
       </Button>
     </Stack>
@@ -182,66 +179,55 @@ function ProductPicker({
   const [debounced] = useDebouncedValue(q.trim(), 250);
   const products = useQuery(srProductsQuery(debounced));
   return (
-    <Paper>
-      <Group gap="xs" wrap="nowrap" mb="xs">
+    <div className="sr-card">
+      <div className="sr-row sr-mb">
         <TextInput
-          style={{ flex: 1 }}
+          className="sr-grow"
           type="search"
           autoFocus
           placeholder={t('searchProduct')}
-          leftSection={<IconSearch size={16} />}
+          leftSection={<Icon name="search" size={16} />}
           value={q}
           onChange={(e) => setQ(e.currentTarget.value)}
         />
         <ActionIcon variant="subtle" color="gray" size="lg" aria-label="Close" onClick={onClose}>
-          <IconX size={18} />
+          <Icon name="x" size={18} />
         </ActionIcon>
-      </Group>
+      </div>
       <QueryBoundary query={products}>
         {(list) =>
           list.length === 0 ? (
-            <Text c="dimmed" ta="center" py="sm">
-              {t('noProducts')}
-            </Text>
+            <div className="sr-empty sm">{t('noProducts')}</div>
           ) : (
-            list.slice(0, 20).map((p) => (
-              <button
-                key={p.variantId}
-                type="button"
-                className="portal-item"
-                disabled={p.available < 1}
-                style={{
-                  width: '100%',
-                  textAlign: 'left',
-                  background: 'none',
-                  border: 0,
-                  cursor: p.available < 1 ? 'not-allowed' : 'pointer',
-                  opacity: p.available < 1 ? 0.5 : 1,
-                  color: 'inherit',
-                }}
-                onClick={() => onPick(p)}
-              >
-                <Group wrap="nowrap" gap="sm">
+            <div className="sr-pick">
+              {list.slice(0, 20).map((p) => (
+                <button
+                  key={p.variantId}
+                  type="button"
+                  className="sr-item sr-product"
+                  disabled={p.available < 1}
+                  onClick={() => onPick(p)}
+                >
                   {p.image && <Image src={p.image.url320} w={44} h={44} radius="sm" alt="" />}
-                  <div style={{ minWidth: 0, flex: 1 }}>
-                    <Text truncate>{p.titleEn}</Text>
-                    <Text size="sm" c="dimmed" truncate>
+                  <div className="sr-product-main">
+                    <div className="sr-product-t">{p.titleEn}</div>
+                    <div className="sr-muted">
                       {[p.optionsText, p.sku].filter(Boolean).join(' · ')}
-                    </Text>
+                    </div>
                   </div>
-                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <Text size="sm">{formatPrice(p.priceP)}</Text>
-                    <Text size="xs" c={p.available < 1 ? 'red' : 'dimmed'}>
+                  <div className="sr-product-end">
+                    <div>{formatPrice(p.priceP)}</div>
+                    <div className={p.available < 1 ? 'sr-muted sr-due' : 'sr-muted'}>
                       {t('available', { n: p.available })}
-                    </Text>
+                    </div>
                   </div>
-                </Group>
-              </button>
-            ))
+                </button>
+              ))}
+            </div>
           )
         }
       </QueryBoundary>
-    </Paper>
+    </div>
   );
 }
 
@@ -258,21 +244,21 @@ function LineCard({
 }) {
   const below = belowListPct(line);
   return (
-    <Paper data-testid="line">
-      <Group justify="space-between" wrap="nowrap" align="flex-start">
-        <div style={{ minWidth: 0 }}>
-          <Text truncate>{line.title}</Text>
-          <Text size="sm" c="dimmed">
+    <div className="sr-line" data-testid="line">
+      <div className="top">
+        <div className="sr-product-main">
+          <b>{line.title}</b>
+          <div className="sr-muted">
             {[line.optionsText, t('listPrice', { amount: formatPrice(line.listPriceP) })]
               .filter(Boolean)
               .join(' · ')}
-          </Text>
+          </div>
         </div>
         <ActionIcon variant="subtle" color="gray" aria-label={t('remove')} onClick={onRemove}>
-          <IconX size={16} />
+          <Icon name="x" size={16} />
         </ActionIcon>
-      </Group>
-      <Group grow align="flex-start" mt="xs">
+      </div>
+      <div className="f">
         <NumberInput
           label={t('qty')}
           min={0}
@@ -291,38 +277,36 @@ function LineCard({
           error={error && line.unitPriceP === null ? error : undefined}
           onChange={(v) => onChange({ unitPriceP: takaToPaisa(v) })}
         />
-      </Group>
-      <Group justify="space-between" mt="xs">
-        <Text size="sm" c="orange">
+      </div>
+      <div className="sr-row sr-mt-6">
+        <span className="sr-flag">
           {below !== null ? t('belowList', { pct: Math.abs(below) }) : ''}
-        </Text>
-        <Text>{formatPrice(lineTotalP(line))}</Text>
-      </Group>
-    </Paper>
+        </span>
+        <b>{formatPrice(lineTotalP(line))}</b>
+      </div>
+    </div>
   );
 }
 
 function Totals({ draft }: { draft: SaleDraft }) {
   const c = saleTotals(draft);
   return (
-    <Paper>
-      <Stack gap={4}>
-        <Group justify="space-between">
-          <Text>{t('total')}</Text>
-          <Text data-testid="total">{formatPrice(c.totalP)}</Text>
-        </Group>
-        <Group justify="space-between">
-          <Text c="dimmed">{t('collectedAtSale')}</Text>
-          <Text>{formatPrice(c.paidP)}</Text>
-        </Group>
-        <Group justify="space-between">
-          <Text>{t('due')}</Text>
-          <Text c={c.dueP > 0 ? 'red' : 'teal'} data-testid="due">
-            {formatPrice(c.dueP)}
-          </Text>
-        </Group>
-      </Stack>
-    </Paper>
+    <div className="sr-sum">
+      <div className="r">
+        <span>{t('total')}</span>
+        <b data-testid="total">{formatPrice(c.totalP)}</b>
+      </div>
+      <div className="r sr-muted">
+        <span>{t('collectedAtSale')}</span>
+        <span>{formatPrice(c.paidP)}</span>
+      </div>
+      <div className="r t">
+        <span>{t('due')}</span>
+        <span className={c.dueP > 0 ? 'sr-due' : 'sr-ok'} data-testid="due">
+          {formatPrice(c.dueP)}
+        </span>
+      </div>
+    </div>
   );
 }
 
@@ -372,7 +356,9 @@ export function NewSalePage({ initialShopId }: { initialShopId?: string }) {
   if (done) {
     return (
       <Stack gap="md" align="center" ta="center" py="xl">
-        <Title order={1}>{t('saleSubmitted')}</Title>
+        <Title order={1} fz={19}>
+          {t('saleSubmitted')}
+        </Title>
         <Text>{t('saleSubmittedBody', { memo: done.memoNo })}</Text>
         <Text fz={28}>{formatPrice(done.totalP)}</Text>
         <Button
@@ -401,22 +387,20 @@ export function NewSalePage({ initialShopId }: { initialShopId?: string }) {
     return (
       <Stack gap="md">
         <PageTitle>{t('reviewSale')}</PageTitle>
-        <Paper>
-          <Text size="sm" c="dimmed">
-            {t('buyerShop')}
-          </Text>
-          <Text>{shop?.name}</Text>
-        </Paper>
-        <Paper>
+        <div className="sr-card sr-card-flat">
+          <h2 className="sr-h2">{t('buyerShop')}</h2>
+          <b>{shop?.name}</b>
+        </div>
+        <div className="sr-card sr-card-flat">
           {draft.lines.map((l) => (
-            <Group key={l.variantId} justify="space-between" wrap="nowrap" py={4}>
-              <Text size="sm" truncate>
+            <div key={l.variantId} className="sr-row sr-py">
+              <span>
                 {num(l.qty ?? 0)} x {l.title}
-              </Text>
-              <Text size="sm">{formatPrice(lineTotalP(l))}</Text>
-            </Group>
+              </span>
+              <b>{formatPrice(lineTotalP(l))}</b>
+            </div>
           ))}
-        </Paper>
+        </div>
         <Totals draft={draft} />
         <Text size="sm">
           {t('deliveryBy')}: {draft.deliveryBy === 'sr' ? t('deliveryBySr') : t('deliveryByStaff')}
@@ -431,15 +415,13 @@ export function NewSalePage({ initialShopId }: { initialShopId?: string }) {
             {submit.error.message}
           </Alert>
         )}
-        <Button loading={submit.isPending} onClick={() => submit.mutate()}>
+        <Button fullWidth loading={submit.isPending} onClick={() => submit.mutate()}>
           {t('submitApproval')}
         </Button>
-        <Button variant="default" onClick={() => setStep('form')}>
+        <Button fullWidth variant="default" onClick={() => setStep('form')}>
           {t('editSale')}
         </Button>
-        <Text size="sm" c="dimmed" ta="center">
-          {t('submitHint')}
-        </Text>
+        <p className="a-hint sr-center">{t('submitHint')}</p>
       </Stack>
     );
   }
@@ -450,9 +432,7 @@ export function NewSalePage({ initialShopId }: { initialShopId?: string }) {
       <PageTitle>{t('newSale')}</PageTitle>
 
       <div>
-        <Text size="sm" mb={4}>
-          {t('buyerShop')}
-        </Text>
+        <span className="sr-label">{t('buyerShop')}</span>
         <ShopPicker
           shopId={draft.shopId}
           error={attempted ? errors.shop : undefined}
@@ -461,16 +441,12 @@ export function NewSalePage({ initialShopId }: { initialShopId?: string }) {
       </div>
 
       <div>
-        <Text size="sm" mb={4}>
-          {t('items')}
-        </Text>
+        <span className="sr-label">{t('items')}</span>
         <Stack gap="xs">
           {draft.lines.length === 0 && (
-            <Paper>
-              <Text c={attempted && errors.items ? 'red' : 'dimmed'} ta="center">
-                {attempted && errors.items ? errors.items : t('noItems')}
-              </Text>
-            </Paper>
+            <div className={attempted && errors.items ? 'sr-empty sm sr-due' : 'sr-empty sm'}>
+              {attempted && errors.items ? errors.items : t('noItems')}
+            </div>
           )}
           {draft.lines.map((l) => (
             <LineCard
@@ -495,8 +471,9 @@ export function NewSalePage({ initialShopId }: { initialShopId?: string }) {
             />
           ) : (
             <Button
-              variant="light"
-              leftSection={<IconPlus size={16} />}
+              variant="default"
+              fullWidth
+              leftSection={<Icon name="plus" size={16} />}
               onClick={() => setPicking(true)}
             >
               {t('addItem')}
@@ -511,8 +488,18 @@ export function NewSalePage({ initialShopId }: { initialShopId?: string }) {
         onChange={(v) => patch({ deliveryBy: v as DeliveryBy })}
       >
         <Stack gap="xs" mt={6}>
-          <Radio value="staff" label={t('deliverOffice')} description={t('deliverOfficeHint')} />
-          <Radio value="sr" label={t('deliverSr')} description={t('deliverSrHint')} />
+          <Radio
+            classNames={{ root: 'sr-radio-card' }}
+            value="staff"
+            label={t('deliverOffice')}
+            description={t('deliverOfficeHint')}
+          />
+          <Radio
+            classNames={{ root: 'sr-radio-card' }}
+            value="sr"
+            label={t('deliverSr')}
+            description={t('deliverSrHint')}
+          />
         </Stack>
       </Radio.Group>
 
@@ -527,10 +514,14 @@ export function NewSalePage({ initialShopId }: { initialShopId?: string }) {
           onChange={(v) => patch({ paidP: takaToPaisa(v) })}
         />
         <Group gap="xs" mt="xs">
-          <Button size="xs" variant="default" onClick={() => patch({ paidP: totals.totalP })}>
+          <Button
+            size="compact-sm"
+            variant="default"
+            onClick={() => patch({ paidP: totals.totalP })}
+          >
             {t('fullAmount')}
           </Button>
-          <Button size="xs" variant="default" onClick={() => patch({ paidP: 0 })}>
+          <Button size="compact-sm" variant="default" onClick={() => patch({ paidP: 0 })}>
             {t('nothingAllBaki')}
           </Button>
         </Group>
@@ -547,6 +538,7 @@ export function NewSalePage({ initialShopId }: { initialShopId?: string }) {
       <Totals draft={draft} />
 
       <Button
+        fullWidth
         onClick={() => {
           setAttempted(true);
           if (!hasErrors(errors)) setStep('review');

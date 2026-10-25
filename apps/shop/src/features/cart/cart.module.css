@@ -10,7 +10,7 @@
 .grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--s4);
+  gap: var(--s5);
   align-items: start;
   margin-top: var(--s3);
 }
@@ -25,10 +25,11 @@
 .line {
   display: grid;
   grid-template-columns: 72px 1fr;
-  gap: var(--s3);
-  padding: var(--s3);
+  gap: var(--s2) var(--s4);
+  padding: var(--s4);
   background: var(--surface);
   border: var(--card-bd);
+  box-shadow: var(--sh-1);
   border-radius: var(--r-lg);
 }
 .bad {
@@ -56,6 +57,11 @@
 }
 .name {
   overflow-wrap: anywhere;
+  font-size: 14.5px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .name:hover {
   color: var(--primary);
@@ -78,7 +84,7 @@
   color: var(--accent);
 }
 .problem {
-  font-size: 12px;
+  font-size: 12.5px;
   color: var(--danger);
   display: flex;
   flex-wrap: wrap;
@@ -125,14 +131,15 @@
 .stepper {
   display: inline-flex;
   border: 1px solid var(--border);
-  border-radius: var(--r);
+  border-radius: var(--r-sm);
+  overflow: hidden;
   background: var(--surface);
 }
 .stepper button {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border: 0;
-  background: transparent;
+  background: var(--surface-2);
   color: var(--text);
   font-size: 18px;
   line-height: 1;
@@ -146,10 +153,9 @@
   cursor: not-allowed;
 }
 .stepper input {
-  width: 44px;
-  height: 36px;
+  width: 52px;
+  height: 40px;
   border: 0;
-  border-inline: 1px solid var(--border);
   text-align: center;
   background: transparent;
   color: var(--text);
@@ -162,10 +168,11 @@
   padding: var(--s4);
   background: var(--surface);
   border: var(--card-bd);
+  box-shadow: var(--sh-1);
   border-radius: var(--r-lg);
 }
 .sumTitle {
-  font-size: 16px;
+  font-size: 17px;
 }
 .rows {
   margin: 0;
@@ -217,13 +224,13 @@
     margin-inline-start: 0;
   }
 }
-@media (min-width: 960px) {
+@media (min-width: 1024px) {
   .grid {
-    grid-template-columns: 1fr 340px;
+    grid-template-columns: minmax(0, 1fr) 380px;
   }
   .summary {
     position: sticky;
-    top: 96px;
+    top: 88px;
   }
 }
 

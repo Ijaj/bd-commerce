@@ -1,0 +1,43 @@
+/* plan/mockups/admin/shared/catalog.css: .c-savebar, .c-edit bottom padding */
+.titleBadge {
+  margin-left: 10px;
+  vertical-align: middle;
+  font-size: 12px;
+}
+.back {
+  transform: rotate(180deg);
+}
+.notice {
+  margin-bottom: 12px;
+}
+.savebar {
+  position: sticky;
+  bottom: 0;
+  z-index: 40;
+  padding: 10px 20px;
+  margin: 14px -20px 0;
+  background: var(--bdc-surface);
+  border-top: 1px solid var(--bdc-border);
+  box-shadow: 0 -4px 14px color-mix(in srgb, var(--bdc-text) 8%, transparent);
+}
+.saveRow {
+  align-items: center;
+}
+.msg {
+  font-size: 12.5px;
+  color: var(--bdc-muted);
+}
+.dirty {
+  font-size: 12.5px;
+  color: var(--bdc-warn);
+  font-weight: 600;
+}
+@media (max-width: 640px) {
+  .savebar {
+    margin: 14px -12px 0;
+    padding: 10px 12px;
+  }
+}
+.panel {
+  margin-bottom: 12px;
+}

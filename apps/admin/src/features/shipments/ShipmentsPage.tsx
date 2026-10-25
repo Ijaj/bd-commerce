@@ -1,9 +1,11 @@
-import { Alert, Button, Group, Select, Text, TextInput } from '@mantine/core';
+import { Banner, Toolbar } from '@bdc/ui';
+import { Button, Select, TextInput } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
 import { type Column, DataTable } from '~/components/DataTable';
 import { PageHeader } from '~/components/PageHeader';
+import classes from '~/features/orders/Orders.module.css';
 import { formatDateTime, formatPrice } from '~/lib/format';
 import { COURIER_OPTIONS, MAX_LABELS, type Shipment, STATUS_LABEL } from './logic';
 import { shipmentsQuery } from './queries';
@@ -69,12 +71,12 @@ export function ShipmentsPage() {
         />
       ),
     },
-    { key: 'no', header: 'Shipment', render: (r) => r.shipmentNo },
+    { key: 'no', header: 'Shipment', render: (r) => <b>{r.shipmentNo}</b> },
     {
       key: 'order',
       header: 'Order',
       render: (r) => (
-        <Link to="/orders/$id" params={{ id: r.orderId }}>
+        <Link to="/orders/$id" params={{ id: r.orderId }} className={classes.orderNo}>
           {r.orderNo}
         </Link>
       ),
@@ -84,10 +86,10 @@ export function ShipmentsPage() {
       header: 'Ship to',
       render: (r) => (
         <div>
-          <Text size="sm">{r.recipient.name}</Text>
-          <Text size="xs" c="dimmed">
+          <b>{r.recipient.name}</b>
+          <span className={classes.sub}>
             {r.recipient.phone} · {r.recipient.placeText}
-          </Text>
+          </span>
         </div>
       ),
     },
@@ -103,12 +105,8 @@ export function ShipmentsPage() {
       header: 'Courier',
       render: (r) => (
         <div>
-          <Text size="sm">{r.courier?.name ?? '-'}</Text>
-          {r.consignmentId && (
-            <Text size="xs" c="dimmed">
-              {r.consignmentId}
-            </Text>
-          )}
+          {r.courier?.name ?? <span className={classes.muted}>Not booked</span>}
+          {r.consignmentId && <span className={classes.sub}>{r.consignmentId}</span>}
         </div>
       ),
     },
@@ -120,9 +118,10 @@ export function ShipmentsPage() {
   const ids = [...picked].slice(0, MAX_LABELS);
 
   return (
-    <div>
+    <>
       <PageHeader
         title="Shipments"
+        crumbs={['Sales', 'Shipments']}
         description="Book couriers, hand parcels over and print labels."
         actions={
           <Button
@@ -136,10 +135,21 @@ export function ShipmentsPage() {
           </Button>
         }
       />
-      <Group mb="sm" align="flex-end">
+      <Toolbar>
+        <TextInput
+          className="grow"
+          aria-label="Search"
+          placeholder="Search shipment no, order no, phone, tracking"
+          value={q}
+          onChange={(e) => {
+            setQ(e.currentTarget.value);
+            setPage(1);
+          }}
+          miw={200}
+        />
         <Select
-          label="Status"
-          placeholder="All"
+          aria-label="Status"
+          placeholder="Status: all"
           data={STATUS_OPTIONS}
           value={status}
           onChange={(v) => {
@@ -150,8 +160,8 @@ export function ShipmentsPage() {
           w={200}
         />
         <Select
-          label="Courier"
-          placeholder="All"
+          aria-label="Courier"
+          placeholder="Courier: all"
           data={COURIER_OPTIONS}
           value={courier}
           onChange={(v) => {
@@ -161,32 +171,24 @@ export function ShipmentsPage() {
           clearable
           w={180}
         />
-        <TextInput
-          label="Search"
-          placeholder="Shipment no, order no, phone, tracking"
-          value={q}
-          onChange={(e) => {
-            setQ(e.currentTarget.value);
-            setPage(1);
-          }}
-          w={320}
-        />
         {picked.size > 0 && (
-          <Button variant="subtle" onClick={() => setPicked(new Set())}>
+          <Button variant="subtle" size="compact-sm" onClick={() => setPicked(new Set())}>
             Clear selection
           </Button>
         )}
-      </Group>
+      </Toolbar>
       {tooMany && (
-        <Alert color="orange" mb="sm">
-          Labels print {MAX_LABELS} at a time. Only the first {MAX_LABELS} selected will be opened;
-          print the rest in another batch.
-        </Alert>
+        <div className={classes.errorCard}>
+          <Banner tone="warn">
+            Labels print {MAX_LABELS} at a time. Only the first {MAX_LABELS} selected will be
+            opened; print the rest in another batch.
+          </Banner>
+        </div>
       )}
       {list.isError && (
-        <Alert color="red" mb="sm">
-          {list.error.message}
-        </Alert>
+        <div className={classes.errorCard}>
+          <Banner tone="danger">{list.error.message}</Banner>
+        </div>
       )}
       <DataTable
         columns={columns}
@@ -203,6 +205,6 @@ export function ShipmentsPage() {
           setPage(1);
         }}
       />
-    </div>
+    </>
   );
 }

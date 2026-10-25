@@ -8,7 +8,7 @@
   box-shadow: var(--sh-1);
 }
 .card h1 {
-  font-size: 22px;
+  font-size: 21px;
   margin-bottom: var(--s2);
 }
 .intro {
@@ -23,7 +23,7 @@
 .field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 .label {
   font-size: 13px;
@@ -97,8 +97,6 @@
 }
 .foot {
   margin-top: var(--s4);
-  padding-top: var(--s4);
-  border-top: 1px solid var(--border);
   color: var(--muted);
   text-align: center;
 }
@@ -111,9 +109,10 @@
   align-items: start;
 }
 .panel {
-  padding: var(--s5);
+  padding: var(--s4);
   background: var(--surface);
   border: var(--card-bd);
+  box-shadow: var(--sh-1);
   border-radius: var(--r-lg);
 }
 .panel h2 {
@@ -129,14 +128,18 @@
   display: flex;
   align-items: center;
   gap: var(--s3);
-  padding: var(--s4);
+  padding: var(--s3) var(--s4);
   background: var(--surface);
   border: var(--card-bd);
-  border-radius: var(--r-lg);
-  transition: border-color 0.15s;
+  box-shadow: var(--sh-1);
+  border-radius: var(--r);
+  transition:
+    border-color 0.15s,
+    transform 0.15s;
 }
 .tile:hover {
   border-color: var(--primary);
+  transform: translateY(var(--lift));
 }
 .tile svg {
   color: var(--primary);

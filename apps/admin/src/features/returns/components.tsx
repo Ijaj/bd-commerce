@@ -1,4 +1,5 @@
-import { Badge, Group, Text } from '@mantine/core';
+import { Badge } from '@mantine/core';
+import classes from '~/features/orders/Orders.module.css';
 import {
   REFUND_STATUS_COLOR,
   REFUND_STATUS_LABEL,
@@ -27,13 +28,13 @@ export function RefundStatusBadge({ status }: { status: RefundStatus }) {
 /** The API stores no per-step history, so this shows progress along the path rather than dates. */
 export function ReturnTimeline({ status }: { status: ReturnStatus }) {
   return (
-    <Group gap="xs" aria-label="Return progress">
+    <ol className={classes.steps} aria-label="Return progress">
       {stepStates(status).map(({ step, state }, i) => (
-        <Group key={step} gap="xs" wrap="nowrap">
+        <li key={step} className={classes.stepItem}>
           {i > 0 && (
-            <Text size="sm" c="dimmed" aria-hidden>
+            <span className={classes.sep} aria-hidden>
               /
-            </Text>
+            </span>
           )}
           <Badge
             size="sm"
@@ -43,8 +44,8 @@ export function ReturnTimeline({ status }: { status: ReturnStatus }) {
           >
             {RETURN_STATUS_LABEL[step]}
           </Badge>
-        </Group>
+        </li>
       ))}
-    </Group>
+    </ol>
   );
 }

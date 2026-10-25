@@ -170,7 +170,18 @@ html[lang="bn"] .btn {
 .btn-sm {
   padding: 6px 14px;
 }
+.btn-lg {
+  padding: 14px 22px;
+  font-size: 15px;
+}
+.btn-block {
+  display: flex;
+  width: 100%;
+}
 .link {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
   color: var(--primary);
 }
 .link:hover {
@@ -185,11 +196,20 @@ html[lang="bn"] .btn {
 }
 .input {
   width: 100%;
+  min-height: 44px;
   padding: 10px 12px;
   border: 1px solid var(--border);
-  border-radius: var(--r);
+  border-radius: var(--r-sm);
   background: var(--surface);
   color: var(--text);
+}
+.input::placeholder {
+  color: var(--muted);
+  opacity: 0.85;
+}
+textarea.input {
+  resize: vertical;
+  min-height: 64px;
 }
 .input:focus-visible {
   outline-offset: 0;
@@ -217,11 +237,23 @@ html[lang="bn"] .sec-head h2 {
   letter-spacing: 0;
 }
 .page {
-  padding-block: var(--s5) var(--s6);
+  padding-block: var(--s2) var(--s6);
 }
 .page-title {
-  font-size: 22px;
-  margin-bottom: var(--s4);
+  font-size: 26px;
+  line-height: 1.2;
+  margin-block: var(--s4);
+}
+@media (max-width: 640px) {
+  .page-title {
+    font-size: 22px;
+  }
+  .sec-head h2 {
+    font-size: 17px;
+  }
+  main {
+    --sec-gap: 20px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

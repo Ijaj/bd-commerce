@@ -1,10 +1,12 @@
-import { Group, Select, Text, TextInput } from '@mantine/core';
+import { Toolbar } from '@bdc/ui';
+import { TextInput } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { type Column, DataTable } from '~/components/DataTable';
 import { PageHeader } from '~/components/PageHeader';
+import classes from '~/features/orders/Orders.module.css';
 import { formatDateTime } from '~/lib/format';
 import { ReturnStatusBadge } from './components';
 import { RETURN_STATUS_LABEL } from './logic';
@@ -31,7 +33,7 @@ export function ReturnsPage() {
       key: 'no',
       header: 'Return',
       render: (r) => (
-        <Link to="/returns/$id" params={{ id: r.id }}>
+        <Link to="/returns/$id" params={{ id: r.id }} className={classes.orderNo}>
           {r.returnNo}
         </Link>
       ),
@@ -40,7 +42,7 @@ export function ReturnsPage() {
       key: 'order',
       header: 'Order',
       render: (r) => (
-        <Link to="/orders/$id" params={{ id: r.orderId }}>
+        <Link to="/orders/$id" params={{ id: r.orderId }} className={classes.orderNo}>
           {r.orderNo}
         </Link>
       ),
@@ -50,10 +52,8 @@ export function ReturnsPage() {
       header: 'Customer',
       render: (r) => (
         <div>
-          <Text size="sm">{r.customerName ?? '-'}</Text>
-          <Text size="xs" c="dimmed">
-            {r.customerPhone ?? ''}
-          </Text>
+          <b>{r.customerName ?? '-'}</b>
+          <span className={classes.sub}>{r.customerPhone ?? ''}</span>
         </div>
       ),
     },
@@ -69,31 +69,55 @@ export function ReturnsPage() {
 
   return (
     <>
-      <PageHeader title="Returns" description="Return requests from customers and staff." />
-      <Group mb="md" align="flex-end">
+      <PageHeader
+        title="Returns"
+        crumbs={['Sales', 'Returns']}
+        description="Return requests from customers and staff."
+      />
+      <div className={classes.tabsWrap}>
+        <div className="a-tabs" role="tablist" aria-label="Return status">
+          <button
+            type="button"
+            role="tab"
+            className="a-tab"
+            aria-selected={status === null}
+            onClick={() => {
+              setStatus(null);
+              setPage(1);
+            }}
+          >
+            All
+          </button>
+          {STATUS_OPTIONS.map((o) => (
+            <button
+              key={o.value}
+              type="button"
+              role="tab"
+              className="a-tab"
+              aria-selected={status === o.value}
+              onClick={() => {
+                setStatus(o.value);
+                setPage(1);
+              }}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <Toolbar>
         <TextInput
-          label="Search"
-          placeholder="Return no, order no, phone or name"
+          className="grow"
+          aria-label="Search"
+          placeholder="Search return no, order no, phone or name"
           value={search}
           onChange={(e) => {
             setSearch(e.currentTarget.value);
             setPage(1);
           }}
-          w={280}
+          miw={200}
         />
-        <Select
-          label="Status"
-          placeholder="All"
-          clearable
-          data={STATUS_OPTIONS}
-          value={status}
-          onChange={(v) => {
-            setStatus(v as ReturnStatus | null);
-            setPage(1);
-          }}
-          w={180}
-        />
-      </Group>
+      </Toolbar>
       <DataTable
         columns={columns}
         rows={list.data?.items}

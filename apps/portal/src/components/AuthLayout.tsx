@@ -1,9 +1,8 @@
-import { Center, Paper, Stack, Text, Title } from '@mantine/core';
 import type { ReactNode } from 'react';
 import { t } from '~/i18n';
 import { LangToggle } from './LangToggle';
 
-/** Centered card used by the login and 2FA screens. */
+/** Mockup `.sr-login`: gradient page, centred card with the italic wordmark. */
 export function AuthLayout({
   title,
   subtitle,
@@ -14,24 +13,17 @@ export function AuthLayout({
   children: ReactNode;
 }) {
   return (
-    <Center mih="100vh" p="md">
-      <Paper w={400} maw="100%" p="lg" shadow="sm">
-        <Stack gap="md">
-          <LangToggle />
-          <div>
-            <Text size="xs" fw={700} tt="uppercase" c="indigo" style={{ letterSpacing: '.08em' }}>
-              {t('appName')}
-            </Text>
-            <Title order={2}>{title}</Title>
-            {subtitle && (
-              <Text size="sm" c="dimmed">
-                {subtitle}
-              </Text>
-            )}
-          </div>
-          {children}
-        </Stack>
-      </Paper>
-    </Center>
+    <div className="sr-login">
+      <div className="sr-login-card sr-form">
+        <LangToggle />
+        <div className="sr-brand">
+          Shop<b>Name</b>
+          <small>{t('appName').replace(/^ShopName\s*/, '') || t('appName')}</small>
+        </div>
+        <h1 className="sr-auth-title">{title}</h1>
+        {subtitle && <p className="a-hint sr-auth-sub">{subtitle}</p>}
+        {children}
+      </div>
+    </div>
   );
 }

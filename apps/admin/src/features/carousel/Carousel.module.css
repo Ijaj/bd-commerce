@@ -1,0 +1,78 @@
+/* plan/mockups/admin/shared/marketing.css: .m-slide, .m-ord, .m-muted */
+.slide {
+  display: grid;
+  grid-template-columns: auto auto 96px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 8px;
+  border: 1px solid var(--bdc-border);
+  border-radius: var(--bdc-r-sm, 4px);
+  background: var(--bdc-surface);
+  margin-bottom: 6px;
+}
+.ord {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bdc-primary);
+  color: var(--bdc-on-primary);
+  font-size: 11px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+.handle {
+  display: grid;
+  place-items: center;
+}
+.thumb {
+  width: 96px;
+  height: 48px;
+  border-radius: 4px;
+  object-fit: cover;
+  border: 1px solid var(--bdc-border);
+  background: var(--bdc-surface-2);
+}
+.main {
+  min-width: 0;
+}
+.title {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-weight: 700;
+  min-width: 0;
+}
+.title > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.meta {
+  color: var(--bdc-muted);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.acts {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+@media (max-width: 700px) {
+  .slide {
+    grid-template-columns: auto 72px minmax(0, 1fr);
+  }
+  .thumb {
+    width: 72px;
+  }
+  .ord {
+    display: none;
+  }
+  .acts {
+    grid-column: 1 / -1;
+    flex-wrap: wrap;
+  }
+}

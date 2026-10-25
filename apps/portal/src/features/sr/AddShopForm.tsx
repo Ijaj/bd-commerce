@@ -65,7 +65,7 @@ export function AddShopForm({ onCreated }: { onCreated: (shop: SrShop) => void }
           placeholder="Mirpur, Dhaka"
           {...form.getInputProps('area')}
         />
-        <Button type="submit" loading={create.isPending}>
+        <Button type="submit" fullWidth loading={create.isPending}>
           {t('saveShop')}
         </Button>
       </Stack>

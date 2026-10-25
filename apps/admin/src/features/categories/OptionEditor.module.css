@@ -1,0 +1,7 @@
+.grip {
+  cursor: grab;
+  touch-action: none;
+}
+.grow {
+  flex: 1;
+}

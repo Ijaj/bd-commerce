@@ -1,4 +1,5 @@
-import { Alert, Card, Group, SegmentedControl, SimpleGrid, Text } from '@mantine/core';
+import { StatTile, Toolbar } from '@bdc/ui';
+import { Alert, SegmentedControl } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
@@ -6,6 +7,7 @@ import { useState } from 'react';
 import { type Column, DataTable } from '~/components/DataTable';
 import { PageHeader } from '~/components/PageHeader';
 import { formatPrice } from '~/lib/format';
+import classes from './b2b.module.css';
 import { sortByDue, todayIso } from './logic';
 import { type DueItem, duesQuery } from './queries';
 
@@ -28,9 +30,7 @@ export function DuesPage() {
       header: 'Shop',
       render: (r) => (
         <Link to="/b2b/shops/$id" params={{ id: r.shop.id }}>
-          <Text size="sm" component="span">
-            {r.shop.name}
-          </Text>
+          <b>{r.shop.name}</b>
         </Link>
       ),
     },
@@ -47,11 +47,7 @@ export function DuesPage() {
       key: 'due',
       header: 'Total due',
       align: 'right',
-      render: (r) => (
-        <Text size="sm" fw={500} c="red">
-          {formatPrice(r.dueP)}
-        </Text>
-      ),
+      render: (r) => <span className={classes.due}>{formatPrice(r.dueP)}</span>,
     },
     {
       key: 'last',
@@ -64,9 +60,10 @@ export function DuesPage() {
     <div>
       <PageHeader
         title="Dues ageing"
+        crumbs={['People & partners', 'B2B dues']}
         description="What shops owe, grouped by how old each sale's due is."
       />
-      <Group mb="sm" align="flex-end">
+      <Toolbar>
         <DateInput
           label="As of"
           w={170}
@@ -84,28 +81,21 @@ export function DuesPage() {
             { value: 'asc', label: 'Lowest due first' },
           ]}
         />
-      </Group>
+      </Toolbar>
 
       {q.isError && <Alert color="red">{(q.error as Error).message}</Alert>}
       {totals && (
-        <SimpleGrid cols={{ base: 2, sm: 5 }} mb="md" aria-label="Totals">
+        <section className={classes.kpis} aria-label="Totals">
           {BUCKETS.map((b) => (
-            <Card key={b.key} withBorder padding="sm">
-              <Text size="xs" c="dimmed">
-                {b.label}
-              </Text>
-              <Text size="lg">{formatPrice(totals[b.key])}</Text>
-            </Card>
+            <StatTile key={b.key} label={b.label} value={formatPrice(totals[b.key])} />
           ))}
-          <Card withBorder padding="sm">
-            <Text size="xs" c="dimmed">
-              Total due
-            </Text>
-            <Text size="lg" fw={600} c="red">
-              {formatPrice(totals.dueP)}
-            </Text>
-          </Card>
-        </SimpleGrid>
+          <StatTile
+            label="Total due"
+            value={formatPrice(totals.dueP)}
+            delta="chase oldest first"
+            deltaDir="down"
+          />
+        </section>
       )}
       <DataTable
         columns={columns}

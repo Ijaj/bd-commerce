@@ -45,7 +45,7 @@
 }
 .st_rejected {
   background: var(--danger);
-  color: #fff;
+  color: var(--on-sale);
 }
 .pager {
   display: flex;

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Icon } from '~/components/Icon';
 import { Img } from '~/components/Img';
 import { dict, type Lang, pick } from '~/i18n';
 import { href } from '~/i18n/routing';
@@ -15,10 +16,11 @@ export function FeaturedCategories({ items, lang }: { items: CategoryNode[]; lan
   if (items.length === 0) return null;
   return (
     <section className={`wrap ${s.sec}`} aria-labelledby="h-cats">
-      <div className={s.head}>
+      <div className="sec-head">
         <h2 id="h-cats">{d.home.shopBy}</h2>
         <Link className="link" href={href(lang, '/categories')}>
           {d.common.viewAll}
+          <Icon name="chevR" size={16} />
         </Link>
       </div>
       <ul className={s.tiles}>

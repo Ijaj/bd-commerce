@@ -6,7 +6,7 @@ test.use({ storageState: OWNER_STATE });
 test('maintenance mode toggle persists across reload', async ({ page }) => {
   await page.goto('/settings');
   await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible();
-  const card = page.locator('.mantine-Paper-root').filter({ hasText: 'maintenance_mode' });
+  const card = page.locator('[data-setting="maintenance_mode"]');
   const toggle = card.getByRole('switch', { name: 'Enabled' });
   await expect(toggle).not.toBeChecked();
 
@@ -17,10 +17,7 @@ test('maintenance mode toggle persists across reload', async ({ page }) => {
 
     await page.reload();
     await expect(
-      page
-        .locator('.mantine-Paper-root')
-        .filter({ hasText: 'maintenance_mode' })
-        .getByRole('switch', { name: 'Enabled' }),
+      page.locator('[data-setting="maintenance_mode"]').getByRole('switch', { name: 'Enabled' }),
     ).toBeChecked();
 
     // Public site status reflects it; admin keeps working while it is on.

@@ -1,7 +1,7 @@
-import { Alert, Badge, Button, Group, Paper, Stack, Text, TextInput } from '@mantine/core';
+import { Icon } from '@bdc/ui';
+import { Badge, Button, TextInput } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconPlus, IconSearch } from '@tabler/icons-react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -15,7 +15,7 @@ import { srShopsQuery } from './queries';
 
 export function NewBadge() {
   return (
-    <Badge color="indigo" variant="light" ml={6}>
+    <Badge color="blue" variant="light" ml={6}>
       {t('newBadge')}
     </Badge>
   );
@@ -26,14 +26,14 @@ export function ShopsPage() {
   const [debounced] = useDebouncedValue(q.trim(), 250);
   const shops = useInfiniteQuery(srShopsQuery(debounced));
   return (
-    <Stack gap="sm">
+    <>
       <PageTitle
         right={
           <Button
             component={Link}
             to="/sr/shops/new"
-            size="xs"
-            leftSection={<IconPlus size={14} />}
+            size="compact-sm"
+            leftSection={<Icon name="plus" size={14} />}
           >
             {t('addShop')}
           </Button>
@@ -43,8 +43,9 @@ export function ShopsPage() {
       </PageTitle>
       <TextInput
         type="search"
+        mb="sm"
         placeholder={t('searchShopsShort')}
-        leftSection={<IconSearch size={16} />}
+        leftSection={<Icon name="search" size={16} />}
         value={q}
         onChange={(e) => setQ(e.currentTarget.value)}
       />
@@ -54,74 +55,55 @@ export function ShopsPage() {
           const total = data.pages[0]?.total ?? 0;
           return (
             <>
-              <Text size="sm" c="dimmed">
-                {t('shopsCount', { n: total })}
-              </Text>
-              <Paper py={4}>
-                {list.length === 0 ? (
-                  <Text c="dimmed" ta="center" py="md">
-                    {t('noShops')}
-                  </Text>
-                ) : (
-                  list.map((s) => (
-                    <Link
-                      key={s.id}
-                      to="/sr/shops/$id"
-                      params={{ id: s.id }}
-                      className="portal-item"
-                    >
-                      <Group justify="space-between" wrap="nowrap" gap="xs">
-                        <Text truncate>
-                          {s.name}
-                          {s.isNew && <NewBadge />}
-                          {s.status === 'blocked' && (
-                            <Badge color="red" variant="light" ml={6}>
-                              {t('blocked')}
-                            </Badge>
-                          )}
-                        </Text>
-                        <Text
-                          c={s.dueBalanceP > 0 ? 'red' : 'teal'}
-                          size="sm"
-                          style={{ flexShrink: 0 }}
-                        >
-                          {s.dueBalanceP > 0 ? formatPrice(s.dueBalanceP) : t('clear')}
-                        </Text>
-                      </Group>
-                      <Group justify="space-between" wrap="nowrap" gap="xs">
-                        <Text size="sm" c="dimmed" truncate>
-                          {[s.ownerName, s.area].filter(Boolean).join(' · ')}
-                        </Text>
-                        <Text size="sm" c="dimmed">
-                          {s.phone}
-                        </Text>
-                      </Group>
-                    </Link>
-                  ))
-                )}
-              </Paper>
+              <div className="sr-muted sr-mb">{t('shopsCount', { n: total })}</div>
+              {list.length === 0 ? (
+                <div className="sr-empty">{t('noShops')}</div>
+              ) : (
+                list.map((s) => (
+                  <Link key={s.id} to="/sr/shops/$id" params={{ id: s.id }} className="sr-item">
+                    <div className="t">
+                      <span>
+                        {s.name}
+                        {s.isNew && <NewBadge />}
+                        {s.status === 'blocked' && (
+                          <Badge color="red" variant="light" ml={6}>
+                            {t('blocked')}
+                          </Badge>
+                        )}
+                      </span>
+                      <span className={s.dueBalanceP > 0 ? 'sr-due' : 'sr-ok'}>
+                        {s.dueBalanceP > 0 ? formatPrice(s.dueBalanceP) : t('clear')}
+                      </span>
+                    </div>
+                    <div className="s">
+                      <span>{[s.ownerName, s.area].filter(Boolean).join(' · ')}</span>
+                      <span>{s.phone}</span>
+                    </div>
+                  </Link>
+                ))
+              )}
               <LoadMore query={shops} />
             </>
           );
         }}
       </QueryBoundary>
-    </Stack>
+    </>
   );
 }
 
 export function AddShopPage() {
   const navigate = useNavigate();
   return (
-    <Stack gap="sm">
+    <>
       <BackLink to="/sr/shops">{t('backShops')}</BackLink>
       <PageTitle>{t('addShopTitle')}</PageTitle>
-      <Alert variant="light">{t('addShopNote')}</Alert>
+      <div className="sr-note">{t('addShopNote')}</div>
       <AddShopForm
         onCreated={(shop) => {
           notifications.show({ message: t('shopSaved'), color: 'green' });
           void navigate({ to: '/sr/shops/$id', params: { id: shop.id } });
         }}
       />
-    </Stack>
+    </>
   );
 }

@@ -1,27 +1,17 @@
-import { Group, Text, Title } from '@mantine/core';
+import { PageHeader as UiPageHeader } from '@bdc/ui';
 import type { ReactNode } from 'react';
 
-/** Page title row with optional description and right-aligned actions. */
+/** Page title row (`.a-ph`): crumbs, left-bar title, optional description, right-aligned actions. */
 export function PageHeader({
   title,
   description,
   actions,
+  crumbs,
 }: {
-  title: string;
-  description?: string;
+  title: ReactNode;
+  description?: ReactNode;
   actions?: ReactNode;
+  crumbs?: ReactNode[];
 }) {
-  return (
-    <Group justify="space-between" align="flex-start" mb="md" wrap="nowrap">
-      <div>
-        <Title order={2}>{title}</Title>
-        {description && (
-          <Text size="sm" c="dimmed">
-            {description}
-          </Text>
-        )}
-      </div>
-      {actions && <Group gap="xs">{actions}</Group>}
-    </Group>
-  );
+  return <UiPageHeader title={title} description={description} actions={actions} crumbs={crumbs} />;
 }

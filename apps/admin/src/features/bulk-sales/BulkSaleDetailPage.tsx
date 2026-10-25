@@ -1,5 +1,5 @@
-import { Alert, Badge, Button, Loader, Text } from '@mantine/core';
-import { IconArrowLeft } from '@tabler/icons-react';
+import { Banner } from '@bdc/ui';
+import { Badge, Button, Loader } from '@mantine/core';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -9,6 +9,7 @@ import { PageHeader } from '~/components/PageHeader';
 import { formatDateTime, formatPrice } from '~/lib/format';
 import { useCan } from '~/lib/perm';
 import { bulkApi } from './api';
+import classes from './BulkSales.module.css';
 import { bulkErrorMessage, describeRule } from './logic';
 import { type BulkDetail, bulkDetailQuery, useInvalidateBulk } from './queries';
 
@@ -31,12 +32,20 @@ export function BulkSaleDetailPage({ id }: { id: string }) {
     },
   });
 
-  if (detail.isLoading) return <Loader />;
+  if (detail.isLoading) {
+    return (
+      <div className="a-card">
+        <div className="a-empty">
+          <Loader size="sm" />
+        </div>
+      </div>
+    );
+  }
   if (detail.error || !detail.data) {
     return (
-      <Alert color="red" role="alert">
+      <Banner tone="danger">
         {bulkErrorMessage(detail.error, 'Could not load this bulk sale')}
-      </Alert>
+      </Banner>
     );
   }
   const batch = detail.data;
@@ -48,10 +57,8 @@ export function BulkSaleDetailPage({ id }: { id: string }) {
       header: 'Variant',
       render: (i) => (
         <div>
-          <Text size="sm">{i.title}</Text>
-          <Text size="xs" c="dimmed">
-            {i.sku}
-          </Text>
+          {i.title}
+          <span className={classes.sub}>{i.sku}</span>
         </div>
       ),
     },
@@ -72,18 +79,12 @@ export function BulkSaleDetailPage({ id }: { id: string }) {
 
   return (
     <>
-      <Button
-        component={Link}
-        to="/promotions/bulk-sales"
-        variant="subtle"
-        size="xs"
-        leftSection={<IconArrowLeft size={14} />}
-        mb="xs"
-      >
+      <Button component={Link} to="/promotions/bulk-sales" variant="subtle" size="xs" mb="xs">
         All bulk sales
       </Button>
       <PageHeader
         title={batch.name}
+        crumbs={['Marketing', 'Bulk sales', batch.name]}
         description={`${describeRule(batch.mode, batch.value, formatPrice)} on ${batch.itemCount} variants, applied ${formatDateTime(batch.createdAt)}${batch.createdByName ? ` by ${batch.createdByName}` : ''}`}
         actions={
           <>
@@ -98,18 +99,21 @@ export function BulkSaleDetailPage({ id }: { id: string }) {
           </>
         }
       />
-      <Text size="sm" c="dimmed" mb="md">
+      <p className={`${classes.muted} ${classes.banners}`}>
         Sale window:{' '}
         {batch.startsAt ? formatDateTime(batch.startsAt) : 'from the moment it was applied'} to{' '}
         {batch.endsAt ? formatDateTime(batch.endsAt) : 'no end'}.
         {undone && batch.undoneAt ? ` Undone ${formatDateTime(batch.undoneAt)}.` : ''}
-      </Text>
+      </p>
       {result && (
-        <Alert color={result.skippedChanged > 0 ? 'yellow' : 'green'} mb="md" role="status">
+        <Banner
+          tone={result.skippedChanged > 0 ? 'warn' : 'info'}
+          icon={result.skippedChanged > 0 ? 'warn' : 'check'}
+        >
           Restored {result.restored} variant{result.restored === 1 ? '' : 's'}.
           {result.skippedChanged > 0 &&
             ` ${result.skippedChanged} were left as they are because their sale price was changed after this batch.`}
-        </Alert>
+        </Banner>
       )}
       <DataTable
         columns={columns}

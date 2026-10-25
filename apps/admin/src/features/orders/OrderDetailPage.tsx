@@ -1,6 +1,8 @@
-import { Alert, Anchor, Breadcrumbs, Group, Loader, Stack, Text, Title } from '@mantine/core';
+import { Banner } from '@bdc/ui';
+import { Loader } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
+import { PageHeader } from '~/components/PageHeader';
 import { OrderInvoicesSection } from '~/features/documents/OrderInvoicesSection';
 import { OrderReturnsSection } from '~/features/returns/OrderReturnsSection';
 import { OrderShipmentsSection } from '~/features/shipments/OrderShipmentsSection';
@@ -10,6 +12,7 @@ import { OrderActions } from './OrderActions';
 import { OrderHistoryCard, OrderInfoCards } from './OrderInfoCards';
 import { OrderItemsCard } from './OrderItemsCard';
 import { OrderPaymentsCard } from './OrderPaymentsCard';
+import classes from './Orders.module.css';
 import { orderQuery } from './queries';
 
 const PLATFORM: Record<string, string> = { web: 'Web shop', sr: 'Sales rep', admin: 'Admin' };
@@ -18,48 +21,60 @@ export function OrderDetailPage({ id }: { id: string }) {
   const q = useQuery(orderQuery(id));
   const order = q.data;
 
-  if (q.isLoading) return <Loader size="sm" aria-label="Loading" />;
+  if (q.isLoading) {
+    return (
+      <div className="a-card">
+        <div className="a-empty" role="status" aria-label="Loading">
+          <Loader size="sm" />
+        </div>
+      </div>
+    );
+  }
   if (q.isError || !order) {
-    return <Alert color="red">{(q.error as Error | null)?.message ?? 'Order not found'}</Alert>;
+    return <Banner tone="danger">{(q.error as Error | null)?.message ?? 'Order not found'}</Banner>;
   }
 
   return (
-    <Stack>
-      <Breadcrumbs>
-        <Link to="/orders">
-          <Anchor component="span" size="sm">
+    <>
+      <PageHeader
+        title={order.orderNo}
+        crumbs={[
+          'Sales',
+          <Link key="orders" to="/orders">
             Orders
-          </Anchor>
-        </Link>
-        <Text size="sm" fw={700}>
-          {order.orderNo}
-        </Text>
-      </Breadcrumbs>
-
-      <Group justify="space-between" align="flex-start">
+          </Link>,
+          order.orderNo,
+        ]}
+        actions={<OrderActions order={order} />}
+      />
+      <div className={classes.head}>
         <div>
-          <Title order={2}>{order.orderNo}</Title>
-          <Group gap="xs" mt={4}>
+          <h2>
             <StatusBadge status={order.status} />
             <PaymentBadge status={order.paymentStatus} />
             <CallBadge status={order.call.status} />
             <RiskBadge score={order.risk.score} reasons={order.risk.reasons} />
-            <Text size="sm" c="dimmed">
-              Placed {formatDateTime(order.placedAt)} · {PLATFORM[order.platform] ?? order.platform}
-              {order.isPreorder ? ' · Pre-order' : ''}
-            </Text>
-          </Group>
+          </h2>
+          <div className={classes.headMeta}>
+            Placed {formatDateTime(order.placedAt)} · {PLATFORM[order.platform] ?? order.platform}
+            {order.isPreorder ? ' · Pre-order' : ''}
+          </div>
         </div>
-        <OrderActions order={order} />
-      </Group>
+      </div>
 
-      <OrderInfoCards order={order} />
-      <OrderItemsCard order={order} />
-      <OrderShipmentsSection orderId={order.id} />
-      <OrderInvoicesSection orderId={order.id} />
-      <OrderReturnsSection orderId={order.id} />
-      <OrderPaymentsCard order={order} />
-      <OrderHistoryCard order={order} />
-    </Stack>
+      <div className={classes.layout}>
+        <div className={classes.col}>
+          <OrderItemsCard order={order} />
+          <OrderShipmentsSection orderId={order.id} />
+          <OrderInvoicesSection orderId={order.id} />
+          <OrderReturnsSection orderId={order.id} />
+          <OrderPaymentsCard order={order} />
+        </div>
+        <div className={classes.col}>
+          <OrderInfoCards order={order} />
+          <OrderHistoryCard order={order} />
+        </div>
+      </div>
+    </>
   );
 }

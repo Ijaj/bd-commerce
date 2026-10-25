@@ -32,6 +32,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { categoriesApi } from './api';
 import { conflictBody, HttpError } from './http';
+import classes from './OptionEditor.module.css';
 import {
   type OptionProblem,
   type OptionRow,
@@ -276,7 +277,7 @@ function OptionRowView({
         transform: CSS.Translate.toString(transform),
         transition,
         opacity: isDragging ? 0.6 : 1,
-        background: 'var(--mantine-color-body)',
+        background: 'var(--bdc-surface)',
       }}
     >
       <ActionIcon
@@ -284,7 +285,7 @@ function OptionRowView({
         color="gray"
         mt={4}
         aria-label="Drag option"
-        style={{ cursor: 'grab', touchAction: 'none' }}
+        className={classes.grip}
         disabled={disabled}
         {...attributes}
         {...listeners}
@@ -292,7 +293,7 @@ function OptionRowView({
         <IconGripVertical size={16} />
       </ActionIcon>
       <TextInput
-        style={{ flex: 1 }}
+        className={classes.grow}
         size="xs"
         placeholder="English"
         aria-label="Option (English)"
@@ -303,7 +304,7 @@ function OptionRowView({
         onChange={(e) => onChange({ valueEn: e.currentTarget.value })}
       />
       <TextInput
-        style={{ flex: 1 }}
+        className={classes.grow}
         size="xs"
         lang="bn"
         placeholder="বাংলা (optional)"

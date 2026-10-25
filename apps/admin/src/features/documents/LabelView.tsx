@@ -6,11 +6,11 @@ import type { Label } from './queries';
 
 const CSS = `
 @page { size: 4in 6in; margin: 0; }
-.label { width: 4in; height: 6in; box-sizing: border-box; padding: 0.18in; border: 1px solid #999;
+.label { width: 4in; height: 6in; box-sizing: border-box; padding: 0.18in; border: 1px solid var(--bdc-muted);
   margin: 12px auto; display: flex; flex-direction: column; gap: 6px; font-size: 12px; line-height: 1.35;
-  overflow: hidden; background: #fff; }
+  overflow: hidden; background: var(--bdc-surface); }
 .label .big { font-size: 15px; }
-.label .cod { border: 2px solid #111; padding: 4px 8px; font-size: 16px; text-align: center; }
+.label .cod { border: 2px solid var(--bdc-text); padding: 4px 8px; font-size: 16px; text-align: center; }
 .label .row { display: flex; justify-content: space-between; gap: 8px; }
 .label svg { width: 100%; height: 0.9in; }
 @media print {

@@ -1,5 +1,5 @@
-import { Button, Chip, Group, Paper, Stack, Text } from '@mantine/core';
-import { IconPlus } from '@tabler/icons-react';
+import { Icon } from '@bdc/ui';
+import { Button } from '@mantine/core';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -26,48 +26,48 @@ export function SalesPage() {
   const [filter, setFilter] = useState<Filter>('all');
   const sales = useInfiniteQuery(srSalesQuery(filter === 'all' ? undefined : filter));
   return (
-    <Stack gap="sm">
+    <>
       <PageTitle
         right={
-          <Button component={Link} to="/sr/new-sale" size="xs" leftSection={<IconPlus size={14} />}>
+          <Button
+            component={Link}
+            to="/sr/new-sale"
+            size="compact-sm"
+            leftSection={<Icon name="plus" size={14} />}
+          >
             {t('tabNewSale')}
           </Button>
         }
       >
         {t('mySales')}
       </PageTitle>
-      <Group gap={6} wrap="nowrap" style={{ overflowX: 'auto' }}>
+      <div className="sr-chips">
         {FILTERS.map((f) => (
-          <Chip
+          <button
             key={f.value}
-            checked={filter === f.value}
-            onChange={() => setFilter(f.value)}
-            variant="outline"
-            size="sm"
+            type="button"
+            aria-pressed={filter === f.value}
+            onClick={() => setFilter(f.value)}
           >
             {f.label()}
-          </Chip>
+          </button>
         ))}
-      </Group>
+      </div>
       <QueryBoundary query={sales}>
         {(data) => {
           const list = data.pages.flatMap((p) => p.items);
           return (
             <>
-              <Paper py={4}>
-                {list.length === 0 ? (
-                  <Text c="dimmed" ta="center" py="md">
-                    {t('noSales')}
-                  </Text>
-                ) : (
-                  list.map((s) => <SaleItem key={s.id} sale={s} />)
-                )}
-              </Paper>
+              {list.length === 0 ? (
+                <div className="sr-empty">{t('noSales')}</div>
+              ) : (
+                list.map((s) => <SaleItem key={s.id} sale={s} />)
+              )}
               <LoadMore query={sales} />
             </>
           );
         }}
       </QueryBoundary>
-    </Stack>
+    </>
   );
 }

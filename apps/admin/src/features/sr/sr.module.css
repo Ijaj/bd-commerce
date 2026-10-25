@@ -1,0 +1,32 @@
+/* Helpers from plan/mockups/admin/shared/sr.css (.s-due, .s-ok, .s-warn, .s-muted, .s-mono). */
+.due {
+  color: var(--bdc-danger);
+  font-weight: 700;
+}
+
+.ok {
+  color: var(--bdc-success);
+  font-weight: 700;
+}
+
+.warn {
+  color: var(--bdc-warn);
+  font-weight: 700;
+}
+
+.muted {
+  color: var(--bdc-muted);
+  font-size: 12px;
+}
+
+.mono {
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 12px;
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}

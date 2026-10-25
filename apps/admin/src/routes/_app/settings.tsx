@@ -1,4 +1,5 @@
-import { Alert, Badge, Button, Group, Loader, Paper, Stack, Text, Title } from '@mantine/core';
+import { SectionCard } from '@bdc/ui';
+import { Alert, Badge, Button, Group, Loader } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
@@ -6,6 +7,7 @@ import { useState } from 'react';
 import { api, unwrap } from '~/api';
 import { PageHeader } from '~/components/PageHeader';
 import { type JsonSchema, SchemaForm } from '~/features/settings/SchemaForm';
+import classes from '~/features/settings/settings.module.css';
 import { formatDateTime } from '~/lib/format';
 import { useCan } from '~/lib/perm';
 
@@ -48,73 +50,54 @@ function SettingCard({ setting, canManage }: { setting: Setting; canManage: bool
   });
 
   return (
-    <Paper>
-      <Stack gap="sm">
-        <Group justify="space-between" wrap="nowrap" align="flex-start">
-          <div>
-            <Group gap="xs">
-              <Text fw={600} ff="monospace" size="sm">
-                {setting.key}
-              </Text>
-              {setting.isDefault && (
-                <Badge variant="light" color="gray">
-                  default
-                </Badge>
-              )}
-              {setting.public && (
-                <Badge variant="light" color="teal">
-                  public
-                </Badge>
-              )}
-            </Group>
-            <Text size="xs" c="dimmed">
-              {setting.description}
-            </Text>
-          </div>
-          {setting.updatedAt && (
-            <Text size="xs" c="dimmed" ta="right">
-              {formatDateTime(setting.updatedAt)}
-              {setting.updatedBy ? ` by ${setting.updatedBy.name}` : ''}
-            </Text>
+    <div className={classes.row} data-setting={setting.key}>
+      <div className={classes.head}>
+        <div className={classes.title}>
+          <span className={classes.key}>
+            {setting.key}
+            {setting.isDefault && <Badge color="gray">default</Badge>}
+            {setting.public && <Badge color="green">public</Badge>}
+          </span>
+          <span className={classes.desc}>{setting.description}</span>
+        </div>
+        {setting.updatedAt && (
+          <span className={classes.meta}>
+            {formatDateTime(setting.updatedAt)}
+            {setting.updatedBy ? ` by ${setting.updatedBy.name}` : ''}
+          </span>
+        )}
+      </div>
+
+      <SchemaForm
+        schema={setting.schema as JsonSchema}
+        value={draft}
+        onChange={setDraft}
+        disabled={!canManage}
+      />
+
+      {(save.error || reset.error) && (
+        <Alert color="red" variant="light">
+          {(save.error ?? reset.error)?.message}
+        </Alert>
+      )}
+      {canManage && (
+        <Group gap="xs">
+          <Button loading={save.isPending} disabled={!dirty} onClick={() => save.mutate()}>
+            Save
+          </Button>
+          {dirty && (
+            <Button variant="default" onClick={() => setDraft(setting.value)}>
+              Discard
+            </Button>
+          )}
+          {!setting.isDefault && (
+            <Button variant="subtle" loading={reset.isPending} onClick={() => reset.mutate()}>
+              Reset to default
+            </Button>
           )}
         </Group>
-
-        <SchemaForm
-          schema={setting.schema as JsonSchema}
-          value={draft}
-          onChange={setDraft}
-          disabled={!canManage}
-        />
-
-        {(save.error || reset.error) && (
-          <Alert color="red" variant="light">
-            {(save.error ?? reset.error)?.message}
-          </Alert>
-        )}
-        {canManage && (
-          <Group gap="xs">
-            <Button loading={save.isPending} disabled={!dirty} onClick={() => save.mutate()}>
-              Save
-            </Button>
-            {dirty && (
-              <Button variant="default" onClick={() => setDraft(setting.value)}>
-                Discard
-              </Button>
-            )}
-            {!setting.isDefault && (
-              <Button
-                variant="subtle"
-                color="gray"
-                loading={reset.isPending}
-                onClick={() => reset.mutate()}
-              >
-                Reset to default
-              </Button>
-            )}
-          </Group>
-        )}
-      </Stack>
-    </Paper>
+      )}
+    </div>
   );
 }
 
@@ -122,22 +105,38 @@ function SettingsPage() {
   const { data, isPending, error } = useQuery(settingsQuery);
   const canManage = useCan('settings.manage');
 
-  if (isPending) return <Loader size="sm" />;
-  if (error) return <Alert color="red">{error.message}</Alert>;
+  if (isPending)
+    return (
+      <>
+        <PageHeader title="Settings" crumbs={['Admin', 'System', 'Settings']} />
+        <SectionCard>
+          <div className={classes.loading} role="status" aria-label="Loading">
+            <Loader size="sm" />
+          </div>
+        </SectionCard>
+      </>
+    );
+  if (error)
+    return (
+      <>
+        <PageHeader title="Settings" crumbs={['Admin', 'System', 'Settings']} />
+        <Alert color="red">{error.message}</Alert>
+      </>
+    );
 
   const groups = [...Map.groupBy(data, (s) => s.group)];
   return (
     <>
       <PageHeader
         title="Settings"
+        crumbs={['Admin', 'System', 'Settings']}
         description={
           canManage ? 'Store settings and feature flags.' : 'Read only: you lack settings.manage.'
         }
       />
-      <Stack gap="lg">
+      <div className={classes.groups}>
         {groups.map(([group, items]) => (
-          <Stack key={group} gap="sm">
-            <Title order={4}>{group}</Title>
+          <SectionCard key={group} title={group}>
             {items.map((s) => (
               // Remount when the server value changes so the draft resets.
               <SettingCard
@@ -146,9 +145,9 @@ function SettingsPage() {
                 canManage={canManage}
               />
             ))}
-          </Stack>
+          </SectionCard>
         ))}
-      </Stack>
+      </div>
     </>
   );
 }

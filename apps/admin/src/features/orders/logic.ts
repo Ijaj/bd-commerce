@@ -15,10 +15,10 @@ export const STATUS_LABEL: Record<OrderStatus, string> = {
 export const STATUS_COLOR: Record<OrderStatus, string> = {
   pending_payment: 'yellow',
   processing: 'blue',
-  on_hold: 'orange',
-  partially_shipped: 'cyan',
-  shipped: 'indigo',
-  delivered: 'teal',
+  on_hold: 'yellow',
+  partially_shipped: 'blue',
+  shipped: 'blue',
+  delivered: 'green',
   completed: 'green',
   cancelled: 'gray',
 };
@@ -34,9 +34,9 @@ export const PAYMENT_LABEL: Record<PaymentStatus, string> = {
 
 export const PAYMENT_COLOR: Record<PaymentStatus, string> = {
   unpaid: 'yellow',
-  partially_paid: 'orange',
-  paid: 'teal',
-  partially_refunded: 'grape',
+  partially_paid: 'yellow',
+  paid: 'green',
+  partially_refunded: 'blue',
   refunded: 'gray',
   failed: 'red',
 };
@@ -52,8 +52,8 @@ export const CALL_LABEL: Record<CallStatus, string> = {
 export const CALL_COLOR: Record<CallStatus, string> = {
   not_needed: 'gray',
   pending: 'yellow',
-  confirmed: 'teal',
-  unreachable: 'orange',
+  confirmed: 'green',
+  unreachable: 'yellow',
   cancelled: 'red',
 };
 

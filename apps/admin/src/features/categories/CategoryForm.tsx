@@ -1,3 +1,4 @@
+import { SectionCard } from '@bdc/ui';
 import {
   Button,
   ColorInput,
@@ -17,6 +18,7 @@ import { BilingualTextInput } from '~/components/BilingualTextInput';
 import { ImageUpload } from '~/components/ImageUpload';
 import { useCan } from '~/lib/perm';
 import { categoriesApi } from './api';
+import classes from './CategoryForm.module.css';
 import { type CategoryFormValues, emptyFormValues, formToInput } from './form';
 import { notifyError, notifyOk, refToMedia, useInvalidateCategories } from './queries';
 import { categoryLabel } from './tree';
@@ -109,126 +111,143 @@ export function CategoryForm({
 
   return (
     <form onSubmit={form.onSubmit((v) => save.mutate(v))}>
-      <fieldset disabled={readOnly} style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
+      <fieldset disabled={readOnly} className={classes.fieldset}>
         <Stack gap="md">
-          <Group align="flex-end" wrap="nowrap">
-            <TextInput
-              label="Parent"
-              value={parentLabel}
-              readOnly
-              style={{ flex: 1 }}
-              description={`Level ${level} of 4`}
-            />
-            {category && !readOnly && (
-              <Button variant="default" leftSection={<IconArrowsMove size={14} />} onClick={onMove}>
-                Move to...
-              </Button>
-            )}
-          </Group>
+          <SectionCard title="Details">
+            <Stack gap="md">
+              <Group align="flex-end" wrap="nowrap">
+                <TextInput
+                  label="Parent"
+                  value={parentLabel}
+                  readOnly
+                  className={classes.grow}
+                  description={`Level ${level} of 4`}
+                />
+                {category && !readOnly && (
+                  <Button
+                    variant="default"
+                    leftSection={<IconArrowsMove size={14} />}
+                    onClick={onMove}
+                  >
+                    Move to...
+                  </Button>
+                )}
+              </Group>
 
-          <BilingualTextInput
-            label="Name"
-            required
-            maxLength={150}
-            value={{ en: form.values.nameEn, bn: form.values.nameBn }}
-            onChange={(v) => {
-              set('nameEn', v.en);
-              set('nameBn', v.bn);
-            }}
-            error={form.errors.nameEn as string | undefined}
-          />
-          <TextInput
-            label="Slug"
-            description={
-              category
-                ? 'Changing the slug changes the shop URL.'
-                : 'Leave blank to generate it from the English name.'
-            }
-            placeholder="auto from name"
-            {...form.getInputProps('slug')}
-          />
-          <BilingualTextInput
-            label="Description"
-            multiline
-            rows={3}
-            maxLength={5000}
-            value={{ en: form.values.descriptionEn, bn: form.values.descriptionBn }}
-            onChange={(v) => {
-              set('descriptionEn', v.en);
-              set('descriptionBn', v.bn);
-            }}
-          />
-
-          <div>
-            <ImageUpload
-              label={level === 1 ? 'Image (required for main categories)' : 'Image'}
-              value={form.values.image}
-              onChange={(m) => set('image', m)}
-              disabled={readOnly}
-            />
-            {form.errors.image && (
-              <Text size="xs" c="red" mt={4}>
-                {form.errors.image}
-              </Text>
-            )}
-          </div>
-          <SimpleGrid cols={{ base: 1, sm: 2 }}>
-            <ImageUpload
-              label="Icon"
-              value={form.values.icon}
-              onChange={(m) => set('icon', m)}
-              disabled={readOnly}
-            />
-            <ImageUpload
-              label="Banner"
-              value={form.values.banner}
-              onChange={(m) => set('banner', m)}
-              disabled={readOnly}
-            />
-          </SimpleGrid>
-
-          <SimpleGrid cols={{ base: 1, sm: 3 }}>
-            <ColorInput
-              label="Chip colour"
-              format="hex"
-              placeholder="#4f46e5"
-              {...form.getInputProps('chipColor')}
-            />
-            <NumberInput
-              label="Sort"
-              description="Lower first"
-              min={0}
-              max={1_000_000}
-              allowDecimal={false}
-              {...form.getInputProps('sort')}
-            />
-            <NumberInput
-              label="Return window (days)"
-              description="Blank = shop default"
-              min={0}
-              max={365}
-              allowDecimal={false}
-              {...form.getInputProps('returnWindowDays')}
-            />
-          </SimpleGrid>
-          <Group>
-            <Switch label="Active" {...form.getInputProps('isActive', { type: 'checkbox' })} />
-            {level === 1 && canSetHome && (
-              <Switch
-                label="Show on home page"
-                {...form.getInputProps('showOnHome', { type: 'checkbox' })}
+              <BilingualTextInput
+                label="Name"
+                required
+                maxLength={150}
+                value={{ en: form.values.nameEn, bn: form.values.nameBn }}
+                onChange={(v) => {
+                  set('nameEn', v.en);
+                  set('nameBn', v.bn);
+                }}
+                error={form.errors.nameEn as string | undefined}
               />
-            )}
-          </Group>
-
-          <TextInput label="SEO title" maxLength={200} {...form.getInputProps('seoTitle')} />
-          <Textarea
-            label="SEO description"
-            autosize
-            minRows={2}
-            maxLength={500}
-            {...form.getInputProps('seoDescription')}
-          />
+              <TextInput
+                label="Slug"
+                description={
+                  category
+                    ? 'Changing the slug changes the shop URL.'
+                    : 'Leave blank to generate it from the English name.'
+                }
+                placeholder="auto from name"
+                {...form.getInputProps('slug')}
+              />
+              <BilingualTextInput
+                label="Description"
+                multiline
+                rows={3}
+                maxLength={5000}
+                value={{ en: form.values.descriptionEn, bn: form.values.descriptionBn }}
+                onChange={(v) => {
+                  set('descriptionEn', v.en);
+                  set('descriptionBn', v.bn);
+                }}
+              />
+            </Stack>
+          </SectionCard>
+          <SectionCard title="Images">
+            <Stack gap="md">
+              <div>
+                <ImageUpload
+                  label={level === 1 ? 'Image (required for main categories)' : 'Image'}
+                  value={form.values.image}
+                  onChange={(m) => set('image', m)}
+                  disabled={readOnly}
+                />
+                {form.errors.image && (
+                  <Text size="xs" c="red" mt={4}>
+                    {form.errors.image}
+                  </Text>
+                )}
+              </div>
+              <SimpleGrid cols={{ base: 1, sm: 2 }}>
+                <ImageUpload
+                  label="Icon"
+                  value={form.values.icon}
+                  onChange={(m) => set('icon', m)}
+                  disabled={readOnly}
+                />
+                <ImageUpload
+                  label="Banner"
+                  value={form.values.banner}
+                  onChange={(m) => set('banner', m)}
+                  disabled={readOnly}
+                />
+              </SimpleGrid>
+            </Stack>
+          </SectionCard>
+          <SectionCard title="Display and rules">
+            <Stack gap="md">
+              <SimpleGrid cols={{ base: 1, sm: 3 }}>
+                <ColorInput
+                  label="Chip colour"
+                  format="hex"
+                  placeholder="#4f46e5"
+                  {...form.getInputProps('chipColor')}
+                />
+                <NumberInput
+                  label="Sort"
+                  description="Lower first"
+                  min={0}
+                  max={1_000_000}
+                  allowDecimal={false}
+                  {...form.getInputProps('sort')}
+                />
+                <NumberInput
+                  label="Return window (days)"
+                  description="Blank = shop default"
+                  min={0}
+                  max={365}
+                  allowDecimal={false}
+                  {...form.getInputProps('returnWindowDays')}
+                />
+              </SimpleGrid>
+              <Group>
+                <Switch label="Active" {...form.getInputProps('isActive', { type: 'checkbox' })} />
+                {level === 1 && canSetHome && (
+                  <Switch
+                    label="Show on home page"
+                    {...form.getInputProps('showOnHome', { type: 'checkbox' })}
+                  />
+                )}
+              </Group>
+            </Stack>
+          </SectionCard>
+          <SectionCard title="SEO">
+            <Stack gap="md">
+              <TextInput label="SEO title" maxLength={200} {...form.getInputProps('seoTitle')} />
+              <Textarea
+                label="SEO description"
+                autosize
+                minRows={2}
+                maxLength={500}
+                {...form.getInputProps('seoDescription')}
+              />
+            </Stack>
+          </SectionCard>
         </Stack>
       </fieldset>
       {!readOnly && (

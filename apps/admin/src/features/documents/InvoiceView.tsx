@@ -8,14 +8,14 @@ const CSS = `
 .invoice { max-width: 190mm; margin: 0 auto; padding: 8mm; font-size: 12px; line-height: 1.45; }
 .invoice h1 { font-size: 22px; margin: 0 0 4px; }
 .invoice table { width: 100%; border-collapse: collapse; }
-.invoice th, .invoice td { padding: 5px 6px; border-bottom: 1px solid #ddd; text-align: left; vertical-align: top; }
+.invoice th, .invoice td { padding: 5px 6px; border-bottom: 1px solid var(--bdc-border); text-align: left; vertical-align: top; }
 .invoice .num { text-align: right; white-space: nowrap; }
 .invoice .cols { display: flex; gap: 24px; margin: 14px 0; }
 .invoice .cols > div { flex: 1; }
 .invoice .totals { margin-left: auto; width: 60%; margin-top: 10px; }
 .invoice .totals td { border: 0; padding: 2px 6px; }
-.invoice .grand td { border-top: 1px solid #111; font-size: 14px; }
-.invoice .muted { color: #555; }
+.invoice .grand td { border-top: 1px solid var(--bdc-text); font-size: 14px; }
+.invoice .muted { color: var(--bdc-muted); }
 `;
 
 /** Customer-facing A4 invoice from the stored snapshot. Order/phone/invoice numbers keep English digits. */

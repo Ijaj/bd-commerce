@@ -2,17 +2,16 @@
   margin-top: var(--sec-gap);
   margin-bottom: var(--sec-gap);
 }
-.head h2 {
-  font-size: 20px;
-  line-height: 1.25;
-  margin-bottom: var(--s4);
-}
 .more {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--s3);
-  margin-top: var(--s5);
+  margin-top: var(--s6);
+}
+.more :global(.btn) {
+  min-width: 220px;
+  padding-block: 12px;
 }
 .count,
 .err {
@@ -22,7 +21,4 @@
   color: var(--danger);
 }
 @media (max-width: 640px) {
-  .head h2 {
-    font-size: 17px;
-  }
 }

@@ -1,0 +1,8 @@
+/* plan/mockups/admin/shared/catalog.css: .c-attr-blk / .c-inh */
+.inherited {
+  background: var(--bdc-surface-2);
+}
+.grip {
+  cursor: grab;
+  touch-action: none;
+}

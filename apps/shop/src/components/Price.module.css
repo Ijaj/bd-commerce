@@ -24,10 +24,11 @@
   font-size: 14px;
 }
 .lg .price {
-  font-size: 28px;
+  font-size: 32px;
+  line-height: 1.1;
 }
 .lg .old {
-  font-size: 15px;
+  font-size: 16px;
 }
 .lg .off {
   font-size: 13px;
@@ -35,5 +36,8 @@
 @media (max-width: 640px) {
   .md .price {
     font-size: 14.5px;
+  }
+  .lg .price {
+    font-size: 26px;
   }
 }

@@ -1,6 +1,6 @@
-import { Badge, Button, Group, Select, Text, TextInput } from '@mantine/core';
+import { Icon, Toolbar } from '@bdc/ui';
+import { Badge, Button, Select, Text, TextInput } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
-import { IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -8,6 +8,7 @@ import { type Column, DataTable } from '~/components/DataTable';
 import { PageHeader } from '~/components/PageHeader';
 import { formatDateTime, formatPrice } from '~/lib/format';
 import { useCan } from '~/lib/perm';
+import classes from './Coupons.module.css';
 import {
   type CouponKind,
   type CouponPhase,
@@ -72,7 +73,8 @@ export function CouponsPage() {
     {
       key: 'code',
       header: 'Code',
-      render: (c) => (c.code ? <code>{c.code}</code> : c.isBulk ? 'Bulk codes' : '-'),
+      render: (c) =>
+        c.code ? <span className={classes.code}>{c.code}</span> : c.isBulk ? 'Bulk codes' : '-',
     },
     {
       key: 'discount',
@@ -80,9 +82,7 @@ export function CouponsPage() {
       render: (c) => (
         <div>
           <Text size="sm">{valueSummary(c)}</Text>
-          <Text size="xs" c="dimmed">
-            {TYPE_LABEL[c.type]}
-          </Text>
+          <span className={classes.muted}>{TYPE_LABEL[c.type]}</span>
         </div>
       ),
     },
@@ -113,7 +113,9 @@ export function CouponsPage() {
     {
       key: 'window',
       header: 'Window',
-      render: (c) => <Text size="sm">{windowSummary(c.startsAt, c.endsAt, formatDateTime)}</Text>,
+      render: (c) => (
+        <span className={classes.muted}>{windowSummary(c.startsAt, c.endsAt, formatDateTime)}</span>
+      ),
     },
   ];
 
@@ -126,7 +128,7 @@ export function CouponsPage() {
           canManage && (
             <Button
               size="xs"
-              leftSection={<IconPlus size={14} />}
+              leftSection={<Icon name="plus" size={14} />}
               component={Link}
               to="/promotions/coupons/new"
             >
@@ -135,7 +137,7 @@ export function CouponsPage() {
           )
         }
       />
-      <Group mb="md" align="flex-end">
+      <Toolbar className={classes.toolbar}>
         <TextInput
           label="Search"
           placeholder="Name or code"
@@ -182,7 +184,7 @@ export function CouponsPage() {
           onChange={filter(setStatus)}
           w={130}
         />
-      </Group>
+      </Toolbar>
       <DataTable
         columns={columns}
         rows={list.data?.items}

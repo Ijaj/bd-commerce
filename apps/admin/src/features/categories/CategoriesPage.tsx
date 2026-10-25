@@ -1,4 +1,5 @@
-import { Alert, Button, Card, Group, Loader, Text } from '@mantine/core';
+import { Banner, EmptyState, SectionCard } from '@bdc/ui';
+import { Button, Loader } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
@@ -59,6 +60,7 @@ export function CategoriesPage() {
     <div>
       <PageHeader
         title="Categories"
+        crumbs={['Catalog', 'Categories & attributes']}
         description="Up to 4 levels. Drag to reorder siblings; use the row menu to move, add a sub-category or delete."
         actions={
           <>
@@ -80,17 +82,17 @@ export function CategoriesPage() {
           </>
         }
       />
-      <Card withBorder p={0}>
+      <SectionCard title="Category tree" flush>
         {list.isLoading && (
-          <Group p="md">
+          <div className="a-empty" role="status" aria-label="Loading">
             <Loader size="sm" />
-          </Group>
+          </div>
         )}
-        {list.isError && <Alert color="red">{(list.error as Error).message}</Alert>}
+        {list.isError && <Banner tone="danger">{(list.error as Error).message}</Banner>}
         {list.data && list.data.length === 0 && (
-          <Text c="dimmed" p="md" size="sm">
-            No categories yet.
-          </Text>
+          <EmptyState icon="categories" title="No categories yet.">
+            Add a main category to start building the tree.
+          </EmptyState>
         )}
         {list.data && list.data.length > 0 && (
           <CategoryTree
@@ -110,7 +112,7 @@ export function CategoriesPage() {
             }}
           />
         )}
-      </Card>
+      </SectionCard>
 
       <CategoryDrawer
         state={drawer}

@@ -40,7 +40,7 @@ function LoginPage() {
   });
 
   return (
-    <AuthLayout title="Sign in" subtitle="Staff sign-in.">
+    <AuthLayout title="Staff sign in" subtitle="Use your work email and password.">
       <form onSubmit={form.onSubmit((v) => login.mutate(v))}>
         <Stack gap="sm">
           {login.error && (

@@ -1,0 +1,46 @@
+/* plan/mockups/admin/shared/catalog.css: .c-node, .c-sw, .c-node .lv */
+.head {
+  background: var(--bdc-surface-2);
+  border-bottom: 1px solid var(--bdc-border);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+}
+.row {
+  border-top: 1px solid var(--bdc-border);
+  transition: background 0.12s;
+}
+.row:hover {
+  background: var(--bdc-surface-2);
+}
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex: none;
+  border: 1px solid var(--bdc-border);
+}
+.thumb {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: var(--bdc-r-sm);
+  background: var(--bdc-surface-2);
+  border: 1px solid var(--bdc-border);
+}
+.grip {
+  cursor: grab;
+  touch-action: none;
+  color: var(--bdc-muted);
+}
+.name {
+  flex: 1;
+  min-width: 0;
+}
+.slug {
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 12px;
+  color: var(--bdc-muted);
+}
+.count {
+  font-weight: 700;
+}
