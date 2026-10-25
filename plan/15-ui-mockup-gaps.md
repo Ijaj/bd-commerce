@@ -165,3 +165,7 @@ Page titles stay as the app has them because unit tests and e2e select them: "Ca
   - running balance column in the ledger
 - Add shop: area suggestions.
 - Collections: current-due hint under the amount.
+
+## Storefront (`apps/shop`)
+
+See `plan/swarm/ui-fidelity/shop-gaps.md` section 4 (NOT BUILT) for the storefront list. It also lists the items skipped until someone checks them in a browser (C5, H8, H10, K9, O5, P14, A9) and the lead's "no" answers: G3 header category select, C12 Clear-filters action, L3 6-box OTP, O8 checkout steps trail.
