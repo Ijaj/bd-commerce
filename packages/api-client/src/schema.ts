@@ -1284,6 +1284,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/cart/coupon": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CartController_addCoupon"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cart/coupon/{code}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["CartController_removeCoupon"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cart/coupon-suggestions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CartController_suggestions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/customer/orders": {
         parameters: {
             query?: never;
@@ -2644,6 +2692,390 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/coupons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CouponsAdminController_list"];
+        put?: never;
+        post: operations["CouponsAdminController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/coupons/customer-lookup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CouponsAdminController_lookup"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/coupons/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CouponsAdminController_detail"];
+        put?: never;
+        post?: never;
+        delete: operations["CouponsAdminController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["CouponsAdminController_update"];
+        trace?: never;
+    };
+    "/v1/admin/coupons/{id}/activate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CouponsAdminController_activate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/coupons/{id}/pause": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CouponsAdminController_pause"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/coupons/{id}/duplicate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CouponsAdminController_duplicate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/coupons/{id}/codes/generate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CouponsAdminController_generate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/coupons/{id}/codes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CouponsAdminController_listCodes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/coupons/{id}/codes/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CouponsAdminController_exportCodes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/coupons/{id}/codes/assign": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CouponsAdminController_assign"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/coupons/{id}/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CouponsAdminController_report"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/customer/coupons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CouponsCustomerController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/customer/coupons/{couponId}/collect": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CouponsCustomerController_collect"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/customer/coupons/{couponId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["CouponsCustomerController_uncollect"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/coupons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CouponsPublicController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/products/{slug}/coupons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CouponsPublicController_forProduct"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/flash-sales": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["FlashAdminController_list"];
+        put?: never;
+        post: operations["FlashAdminController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/flash-sales/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["FlashAdminController_detail"];
+        put?: never;
+        post?: never;
+        delete: operations["FlashAdminController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["FlashAdminController_update"];
+        trace?: never;
+    };
+    "/v1/admin/flash-sales/{id}/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["FlashAdminController_replaceItems"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/flash-sales": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["FlashPublicController_current"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/bulk-sales/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["BulkSaleController_preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/bulk-sales": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["BulkSaleController_list"];
+        put?: never;
+        post: operations["BulkSaleController_apply"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/bulk-sales/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["BulkSaleController_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/bulk-sales/{id}/undo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["BulkSaleController_undo"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2735,7 +3167,7 @@ export interface components {
                 id: string;
                 name: string;
             }[];
-            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "po.receive")[];
+            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "po.receive")[];
         };
         ChangePasswordDto: {
             currentPassword: string;
@@ -2813,13 +3245,13 @@ export interface components {
             name: string;
             description: string | null;
             isSystem: boolean;
-            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "po.receive")[];
+            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "po.receive")[];
             staffCount: number;
         }[];
         CreateRoleDto: {
             name: string;
             description?: string;
-            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "po.receive")[];
+            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "po.receive")[];
         };
         RoleDto: {
             /** Format: uuid */
@@ -2827,17 +3259,17 @@ export interface components {
             name: string;
             description: string | null;
             isSystem: boolean;
-            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "po.receive")[];
+            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "po.receive")[];
             staffCount: number;
         };
         UpdateRoleDto: {
             name?: string;
             description?: string | null;
-            permissions?: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "po.receive")[];
+            permissions?: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "po.receive")[];
         };
         PermissionListDto: {
             /** @enum {string} */
-            key: "staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "po.receive";
+            key: "staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "po.receive";
             group: string;
             description: string;
         }[];
@@ -3636,6 +4068,7 @@ export interface components {
                 priceP: number;
                 compareAtP: number | null;
                 discountPct: number | null;
+                flashEndsAt: string | null;
                 ratingAvg: number;
                 ratingCount: number;
                 soldCount: number;
@@ -3797,6 +4230,7 @@ export interface components {
                 priceP: number;
                 compareAtP: number | null;
                 discountPct: number | null;
+                flashEndsAt: string | null;
                 ratingAvg: number;
                 ratingCount: number;
                 soldCount: number;
@@ -3853,6 +4287,7 @@ export interface components {
                 priceP: number;
                 compareAtP: number | null;
                 discountPct: number | null;
+                flashEndsAt: string | null;
                 ratingAvg: number;
                 ratingCount: number;
                 soldCount: number;
@@ -3965,6 +4400,7 @@ export interface components {
             priceP: number;
             compareAtP: number | null;
             discountPct: number | null;
+            flashEndsAt: string | null;
             ratingAvg: number;
             ratingCount: number;
             soldCount: number;
@@ -4026,6 +4462,11 @@ export interface components {
                 priceP: number;
                 compareAtP: number | null;
                 discountPct: number | null;
+                flash: {
+                    endsAt: string;
+                    remaining: number;
+                    perCustomerLimit: number | null;
+                } | null;
                 available: number;
                 isActive: boolean;
             }[];
@@ -4287,12 +4728,45 @@ export interface components {
                 available: number;
                 maxQty: number;
                 problem: ("out_of_stock" | "qty_reduced" | "unavailable" | "upcoming") | null;
+                flashEndsAt: string | null;
+                discountP: number;
             }[];
             count: number;
             subtotalP: number;
+            discountP: number;
+            appliedCoupons: {
+                couponId: string;
+                name: string;
+                /** @enum {string} */
+                kind: "code" | "auto";
+                /** @enum {string} */
+                type: "percent" | "fixed" | "free_delivery" | "bxgy" | "tiered" | "bundle";
+                code: string | null;
+                amountP: number;
+                freeDelivery: boolean;
+            }[];
+            codes: string[];
+            rejectedCodes: {
+                code: string;
+                /** @enum {string} */
+                reason: "NOT_FOUND" | "INACTIVE" | "NOT_STARTED" | "EXPIRED" | "MIN_ORDER" | "MIN_QTY" | "NO_MATCHING_ITEMS" | "SEGMENT" | "LIMIT_REACHED" | "BUDGET_REACHED" | "PLATFORM" | "PAYMENT_METHOD" | "ZONE" | "NOT_STACKABLE" | "ONLY_REGULAR_PRICE" | "ALREADY_USED" | "LOGIN_REQUIRED";
+            }[];
         };
         CartSetQtyDto: {
             qty: number;
+        };
+        CartCouponCodeDto: {
+            code: string;
+        };
+        CartCouponSuggestionsDto: {
+            items: {
+                couponId: string;
+                name: string;
+                code: string | null;
+                savingP: number;
+                /** @enum {string} */
+                source: "wallet" | "public";
+            }[];
         };
         OrderListDto: {
             items: {
@@ -4347,6 +4821,18 @@ export interface components {
                 qtyCancelled: number;
                 unitPriceP: number;
                 lineTotalP: number;
+                discountP: number;
+            }[];
+            discounts: {
+                couponId: string;
+                name: string;
+                /** @enum {string} */
+                kind: "code" | "auto";
+                /** @enum {string} */
+                type: "percent" | "fixed" | "free_delivery" | "bxgy" | "tiered" | "bundle";
+                code: string | null;
+                amountP: number;
+                deliveryP: number;
             }[];
             money: {
                 subtotalP: number;
@@ -4412,6 +4898,23 @@ export interface components {
                 etaMaxDays: number;
             };
             subtotalP: number;
+            autoDiscountP: number;
+            couponDiscountP: number;
+            appliedCoupons: {
+                couponId: string;
+                name: string;
+                /** @enum {string} */
+                kind: "code" | "auto";
+                /** @enum {string} */
+                type: "percent" | "fixed" | "free_delivery" | "bxgy" | "tiered" | "bundle";
+                code: string | null;
+                amountP: number;
+                freeDelivery: boolean;
+            }[];
+            rejectedCodes: {
+                code: string;
+                reason: string;
+            }[];
             deliveryChargeP: number;
             deliveryDiscountP: number;
             grandTotalP: number;
@@ -5232,6 +5735,19 @@ export interface components {
                 qtyReturned: number;
                 unitPriceP: number;
                 lineTotalP: number;
+                discountP: number;
+                priceSource: string;
+            }[];
+            discounts: {
+                couponId: string;
+                name: string;
+                /** @enum {string} */
+                kind: "code" | "auto";
+                /** @enum {string} */
+                type: "percent" | "fixed" | "free_delivery" | "bxgy" | "tiered" | "bundle";
+                code: string | null;
+                amountP: number;
+                deliveryP: number;
             }[];
             history: {
                 /** Format: uuid */
@@ -5979,6 +6495,625 @@ export interface components {
         };
         ReturnRefundCompleteDto: {
             providerRef?: string;
+        };
+        CouponListDto: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+                /** @enum {string} */
+                kind: "code" | "auto";
+                code: string | null;
+                isBulk: boolean;
+                /** @enum {string} */
+                type: "percent" | "fixed" | "free_delivery" | "bxgy" | "tiered" | "bundle";
+                value: number;
+                /** @enum {string} */
+                status: "draft" | "active" | "paused";
+                /** @enum {string} */
+                phase: "draft" | "scheduled" | "live" | "paused" | "expired" | "exhausted";
+                /** @enum {string} */
+                visibility: "public" | "hidden";
+                isCollectable: boolean;
+                startsAt: string | null;
+                endsAt: string | null;
+                usesCount: number;
+                discountGivenP: number;
+                maxUsesTotal: number | null;
+                budgetCapP: number | null;
+                priority: number;
+                /** Format: date-time */
+                createdAt: string;
+            }[];
+            total: number;
+            page: number;
+            limit: number;
+        };
+        CouponCreateDto: {
+            name: string;
+            /** @enum {string} */
+            kind: "code" | "auto";
+            code?: string | null;
+            isBulk?: boolean;
+            termsEn?: string | null;
+            termsBn?: string | null;
+            /** @enum {string} */
+            visibility?: "public" | "hidden";
+            isCollectable?: boolean;
+            /** @enum {string} */
+            type: "percent" | "fixed" | "free_delivery" | "bxgy" | "tiered" | "bundle";
+            value?: number;
+            maxDiscountP?: number | null;
+            config?: {
+                [key: string]: unknown;
+            };
+            minOrderP?: number | null;
+            minQty?: number | null;
+            startsAt?: string | null;
+            endsAt?: string | null;
+            /** @enum {string} */
+            segment?: "all" | "first_order" | "specific" | "inactive_days";
+            segmentParam?: number | null;
+            paymentMethods?: string[];
+            /** @enum {string} */
+            platform?: "web" | "app" | "both";
+            maxUsesTotal?: number | null;
+            maxPerCustomer?: number | null;
+            maxPerPhone?: number | null;
+            maxPerDevice?: number | null;
+            budgetCapP?: number | null;
+            stacksWithSalePrice?: boolean;
+            stacksWithOtherCoupons?: boolean;
+            stacksWithPoints?: boolean;
+            priority?: number;
+            targets?: {
+                /** @enum {string} */
+                targetType: "product" | "category" | "brand";
+                /** Format: uuid */
+                targetId: string;
+                /** @enum {string} */
+                mode: "include" | "exclude";
+            }[];
+            zoneIds?: string[];
+            tiers?: {
+                minSpendP: number;
+                discountP: number;
+            }[];
+            customerIds?: string[];
+        };
+        CouponDetailDto: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            /** @enum {string} */
+            kind: "code" | "auto";
+            code: string | null;
+            isBulk: boolean;
+            /** @enum {string} */
+            type: "percent" | "fixed" | "free_delivery" | "bxgy" | "tiered" | "bundle";
+            value: number;
+            /** @enum {string} */
+            status: "draft" | "active" | "paused";
+            /** @enum {string} */
+            phase: "draft" | "scheduled" | "live" | "paused" | "expired" | "exhausted";
+            /** @enum {string} */
+            visibility: "public" | "hidden";
+            isCollectable: boolean;
+            startsAt: string | null;
+            endsAt: string | null;
+            usesCount: number;
+            discountGivenP: number;
+            maxUsesTotal: number | null;
+            budgetCapP: number | null;
+            priority: number;
+            /** Format: date-time */
+            createdAt: string;
+            termsEn: string | null;
+            termsBn: string | null;
+            maxDiscountP: number | null;
+            config: {
+                [key: string]: unknown;
+            };
+            minOrderP: number | null;
+            minQty: number | null;
+            /** @enum {string} */
+            segment: "all" | "first_order" | "specific" | "inactive_days";
+            segmentParam: number | null;
+            paymentMethods: string[];
+            /** @enum {string} */
+            platform: "web" | "app" | "both";
+            maxPerCustomer: number | null;
+            maxPerPhone: number | null;
+            maxPerDevice: number | null;
+            stacksWithSalePrice: boolean;
+            stacksWithOtherCoupons: boolean;
+            stacksWithPoints: boolean;
+            /** @enum {string} */
+            source: "manual" | "referral_signup" | "referral_reward" | "system";
+            /** Format: date-time */
+            updatedAt: string;
+            targets: {
+                /** @enum {string} */
+                targetType: "product" | "category" | "brand";
+                /** Format: uuid */
+                targetId: string;
+                /** @enum {string} */
+                mode: "include" | "exclude";
+                label: string | null;
+            }[];
+            zones: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            }[];
+            tiers: {
+                minSpendP: number;
+                discountP: number;
+            }[];
+            customers: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+                phone: string | null;
+                email: string | null;
+            }[];
+            codeStats: {
+                total: number;
+                used: number;
+                assigned: number;
+            };
+        };
+        CouponLookupDto: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+                phone: string | null;
+                email: string | null;
+            }[];
+        };
+        CouponUpdateDto: {
+            name?: string;
+            code?: string | null;
+            isBulk?: boolean;
+            termsEn?: string | null;
+            termsBn?: string | null;
+            /** @enum {string} */
+            visibility?: "public" | "hidden";
+            isCollectable?: boolean;
+            /** @enum {string} */
+            type?: "percent" | "fixed" | "free_delivery" | "bxgy" | "tiered" | "bundle";
+            value?: number;
+            maxDiscountP?: number | null;
+            config?: {
+                [key: string]: unknown;
+            };
+            minOrderP?: number | null;
+            minQty?: number | null;
+            startsAt?: string | null;
+            endsAt?: string | null;
+            /** @enum {string} */
+            segment?: "all" | "first_order" | "specific" | "inactive_days";
+            segmentParam?: number | null;
+            paymentMethods?: string[];
+            /** @enum {string} */
+            platform?: "web" | "app" | "both";
+            maxUsesTotal?: number | null;
+            maxPerCustomer?: number | null;
+            maxPerPhone?: number | null;
+            maxPerDevice?: number | null;
+            budgetCapP?: number | null;
+            stacksWithSalePrice?: boolean;
+            stacksWithOtherCoupons?: boolean;
+            stacksWithPoints?: boolean;
+            priority?: number;
+            targets?: {
+                /** @enum {string} */
+                targetType: "product" | "category" | "brand";
+                /** Format: uuid */
+                targetId: string;
+                /** @enum {string} */
+                mode: "include" | "exclude";
+            }[];
+            zoneIds?: string[];
+            tiers?: {
+                minSpendP: number;
+                discountP: number;
+            }[];
+            customerIds?: string[];
+        };
+        CouponCodesGenerateDto: {
+            count: number;
+            prefix?: string;
+            /** @default 8 */
+            length: number;
+        };
+        CouponCodesGeneratedDto: {
+            generated: number;
+            total: number;
+        };
+        CouponCodesListDto: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                usedAt: string | null;
+                assignedCustomer: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                    phone: string | null;
+                } | null;
+            }[];
+            total: number;
+            page: number;
+            limit: number;
+        };
+        CouponCodesAssignDto: {
+            /** Format: uuid */
+            customerId: string;
+            count: number;
+        };
+        CouponCodesAssignedDto: {
+            assigned: number;
+            codes: string[];
+        };
+        CouponReportDto: {
+            uses: number;
+            uniqueCustomers: number;
+            revenueP: number;
+            discountGivenP: number;
+            avgOrderP: number;
+            reversed: number;
+            daily: {
+                /** Format: date */
+                date: string;
+                uses: number;
+                discountP: number;
+            }[];
+            topCustomers: {
+                /** Format: uuid */
+                customerId: string;
+                name: string;
+                uses: number;
+                discountP: number;
+            }[];
+        };
+        CouponWalletListDto: {
+            items: {
+                /** Format: uuid */
+                couponId: string;
+                name: string;
+                /** @enum {string} */
+                kind: "code" | "auto";
+                code: string | null;
+                /** @enum {string} */
+                type: "percent" | "fixed" | "free_delivery" | "bxgy" | "tiered" | "bundle";
+                value: number;
+                maxDiscountP: number | null;
+                minOrderP: number | null;
+                startsAt: string | null;
+                endsAt: string | null;
+                termsEn: string | null;
+                termsBn: string | null;
+                /** @enum {string} */
+                source: "collected" | "assigned" | "bulk_code";
+                collected: boolean;
+                /** @enum {string} */
+                state: "usable" | "expired" | "used_up" | "not_started";
+            }[];
+        };
+        CouponWalletItemDto: {
+            /** Format: uuid */
+            couponId: string;
+            name: string;
+            /** @enum {string} */
+            kind: "code" | "auto";
+            code: string | null;
+            /** @enum {string} */
+            type: "percent" | "fixed" | "free_delivery" | "bxgy" | "tiered" | "bundle";
+            value: number;
+            maxDiscountP: number | null;
+            minOrderP: number | null;
+            startsAt: string | null;
+            endsAt: string | null;
+            termsEn: string | null;
+            termsBn: string | null;
+            /** @enum {string} */
+            source: "collected" | "assigned" | "bulk_code";
+            collected: boolean;
+            /** @enum {string} */
+            state: "usable" | "expired" | "used_up" | "not_started";
+        };
+        CouponPublicListDto: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+                /** @enum {string} */
+                kind: "code" | "auto";
+                code: string | null;
+                /** @enum {string} */
+                type: "percent" | "fixed" | "free_delivery" | "bxgy" | "tiered" | "bundle";
+                value: number;
+                maxDiscountP: number | null;
+                minOrderP: number | null;
+                startsAt: string | null;
+                endsAt: string | null;
+                termsEn: string | null;
+                termsBn: string | null;
+                isCollectable: boolean;
+                collected?: boolean;
+            }[];
+        };
+        FlashSaleListDto: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                nameEn: string;
+                nameBn: string | null;
+                startsAt: string;
+                endsAt: string;
+                isActive: boolean;
+                /** @enum {string} */
+                phase: "scheduled" | "live" | "ended" | "inactive";
+                itemCount: number;
+                unitsSold: number;
+            }[];
+            total: number;
+            page: number;
+            pageSize: number;
+        };
+        FlashSaleCreateDto: {
+            nameEn: string;
+            nameBn?: string | null;
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: date-time */
+            endsAt: string;
+            isActive?: boolean;
+        };
+        FlashSaleDetailDto: {
+            /** Format: uuid */
+            id: string;
+            nameEn: string;
+            nameBn: string | null;
+            startsAt: string;
+            endsAt: string;
+            isActive: boolean;
+            /** @enum {string} */
+            phase: "scheduled" | "live" | "ended" | "inactive";
+            itemCount: number;
+            unitsSold: number;
+            items: {
+                /** Format: uuid */
+                id: string;
+                /** Format: uuid */
+                variantId: string;
+                /** Format: uuid */
+                productId: string;
+                productTitleEn: string;
+                sku: string;
+                priceP: number;
+                currentSalePriceP: number | null;
+                flashPriceP: number;
+                qtyLimit: number;
+                qtySold: number;
+                perCustomerLimit: number | null;
+                sort: number;
+            }[];
+        };
+        FlashSaleUpdateDto: {
+            nameEn?: string;
+            nameBn?: string | null;
+            /** Format: date-time */
+            startsAt?: string;
+            /** Format: date-time */
+            endsAt?: string;
+            isActive?: boolean;
+        };
+        FlashItemsReplaceDto: {
+            items: {
+                /** Format: uuid */
+                variantId: string;
+                flashPriceP: number;
+                qtyLimit: number;
+                /** @default null */
+                perCustomerLimit: number | null;
+                /** @default 0 */
+                sort: number;
+            }[];
+        };
+        FlashPublicDto: {
+            live: {
+                /** Format: uuid */
+                id: string;
+                nameEn: string;
+                nameBn: string | null;
+                startsAt: string;
+                endsAt: string;
+                items: {
+                    /** Format: uuid */
+                    variantId: string;
+                    productCard: {
+                        /** Format: uuid */
+                        id: string;
+                        slug: string;
+                        titleEn: string;
+                        titleBn: string | null;
+                        image: {
+                            alt: string | null;
+                            width: number;
+                            height: number;
+                            url320: string;
+                            url640: string;
+                            url1200: string;
+                        } | null;
+                        priceP: number;
+                        compareAtP: number | null;
+                        discountPct: number | null;
+                        flashEndsAt: string | null;
+                        ratingAvg: number;
+                        ratingCount: number;
+                        soldCount: number;
+                        badges: {
+                            isNew: boolean;
+                            isPreorder: boolean;
+                            isUpcoming: boolean;
+                            outOfStock: boolean;
+                        };
+                    };
+                    flashPriceP: number;
+                    remaining: number;
+                    qtyLimit: number;
+                }[];
+            }[];
+            upcoming: {
+                /** Format: uuid */
+                id: string;
+                nameEn: string;
+                nameBn: string | null;
+                startsAt: string;
+                endsAt: string;
+                items: {
+                    /** Format: uuid */
+                    variantId: string;
+                    productCard: {
+                        /** Format: uuid */
+                        id: string;
+                        slug: string;
+                        titleEn: string;
+                        titleBn: string | null;
+                        image: {
+                            alt: string | null;
+                            width: number;
+                            height: number;
+                            url320: string;
+                            url640: string;
+                            url1200: string;
+                        } | null;
+                        priceP: number;
+                        compareAtP: number | null;
+                        discountPct: number | null;
+                        flashEndsAt: string | null;
+                        ratingAvg: number;
+                        ratingCount: number;
+                        soldCount: number;
+                        badges: {
+                            isNew: boolean;
+                            isPreorder: boolean;
+                            isUpcoming: boolean;
+                            outOfStock: boolean;
+                        };
+                    };
+                    flashPriceP: number;
+                    remaining: number;
+                    qtyLimit: number;
+                }[];
+            }[];
+        };
+        BulkSalePreviewDto: {
+            /** @enum {string} */
+            mode: "percent" | "fixed";
+            value: number;
+            scope: {
+                productIds?: string[];
+                categoryIds?: string[];
+                brandIds?: string[];
+            };
+            startsAt?: string | null;
+            endsAt?: string | null;
+            skipExistingSales?: boolean;
+        };
+        BulkSalePreviewResultDto: {
+            count: number;
+            skipped: number;
+            skippedExisting: number;
+            skippedPrice: number;
+            tooMany: boolean;
+            limit: number;
+            sample: {
+                /** Format: uuid */
+                variantId: string;
+                sku: string;
+                title: string;
+                priceP: number;
+                currentSalePriceP: number | null;
+                newSalePriceP: number;
+            }[];
+        };
+        BulkSaleCreateDto: {
+            /** @enum {string} */
+            mode: "percent" | "fixed";
+            value: number;
+            scope: {
+                productIds?: string[];
+                categoryIds?: string[];
+                brandIds?: string[];
+            };
+            startsAt?: string | null;
+            endsAt?: string | null;
+            skipExistingSales?: boolean;
+            name: string;
+        };
+        BulkSaleDetailDto: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            /** @enum {string} */
+            mode: "percent" | "fixed";
+            value: number;
+            scope: {
+                productIds: string[];
+                categoryIds: string[];
+                brandIds: string[];
+            };
+            startsAt: string | null;
+            endsAt: string | null;
+            createdAt: string;
+            createdByName: string | null;
+            undoneAt: string | null;
+            itemCount: number;
+            items: {
+                /** Format: uuid */
+                variantId: string;
+                sku: string;
+                title: string;
+                priceP: number;
+                prevSalePriceP: number | null;
+                newSalePriceP: number;
+            }[];
+            total: number;
+            page: number;
+            pageSize: number;
+        };
+        BulkSaleListDto: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+                /** @enum {string} */
+                mode: "percent" | "fixed";
+                value: number;
+                scope: {
+                    productIds: string[];
+                    categoryIds: string[];
+                    brandIds: string[];
+                };
+                startsAt: string | null;
+                endsAt: string | null;
+                createdAt: string;
+                createdByName: string | null;
+                undoneAt: string | null;
+                itemCount: number;
+            }[];
+            total: number;
+            page: number;
+            pageSize: number;
+        };
+        BulkSaleUndoResultDto: {
+            restored: number;
+            skippedChanged: number;
         };
     };
     responses: never;
@@ -8724,6 +9859,77 @@ export interface operations {
             };
         };
     };
+    CartController_addCoupon: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CartCouponCodeDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CartDto"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    CartController_removeCoupon: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CartDto"];
+                };
+            };
+        };
+    };
+    CartController_suggestions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CartCouponSuggestionsDto"];
+                };
+            };
+        };
+    };
     CustomerOrdersController_list: {
         parameters: {
             query?: {
@@ -11055,6 +12261,861 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ReturnRefundDetailDto"];
+                };
+            };
+        };
+    };
+    CouponsAdminController_list: {
+        parameters: {
+            query?: {
+                kind?: "code" | "auto";
+                status?: "draft" | "active" | "paused";
+                type?: "percent" | "fixed" | "free_delivery" | "bxgy" | "tiered" | "bundle";
+                phase?: "draft" | "scheduled" | "live" | "paused" | "expired" | "exhausted";
+                q?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouponListDto"];
+                };
+            };
+        };
+    };
+    CouponsAdminController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CouponCreateDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouponDetailDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    CouponsAdminController_lookup: {
+        parameters: {
+            query: {
+                q: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouponLookupDto"];
+                };
+            };
+        };
+    };
+    CouponsAdminController_detail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouponDetailDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    CouponsAdminController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    CouponsAdminController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CouponUpdateDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouponDetailDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    CouponsAdminController_activate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouponDetailDto"];
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    CouponsAdminController_pause: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouponDetailDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    CouponsAdminController_duplicate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouponDetailDto"];
+                };
+            };
+        };
+    };
+    CouponsAdminController_generate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CouponCodesGenerateDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouponCodesGeneratedDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    CouponsAdminController_listCodes: {
+        parameters: {
+            query?: {
+                status?: "used" | "unused";
+                q?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouponCodesListDto"];
+                };
+            };
+        };
+    };
+    CouponsAdminController_exportCodes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": string;
+                };
+            };
+        };
+    };
+    CouponsAdminController_assign: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CouponCodesAssignDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouponCodesAssignedDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    CouponsAdminController_report: {
+        parameters: {
+            query?: {
+                from?: string;
+                to?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouponReportDto"];
+                };
+            };
+        };
+    };
+    CouponsCustomerController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouponWalletListDto"];
+                };
+            };
+            /** @description No valid customer session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CouponsCustomerController_collect: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                couponId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouponWalletItemDto"];
+                };
+            };
+            /** @description No valid customer session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    CouponsCustomerController_uncollect: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                couponId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No valid customer session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CouponsPublicController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouponPublicListDto"];
+                };
+            };
+        };
+    };
+    CouponsPublicController_forProduct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CouponPublicListDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    FlashAdminController_list: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                phase?: "scheduled" | "live" | "ended" | "inactive";
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FlashSaleListDto"];
+                };
+            };
+        };
+    };
+    FlashAdminController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FlashSaleCreateDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FlashSaleDetailDto"];
+                };
+            };
+        };
+    };
+    FlashAdminController_detail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FlashSaleDetailDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    FlashAdminController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    FlashAdminController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FlashSaleUpdateDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FlashSaleDetailDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    FlashAdminController_replaceItems: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FlashItemsReplaceDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FlashSaleDetailDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    FlashPublicController_current: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FlashPublicDto"];
+                };
+            };
+        };
+    };
+    BulkSaleController_preview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BulkSalePreviewDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkSalePreviewResultDto"];
+                };
+            };
+        };
+    };
+    BulkSaleController_list: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkSaleListDto"];
+                };
+            };
+        };
+    };
+    BulkSaleController_apply: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BulkSaleCreateDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkSaleDetailDto"];
+                };
+            };
+        };
+    };
+    BulkSaleController_detail: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkSaleDetailDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    BulkSaleController_undo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkSaleUndoResultDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
                 };
             };
         };

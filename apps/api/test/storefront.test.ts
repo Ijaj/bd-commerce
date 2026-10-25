@@ -691,6 +691,129 @@ describe('public storefront api', () => {
     });
   });
 
+  describe('flash prices', () => {
+    beforeEach(async () => {
+      await prisma.flashSale.deleteMany();
+      await cat('phones');
+    });
+
+    /** Puts the product's variant(s) into a flash sale with the given window and stock. */
+    async function flash(
+      slug: string,
+      flashPriceP: number,
+      o: {
+        startsAt?: Date;
+        endsAt?: Date;
+        isActive?: boolean;
+        qtyLimit?: number;
+        qtySold?: number;
+        variant?: number;
+      } = {},
+    ) {
+      const variants = await prisma.variant.findMany({
+        where: { product: { slug } },
+        orderBy: { sort: 'asc' },
+      });
+      const sale = await prisma.flashSale.create({
+        data: {
+          nameEn: `Flash ${slug}`,
+          startsAt: o.startsAt ?? new Date(Date.now() - DAY),
+          endsAt: o.endsAt ?? new Date(Date.now() + DAY),
+          isActive: o.isActive ?? true,
+          items: {
+            create: {
+              variantId: variants[o.variant ?? 0]?.id ?? '',
+              flashPriceP,
+              qtyLimit: o.qtyLimit ?? 5,
+              qtySold: o.qtySold ?? 0,
+            },
+          },
+        },
+      });
+      return sale;
+    }
+
+    it('uses a live flash price on cards, listing sort/filter and the feed discount', async () => {
+      await product({ slug: 'plain', title: 'Plain', cat: 'phones', price: 900 });
+      await product({ slug: 'fl', title: 'Fl', cat: 'phones', price: 1000, compareAt: 1200 });
+      const sale = await flash('fl', 600);
+      const res = await get('/v1/public/products').expect(200);
+      const card = res.body.items.find((i: { slug: string }) => i.slug === 'fl');
+      expect(card).toMatchObject({ priceP: 600, compareAtP: 1200, discountPct: 50 });
+      expect(card.flashEndsAt).toBe(sale.endsAt.toISOString());
+      const plain = res.body.items.find((i: { slug: string }) => i.slug === 'plain');
+      expect(plain.flashEndsAt).toBeNull();
+      expect(slugs(await get('/v1/public/products?sort=price_asc').expect(200))).toEqual([
+        'fl',
+        'plain',
+      ]);
+      expect(slugs(await get('/v1/public/products?maxPrice=700').expect(200))).toEqual(['fl']);
+      expect((await get('/v1/public/products').expect(200)).body.facets.price).toEqual({
+        min: 600,
+        max: 900,
+      });
+      const feed = await get('/v1/public/feed?seed=1&limit=10').expect(200);
+      expect(feed.body.items.find((i: { slug: string }) => i.slug === 'fl').priceP).toBe(600);
+    });
+
+    it('keeps the lower of a sale price and a flash price', async () => {
+      await product({
+        slug: 'both',
+        title: 'Both',
+        cat: 'phones',
+        price: 1000,
+        sale: { price: 500 },
+      });
+      await flash('both', 700);
+      const res = await get('/v1/public/products').expect(200);
+      expect(res.body.items[0]).toMatchObject({ priceP: 500, flashEndsAt: null });
+      const detail = await get('/v1/public/products/both').expect(200);
+      expect(detail.body.variants[0]).toMatchObject({ priceP: 500, flash: null });
+    });
+
+    it('falls back to the normal price when the flash is over, not started, sold out or inactive', async () => {
+      const now = Date.now();
+      await product({ slug: 'ended', title: 'E', cat: 'phones', price: 1000 });
+      await product({ slug: 'future', title: 'F', cat: 'phones', price: 1000 });
+      await product({ slug: 'soldout', title: 'S', cat: 'phones', price: 1000 });
+      await product({ slug: 'off', title: 'O', cat: 'phones', price: 1000 });
+      await flash('ended', 500, { startsAt: new Date(now - 2 * DAY), endsAt: new Date(now - DAY) });
+      await flash('future', 500, {
+        startsAt: new Date(now + DAY),
+        endsAt: new Date(now + 2 * DAY),
+      });
+      await flash('soldout', 500, { qtyLimit: 3, qtySold: 3 });
+      await flash('off', 500, { isActive: false });
+      const res = await get('/v1/public/products').expect(200);
+      for (const i of res.body.items) {
+        expect(i).toMatchObject({ priceP: 1000, compareAtP: null, flashEndsAt: null });
+      }
+      const detail = await get('/v1/public/products/soldout').expect(200);
+      expect(detail.body.variants[0].flash).toBeNull();
+    });
+
+    it('prices each variant on the detail page and the card shows the cheapest', async () => {
+      await product({ slug: 'two', title: 'Two', cat: 'phones', price: 1000, stocks: [5, 5] });
+      const sale = await flash('two', 400, { variant: 1, qtyLimit: 4, qtySold: 1 });
+      const detail = await get('/v1/public/products/two').expect(200);
+      const [v0, v1] = detail.body.variants;
+      expect(v0).toMatchObject({ priceP: 1000, flash: null });
+      expect(v1).toMatchObject({ priceP: 400, compareAtP: 1100, discountPct: 64 });
+      expect(v1.flash).toEqual({
+        endsAt: sale.endsAt.toISOString(),
+        remaining: 3,
+        perCustomerLimit: null,
+      });
+      const list = await get('/v1/public/products').expect(200);
+      expect(list.body.items[0]).toMatchObject({
+        priceP: 400,
+        flashEndsAt: sale.endsAt.toISOString(),
+      });
+      const cards = await get(`/v1/public/products/cards?ids=${list.body.items[0].id}`).expect(200);
+      expect(cards.body[0].priceP).toBe(400);
+    });
+  });
+
   describe('feed', () => {
     beforeEach(async () => {
       await cat('phones');

@@ -3,6 +3,7 @@ import type { Prisma } from '../generated/prisma/client';
 import { CommerceError } from '../orders/commerce.errors';
 import { OrderStatusService } from '../orders/order-status.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { readDiscounts } from '../promotions/engine/order-discounts';
 import { ImageService } from '../storefront/images';
 import { dayEndExclusive, dayStart, orderKey } from './order-lookup';
 import type { OrdersAdminListQueryDto } from './orders-admin.dto';
@@ -205,7 +206,10 @@ export class OrdersAdminService {
         qtyReturned: i.qtyReturned,
         unitPriceP: i.unitPriceP,
         lineTotalP: i.lineTotalP,
+        discountP: i.discountP,
+        priceSource: i.priceSource,
       })),
+      discounts: readDiscounts(o.discountsJson),
       history: o.history.map((h) => ({
         id: h.id,
         fromStatus: h.fromStatus,

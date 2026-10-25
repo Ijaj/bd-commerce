@@ -1,5 +1,6 @@
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
+import { appliedCouponSchema } from '../cart/cart.dto';
 
 const location = {
   districtId: z.number().int(),
@@ -19,7 +20,15 @@ export class CheckoutQuoteDto extends createZodDto(
       etaMaxDays: z.number(),
     }),
     subtotalP: z.number(),
+    /// Automatic coupon item discounts.
+    autoDiscountP: z.number(),
+    /// Typed/bulk code item discounts.
+    couponDiscountP: z.number(),
+    appliedCoupons: z.array(appliedCouponSchema),
+    /// Cart codes that no longer apply for this address (the cart drops them on its next read).
+    rejectedCodes: z.array(z.object({ code: z.string(), reason: z.string() })),
     deliveryChargeP: z.number(),
+    /// Zone free-delivery plus coupon delivery discounts.
     deliveryDiscountP: z.number(),
     grandTotalP: z.number(),
     freeDeliveryRemainingP: z.number().nullable(),

@@ -11,8 +11,26 @@ const SALE_ACTIVE = sql`(v.sale_price_p IS NOT NULL AND v.sale_price_p < v.price
   AND (v.sale_ends_at IS NULL OR v.sale_ends_at > now()))`;
 
 /**
+ * Per product, the cheapest live flash price (window open, sale active, stock left) with the
+ * regular strike-through for that variant. Not correlated: the live set is tiny, so it is built
+ * once per query and hash-joined. A per-variant lookup inside the price lateral made list queries
+ * 2x slower at 20k products even with no flash sale at all.
+ */
+const FLASH_BY_PRODUCT = sql`(
+  SELECT DISTINCT ON (fv.product_id) fv.product_id, fi.flash_price_p AS fp,
+    GREATEST(coalesce(fv.compare_at_p, 0), fv.price_p) AS compare
+  FROM flash_sale_items fi
+  JOIN flash_sales fs ON fs.id = fi.flash_sale_id
+  JOIN variants fv ON fv.id = fi.variant_id AND fv.is_active
+  WHERE fi.qty_sold < fi.qty_limit AND fs.is_active AND fs.starts_at <= now() AND fs.ends_at > now()
+  ORDER BY fv.product_id, fi.flash_price_p, fv.sort, fv.id
+)`;
+
+/**
  * Public products with the cheapest active variant (`cv.price`, `cv.compare`) and total sellable
- * stock (`st.stock`). Products without an active variant drop out of the lateral join.
+ * stock (`st.stock`). Price = lowest of base, live sale and live flash, same as effectivePrice()
+ * (on an exact tie between variants the regular price wins). Products without an active variant
+ * drop out of the lateral join.
  * Aliases: p products, pc primary category, b brand (active brands only).
  */
 export const PRODUCT_FROM = sql`
@@ -28,6 +46,12 @@ export const PRODUCT_FROM = sql`
     WHERE v.product_id = p.id AND v.is_active
     ORDER BY 1, v.sort, v.id
     LIMIT 1
+  ) cv0
+  LEFT JOIN ${FLASH_BY_PRODUCT} fl ON fl.product_id = p.id
+  CROSS JOIN LATERAL (
+    SELECT
+      CASE WHEN fl.fp < cv0.price THEN fl.fp ELSE cv0.price END AS price,
+      CASE WHEN fl.fp < cv0.price THEN fl.compare ELSE cv0.compare END AS compare
   ) cv
   CROSS JOIN LATERAL (
     SELECT coalesce(sum(greatest(i.on_hand - i.reserved, 0)), 0)::int AS stock

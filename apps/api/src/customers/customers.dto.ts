@@ -77,6 +77,7 @@ export class WishlistDto extends createZodDto(
         priceP: z.number(),
         compareAtP: z.number().nullable(),
         discountPct: z.number().nullable(),
+        flashEndsAt: z.string().nullable(),
         ratingAvg: z.number(),
         ratingCount: z.number(),
         soldCount: z.number(),

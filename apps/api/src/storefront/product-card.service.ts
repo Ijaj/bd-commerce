@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { activeFlashFor } from '../promotions/flash/flash-core';
 import { SettingsService } from '../settings/settings.service';
 import { ImageService } from './images';
 import { availableQty, effectivePrice } from './pricing';
@@ -79,6 +80,11 @@ export class ProductCardService {
       this.settings.get('home_feed'),
     ]);
 
+    const flashes = await activeFlashFor(
+      this.prisma,
+      rows.flatMap((p) => p.variants.map((v) => v.id)),
+      now,
+    );
     const hiddenPaths = hidden.map((c) => c.path);
     const newSince = now.getTime() - feed.newDays * DAY_MS;
     const byId = new Map<string, ProductCard>();
@@ -87,7 +93,7 @@ export class ProductCardService {
       if (hiddenPaths.some((h) => p.primaryCategory.path.startsWith(h))) continue;
 
       const priced = p.variants
-        .map((v) => ({ v, price: effectivePrice(v, now) }))
+        .map((v) => ({ v, price: effectivePrice(v, now, flashes.get(v.id) ?? null) }))
         .sort((a, b) => a.price.priceP - b.price.priceP || a.v.sort - b.v.sort);
       const cheapest = priced[0]?.price;
       if (!cheapest) continue;
@@ -102,6 +108,7 @@ export class ProductCardService {
         priceP: cheapest.priceP,
         compareAtP: cheapest.compareAtP,
         discountPct: cheapest.discountPct,
+        flashEndsAt: cheapest.flashEndsAt?.toISOString() ?? null,
         ratingAvg: Number(p.ratingAvg),
         ratingCount: p.ratingCount,
         soldCount: p.soldCount,

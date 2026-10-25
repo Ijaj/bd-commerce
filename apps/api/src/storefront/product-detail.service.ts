@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { sanitizeDescriptionHtml } from '../catalog/html/sanitize';
 import type { Prisma } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { activeFlashFor } from '../promotions/flash/flash-core';
 import { SettingsService } from '../settings/settings.service';
 import { ImageService } from './images';
 import { availableQty, effectivePrice } from './pricing';
@@ -60,8 +61,14 @@ export class ProductDetailService {
 
     const active = p.variants.filter((v) => v.isActive);
     const stock = active.reduce((sum, v) => sum + availableQty(v.inventory), 0);
+    const flashes = await activeFlashFor(
+      this.prisma,
+      p.variants.map((v) => v.id),
+      now,
+    );
     const variants = p.variants.map((v) => {
-      const price = effectivePrice(v, now);
+      const flash = flashes.get(v.id) ?? null;
+      const price = effectivePrice(v, now, flash);
       return {
         id: v.id,
         sku: v.sku,
@@ -70,6 +77,15 @@ export class ProductDetailService {
         priceP: price.priceP,
         compareAtP: price.compareAtP,
         discountPct: price.discountPct,
+        // Only while the flash price is the one in effect (a cheaper sale price wins otherwise).
+        flash:
+          flash && price.source === 'flash'
+            ? {
+                endsAt: flash.endsAt.toISOString(),
+                remaining: flash.remaining,
+                perCustomerLimit: flash.perCustomerLimit,
+              }
+            : null,
         available: availableQty(v.inventory),
         isActive: v.isActive,
       };

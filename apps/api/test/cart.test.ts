@@ -5,6 +5,16 @@ import { PrismaService } from '../src/prisma/prisma.service';
 import { addToCart, makeProduct, PASSWORD, resetCommerce, signupCustomer } from './cart-fixtures';
 import { createApp } from './helpers';
 
+const EMPTY = {
+  items: [],
+  count: 0,
+  subtotalP: 0,
+  discountP: 0,
+  appliedCoupons: [],
+  codes: [],
+  rejectedCodes: [],
+};
+
 describe('cart', () => {
   let app: INestApplication;
   let prisma: PrismaService;
@@ -21,7 +31,7 @@ describe('cart', () => {
   it('hands a browser a bdc_vid cookie and starts with an empty cart', async () => {
     const a = guest();
     const res = await a.get('/v1/cart').expect(200);
-    expect(res.body).toEqual({ items: [], count: 0, subtotalP: 0 });
+    expect(res.body).toEqual(EMPTY);
     const cookie = res.headers['set-cookie']?.[0] ?? '';
     expect(cookie).toMatch(/^bdc_vid=[0-9a-f-]{36}/);
     expect(cookie).toMatch(/HttpOnly/);
@@ -56,12 +66,9 @@ describe('cart', () => {
     const del = await a.delete(`/v1/cart/items/${variant.id}`).expect(200);
     expect(del.body.items).toEqual([]);
     await addToCart(a, variant.id, 1);
-    await a
-      .put(`/v1/cart/items/${variant.id}`)
-      .send({ qty: 0 })
-      .expect(200, { items: [], count: 0, subtotalP: 0 });
+    await a.put(`/v1/cart/items/${variant.id}`).send({ qty: 0 }).expect(200, EMPTY);
     await addToCart(a, variant.id, 1);
-    await a.delete('/v1/cart').expect(200, { items: [], count: 0, subtotalP: 0 });
+    await a.delete('/v1/cart').expect(200, EMPTY);
   });
 
   it('clamps qty to stock and checkout.maxQtyPerLine', async () => {

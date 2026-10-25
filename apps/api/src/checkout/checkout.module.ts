@@ -5,6 +5,7 @@ import { DeliveryModule } from '../delivery/delivery.module';
 import { GeoModule } from '../geo/geo.module';
 import { InventoryModule } from '../inventory/inventory.module';
 import { OrdersModule } from '../orders/orders.module';
+import { PromotionsModule } from '../promotions/promotions.module';
 import { CheckoutController } from './checkout.controller';
 import { CheckoutService } from './checkout.service';
 
@@ -16,6 +17,7 @@ import { CheckoutService } from './checkout.service';
     GeoModule,
     InventoryModule,
     OrdersModule,
+    PromotionsModule,
   ],
   controllers: [CheckoutController],
   providers: [CheckoutService],

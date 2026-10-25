@@ -3,6 +3,7 @@ import { ThrottleService } from '../auth/throttle.service';
 import { CustomerError } from '../customers/customers.errors';
 import { maskPhone, normalizePhone } from '../customers/phone';
 import { PrismaService } from '../prisma/prisma.service';
+import { readDiscounts } from '../promotions/engine/order-discounts';
 import { returnableQtyByLine } from '../returns/returns.util';
 import { SettingsService } from '../settings/settings.service';
 import { ImageService } from '../storefront/images';
@@ -97,7 +98,9 @@ export class OrdersService {
         qtyCancelled: i.qtyCancelled,
         unitPriceP: i.unitPriceP,
         lineTotalP: i.lineTotalP,
+        discountP: i.discountP,
       })),
+      discounts: readDiscounts(o.discountsJson),
       money: {
         subtotalP: o.subtotalP,
         autoDiscountP: o.autoDiscountP,

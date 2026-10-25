@@ -1,5 +1,6 @@
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
+import { orderDiscountSchema } from '../promotions/engine/order-discounts';
 
 const imageSet = z.object({
   alt: z.string().nullable(),
@@ -73,8 +74,12 @@ export class OrderDetailDto extends createZodDto(
         qtyCancelled: z.number(),
         unitPriceP: z.number(),
         lineTotalP: z.number(),
+        /// Coupon discount allocated to this line (lineTotalP is before it).
+        discountP: z.number(),
       }),
     ),
+    /// Coupons applied to the order, as snapshotted at checkout.
+    discounts: z.array(orderDiscountSchema),
     money: z.object({
       subtotalP: z.number(),
       autoDiscountP: z.number(),

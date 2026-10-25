@@ -26,6 +26,8 @@ export const productCardSchema = z.object({
   priceP: z.number().int(),
   compareAtP: z.number().int().nullable(),
   discountPct: z.number().int().nullable(),
+  /** Set while the price shown is a live flash price: countdown target. */
+  flashEndsAt: z.string().nullable(),
   ratingAvg: z.number(),
   ratingCount: z.number().int(),
   soldCount: z.number().int(),
@@ -246,6 +248,13 @@ export class PublicProductDetailDto extends createZodDto(
         priceP: z.number().int(),
         compareAtP: z.number().int().nullable(),
         discountPct: z.number().int().nullable(),
+        flash: z
+          .object({
+            endsAt: z.string(),
+            remaining: z.number().int(),
+            perCustomerLimit: z.number().int().nullable(),
+          })
+          .nullable(),
         available: z.number().int(),
         isActive: z.boolean(),
       }),

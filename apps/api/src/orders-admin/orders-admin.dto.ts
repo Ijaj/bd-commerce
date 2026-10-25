@@ -1,5 +1,6 @@
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
+import { orderDiscountSchema } from '../promotions/engine/order-discounts';
 
 const iso = z.iso.datetime();
 const page = z.coerce.number().int().min(1).default(1);
@@ -121,6 +122,9 @@ const detailItem = z.object({
   qtyReturned: z.number().int(),
   unitPriceP: z.number().int(),
   lineTotalP: z.number().int(),
+  /// Coupon discount allocated to this line (lineTotalP is before it).
+  discountP: z.number().int(),
+  priceSource: z.string(),
 });
 
 const detail = z.object({
@@ -163,6 +167,7 @@ const detail = z.object({
     codDueP: z.number().int(),
   }),
   items: z.array(detailItem),
+  discounts: z.array(orderDiscountSchema),
   history: z.array(
     z.object({
       id: z.uuid(),

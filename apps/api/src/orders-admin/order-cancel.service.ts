@@ -4,6 +4,7 @@ import { InventoryService } from '../inventory/inventory.service';
 import { CommerceError } from '../orders/commerce.errors';
 import { OrderStatusService } from '../orders/order-status.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { reversePromotions } from '../promotions/engine/redeem';
 import { orderKey } from './order-lookup';
 import { OrdersAdminError } from './orders-admin.errors';
 
@@ -102,6 +103,8 @@ export class OrderCancelService {
     for (const i of order.items) {
       await tx.orderItem.update({ where: { id: i.id }, data: { qtyCancelled: i.qty } });
     }
+    // Q90: the coupon uses, budget, bulk code and flash stock come back with the cancelled order.
+    await reversePromotions(tx, orderId);
     await tx.payment.updateMany({
       where: { orderId, status: 'initiated' },
       data: { status: 'cancelled' },

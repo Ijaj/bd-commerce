@@ -12,6 +12,9 @@ import { CommerceError } from '../orders/commerce.errors';
 import { OrderNotifyService } from '../orders/order-notify.service';
 import { RiskService } from '../orders/risk.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { PromotionsService } from '../promotions/engine/promotions.service';
+import { claimFlash } from '../promotions/flash/flash-core';
+import type { OrderDiscountSnapshot, PromoContext, PromoResult } from '../promotions/types';
 import { REDIS } from '../redis/redis.module';
 import { SettingsService } from '../settings/settings.service';
 import type { CheckoutPlaceDto, CheckoutQuoteDto } from './checkout.dto';
@@ -26,10 +29,15 @@ interface Meta {
 
 interface Pricing {
   subtotalP: number;
+  autoDiscountP: number;
+  couponDiscountP: number;
   deliveryChargeP: number;
+  /** Zone rule (free threshold) plus coupon delivery discounts. */
   deliveryDiscountP: number;
   grandTotalP: number;
   freeDeliveryRemainingP: number | null;
+  promo: PromoResult;
+  promoCtx: PromoContext;
 }
 
 type Problem = 'CART_EMPTY' | 'CART_CHANGED' | 'OUT_OF_STOCK';
@@ -50,6 +58,18 @@ function problemsOf(lines: CartLineDetail[]): Problem[] {
   return [...out];
 }
 
+function snapshotOf(promo: PromoResult): OrderDiscountSnapshot[] {
+  return promo.applied.map((d) => ({
+    couponId: d.couponId,
+    name: d.name,
+    kind: d.kind,
+    type: d.type,
+    code: d.code,
+    amountP: d.itemDiscountP,
+    deliveryP: d.deliveryDiscountP,
+  }));
+}
+
 @Injectable()
 export class CheckoutService {
   constructor(
@@ -62,6 +82,7 @@ export class CheckoutService {
     private readonly settings: SettingsService,
     private readonly notify: OrderNotifyService,
     private readonly risk: RiskService,
+    private readonly promotions: PromotionsService,
     @Inject(REDIS) private readonly redis: Redis,
   ) {}
 
@@ -85,7 +106,18 @@ export class CheckoutService {
     return { names, zone };
   }
 
-  private price(zone: DeliveryZone, lines: CartLineDetail[]): Pricing {
+  /**
+   * Item prices, then auto/code coupons, then delivery. The free-delivery threshold still looks at the
+   * undiscounted subtotal (as before coupons existed); coupons only see the charge left after it.
+   */
+  private async price(
+    db: Prisma.TransactionClient,
+    who: CartIdentity,
+    zone: DeliveryZone,
+    lines: CartLineDetail[],
+    codes: string[],
+    phone: string | null,
+  ): Promise<Pricing> {
     const ok = lines.filter((l) => l.problem === null);
     const subtotalP = subtotalOf(ok);
     const charge = this.delivery.charge(zone, {
@@ -95,12 +127,28 @@ export class CheckoutService {
         l.deliveryChargeOverrideP === null ? [] : [l.deliveryChargeOverrideP],
       ),
     });
+    const promoCtx = this.cart.promoContext(who, lines, codes, {
+      zoneId: zone.id,
+      deliveryChargeP: charge.deliveryChargeP - charge.deliveryDiscountP,
+      phone,
+    });
+    const promo = await this.promotions.evaluate(db, promoCtx);
+    const deliveryDiscountP = charge.deliveryDiscountP + promo.deliveryDiscountP;
     return {
       subtotalP,
+      autoDiscountP: promo.autoDiscountP,
+      couponDiscountP: promo.couponDiscountP,
       deliveryChargeP: charge.deliveryChargeP,
-      deliveryDiscountP: charge.deliveryDiscountP,
+      deliveryDiscountP,
       freeDeliveryRemainingP: charge.freeDeliveryRemainingP,
-      grandTotalP: subtotalP + charge.deliveryChargeP - charge.deliveryDiscountP,
+      grandTotalP:
+        subtotalP -
+        promo.autoDiscountP -
+        promo.couponDiscountP +
+        charge.deliveryChargeP -
+        deliveryDiscountP,
+      promo,
+      promoCtx,
     };
   }
 
@@ -115,8 +163,16 @@ export class CheckoutService {
     loc: { districtId: number; upazilaId: number; areaId?: number | null },
   ) {
     const { zone } = await this.place3(loc);
-    const lines = (await this.cart.linesFor(who))?.lines ?? [];
-    const pricing = this.price(zone, lines);
+    const found = await this.cart.linesFor(who);
+    const lines = found?.lines ?? [];
+    const pricing = await this.price(
+      this.prisma,
+      who,
+      zone,
+      lines,
+      found?.cart.couponCodes ?? [],
+      who.customer?.phone ?? null,
+    );
     return {
       zone: {
         id: zone.id,
@@ -126,6 +182,18 @@ export class CheckoutService {
         etaMaxDays: zone.etaMaxDays,
       },
       subtotalP: pricing.subtotalP,
+      autoDiscountP: pricing.autoDiscountP,
+      couponDiscountP: pricing.couponDiscountP,
+      appliedCoupons: pricing.promo.applied.map((d) => ({
+        couponId: d.couponId,
+        name: d.name,
+        kind: d.kind,
+        type: d.type,
+        code: d.code,
+        amountP: d.itemDiscountP + d.deliveryDiscountP,
+        freeDelivery: d.type === 'free_delivery',
+      })),
+      rejectedCodes: pricing.promo.rejected,
       deliveryChargeP: pricing.deliveryChargeP,
       deliveryDiscountP: pricing.deliveryDiscountP,
       grandTotalP: pricing.grandTotalP,
@@ -286,9 +354,17 @@ export class CheckoutService {
     }
 
     // Cheap pre-check outside the transaction so a bad cart never burns the customer's OTP.
-    const found = await this.cart.linesFor(who);
+    const buyerPhone = guestPhone ?? who.customer?.phone ?? null;
+    const found = await this.cart.linesFor(who, buyerPhone);
     this.assertBuyable(found?.lines ?? []);
-    const pre = this.price(zone, found?.lines ?? []);
+    const pre = await this.price(
+      this.prisma,
+      who,
+      zone,
+      found?.lines ?? [],
+      found?.cart.couponCodes ?? [],
+      buyerPhone,
+    );
 
     // Before the OTP is spent: a refused order must not burn the code.
     if (guestPhone) await this.assertGuestLimits(this.prisma, guestPhone, pre.grandTotalP);
@@ -316,9 +392,23 @@ export class CheckoutService {
       async (tx) => {
         // One order per cart: a second place (another key, another tab) waits here, then finds an empty cart.
         await tx.$queryRaw`SELECT id FROM carts WHERE id = ${cartId}::uuid FOR UPDATE`;
-        const lines = await this.cart.lines(tx, cartId);
+        const locked = await tx.cart.findUniqueOrThrow({
+          where: { id: cartId },
+          select: { couponCodes: true },
+        });
+        const lines = await this.cart.lines(tx, cartId, this.cart.buyerOf(who, buyerPhone));
         this.assertBuyable(lines);
-        const money = this.price(zone, lines);
+        const money = await this.price(tx, who, zone, lines, locked.couponCodes, buyerPhone);
+        // A code the customer typed must not silently stop applying between cart and order.
+        const lost = money.promo.rejected[0];
+        if (lost) {
+          throw new CommerceError(
+            HttpStatus.CONFLICT,
+            'COUPON_INVALID',
+            'A coupon in your cart no longer applies.',
+            { couponCode: lost.code, reason: lost.reason },
+          );
+        }
         if (guestPhone) {
           // Serialises this phone's orders so two carts cannot both slip under the limits.
           await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`guest-orders:${guestPhone}`}))`;
@@ -366,8 +456,11 @@ export class CheckoutService {
             paymentMethodChosen: 'cod',
             isPreorder: lines.some((l) => l.isPreorder),
             subtotalP: money.subtotalP,
+            autoDiscountP: money.autoDiscountP,
+            couponDiscountP: money.couponDiscountP,
             deliveryChargeP: money.deliveryChargeP,
             deliveryDiscountP: money.deliveryDiscountP,
+            discountsJson: snapshotOf(money.promo) as unknown as Prisma.InputJsonValue,
             grandTotalP: money.grandTotalP,
             codDueP: money.grandTotalP,
             guestOtpVerifiedAt: otpVerified ? now : null,
@@ -386,6 +479,8 @@ export class CheckoutService {
                   unitBaseP: l.unitBaseP,
                   unitPriceP: l.unitPriceP,
                   priceSource: l.priceSource,
+                  discountP: money.promo.lineDiscounts[l.variantId] ?? 0,
+                  flashSaleItemId: l.flashItemId,
                   weightG: l.weightG,
                   returnWindowDays: l.returnWindowDays,
                   lineTotalP: l.unitPriceP * l.qty,
@@ -415,6 +510,12 @@ export class CheckoutService {
           },
         });
         await this.risk.assess(tx, order.id);
+        // Flash stock and coupon redemptions are taken last-ish, in tx, so a refusal rolls the order back.
+        await claimFlash(
+          tx,
+          lines.flatMap((l) => (l.flashItemId ? [{ itemId: l.flashItemId, qty: l.qty }] : [])),
+        );
+        await this.promotions.redeem(tx, order.id, money.promoCtx, money.promo);
 
         // Sorted so two orders sharing variants lock rows in the same order (no deadlock).
         const reserving = lines
@@ -473,6 +574,18 @@ export class CheckoutService {
     const problems = problemsOf(lines);
     if (problems.includes('CART_EMPTY')) {
       throw new CommerceError(HttpStatus.CONFLICT, 'CART_EMPTY', 'Your cart is empty.');
+    }
+    const flashLimited = lines.filter((l) => l.problem === 'qty_reduced' && l.flashCapped);
+    if (flashLimited.length > 0) {
+      throw new CommerceError(
+        HttpStatus.CONFLICT,
+        'FLASH_LIMIT',
+        'You can buy fewer of an item at flash price.',
+        {
+          variantIds: flashLimited.map((l) => l.variantId),
+          remaining: Object.fromEntries(flashLimited.map((l) => [l.variantId, l.maxQty])),
+        },
+      );
     }
     if (problems.includes('OUT_OF_STOCK')) {
       throw new CommerceError(HttpStatus.CONFLICT, 'OUT_OF_STOCK', 'Some items are out of stock.', {
