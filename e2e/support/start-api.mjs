@@ -34,6 +34,9 @@ const psql = (sql) =>
     sql,
   ]);
 
+const psql2 = (sql) =>
+  run(engine, ['exec', PG, 'psql', '-U', 'bdc', '-d', DB, '-v', 'ON_ERROR_STOP=1', '-c', sql]);
+
 // Always start from an empty database: drop + create, then apply all migrations.
 psql(`DROP DATABASE IF EXISTS ${DB} WITH (FORCE)`);
 psql(`CREATE DATABASE ${DB}`);
@@ -49,6 +52,9 @@ if (!process.env.E2E_SKIP_BUILD) run('pnpm', ['--filter', '@bdc/api', 'build']);
 run('node', ['apps/api/dist/cli.js', 'seed-demo'], {
   env: { ...process.env, DATABASE_URL: databaseUrl },
 });
+
+// The fake courier ships disabled; order-ops specs book with it.
+psql2(`UPDATE couriers SET is_active = true WHERE code = 'fake'`);
 
 const child = spawn('node', ['apps/api/dist/main.js'], {
   cwd: root,
