@@ -1,4 +1,5 @@
-import { Center, Group, Loader, Pagination, Select, Table, Text } from '@mantine/core';
+import { TableWrap } from '@bdc/ui';
+import { Loader, Pagination, Select, Table } from '@mantine/core';
 import type { ReactNode } from 'react';
 
 export interface Column<T> {
@@ -26,7 +27,7 @@ export interface DataTableProps<T> {
 }
 
 /**
- * Plain Mantine table with loading/empty states and optional server-side pagination
+ * Mockup table (`.a-table-wrap` + `.a-table` + `.a-pager`) with loading/empty states and optional server-side pagination
  * (shown when `total`, `page`, `pageSize` and `onPageChange` are given).
  *   <DataTable columns={cols} rows={data?.items} rowKey={(r) => r.id} loading={isLoading}
  *     page={page} pageSize={20} total={data?.total} onPageChange={setPage} />
@@ -51,55 +52,49 @@ export function DataTable<T>({
   const to = paged ? Math.min(total, page * pageSize) : 0;
 
   return (
-    <div>
-      <Table.ScrollContainer minWidth={500}>
-        <Table>
-          <Table.Thead>
-            <Table.Tr>
+    <TableWrap>
+      <Table miw={500}>
+        <Table.Thead>
+          <Table.Tr>
+            {columns.map((c) => (
+              <Table.Th key={c.key} w={c.width} ta={c.align}>
+                {c.header}
+              </Table.Th>
+            ))}
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>
+          {rows?.map((row) => (
+            <Table.Tr
+              key={rowKey(row)}
+              onClick={onRowClick ? () => onRowClick(row) : undefined}
+              className={onRowClick ? 'click' : undefined}
+            >
               {columns.map((c) => (
-                <Table.Th key={c.key} w={c.width} ta={c.align}>
-                  {c.header}
-                </Table.Th>
+                <Table.Td key={c.key} ta={c.align}>
+                  {c.render(row)}
+                </Table.Td>
               ))}
             </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {rows?.map((row) => (
-              <Table.Tr
-                key={rowKey(row)}
-                onClick={onRowClick ? () => onRowClick(row) : undefined}
-                style={onRowClick ? { cursor: 'pointer' } : undefined}
-              >
-                {columns.map((c) => (
-                  <Table.Td key={c.key} ta={c.align}>
-                    {c.render(row)}
-                  </Table.Td>
-                ))}
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
-      </Table.ScrollContainer>
+          ))}
+        </Table.Tbody>
+      </Table>
 
       {loading && (
-        <Center py="lg" aria-label="Loading">
+        <div className="a-empty" role="status" aria-label="Loading">
           <Loader size="sm" />
-        </Center>
+        </div>
       )}
       {!loading && rows && rows.length === 0 && (
-        <Center py="lg">
-          <Text c="dimmed" size="sm">
-            {emptyMessage}
-          </Text>
-        </Center>
+        <div className="a-empty">
+          <p>{emptyMessage}</p>
+        </div>
       )}
 
       {paged && (
-        <Group justify="space-between" mt="sm">
-          <Text size="xs" c="dimmed">
-            {total === 0 ? '0 results' : `${from}-${to} of ${total}`}
-          </Text>
-          <Group gap="sm">
+        <div className="a-pager">
+          <span>{total === 0 ? '0 results' : `${from}-${to} of ${total}`}</span>
+          <div className="a-row">
             {onPageSizeChange && (
               <Select
                 w={80}
@@ -111,9 +106,9 @@ export function DataTable<T>({
               />
             )}
             <Pagination size="sm" total={pages} value={page} onChange={onPageChange} />
-          </Group>
-        </Group>
+          </div>
+        </div>
       )}
-    </div>
+    </TableWrap>
   );
 }

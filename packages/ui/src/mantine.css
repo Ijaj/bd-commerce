@@ -372,3 +372,10 @@ body {
 .bdc-anchor {
   color: var(--bdc-primary);
 }
+
+.bdc-table tbody tr.click {
+  cursor: pointer;
+}
+.bdc-table tbody tr:last-child td {
+  border-bottom: 0;
+}
