@@ -22,6 +22,7 @@ const CSS = `
 export function PoPrintPage({ id }: { id: string }) {
   const q = useQuery(poPrintQuery(id));
   const d = q.data;
+  const anyReceived = !!d && d.po.receivedValueP > 0;
   return (
     <>
       <PrintToolbar disabled={!d} />
@@ -71,6 +72,7 @@ export function PoPrintPage({ id }: { id: string }) {
                 <th>SKU</th>
                 <th>Product</th>
                 <th className="num">Qty</th>
+                {anyReceived && <th className="num">Received</th>}
                 <th className="num">Unit cost</th>
                 <th className="num">Total</th>
               </tr>
@@ -84,18 +86,27 @@ export function PoPrintPage({ id }: { id: string }) {
                     {optionText(i.options)}
                   </td>
                   <td className="num">{i.qtyOrdered}</td>
+                  {anyReceived && <td className="num">{i.qtyReceived}</td>}
                   <td className="num">{formatPrice(i.unitCostP, 'en')}</td>
                   <td className="num">{formatPrice(i.lineTotalP, 'en')}</td>
                 </tr>
               ))}
               <tr className="grand">
-                <td colSpan={4} className="num">
+                <td colSpan={anyReceived ? 5 : 4} className="num">
                   <b>Total (VAT-inclusive)</b>
                 </td>
                 <td className="num">
                   <b>{formatPrice(d.po.subtotalP, 'en')}</b>
                 </td>
               </tr>
+              {anyReceived && (
+                <tr className="recv">
+                  <td colSpan={anyReceived ? 5 : 4} className="num">
+                    Received value (good units only)
+                  </td>
+                  <td className="num">{formatPrice(d.po.receivedValueP, 'en')}</td>
+                </tr>
+              )}
             </tbody>
           </table>
           {d.po.notes && (

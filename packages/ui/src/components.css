@@ -642,6 +642,10 @@ a.a-stat:hover {
   text-align: right;
   white-space: nowrap;
 }
+.sub {
+  color: var(--muted);
+  font-size: 12px;
+}
 .a-table .sub {
   display: block;
   color: var(--muted);
@@ -1521,12 +1525,14 @@ input[type="checkbox"].a-switch:disabled {
 @media (max-width: 900px) {
   .a-side {
     transform: translateX(-100%);
-    transition: transform 0.2s;
-    box-shadow: 8px 0 30px rgba(0, 0, 0, 0.4);
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
     width: 270px;
   }
   .a-side-open .a-side {
     transform: none;
+    box-shadow: 8px 0 30px rgba(0, 0, 0, 0.4);
   }
   .a-side-open .a-scrim-m {
     display: block;

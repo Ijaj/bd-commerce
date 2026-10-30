@@ -173,6 +173,8 @@ function EditorBody({ po, presetSupplierId }: { po: PoDetail | null; presetSuppl
               searchable
               allowDeselect={false}
               disabled={locked}
+              title={supplierData.find((s) => s.value === supplierId)?.label}
+              renderOption={({ option }) => <span title={option.label}>{option.label}</span>}
               data={supplierData}
               value={supplierId || null}
               onChange={(v) => {

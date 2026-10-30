@@ -22,7 +22,7 @@ export function supplierFormValues(s?: Supplier): SupplierFormValues {
     contactName: s?.contactName ?? '',
     phone: s?.phone ?? '',
     email: s?.email ?? '',
-    shipMode: s?.shipMode ?? 'direct_to_customer',
+    shipMode: s?.shipMode ?? 'via_warehouse',
     address: s?.address ?? '',
     pickupAddress: s?.pickupAddress ?? '',
     paymentTerms: s?.paymentTerms ?? '',

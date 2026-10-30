@@ -93,6 +93,12 @@ export function PurchaseOrdersPage() {
       render: (r) => formatPrice(r.subtotalP),
     },
     {
+      key: 'receivedValue',
+      header: 'Received value',
+      className: 'num',
+      render: (r) => (r.qtyReceived > 0 ? formatPrice(r.receivedValueP) : '-'),
+    },
+    {
       key: 'status',
       header: 'Status',
       render: (r) => (

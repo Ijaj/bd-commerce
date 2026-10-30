@@ -47,6 +47,16 @@ export function PoLinesReadOnly({ po }: { po: PoDetail }) {
               <b>{formatPrice(po.subtotalP)}</b>
             </td>
           </tr>
+          {po.qtyReceived > 0 && (
+            <tr>
+              <td colSpan={6} className="num">
+                <b>Received value (good units only)</b>
+              </td>
+              <td className="num">
+                <b>{formatPrice(po.receivedValueP)}</b>
+              </td>
+            </tr>
+          )}
         </tfoot>
       </table>
     </div>

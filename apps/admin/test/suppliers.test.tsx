@@ -181,7 +181,7 @@ describe('AddSupplierModal', () => {
       name: 'Rahim Traders',
       phone: '01711111111',
       contactName: null,
-      shipMode: 'direct_to_customer',
+      shipMode: 'via_warehouse',
     });
     await waitFor(() => expect(onCreated).toHaveBeenCalled());
   });

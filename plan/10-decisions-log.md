@@ -318,3 +318,5 @@ Note on S6: our order tracking covers status until the parcel is handed to the c
 | C75 | **Send to supplier**: PO becomes `sent` (lines locked; only expected date + notes editable), supplier gets the PO by email if it has one (Mailpit in dev), admin has an A4 PO print view (invoice print pattern) |
 | C76 | Supplier ledger entries: receipt (+owed), payment (−owed), **manual adjustment** (signed, reason required: credit note, discount, opening balance). Append-only; mistakes fixed by a reversing entry |
 | C77 | Supplier payments need **no second-person approval**: staff with `supplier_payments.manage` record method (cash/bKash/Nagad/bank) + reference and it counts at once |
+| C78 | PO totals (owner, 2026-10-30, session 14): keep the ordered total and add **Received value** (Σ good qty × unit cost) as a list column and a line in PO detail + print. The ledger stays the source of what is owed |
+| C79 | Add supplier form preselects ship mode **Via our warehouse first** (same as the DB default); direct-to-customer is picked on purpose for dropship (7b) |
