@@ -9,7 +9,7 @@ General-purpose e-commerce for Bangladesh. Planning gates 1–7 done (`plan/READ
 - Log every answer in `plan/10-decisions-log.md`; mark `[DECIDED]` in the topic docs; new questions go into `plan/08-open-questions.md` with the next Q number.
 - Token budget matters (user on $20 plan): read only the files you need, don't re-read the whole plan. `plan/10-decisions-log.md` is the compact source of truth for decisions.
 - Flowcharts: edit `plan/flowcharts/flows.js` only, then run `node plan/flowcharts/to-md.mjs` to regenerate `plan/11-flowcharts.md`. Never hand-edit the md. Animated viewer: `plan/flowcharts/index.html` (dagre + GSAP, file://).
-- UI must match `plan/mockups/` (C60, approved design; stock Mantine look is rejected). User wants big visual/UI work delegated to a Sonnet/Haiku sub-agent with a precise spec. No Artifacts unless asked.
+- UI must match `plan/mockups/` (C60, approved design; stock Mantine look is rejected). User wants big visual/UI work delegated to a sub-agent with a precise spec: **Haiku by default; Sonnet only for multi-file feature builds** (lead names the model per agent; `CLAUDE_CODE_SUBAGENT_MODEL=haiku` in user settings, owner 2026-10-30, usage). No Artifacts unless asked.
 - Old reference project: `~/webdev/baby-commerce` (lessons in `plan/09-baby-commerce-reuse.md`).
 
 ## Resume state (last updated 2026-10-30, session 14)
