@@ -220,6 +220,8 @@ export const en = {
   retry: 'Retry',
   loadFailed: 'Could not load. Check your connection.',
   darkMode: 'Toggle dark mode',
+  noSrTitle: 'No sales rep profile',
+  noSrBody: 'This account has no sales rep (SR) profile yet. Ask an admin to set one up for you.',
 } as const;
 
 export type MessageKey = keyof typeof en;
