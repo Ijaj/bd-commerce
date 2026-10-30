@@ -55,7 +55,10 @@ model Staff {
   srCommissionAdj SrCommissionAdjustment[] @relation("SrCommissionAdjSr")
   srTargets       SrTarget[]
   srCommissions   SrCommission[]
-  purchaseOrders  PurchaseOrder[]
+  purchaseOrders  PurchaseOrder[]          @relation("PoCreatedBy")
+  posClosed       PurchaseOrder[]          @relation("PoClosedBy")
+  poReceipts      PoReceipt[]
+  supplierLedger  SupplierLedger[]
 
   @@map("staff")
 }
@@ -1580,7 +1583,8 @@ model SrCommissionAdjustment {
 
 // ---------------------------------------------------------------------------
 // Suppliers + purchasing (doc 12 §4, Q62, Q82, Q88). Receiving writes stock_movements (po_receive).
-// po_no = PO-YYMM-NNNNN from sequence po_no_seq. Supplier portal users come with dropship (after step 5).
+// po_no = PO-YYMM-NNNNN from sequence po_no_seq. Supplier portal users come with dropship (step 7b).
+// Step 7a (C64, C71–C77): receipts (good + rejected qty), weighted-average cost, payables ledger.
 // ---------------------------------------------------------------------------
 
 enum SupplierShipMode {
@@ -1591,21 +1595,24 @@ enum SupplierShipMode {
 }
 
 model Supplier {
-  id           String           @id @default(uuid(7)) @db.Uuid
-  name         String
-  contactName  String?          @map("contact_name")
-  phone        String?
-  email        String?
-  address      String?
-  shipMode     SupplierShipMode @default(via_warehouse) @map("ship_mode")
-  paymentTerms String?          @map("payment_terms")
-  notes        String?
-  isActive     Boolean          @default(true) @map("is_active")
-  createdAt    DateTime         @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt    DateTime         @updatedAt @map("updated_at") @db.Timestamptz
+  id            String           @id @default(uuid(7)) @db.Uuid
+  name          String
+  contactName   String?          @map("contact_name")
+  phone         String?
+  email         String?
+  address       String?
+  shipMode      SupplierShipMode @default(via_warehouse) @map("ship_mode")
+  /// Courier pickup address for direct dropship parcels (7b).
+  pickupAddress String?          @map("pickup_address")
+  paymentTerms  String?          @map("payment_terms")
+  notes         String?
+  isActive      Boolean          @default(true) @map("is_active")
+  createdAt     DateTime         @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime         @updatedAt @map("updated_at") @db.Timestamptz
 
   variants       VariantSupplier[]
   purchaseOrders PurchaseOrder[]
+  ledger         SupplierLedger[]
 
   @@map("suppliers")
 }
@@ -1631,6 +1638,8 @@ enum PoStatus {
   sent
   partially_received
   received
+  /// Closed short (C71): the rest of a partly received PO is dropped; nothing owed for it.
+  closed
   cancelled
 
   @@map("po_status")
@@ -1645,14 +1654,22 @@ model PurchaseOrder {
   subtotalP   Int       @default(0) @map("subtotal_p")
   notes       String?
   createdById String    @map("created_by_id") @db.Uuid
+  sentAt      DateTime? @map("sent_at") @db.Timestamptz
+  /// Set on close-short or cancel.
+  closedAt    DateTime? @map("closed_at") @db.Timestamptz
+  closedById  String?   @map("closed_by_id") @db.Uuid
+  closeReason String?   @map("close_reason")
   createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz
 
   supplier  Supplier            @relation(fields: [supplierId], references: [id])
-  createdBy Staff               @relation(fields: [createdById], references: [id])
+  createdBy Staff               @relation("PoCreatedBy", fields: [createdById], references: [id])
+  closedBy  Staff?              @relation("PoClosedBy", fields: [closedById], references: [id])
   items     PurchaseOrderItem[]
+  receipts  PoReceipt[]
 
   @@index([supplierId])
+  @@index([status, createdAt])
   @@map("purchase_orders")
 }
 
@@ -1661,14 +1678,94 @@ model PurchaseOrderItem {
   poId        String @map("po_id") @db.Uuid
   variantId   String @map("variant_id") @db.Uuid
   qtyOrdered  Int    @map("qty_ordered")
+  /// Good qty received (went to stock + payable).
   qtyReceived Int    @default(0) @map("qty_received")
+  /// Rejected at receiving (C72): counts toward the line, not stocked, not owed.
+  qtyRejected Int    @default(0) @map("qty_rejected")
   unitCostP   Int    @map("unit_cost_p")
 
-  po      PurchaseOrder @relation(fields: [poId], references: [id], onDelete: Cascade)
-  variant Variant       @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  po       PurchaseOrder   @relation(fields: [poId], references: [id], onDelete: Cascade)
+  variant  Variant         @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  receipts PoReceiptItem[]
+
+  @@unique([poId, variantId])
+  @@map("purchase_order_items")
+}
+
+/// One receiving event (goods received note) against a PO. Append-only.
+model PoReceipt {
+  id           String   @id @default(uuid(7)) @db.Uuid
+  poId         String   @map("po_id") @db.Uuid
+  /// Sum of qty_good × unit cost; equals the ledger receipt entry.
+  totalP       Int      @map("total_p")
+  note         String?
+  receivedById String   @map("received_by_id") @db.Uuid
+  at           DateTime @default(now()) @db.Timestamptz
+
+  po         PurchaseOrder    @relation(fields: [poId], references: [id], onDelete: Restrict)
+  receivedBy Staff            @relation(fields: [receivedById], references: [id])
+  items      PoReceiptItem[]
+  ledger     SupplierLedger[]
 
   @@index([poId])
-  @@map("purchase_order_items")
+  @@map("po_receipts")
+}
+
+model PoReceiptItem {
+  id          String @id @default(uuid(7)) @db.Uuid
+  receiptId   String @map("receipt_id") @db.Uuid
+  poItemId    String @map("po_item_id") @db.Uuid
+  qtyGood     Int    @map("qty_good")
+  qtyRejected Int    @map("qty_rejected")
+  unitCostP   Int    @map("unit_cost_p")
+  /// Variant cost_p before/after the weighted average (C64), for audit.
+  costBeforeP Int?   @map("cost_before_p")
+  costAfterP  Int?   @map("cost_after_p")
+
+  receipt PoReceipt         @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+  poItem  PurchaseOrderItem @relation(fields: [poItemId], references: [id], onDelete: Restrict)
+
+  @@index([receiptId])
+  @@map("po_receipt_items")
+}
+
+enum SupplierLedgerType {
+  receipt
+  payment
+  adjustment
+  /// Delivered dropship order (7b).
+  dropship
+  /// Reversing entry for a mistaken payment/adjustment (C76).
+  reversal
+
+  @@map("supplier_ledger_type")
+}
+
+/// Supplier payables ledger (C65, C76). amount_p: + we owe more, − we owe less. Append-only.
+model SupplierLedger {
+  id           String             @id @default(uuid(7)) @db.Uuid
+  supplierId   String             @map("supplier_id") @db.Uuid
+  type         SupplierLedgerType
+  amountP      Int                @map("amount_p")
+  poReceiptId  String?            @unique @map("po_receipt_id") @db.Uuid
+  /// payment only: cash | bkash | nagad | bank
+  method       String?
+  reference    String?
+  /// Required for adjustment + reversal.
+  note         String?
+  /// reversal only: the entry it cancels (one reversal per entry).
+  reversesId   String?            @unique @map("reverses_id") @db.Uuid
+  recordedById String             @map("recorded_by_id") @db.Uuid
+  at           DateTime           @default(now()) @db.Timestamptz
+
+  supplier   Supplier        @relation(fields: [supplierId], references: [id])
+  poReceipt  PoReceipt?      @relation(fields: [poReceiptId], references: [id], onDelete: Restrict)
+  reverses   SupplierLedger? @relation("LedgerReversal", fields: [reversesId], references: [id], onDelete: Restrict)
+  reversedBy SupplierLedger? @relation("LedgerReversal")
+  recordedBy Staff           @relation(fields: [recordedById], references: [id])
+
+  @@index([supplierId, at])
+  @@map("supplier_ledger")
 }
 
 // ---------------------------------------------------------------------------

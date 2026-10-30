@@ -1,0 +1,55 @@
+# Step 7a swarm brief: suppliers + POs + receiving + payables (API)
+
+Repo `/home/ijaj/webdev/bd-commerce` (pnpm 11 + Turbo, Node 24, TS 7, Biome). Read repo `CLAUDE.md` "Resume state" once. Decisions: C62–C66 + **C71–C77** in `plan/10-decisions-log.md` (grep `| C6[4-6] \|| C7[1-7] `, don't read the whole file). Admin only: no supplier portal, no dropship forwarding (7b), no affiliates (7c).
+
+Board (append-only): `plan/swarm/BOARD-step7a.md`. Append with `cat >> plan/swarm/BOARD-step7a.md`, format `[agent HH:MM] msg`. Post: start, contract needs, blockers, DONE + summary.
+
+## Hard rules
+
+- No `git add/commit/push/stash/checkout/reset`. Lead commits. Never revert files you don't own.
+- Stay inside owned paths. Lead-only: `apps/api/prisma/**`, `apps/api/src/app.module.ts`, `apps/api/src/auth/permissions.ts`, `apps/api/src/settings/registry.ts`, `apps/api/src/inventory/**`, root configs, `packages/api-client/**`, `apps/admin|shop|portal/**`. Need a change there → board, keep working.
+- Don't run `pnpm api:gen` or `prisma migrate`. Don't start/stop the container stack, don't `pkill -f`, don't touch other processes. No dev API is running; don't start one.
+- **Tests: own DB + Redis db.** `TEST_DATABASE_URL=postgresql://bdc:bdc_dev@localhost:5432/bdc_test_<x> TEST_REDIS_DB=<n> pnpm --filter @bdc/api test <file>`. Agent S: `bdc_test_a` redis 2; agent P: `bdc_test_b` redis 3 (DBs exist; migrations apply automatically via `test/global-setup.ts`). Run only your own test files plus `test/inventory.test.ts`.
+- Match style: read 2 neighbours first (`src/sr/b2b-ledger.service.ts`, `src/returns/*`, `src/documents/invoices.service.ts`, `test/returns.test.ts` + `test/helpers.ts`). Comments sparse, explain why. Biome clean on your paths (`pnpm biome check --write <paths>`). Zod DTOs via nestjs-zod; **DTO class names globally unique**: prefix `Supplier…` (agent S) / `Po…` (agent P). Admin endpoints use `@StaffAuth` + permission decorator like `returns.controller.ts`; `@NoStore()` on all. Errors: own `*.errors.ts` with stable `code` strings like `documents.errors.ts`.
+- Money = integer paisa. Max file ~300 lines; split services.
+- Before DONE: `pnpm --filter @bdc/api typecheck`, your tests green, biome clean. Report exact commands + results honestly.
+
+## Done by lead (wave 0)
+
+- Migration `20261030100000_purchasing` applied in dev. Models (read them in `schema.prisma`, section "Suppliers + purchasing"): `Supplier` (+`pickupAddress`), `VariantSupplier`, `PurchaseOrder` (+`sentAt`, `closedAt`, `closedById`, `closeReason`; status adds `closed`), `PurchaseOrderItem` (+`qtyRejected`, unique `(poId, variantId)`), new `PoReceipt`, `PoReceiptItem`, `SupplierLedger` (types receipt|payment|adjustment|dropship|reversal, `reversesId` unique). DB: `supplier_ledger`, `po_receipts`, `po_receipt_items` append-only (trigger); CHECK sign rule (receipt/dropship > 0, payment < 0, adjustment/reversal ≠ 0); CHECK `qty_received + qty_rejected <= qty_ordered`. Sequence `po_no_seq` exists.
+- Permissions: `suppliers.view` (all GETs), `suppliers.manage` (suppliers, links, POs), `purchase_orders.receive` (receive only), `supplier_payments.manage` (payments, adjustments, reversals).
+- Empty modules wired in app.module: `src/purchasing/suppliers/suppliers.module.ts` (S), `src/purchasing/purchase-orders/purchase-orders.module.ts` (P, imports `InventoryModule`). Fill them.
+- `InventoryService.move(tx, {variantId, qtyDelta, reservedDelta, reason: 'po_receive', refType, refId, staffId, note})` is the only way stock changes.
+
+## Agent S — suppliers, links, ledger (owns `src/purchasing/suppliers/**`, `test/suppliers*.test.ts`)
+
+All under `/v1/admin`. GET = `suppliers.view`.
+
+1. `GET /suppliers?q&active&page&pageSize` → `{items: SupplierRow[], total}`; row = `{id,name,contactName,phone,email,shipMode,paymentTerms,isActive,productCount (links),openPoCount (sent|partially_received),balanceP (SUM ledger)}`. Sort by name. `q` matches name/phone/email (ILIKE).
+2. `POST /suppliers` (`suppliers.manage`) `{name, contactName?, phone? (BD 01XXXXXXXXX normalise like existing phone helpers), email?, address?, pickupAddress?, shipMode, paymentTerms?, notes?}`; `GET /suppliers/:id` → row fields + address, pickupAddress, notes, createdAt; `PATCH /suppliers/:id` partial incl. `isActive`. Name unique case-insensitive among suppliers → 409 `SUPPLIER_NAME_TAKEN` (check in code).
+3. Links (C74): `GET /suppliers/:id/variants?page&q` → `{items:[{variantId,productId,productTitleEn,sku,options:{en,bn}[],supplierSku,costP,leadTimeDays,isDefault,variantCostP,fulfillment}], total}`; `PUT /suppliers/:id/variants/:variantId` (`suppliers.manage`) upsert `{supplierSku?,costP?,leadTimeDays?,isDefault?}`; `isDefault: true` clears `isDefault` on that variant's other links (same tx); `DELETE /suppliers/:id/variants/:variantId`. Export a plain helper `upsertSupplierLink(tx, supplierId, variantId, costP)` in `supplier-links.ts` (agent P calls it: creates the link if missing, sets `costP` = latest cost; first link of a variant becomes default).
+4. Ledger (C65, C76, C77): `GET /suppliers/:id/ledger?page&pageSize` → `{balanceP, items:[{id,type,amountP,balanceAfterP (running balance, window SUM ordered by at,id),method,reference,note,poReceiptId,poId,poNo,reversesId,reversedById,recordedBy:{id,name},at}], total}` newest first. Writes need `supplier_payments.manage`:
+   - `POST /suppliers/:id/payments {amountP > 0, method: cash|bkash|nagad|bank, reference? (required for bank/bkash/nagad), note?}` → entry with `amountP = −amountP`. Paying more than the balance is allowed (supplier credit); response includes new `balanceP`.
+   - `POST /suppliers/:id/adjustments {amountP (signed, ≠ 0), note (required, 3..300)}`.
+   - `POST /supplier-ledger/:entryId/reverse {note required}` → `reversal` entry with `amountP = −original`, `reversesId`. Only payment/adjustment entries; already reversed → 409 `LEDGER_ALREADY_REVERSED`; receipt/dropship/reversal → 409 `LEDGER_NOT_REVERSIBLE`.
+   - Inactive supplier still accepts payments.
+5. Tests: CRUD + perms (view-only staff gets 403 on writes), link upsert/default switching, ledger running balance, payment sign, adjustment note required, reversal rules, append-only (direct UPDATE throws).
+
+## Agent P — purchase orders, receiving, print, email (owns `src/purchasing/purchase-orders/**`, `test/purchase-orders*.test.ts`)
+
+All under `/v1/admin/purchase-orders`. GET = `suppliers.view`; writes `suppliers.manage` unless noted.
+
+1. `GET /?status&supplierId&q (poNo or supplier name)&page&pageSize` → `{items:[{id,poNo,supplier:{id,name},status,expectedAt,lineCount,qtyOrdered,qtyReceived,qtyRejected,subtotalP,receivedValueP,late (expectedAt < today and status sent|partially_received),createdAt,sentAt}], total, counts:{all,draft,sent,partially_received,received,closed,cancelled}}` newest first. `counts` ignore the status filter.
+2. `GET /variant-options?supplierId&q&limit (≤30)` (declare before `/:id`) → `[{variantId,productId,productTitleEn,sku,options,fulfillment,onHand,linked,lastCostP (link costP ?? last PO unit cost to that supplier ?? null),variantCostP}]`; linked variants first, then others matching `q` (title/sku). Only active variants.
+3. `POST /` `{supplierId, expectedAt? (YYYY-MM-DD), notes?, items:[{variantId, qtyOrdered ≥ 1, unitCostP ≥ 0}] (1..200, unique variantIds)}` → draft. `poNo` = `PO-YYMM-NNNNN` (`nextval('po_no_seq')`, Asia/Dhaka month, like order numbers). `subtotalP` = Σ qty × cost. Supplier must be active (409 `SUPPLIER_INACTIVE`). Variants with `fulfillment = dropship` → 409 `PO_DROPSHIP_VARIANT`. Calls `upsertSupplierLink` (agent S; until it lands, stub locally and swap when S posts DONE) per line.
+4. `GET /:id` → `{…list fields, notes, closeReason, closedAt, closedBy, createdBy:{id,name}, supplier:{id,name,phone,email,address}, items:[{id,variantId,productId,productTitleEn,sku,options,qtyOrdered,qtyReceived,qtyRejected,remaining,unitCostP,lineTotalP,onHand,variantCostP}], receipts:[{id,at,note,totalP,receivedBy:{id,name},items:[{poItemId,sku,qtyGood,qtyRejected,unitCostP,costBeforeP,costAfterP}]}]}`.
+5. `PATCH /:id`: draft → `supplierId?, expectedAt?, notes?, items?` (items replace all; same rules + links); sent/partially_received → only `expectedAt`, `notes`, else 409 `PO_LOCKED`; received/closed/cancelled → 409 `PO_LOCKED`.
+6. `POST /:id/send` (C75): draft only (409 `PO_BAD_STATUS`), ≥1 line → `sent`, `sentAt`. If supplier has an email, send the PO via `MailService` (HTML table + text; store name from `store_info` setting) **after** the tx commits; mail failure is logged, never fails the call. Response `{po: PoDetail, emailed: boolean}`.
+7. `POST /:id/receive` (`purchase_orders.receive`) `{note? (≤500), items:[{poItemId, qtyGood ≥ 0, qtyRejected ≥ 0}]}` (C64, C71, C72). Status must be sent|partially_received. One tx, `SELECT … FOR UPDATE` the PO row first. Per line: `qtyGood + qtyRejected ≤ remaining` (409 `PO_OVER_RECEIVE`); at least one non-zero qty overall (422). For `qtyGood > 0`: read on-hand (inventory row), new cost = old null or on-hand ≤ 0 → unit cost, else `round((onHand × old + qtyGood × unit) / (onHand + qtyGood))`; update `variants.cost_p`; `InventoryService.move(tx, {reason:'po_receive', qtyDelta: qtyGood, reservedDelta: 0, refType:'po_receipt', refId: receipt.id, staffId})`. Update line qtys; create `PoReceipt` (`totalP` = Σ qtyGood × unitCostP) + items (with `costBeforeP/costAfterP`); if `totalP > 0` insert `SupplierLedger` `receipt` row (`amountP = totalP`, `poReceiptId`, `recordedById`). Status → `received` when every line has `qtyReceived + qtyRejected = qtyOrdered`, else `partially_received`. Returns `PoDetail`.
+8. `POST /:id/close {reason (3..300)}` (C71): partially_received only → `closed`, `closedAt/By`, `closeReason`. `POST /:id/cancel {reason?}`: draft, or sent with no receipts → `cancelled` (same fields); else 409 `PO_BAD_STATUS`.
+9. `GET /:id/print` → `{store: store_info setting, supplier:{name,contactName,phone,email,address}, po:{poNo,status,createdAt,sentAt,expectedAt,notes,subtotalP}, items:[{sku,title,options,qtyOrdered,unitCostP,lineTotalP}]}` (like `documents` print data). Draft prints too (watermark is UI's job).
+10. Tests: create (numbering, subtotal, dropship refused, links created), patch locking, send (+ Mailpit-free: mock/spy `MailService`), receive partial → partially_received → received, rejected qty, over-receive 409, weighted average (null cost, zero on-hand, normal case, rounding), stock movement + ledger row written, receive perm only (staff with just `purchase_orders.receive` can receive but not create), close/cancel rules, concurrent receive of the same line (two parallel calls, one 409).
+
+## Wave 2 (after API, lead spawns): admin UI
+
+`features/suppliers` (list, drawer: contact/ship mode/pickup/terms, links tab, ledger tab with payment/adjustment/reverse) and `features/purchase-orders` (tabs with counts, editor, receive modal, close/cancel, `/print/po/$id`), matching `plan/mockups/admin/suppliers.html` + `purchase-orders.html`, plus e2e flow.

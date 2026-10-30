@@ -33,7 +33,7 @@ export async function resetDb(app: INestApplication) {
     'TRUNCATE settings, staff, staff_sessions, staff_known_devices, staff_backup_codes, staff_roles, role_permissions, ' +
       'stock_movements, inventory, product_images, variants, product_option_values, product_options, ' +
       'product_attribute_values, product_categories, products, attribute_options, category_attributes, ' +
-      'categories, brands, media CASCADE',
+      'categories, brands, media, suppliers CASCADE',
   );
   await prisma.role.deleteMany({ where: { isSystem: false } });
   await app.get<Redis>(REDIS).flushdb();

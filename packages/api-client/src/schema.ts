@@ -3076,6 +3076,262 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/suppliers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SuppliersController_list"];
+        put?: never;
+        post: operations["SuppliersController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/suppliers/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SuppliersController_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["SuppliersController_update"];
+        trace?: never;
+    };
+    "/v1/admin/suppliers/{id}/variants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SuppliersController_listLinks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/suppliers/{id}/variants/{variantId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["SuppliersController_upsertLink"];
+        post?: never;
+        delete: operations["SuppliersController_removeLink"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/suppliers/{id}/ledger": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SupplierLedgerController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/suppliers/{id}/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["SupplierLedgerController_pay"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/suppliers/{id}/adjustments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["SupplierLedgerController_adjust"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/supplier-ledger/{entryId}/reverse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["SupplierLedgerController_reverse"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/purchase-orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PurchaseOrdersController_list"];
+        put?: never;
+        post: operations["PurchaseOrdersController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/purchase-orders/variant-options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PurchaseOrdersController_variantOptions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/purchase-orders/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PurchaseOrdersController_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["PurchaseOrdersController_patch"];
+        trace?: never;
+    };
+    "/v1/admin/purchase-orders/{id}/print": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PurchaseOrdersController_print"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/purchase-orders/{id}/send": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["PurchaseOrdersController_send"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/purchase-orders/{id}/receive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["PurchaseOrdersController_receive"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/purchase-orders/{id}/close": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["PurchaseOrdersController_close"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/purchase-orders/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["PurchaseOrdersController_cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -3167,7 +3423,7 @@ export interface components {
                 id: string;
                 name: string;
             }[];
-            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "po.receive")[];
+            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage")[];
         };
         ChangePasswordDto: {
             currentPassword: string;
@@ -3245,13 +3501,13 @@ export interface components {
             name: string;
             description: string | null;
             isSystem: boolean;
-            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "po.receive")[];
+            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage")[];
             staffCount: number;
         }[];
         CreateRoleDto: {
             name: string;
             description?: string;
-            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "po.receive")[];
+            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage")[];
         };
         RoleDto: {
             /** Format: uuid */
@@ -3259,17 +3515,17 @@ export interface components {
             name: string;
             description: string | null;
             isSystem: boolean;
-            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "po.receive")[];
+            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage")[];
             staffCount: number;
         };
         UpdateRoleDto: {
             name?: string;
             description?: string | null;
-            permissions?: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "po.receive")[];
+            permissions?: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage")[];
         };
         PermissionListDto: {
             /** @enum {string} */
-            key: "staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "po.receive";
+            key: "staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage";
             group: string;
             description: string;
         }[];
@@ -7114,6 +7370,484 @@ export interface components {
         BulkSaleUndoResultDto: {
             restored: number;
             skippedChanged: number;
+        };
+        SupplierListDto: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+                contactName: string | null;
+                phone: string | null;
+                email: string | null;
+                /** @enum {string} */
+                shipMode: "direct_to_customer" | "via_warehouse";
+                paymentTerms: string | null;
+                isActive: boolean;
+                productCount: number;
+                openPoCount: number;
+                balanceP: number;
+            }[];
+            total: number;
+        };
+        SupplierCreateDto: {
+            name: string;
+            contactName?: string | null;
+            phone?: string | null;
+            email?: string | null;
+            address?: string | null;
+            pickupAddress?: string | null;
+            /** @enum {string} */
+            shipMode: "direct_to_customer" | "via_warehouse";
+            paymentTerms?: string | null;
+            notes?: string | null;
+        };
+        SupplierDetailDto: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            contactName: string | null;
+            phone: string | null;
+            email: string | null;
+            /** @enum {string} */
+            shipMode: "direct_to_customer" | "via_warehouse";
+            paymentTerms: string | null;
+            isActive: boolean;
+            productCount: number;
+            openPoCount: number;
+            balanceP: number;
+            address: string | null;
+            pickupAddress: string | null;
+            notes: string | null;
+            createdAt: string;
+        };
+        SupplierErrorDto: {
+            statusCode: number;
+            message: string;
+            code?: string;
+        };
+        SupplierUpdateDto: {
+            name?: string;
+            contactName?: string | null;
+            phone?: string | null;
+            email?: string | null;
+            address?: string | null;
+            pickupAddress?: string | null;
+            /** @enum {string} */
+            shipMode?: "direct_to_customer" | "via_warehouse";
+            paymentTerms?: string | null;
+            notes?: string | null;
+            isActive?: boolean;
+        };
+        SupplierLinkListDto: {
+            items: {
+                /** Format: uuid */
+                variantId: string;
+                /** Format: uuid */
+                productId: string;
+                productTitleEn: string;
+                sku: string;
+                options: {
+                    en: string;
+                    bn: string | null;
+                }[];
+                supplierSku: string | null;
+                costP: number | null;
+                leadTimeDays: number | null;
+                isDefault: boolean;
+                variantCostP: number | null;
+                /** @enum {string} */
+                fulfillment: "stock" | "dropship";
+            }[];
+            total: number;
+        };
+        SupplierLinkUpsertDto: {
+            supplierSku?: string | null;
+            costP?: number | null;
+            leadTimeDays?: number | null;
+            isDefault?: boolean;
+        };
+        SupplierLinkDto: {
+            /** Format: uuid */
+            variantId: string;
+            /** Format: uuid */
+            productId: string;
+            productTitleEn: string;
+            sku: string;
+            options: {
+                en: string;
+                bn: string | null;
+            }[];
+            supplierSku: string | null;
+            costP: number | null;
+            leadTimeDays: number | null;
+            isDefault: boolean;
+            variantCostP: number | null;
+            /** @enum {string} */
+            fulfillment: "stock" | "dropship";
+        };
+        SupplierLedgerListDto: {
+            balanceP: number;
+            items: {
+                /** Format: uuid */
+                id: string;
+                /** @enum {string} */
+                type: "receipt" | "payment" | "adjustment" | "dropship" | "reversal";
+                amountP: number;
+                balanceAfterP: number;
+                method: string | null;
+                reference: string | null;
+                note: string | null;
+                poReceiptId: string | null;
+                poId: string | null;
+                poNo: string | null;
+                reversesId: string | null;
+                reversedById: string | null;
+                recordedBy: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                };
+                at: string;
+            }[];
+            total: number;
+        };
+        SupplierPaymentDto: {
+            amountP: number;
+            /** @enum {string} */
+            method: "cash" | "bkash" | "nagad" | "bank";
+            reference?: string;
+            note?: string;
+        };
+        SupplierLedgerEntryDto: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            type: "receipt" | "payment" | "adjustment" | "dropship" | "reversal";
+            amountP: number;
+            balanceAfterP: number;
+            method: string | null;
+            reference: string | null;
+            note: string | null;
+            poReceiptId: string | null;
+            poId: string | null;
+            poNo: string | null;
+            reversesId: string | null;
+            reversedById: string | null;
+            recordedBy: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            };
+            at: string;
+            balanceP: number;
+        };
+        SupplierAdjustmentDto: {
+            amountP: number;
+            note: string;
+        };
+        SupplierLedgerReverseDto: {
+            note: string;
+        };
+        PoListDto: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                poNo: string;
+                supplier: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                };
+                /** @enum {string} */
+                status: "draft" | "sent" | "partially_received" | "received" | "closed" | "cancelled";
+                expectedAt: string | null;
+                lineCount: number;
+                qtyOrdered: number;
+                qtyReceived: number;
+                qtyRejected: number;
+                subtotalP: number;
+                receivedValueP: number;
+                late: boolean;
+                createdAt: string;
+                sentAt: string | null;
+            }[];
+            total: number;
+            counts: {
+                all: number;
+                draft: number;
+                sent: number;
+                partially_received: number;
+                received: number;
+                closed: number;
+                cancelled: number;
+            };
+        };
+        PoVariantOptionDto: {
+            /** Format: uuid */
+            variantId: string;
+            /** Format: uuid */
+            productId: string;
+            productTitleEn: string;
+            sku: string;
+            options: {
+                en: string;
+                bn: string | null;
+            }[];
+            /** @enum {string} */
+            fulfillment: "stock" | "dropship";
+            onHand: number;
+            linked: boolean;
+            lastCostP: number | null;
+            variantCostP: number | null;
+        };
+        PoCreateDto: {
+            /** Format: uuid */
+            supplierId: string;
+            expectedAt?: string;
+            notes?: string;
+            items: {
+                /** Format: uuid */
+                variantId: string;
+                qtyOrdered: number;
+                unitCostP: number;
+            }[];
+        };
+        PoDetailDto: {
+            /** Format: uuid */
+            id: string;
+            poNo: string;
+            supplier: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+                phone: string | null;
+                email: string | null;
+                address: string | null;
+            };
+            /** @enum {string} */
+            status: "draft" | "sent" | "partially_received" | "received" | "closed" | "cancelled";
+            expectedAt: string | null;
+            lineCount: number;
+            qtyOrdered: number;
+            qtyReceived: number;
+            qtyRejected: number;
+            subtotalP: number;
+            receivedValueP: number;
+            late: boolean;
+            createdAt: string;
+            sentAt: string | null;
+            notes: string | null;
+            closeReason: string | null;
+            closedAt: string | null;
+            closedBy: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            } | null;
+            createdBy: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            };
+            items: {
+                /** Format: uuid */
+                id: string;
+                /** Format: uuid */
+                variantId: string;
+                /** Format: uuid */
+                productId: string;
+                productTitleEn: string;
+                sku: string;
+                options: {
+                    en: string;
+                    bn: string | null;
+                }[];
+                qtyOrdered: number;
+                qtyReceived: number;
+                qtyRejected: number;
+                remaining: number;
+                unitCostP: number;
+                lineTotalP: number;
+                onHand: number;
+                variantCostP: number | null;
+            }[];
+            receipts: {
+                /** Format: uuid */
+                id: string;
+                at: string;
+                note: string | null;
+                totalP: number;
+                receivedBy: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                };
+                items: {
+                    /** Format: uuid */
+                    poItemId: string;
+                    sku: string;
+                    qtyGood: number;
+                    qtyRejected: number;
+                    unitCostP: number;
+                    costBeforeP: number | null;
+                    costAfterP: number | null;
+                }[];
+            }[];
+        };
+        PoErrorDto: {
+            statusCode: number;
+            message: string;
+            code: string;
+        };
+        PoPrintDto: {
+            store: {
+                name: string;
+                address: string;
+                phone: string;
+                email: string;
+                bin: string;
+                vatRateBp: number;
+            };
+            supplier: {
+                name: string;
+                contactName: string | null;
+                phone: string | null;
+                email: string | null;
+                address: string | null;
+            };
+            po: {
+                poNo: string;
+                /** @enum {string} */
+                status: "draft" | "sent" | "partially_received" | "received" | "closed" | "cancelled";
+                createdAt: string;
+                sentAt: string | null;
+                expectedAt: string | null;
+                notes: string | null;
+                subtotalP: number;
+            };
+            items: {
+                sku: string;
+                title: string;
+                options: {
+                    en: string;
+                    bn: string | null;
+                }[];
+                qtyOrdered: number;
+                unitCostP: number;
+                lineTotalP: number;
+            }[];
+        };
+        PoPatchDto: {
+            /** Format: uuid */
+            supplierId?: string;
+            expectedAt?: string | null;
+            notes?: string | null;
+            items?: {
+                /** Format: uuid */
+                variantId: string;
+                qtyOrdered: number;
+                unitCostP: number;
+            }[];
+        };
+        PoSendResultDto: {
+            po: {
+                /** Format: uuid */
+                id: string;
+                poNo: string;
+                supplier: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                    phone: string | null;
+                    email: string | null;
+                    address: string | null;
+                };
+                /** @enum {string} */
+                status: "draft" | "sent" | "partially_received" | "received" | "closed" | "cancelled";
+                expectedAt: string | null;
+                lineCount: number;
+                qtyOrdered: number;
+                qtyReceived: number;
+                qtyRejected: number;
+                subtotalP: number;
+                receivedValueP: number;
+                late: boolean;
+                createdAt: string;
+                sentAt: string | null;
+                notes: string | null;
+                closeReason: string | null;
+                closedAt: string | null;
+                closedBy: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                } | null;
+                createdBy: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                };
+                items: {
+                    /** Format: uuid */
+                    id: string;
+                    /** Format: uuid */
+                    variantId: string;
+                    /** Format: uuid */
+                    productId: string;
+                    productTitleEn: string;
+                    sku: string;
+                    options: {
+                        en: string;
+                        bn: string | null;
+                    }[];
+                    qtyOrdered: number;
+                    qtyReceived: number;
+                    qtyRejected: number;
+                    remaining: number;
+                    unitCostP: number;
+                    lineTotalP: number;
+                    onHand: number;
+                    variantCostP: number | null;
+                }[];
+                receipts: {
+                    /** Format: uuid */
+                    id: string;
+                    at: string;
+                    note: string | null;
+                    totalP: number;
+                    receivedBy: {
+                        /** Format: uuid */
+                        id: string;
+                        name: string;
+                    };
+                    items: {
+                        /** Format: uuid */
+                        poItemId: string;
+                        sku: string;
+                        qtyGood: number;
+                        qtyRejected: number;
+                        unitCostP: number;
+                        costBeforeP: number | null;
+                        costAfterP: number | null;
+                    }[];
+                }[];
+            };
+            emailed: boolean;
+        };
+        PoReceiveDto: {
+            note?: string;
+            items: {
+                /** Format: uuid */
+                poItemId: string;
+                qtyGood: number;
+                qtyRejected: number;
+            }[];
+        };
+        PoCloseDto: {
+            reason: string;
+        };
+        PoCancelDto: {
+            reason?: string;
         };
     };
     responses: never;
@@ -13116,6 +13850,605 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    SuppliersController_list: {
+        parameters: {
+            query?: {
+                q?: string;
+                active?: "true" | "false";
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierListDto"];
+                };
+            };
+        };
+    };
+    SuppliersController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SupplierCreateDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierDetailDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierErrorDto"];
+                };
+            };
+        };
+    };
+    SuppliersController_detail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierDetailDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierErrorDto"];
+                };
+            };
+        };
+    };
+    SuppliersController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SupplierUpdateDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierDetailDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierErrorDto"];
+                };
+            };
+        };
+    };
+    SuppliersController_listLinks: {
+        parameters: {
+            query?: {
+                q?: string;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierLinkListDto"];
+                };
+            };
+        };
+    };
+    SuppliersController_upsertLink: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                variantId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SupplierLinkUpsertDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierLinkDto"];
+                };
+            };
+        };
+    };
+    SuppliersController_removeLink: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                variantId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SupplierLedgerController_list: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierLedgerListDto"];
+                };
+            };
+        };
+    };
+    SupplierLedgerController_pay: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SupplierPaymentDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierLedgerEntryDto"];
+                };
+            };
+        };
+    };
+    SupplierLedgerController_adjust: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SupplierAdjustmentDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierLedgerEntryDto"];
+                };
+            };
+        };
+    };
+    SupplierLedgerController_reverse: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entryId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SupplierLedgerReverseDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierLedgerEntryDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierErrorDto"];
+                };
+            };
+        };
+    };
+    PurchaseOrdersController_list: {
+        parameters: {
+            query?: {
+                status?: "draft" | "sent" | "partially_received" | "received" | "closed" | "cancelled";
+                supplierId?: string;
+                q?: string;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PoListDto"];
+                };
+            };
+        };
+    };
+    PurchaseOrdersController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PoCreateDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PoDetailDto"];
+                };
+            };
+            /** @description SUPPLIER_INACTIVE, PO_DROPSHIP_VARIANT */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PoErrorDto"];
+                };
+            };
+        };
+    };
+    PurchaseOrdersController_variantOptions: {
+        parameters: {
+            query: {
+                supplierId: string;
+                q?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PoVariantOptionDto"][];
+                };
+            };
+        };
+    };
+    PurchaseOrdersController_detail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PoDetailDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PoErrorDto"];
+                };
+            };
+        };
+    };
+    PurchaseOrdersController_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PoPatchDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PoDetailDto"];
+                };
+            };
+            /** @description PO_LOCKED */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PoErrorDto"];
+                };
+            };
+        };
+    };
+    PurchaseOrdersController_print: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PoPrintDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PoErrorDto"];
+                };
+            };
+        };
+    };
+    PurchaseOrdersController_send: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PoSendResultDto"];
+                };
+            };
+            /** @description PO_BAD_STATUS */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PoErrorDto"];
+                };
+            };
+        };
+    };
+    PurchaseOrdersController_receive: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PoReceiveDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PoDetailDto"];
+                };
+            };
+            /** @description PO_BAD_STATUS, PO_OVER_RECEIVE */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PoErrorDto"];
+                };
+            };
+        };
+    };
+    PurchaseOrdersController_close: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PoCloseDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PoDetailDto"];
+                };
+            };
+            /** @description PO_BAD_STATUS */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PoErrorDto"];
+                };
+            };
+        };
+    };
+    PurchaseOrdersController_cancel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PoCancelDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PoDetailDto"];
+                };
+            };
+            /** @description PO_BAD_STATUS */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PoErrorDto"];
                 };
             };
         };

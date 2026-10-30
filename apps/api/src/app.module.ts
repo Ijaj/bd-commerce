@@ -19,6 +19,8 @@ import { BulkSaleModule } from './promotions/bulk-sale/bulk-sale.module';
 import { CouponsModule } from './promotions/coupons/coupons.module';
 import { FlashModule } from './promotions/flash/flash.module';
 import { PromotionsModule } from './promotions/promotions.module';
+import { PurchaseOrdersModule } from './purchasing/purchase-orders/purchase-orders.module';
+import { SuppliersModule } from './purchasing/suppliers/suppliers.module';
 import { RedisModule } from './redis/redis.module';
 import { ReturnsModule } from './returns/returns.module';
 import { SchedulerModule } from './scheduler/scheduler.module';
@@ -57,6 +59,8 @@ import { StorefrontModule } from './storefront/storefront.module';
     CouponsModule,
     FlashModule,
     BulkSaleModule,
+    SuppliersModule,
+    PurchaseOrdersModule,
     SchedulerModule,
   ],
   controllers: [HealthController],

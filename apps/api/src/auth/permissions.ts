@@ -105,7 +105,14 @@ export const PERMISSIONS = {
     group: 'Suppliers & POs',
     description: 'Manage suppliers, product links and purchase orders',
   },
-  'po.receive': { group: 'Suppliers & POs', description: 'Approve POs and receive stock' },
+  'purchase_orders.receive': {
+    group: 'Suppliers & POs',
+    description: 'Receive goods against purchase orders (adds stock)',
+  },
+  'supplier_payments.manage': {
+    group: 'Suppliers & POs',
+    description: 'Record supplier payments and ledger adjustments',
+  },
 } as const satisfies Record<string, { group: string; description: string }>;
 
 export type PermissionKey = keyof typeof PERMISSIONS;
