@@ -11,20 +11,12 @@ import { useCan } from '~/lib/perm';
 import { poApi } from './api';
 import { notifyPoError, poErrorMessage } from './errors';
 import { LinesEditor } from './LinesEditor';
-import {
-  canCancel,
-  canReceive,
-  dateLabel,
-  editMode,
-  type LineDraft,
-  lineError,
-  PO_STATUS,
-} from './logic';
-import { PoLinesReadOnly, PoReceipts } from './PoDetailSections';
+import { canCancel, dateLabel, editMode, type LineDraft, lineError, PO_STATUS } from './logic';
+import { PoBanners, PoLinesReadOnly, PoReceipts } from './PoDetailSections';
+import { type PoDialog, PoDialogs } from './PoDialogs';
+import { PoHeaderActions } from './PoHeaderActions';
 import classes from './PurchaseOrders.module.css';
 import { type PoDetail, poQuery, poSuppliersQuery, useInvalidatePo } from './queries';
-import { ReasonModal } from './ReasonModal';
-import { ReceiveModal } from './ReceiveModal';
 
 const draftLines = (po: PoDetail | null): LineDraft[] =>
   (po?.items ?? []).map((i) => ({
@@ -78,7 +70,7 @@ function EditorBody({ po, presetSupplierId }: { po: PoDetail | null; presetSuppl
   const [notes, setNotes] = useState(po?.notes ?? '');
   const [lines, setLines] = useState<LineDraft[]>(() => draftLines(po));
   const [error, setError] = useState<string | null>(null);
-  const [dialog, setDialog] = useState<'receive' | 'close' | 'cancel' | null>(null);
+  const [dialog, setDialog] = useState<PoDialog>(null);
 
   const supplierData = (suppliers.data?.items ?? [])
     .filter((s) => s.isActive || s.id === supplierId)
@@ -150,55 +142,9 @@ function EditorBody({ po, presetSupplierId }: { po: PoDetail | null; presetSuppl
     onError: (e) => notifyPoError(e, 'Could not send'),
   });
 
-  const cancel = useMutation({
-    mutationFn: (reason: string) => poApi.cancel(po?.id ?? '', reason || undefined),
-    onSuccess: async () => {
-      await invalidate();
-      notifyOk('Purchase order cancelled');
-      setDialog(null);
-    },
-    onError: (e) => notifyPoError(e, 'Could not cancel'),
-  });
-
-  const close = useMutation({
-    mutationFn: (reason: string) => poApi.close(po?.id ?? '', reason),
-    onSuccess: async () => {
-      await invalidate();
-      notifyOk('Purchase order closed short');
-      setDialog(null);
-    },
-    onError: (e) => notifyPoError(e, 'Could not close'),
-  });
-
   const busy = save.isPending || send.isPending;
   const status = po ? PO_STATUS[po.status] : PO_STATUS.draft;
   const locked = mode !== 'full';
-
-  const headerActions = po && (
-    <>
-      <StatusBadge tone={status.tone}>{status.label}</StatusBadge>
-      <Button
-        component="a"
-        href={`/print/po/${po.id}`}
-        target="_blank"
-        rel="noopener"
-        variant="default"
-        size="xs"
-      >
-        Print
-      </Button>
-      {canRecv && canReceive(po.status) && (
-        <Button size="xs" onClick={() => setDialog('receive')}>
-          Receive goods
-        </Button>
-      )}
-      {canManage && po.status === 'partially_received' && (
-        <Button variant="default" size="xs" onClick={() => setDialog('close')}>
-          Close PO
-        </Button>
-      )}
-    </>
-  );
 
   return (
     <>
@@ -210,29 +156,14 @@ function EditorBody({ po, presetSupplierId }: { po: PoDetail | null; presetSuppl
             ? `Created ${formatDateTime(po.createdAt)} by ${po.createdBy.name}${po.sentAt ? `, sent ${formatDateTime(po.sentAt)}` : ''}`
             : 'Saved as a draft until you send it to the supplier.'
         }
-        actions={headerActions}
+        actions={
+          po && (
+            <PoHeaderActions po={po} canManage={canManage} canRecv={canRecv} onDialog={setDialog} />
+          )
+        }
       />
       <div className={classes.stack}>
-        {po?.status === 'closed' && (
-          <Banner tone="info" icon="lock">
-            Closed short{po.closedBy ? ` by ${po.closedBy.name}` : ''}: {po.closeReason}. The
-            remaining quantity was dropped and nothing more is owed for it.
-          </Banner>
-        )}
-        {po?.status === 'cancelled' && (
-          <Banner tone="danger">Cancelled{po.closeReason ? `: ${po.closeReason}` : ''}.</Banner>
-        )}
-        {mode === 'none' && po?.status === 'draft' && (
-          <Banner tone="info" icon="lock">
-            You need the suppliers.manage permission to edit purchase orders.
-          </Banner>
-        )}
-        {mode === 'meta' && (
-          <Banner tone="info" icon="lock">
-            This order was sent, so its lines are locked. You can still change the expected date and
-            notes.
-          </Banner>
-        )}
+        <PoBanners po={po} mode={mode} />
 
         <SectionCard title="Order">
           <div className={classes.cols3}>
@@ -339,29 +270,7 @@ function EditorBody({ po, presetSupplierId }: { po: PoDetail | null; presetSuppl
         )}
       </div>
 
-      {po && dialog === 'receive' && <ReceiveModal po={po} onClose={() => setDialog(null)} />}
-      {po && dialog === 'close' && (
-        <ReasonModal
-          title={`Close ${po.poNo} short`}
-          description="The quantity still outstanding is dropped and nothing is owed for it. Received goods stay in stock and on the supplier's balance. This cannot be undone."
-          confirmLabel="Close PO"
-          required
-          pending={close.isPending}
-          onSubmit={(r) => close.mutate(r)}
-          onClose={() => setDialog(null)}
-        />
-      )}
-      {po && dialog === 'cancel' && (
-        <ReasonModal
-          title={`Cancel ${po.poNo}`}
-          description="The purchase order is cancelled and nothing is owed. This cannot be undone."
-          confirmLabel="Cancel PO"
-          required={false}
-          pending={cancel.isPending}
-          onSubmit={(r) => cancel.mutate(r)}
-          onClose={() => setDialog(null)}
-        />
-      )}
+      {po && <PoDialogs po={po} dialog={dialog} onClose={() => setDialog(null)} />}
     </>
   );
 }

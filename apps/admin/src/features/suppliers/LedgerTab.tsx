@@ -7,7 +7,7 @@ import { type Column, DataTable } from '~/components/DataTable';
 import { formatDateTime, formatPrice } from '~/lib/format';
 import { AdjustmentModal } from './AdjustmentModal';
 import { Balance } from './components';
-import { canReverse, LEDGER_TYPE } from './logic';
+import { canReverse, LEDGER_TYPE, PAY_METHODS } from './logic';
 import { PaymentModal } from './PaymentModal';
 import { type LedgerEntry, ledgerQuery } from './queries';
 import { ReverseModal } from './ReverseModal';
@@ -47,7 +47,7 @@ export function LedgerTab({
       header: 'PO',
       render: (e) =>
         e.poId && e.poNo ? (
-          <Link to="/purchase-orders/$id" params={{ id: e.poId }}>
+          <Link to="/purchase-orders/$id" params={{ id: e.poId }} style={{ whiteSpace: 'nowrap' }}>
             {e.poNo}
           </Link>
         ) : (
@@ -60,7 +60,7 @@ export function LedgerTab({
       render: (e) =>
         e.method || e.reference ? (
           <span>
-            {e.method}
+            {PAY_METHODS.find((m) => m.value === e.method)?.label ?? e.method}
             {e.reference && <span className={`sub ${classes.mono}`}>{e.reference}</span>}
           </span>
         ) : (

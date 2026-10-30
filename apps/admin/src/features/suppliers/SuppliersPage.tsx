@@ -39,14 +39,18 @@ export function SuppliersPage() {
       key: 'supplier',
       header: 'Supplier',
       render: (s) => (
-        <div>
+        <div style={{ minWidth: 200 }}>
           <b>{s.name}</b>
           {s.phone && <span className="sub">{s.phone}</span>}
         </div>
       ),
     },
     { key: 'contact', header: 'Contact', render: (s) => s.contactName ?? '-' },
-    { key: 'ship', header: 'Ship mode', render: (s) => SHIP_MODE_LABEL[s.shipMode] },
+    {
+      key: 'ship',
+      header: 'Ship mode',
+      render: (s) => <span style={{ whiteSpace: 'nowrap' }}>{SHIP_MODE_LABEL[s.shipMode]}</span>,
+    },
     { key: 'products', header: 'Products', className: 'num', render: (s) => s.productCount },
     { key: 'open', header: 'Open POs', className: 'num', render: (s) => s.openPoCount },
     {

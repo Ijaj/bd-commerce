@@ -45,21 +45,33 @@ export function PurchaseOrdersPage() {
   const counts = list.data?.counts;
 
   const columns: Column<PoRow>[] = [
-    { key: 'po', header: 'PO', render: (r) => <b>{r.poNo}</b> },
-    { key: 'supplier', header: 'Supplier', render: (r) => r.supplier.name },
-    { key: 'created', header: 'Created', render: (r) => dateLabel(r.createdAt) },
+    {
+      key: 'po',
+      header: 'PO',
+      render: (r) => <b style={{ whiteSpace: 'nowrap' }}>{r.poNo}</b>,
+    },
+    {
+      key: 'supplier',
+      header: 'Supplier',
+      render: (r) => <div style={{ minWidth: 180 }}>{r.supplier.name}</div>,
+    },
+    {
+      key: 'created',
+      header: 'Created',
+      render: (r) => <span style={{ whiteSpace: 'nowrap' }}>{dateLabel(r.createdAt)}</span>,
+    },
     {
       key: 'expected',
       header: 'Expected',
       render: (r) => (
-        <>
+        <span style={{ whiteSpace: 'nowrap' }}>
           {dateLabel(r.expectedAt)}
           {r.late && (
             <StatusBadge tone="danger" style={{ marginLeft: 6 }}>
               Late
             </StatusBadge>
           )}
-        </>
+        </span>
       ),
     },
     { key: 'lines', header: 'Lines', className: 'num', render: (r) => r.lineCount },

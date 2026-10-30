@@ -39,10 +39,12 @@ export function PoPrintPage({ id }: { id: string }) {
             <div>
               <h1>PURCHASE ORDER</h1>
               <div>{d.store.name}</div>
-              <div className="muted">{d.store.address}</div>
-              <div className="muted">
-                {d.store.phone} · {d.store.email}
-              </div>
+              {d.store.address && <div className="muted">{d.store.address}</div>}
+              {(d.store.phone || d.store.email) && (
+                <div className="muted">
+                  {[d.store.phone, d.store.email].filter(Boolean).join(' · ')}
+                </div>
+              )}
               {d.store.bin && <div className="muted">BIN: {d.store.bin}</div>}
             </div>
             <div style={{ textAlign: 'right' }}>

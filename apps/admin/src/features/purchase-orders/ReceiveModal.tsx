@@ -6,6 +6,7 @@ import { formatPrice } from '~/lib/format';
 import { poApi } from './api';
 import { notifyPoError } from './errors';
 import { clampReceive, costAfterP, optionText } from './logic';
+import css from './PurchaseOrders.module.css';
 import { type PoDetail, useInvalidatePo } from './queries';
 
 type Entry = { good: number; rejected: number };
@@ -62,7 +63,7 @@ export function ReceiveModal({ po, onClose }: { po: PoDetail; onClose: () => voi
   }
 
   return (
-    <Modal opened onClose={onClose} title={`Receive goods: ${po.poNo}`} size="xl" centered>
+    <Modal opened onClose={onClose} title={`Receive goods: ${po.poNo}`} size={1000} centered>
       <Stack>
         <Text size="sm" c="dimmed">
           Enter what actually arrived. Good units go into stock now and update the average cost;
@@ -72,7 +73,7 @@ export function ReceiveModal({ po, onClose }: { po: PoDetail; onClose: () => voi
           <table className="a-table">
             <thead>
               <tr>
-                <th>Product</th>
+                <th className={css.productCol}>Product</th>
                 <th className="num">Ordered</th>
                 <th className="num">Already received</th>
                 <th className="num">Good</th>

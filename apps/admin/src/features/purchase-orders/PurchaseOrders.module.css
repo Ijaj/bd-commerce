@@ -35,3 +35,6 @@
 .statusCell {
   padding-top: 4px;
 }
+.productCol {
+  min-width: 220px;
+}

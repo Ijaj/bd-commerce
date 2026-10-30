@@ -3,6 +3,7 @@ import { ActionIcon, NumberInput } from '@mantine/core';
 import { MoneyInput } from '~/components/MoneyInput';
 import { formatPrice } from '~/lib/format';
 import { type LineDraft, lineTotalP, optionText, totalP } from './logic';
+import css from './PurchaseOrders.module.css';
 import { VariantPicker } from './VariantPicker';
 
 /** Editable lines of a draft PO (a locked PO shows `PoLinesReadOnly` instead). */
@@ -24,7 +25,7 @@ export function LinesEditor({
         <table className="a-table">
           <thead>
             <tr>
-              <th>Product</th>
+              <th className={css.productCol}>Product</th>
               <th>Qty</th>
               <th>Unit cost</th>
               <th className="num">Line total</th>
