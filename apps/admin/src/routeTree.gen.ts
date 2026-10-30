@@ -30,11 +30,16 @@ import { Route as AppCatalogInventoryRouteImport } from './routes/_app/catalog.i
 import { Route as AppContentCarouselRouteImport } from './routes/_app/content.carousel'
 import { Route as AppOrdersIndexRouteImport } from './routes/_app/orders.index'
 import { Route as AppOrdersIdRouteImport } from './routes/_app/orders.$id'
+import { Route as AppPurchaseOrdersIndexRouteImport } from './routes/_app/purchase-orders.index'
+import { Route as AppPurchaseOrdersIdRouteImport } from './routes/_app/purchase-orders.$id'
+import { Route as AppPurchaseOrdersNewRouteImport } from './routes/_app/purchase-orders.new'
 import { Route as AppRefundsIndexRouteImport } from './routes/_app/refunds.index'
 import { Route as AppReturnsIndexRouteImport } from './routes/_app/returns.index'
 import { Route as AppReturnsIdRouteImport } from './routes/_app/returns.$id'
 import { Route as AppShipmentsIndexRouteImport } from './routes/_app/shipments.index'
 import { Route as AppSrTeamRouteImport } from './routes/_app/sr.team'
+import { Route as AppSuppliersIndexRouteImport } from './routes/_app/suppliers.index'
+import { Route as AppSuppliersIdRouteImport } from './routes/_app/suppliers.$id'
 import { Route as PrintPrintLabelsRouteImport } from './routes/_print/print.labels'
 import { Route as AppB2bShopsIndexRouteImport } from './routes/_app/b2b.shops.index'
 import { Route as AppB2bShopsIdRouteImport } from './routes/_app/b2b.shops.$id'
@@ -51,6 +56,7 @@ import { Route as AppPromotionsFlashSalesIdRouteImport } from './routes/_app/pro
 import { Route as AppPromotionsFlashSalesNewRouteImport } from './routes/_app/promotions.flash-sales.new'
 import { Route as PrintPrintInvoiceIdRouteImport } from './routes/_print/print.invoice.$id'
 import { Route as PrintPrintLabelIdRouteImport } from './routes/_print/print.label.$id'
+import { Route as PrintPrintPoIdRouteImport } from './routes/_print/print.po.$id'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
@@ -155,6 +161,21 @@ const AppOrdersIdRoute = AppOrdersIdRouteImport.update({
   path: '/orders/$id',
   getParentRoute: () => AppRoute,
 } as any)
+const AppPurchaseOrdersIndexRoute = AppPurchaseOrdersIndexRouteImport.update({
+  id: '/purchase-orders/',
+  path: '/purchase-orders/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPurchaseOrdersIdRoute = AppPurchaseOrdersIdRouteImport.update({
+  id: '/purchase-orders/$id',
+  path: '/purchase-orders/$id',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPurchaseOrdersNewRoute = AppPurchaseOrdersNewRouteImport.update({
+  id: '/purchase-orders/new',
+  path: '/purchase-orders/new',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppRefundsIndexRoute = AppRefundsIndexRouteImport.update({
   id: '/refunds/',
   path: '/refunds/',
@@ -178,6 +199,16 @@ const AppShipmentsIndexRoute = AppShipmentsIndexRouteImport.update({
 const AppSrTeamRoute = AppSrTeamRouteImport.update({
   id: '/sr/team',
   path: '/sr/team',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSuppliersIndexRoute = AppSuppliersIndexRouteImport.update({
+  id: '/suppliers/',
+  path: '/suppliers/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSuppliersIdRoute = AppSuppliersIdRouteImport.update({
+  id: '/suppliers/$id',
+  path: '/suppliers/$id',
   getParentRoute: () => AppRoute,
 } as any)
 const PrintPrintLabelsRoute = PrintPrintLabelsRouteImport.update({
@@ -267,6 +298,11 @@ const PrintPrintLabelIdRoute = PrintPrintLabelIdRouteImport.update({
   path: '/print/label/$id',
   getParentRoute: () => PrintRoute,
 } as any)
+const PrintPrintPoIdRoute = PrintPrintPoIdRouteImport.update({
+  id: '/print/po/$id',
+  path: '/print/po/$id',
+  getParentRoute: () => PrintRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
@@ -287,13 +323,18 @@ export interface FileRoutesByFullPath {
   '/catalog/inventory': typeof AppCatalogInventoryRoute
   '/content/carousel': typeof AppContentCarouselRoute
   '/orders/$id': typeof AppOrdersIdRoute
+  '/purchase-orders/$id': typeof AppPurchaseOrdersIdRoute
+  '/purchase-orders/new': typeof AppPurchaseOrdersNewRoute
   '/returns/$id': typeof AppReturnsIdRoute
   '/sr/team': typeof AppSrTeamRoute
+  '/suppliers/$id': typeof AppSuppliersIdRoute
   '/print/labels': typeof PrintPrintLabelsRoute
   '/orders/': typeof AppOrdersIndexRoute
+  '/purchase-orders/': typeof AppPurchaseOrdersIndexRoute
   '/refunds/': typeof AppRefundsIndexRoute
   '/returns/': typeof AppReturnsIndexRoute
   '/shipments/': typeof AppShipmentsIndexRoute
+  '/suppliers/': typeof AppSuppliersIndexRoute
   '/b2b/shops/$id': typeof AppB2bShopsIdRoute
   '/catalog/products/$id': typeof AppCatalogProductsIdRoute
   '/promotions/bulk-sales/$id': typeof AppPromotionsBulkSalesIdRoute
@@ -304,6 +345,7 @@ export interface FileRoutesByFullPath {
   '/promotions/flash-sales/new': typeof AppPromotionsFlashSalesNewRoute
   '/print/invoice/$id': typeof PrintPrintInvoiceIdRoute
   '/print/label/$id': typeof PrintPrintLabelIdRoute
+  '/print/po/$id': typeof PrintPrintPoIdRoute
   '/b2b/shops/': typeof AppB2bShopsIndexRoute
   '/catalog/products/': typeof AppCatalogProductsIndexRoute
   '/promotions/bulk-sales/': typeof AppPromotionsBulkSalesIndexRoute
@@ -329,13 +371,18 @@ export interface FileRoutesByTo {
   '/catalog/inventory': typeof AppCatalogInventoryRoute
   '/content/carousel': typeof AppContentCarouselRoute
   '/orders/$id': typeof AppOrdersIdRoute
+  '/purchase-orders/$id': typeof AppPurchaseOrdersIdRoute
+  '/purchase-orders/new': typeof AppPurchaseOrdersNewRoute
   '/returns/$id': typeof AppReturnsIdRoute
   '/sr/team': typeof AppSrTeamRoute
+  '/suppliers/$id': typeof AppSuppliersIdRoute
   '/print/labels': typeof PrintPrintLabelsRoute
   '/orders': typeof AppOrdersIndexRoute
+  '/purchase-orders': typeof AppPurchaseOrdersIndexRoute
   '/refunds': typeof AppRefundsIndexRoute
   '/returns': typeof AppReturnsIndexRoute
   '/shipments': typeof AppShipmentsIndexRoute
+  '/suppliers': typeof AppSuppliersIndexRoute
   '/b2b/shops/$id': typeof AppB2bShopsIdRoute
   '/catalog/products/$id': typeof AppCatalogProductsIdRoute
   '/promotions/bulk-sales/$id': typeof AppPromotionsBulkSalesIdRoute
@@ -346,6 +393,7 @@ export interface FileRoutesByTo {
   '/promotions/flash-sales/new': typeof AppPromotionsFlashSalesNewRoute
   '/print/invoice/$id': typeof PrintPrintInvoiceIdRoute
   '/print/label/$id': typeof PrintPrintLabelIdRoute
+  '/print/po/$id': typeof PrintPrintPoIdRoute
   '/b2b/shops': typeof AppB2bShopsIndexRoute
   '/catalog/products': typeof AppCatalogProductsIndexRoute
   '/promotions/bulk-sales': typeof AppPromotionsBulkSalesIndexRoute
@@ -374,13 +422,18 @@ export interface FileRoutesById {
   '/_app/catalog/inventory': typeof AppCatalogInventoryRoute
   '/_app/content/carousel': typeof AppContentCarouselRoute
   '/_app/orders/$id': typeof AppOrdersIdRoute
+  '/_app/purchase-orders/$id': typeof AppPurchaseOrdersIdRoute
+  '/_app/purchase-orders/new': typeof AppPurchaseOrdersNewRoute
   '/_app/returns/$id': typeof AppReturnsIdRoute
   '/_app/sr/team': typeof AppSrTeamRoute
+  '/_app/suppliers/$id': typeof AppSuppliersIdRoute
   '/_print/print/labels': typeof PrintPrintLabelsRoute
   '/_app/orders/': typeof AppOrdersIndexRoute
+  '/_app/purchase-orders/': typeof AppPurchaseOrdersIndexRoute
   '/_app/refunds/': typeof AppRefundsIndexRoute
   '/_app/returns/': typeof AppReturnsIndexRoute
   '/_app/shipments/': typeof AppShipmentsIndexRoute
+  '/_app/suppliers/': typeof AppSuppliersIndexRoute
   '/_app/b2b/shops/$id': typeof AppB2bShopsIdRoute
   '/_app/catalog/products/$id': typeof AppCatalogProductsIdRoute
   '/_app/promotions/bulk-sales/$id': typeof AppPromotionsBulkSalesIdRoute
@@ -391,6 +444,7 @@ export interface FileRoutesById {
   '/_app/promotions/flash-sales/new': typeof AppPromotionsFlashSalesNewRoute
   '/_print/print/invoice/$id': typeof PrintPrintInvoiceIdRoute
   '/_print/print/label/$id': typeof PrintPrintLabelIdRoute
+  '/_print/print/po/$id': typeof PrintPrintPoIdRoute
   '/_app/b2b/shops/': typeof AppB2bShopsIndexRoute
   '/_app/catalog/products/': typeof AppCatalogProductsIndexRoute
   '/_app/promotions/bulk-sales/': typeof AppPromotionsBulkSalesIndexRoute
@@ -418,13 +472,18 @@ export interface FileRouteTypes {
     | '/catalog/inventory'
     | '/content/carousel'
     | '/orders/$id'
+    | '/purchase-orders/$id'
+    | '/purchase-orders/new'
     | '/returns/$id'
     | '/sr/team'
+    | '/suppliers/$id'
     | '/print/labels'
     | '/orders/'
+    | '/purchase-orders/'
     | '/refunds/'
     | '/returns/'
     | '/shipments/'
+    | '/suppliers/'
     | '/b2b/shops/$id'
     | '/catalog/products/$id'
     | '/promotions/bulk-sales/$id'
@@ -435,6 +494,7 @@ export interface FileRouteTypes {
     | '/promotions/flash-sales/new'
     | '/print/invoice/$id'
     | '/print/label/$id'
+    | '/print/po/$id'
     | '/b2b/shops/'
     | '/catalog/products/'
     | '/promotions/bulk-sales/'
@@ -460,13 +520,18 @@ export interface FileRouteTypes {
     | '/catalog/inventory'
     | '/content/carousel'
     | '/orders/$id'
+    | '/purchase-orders/$id'
+    | '/purchase-orders/new'
     | '/returns/$id'
     | '/sr/team'
+    | '/suppliers/$id'
     | '/print/labels'
     | '/orders'
+    | '/purchase-orders'
     | '/refunds'
     | '/returns'
     | '/shipments'
+    | '/suppliers'
     | '/b2b/shops/$id'
     | '/catalog/products/$id'
     | '/promotions/bulk-sales/$id'
@@ -477,6 +542,7 @@ export interface FileRouteTypes {
     | '/promotions/flash-sales/new'
     | '/print/invoice/$id'
     | '/print/label/$id'
+    | '/print/po/$id'
     | '/b2b/shops'
     | '/catalog/products'
     | '/promotions/bulk-sales'
@@ -504,13 +570,18 @@ export interface FileRouteTypes {
     | '/_app/catalog/inventory'
     | '/_app/content/carousel'
     | '/_app/orders/$id'
+    | '/_app/purchase-orders/$id'
+    | '/_app/purchase-orders/new'
     | '/_app/returns/$id'
     | '/_app/sr/team'
+    | '/_app/suppliers/$id'
     | '/_print/print/labels'
     | '/_app/orders/'
+    | '/_app/purchase-orders/'
     | '/_app/refunds/'
     | '/_app/returns/'
     | '/_app/shipments/'
+    | '/_app/suppliers/'
     | '/_app/b2b/shops/$id'
     | '/_app/catalog/products/$id'
     | '/_app/promotions/bulk-sales/$id'
@@ -521,6 +592,7 @@ export interface FileRouteTypes {
     | '/_app/promotions/flash-sales/new'
     | '/_print/print/invoice/$id'
     | '/_print/print/label/$id'
+    | '/_print/print/po/$id'
     | '/_app/b2b/shops/'
     | '/_app/catalog/products/'
     | '/_app/promotions/bulk-sales/'
@@ -685,6 +757,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppOrdersIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/purchase-orders/': {
+      id: '/_app/purchase-orders/'
+      path: '/purchase-orders'
+      fullPath: '/purchase-orders/'
+      preLoaderRoute: typeof AppPurchaseOrdersIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/purchase-orders/$id': {
+      id: '/_app/purchase-orders/$id'
+      path: '/purchase-orders/$id'
+      fullPath: '/purchase-orders/$id'
+      preLoaderRoute: typeof AppPurchaseOrdersIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/purchase-orders/new': {
+      id: '/_app/purchase-orders/new'
+      path: '/purchase-orders/new'
+      fullPath: '/purchase-orders/new'
+      preLoaderRoute: typeof AppPurchaseOrdersNewRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/refunds/': {
       id: '/_app/refunds/'
       path: '/refunds'
@@ -718,6 +811,20 @@ declare module '@tanstack/react-router' {
       path: '/sr/team'
       fullPath: '/sr/team'
       preLoaderRoute: typeof AppSrTeamRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/suppliers/': {
+      id: '/_app/suppliers/'
+      path: '/suppliers'
+      fullPath: '/suppliers/'
+      preLoaderRoute: typeof AppSuppliersIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/suppliers/$id': {
+      id: '/_app/suppliers/$id'
+      path: '/suppliers/$id'
+      fullPath: '/suppliers/$id'
+      preLoaderRoute: typeof AppSuppliersIdRouteImport
       parentRoute: typeof AppRoute
     }
     '/_print/print/labels': {
@@ -832,6 +939,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrintPrintLabelIdRouteImport
       parentRoute: typeof PrintRoute
     }
+    '/_print/print/po/$id': {
+      id: '/_print/print/po/$id'
+      path: '/print/po/$id'
+      fullPath: '/print/po/$id'
+      preLoaderRoute: typeof PrintPrintPoIdRouteImport
+      parentRoute: typeof PrintRoute
+    }
   }
 }
 
@@ -851,12 +965,17 @@ interface AppRouteChildren {
   AppCatalogInventoryRoute: typeof AppCatalogInventoryRoute
   AppContentCarouselRoute: typeof AppContentCarouselRoute
   AppOrdersIdRoute: typeof AppOrdersIdRoute
+  AppPurchaseOrdersIdRoute: typeof AppPurchaseOrdersIdRoute
+  AppPurchaseOrdersNewRoute: typeof AppPurchaseOrdersNewRoute
   AppReturnsIdRoute: typeof AppReturnsIdRoute
   AppSrTeamRoute: typeof AppSrTeamRoute
+  AppSuppliersIdRoute: typeof AppSuppliersIdRoute
   AppOrdersIndexRoute: typeof AppOrdersIndexRoute
+  AppPurchaseOrdersIndexRoute: typeof AppPurchaseOrdersIndexRoute
   AppRefundsIndexRoute: typeof AppRefundsIndexRoute
   AppReturnsIndexRoute: typeof AppReturnsIndexRoute
   AppShipmentsIndexRoute: typeof AppShipmentsIndexRoute
+  AppSuppliersIndexRoute: typeof AppSuppliersIndexRoute
   AppB2bShopsIdRoute: typeof AppB2bShopsIdRoute
   AppCatalogProductsIdRoute: typeof AppCatalogProductsIdRoute
   AppPromotionsBulkSalesIdRoute: typeof AppPromotionsBulkSalesIdRoute
@@ -888,12 +1007,17 @@ const AppRouteChildren: AppRouteChildren = {
   AppCatalogInventoryRoute: AppCatalogInventoryRoute,
   AppContentCarouselRoute: AppContentCarouselRoute,
   AppOrdersIdRoute: AppOrdersIdRoute,
+  AppPurchaseOrdersIdRoute: AppPurchaseOrdersIdRoute,
+  AppPurchaseOrdersNewRoute: AppPurchaseOrdersNewRoute,
   AppReturnsIdRoute: AppReturnsIdRoute,
   AppSrTeamRoute: AppSrTeamRoute,
+  AppSuppliersIdRoute: AppSuppliersIdRoute,
   AppOrdersIndexRoute: AppOrdersIndexRoute,
+  AppPurchaseOrdersIndexRoute: AppPurchaseOrdersIndexRoute,
   AppRefundsIndexRoute: AppRefundsIndexRoute,
   AppReturnsIndexRoute: AppReturnsIndexRoute,
   AppShipmentsIndexRoute: AppShipmentsIndexRoute,
+  AppSuppliersIndexRoute: AppSuppliersIndexRoute,
   AppB2bShopsIdRoute: AppB2bShopsIdRoute,
   AppCatalogProductsIdRoute: AppCatalogProductsIdRoute,
   AppPromotionsBulkSalesIdRoute: AppPromotionsBulkSalesIdRoute,
@@ -915,12 +1039,14 @@ interface PrintRouteChildren {
   PrintPrintLabelsRoute: typeof PrintPrintLabelsRoute
   PrintPrintInvoiceIdRoute: typeof PrintPrintInvoiceIdRoute
   PrintPrintLabelIdRoute: typeof PrintPrintLabelIdRoute
+  PrintPrintPoIdRoute: typeof PrintPrintPoIdRoute
 }
 
 const PrintRouteChildren: PrintRouteChildren = {
   PrintPrintLabelsRoute: PrintPrintLabelsRoute,
   PrintPrintInvoiceIdRoute: PrintPrintInvoiceIdRoute,
   PrintPrintLabelIdRoute: PrintPrintLabelIdRoute,
+  PrintPrintPoIdRoute: PrintPrintPoIdRoute,
 }
 
 const PrintRouteWithChildren = PrintRoute._addFileChildren(PrintRouteChildren)

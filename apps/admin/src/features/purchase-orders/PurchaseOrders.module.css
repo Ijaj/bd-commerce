@@ -1,0 +1,37 @@
+.tabsWrap {
+  overflow-x: auto;
+  margin-bottom: 12px;
+}
+.tabsWrap :global(.a-tabs) {
+  min-width: max-content;
+  margin-bottom: 0;
+}
+.cols3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+@media (max-width: 700px) {
+  .cols3 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 1100px;
+}
+.foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.grow {
+  flex: 1;
+}
+.statusCell {
+  padding-top: 4px;
+}

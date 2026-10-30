@@ -169,3 +169,14 @@ Page titles stay as the app has them because unit tests and e2e select them: "Ca
 ## Storefront (`apps/shop`)
 
 See `plan/swarm/ui-fidelity/shop-gaps.md` section 4 (NOT BUILT) for the storefront list. It also lists the items skipped until someone checks them in a browser (C5, H8, H10, K9, O5, P14, A9) and the lead's "no" answers: G3 header category select, C12 Clear-filters action, L3 6-box OTP, O8 checkout steps trail.
+
+## Step 7a: Suppliers (`/suppliers`, U1)
+
+Mockup: `suppliers.html` (`page-suppliers.js`, `partners.css`). Not built in 7a (arrive with 7b dropship + supplier portal):
+
+- Tab "Dropship forwarding queue" (order, item, supplier, route, status, forwarded, SLA, "Nudge supplier" / "Cancel item & notify").
+- List columns "On-time" (bar) and "Cancel rate"; drawer "Performance (last 90 days)" bars.
+- Drawer "Portal users" list, "Invite portal user", "Open supplier portal"; add modal button "Add supplier & send portal invite" and the "Email (portal login)" label (7a: plain email, plain "Add supplier").
+- Supplier ID line under the name in the list (7a shows the phone there).
+- Mockup edits a supplier in a right-hand drawer; 7a uses a detail page with tabs (Details / Products / Ledger) because links and ledger need room. Designed in mockup style: `.a-table`, `.a-card`, `StatTile`, `StatusBadge`.
+- Mockup "Linked products" is a count + link to Products; 7a has a links table with edit/remove and a variant picker.

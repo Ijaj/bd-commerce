@@ -23,6 +23,8 @@ export interface NavItem {
     | '/b2b/shops'
     | '/b2b/collections'
     | '/b2b/dues'
+    | '/suppliers'
+    | '/purchase-orders'
     | '/sr/team'
     | '/delivery'
     | '/staff'
@@ -107,6 +109,8 @@ export const NAV: NavSection[] = [
   {
     heading: 'People & partners',
     items: [
+      { label: 'Suppliers & POs', icon: 'suppliers', to: '/suppliers', anyOf: ['suppliers.view'] },
+      { label: 'Purchase orders', icon: 'po', to: '/purchase-orders', anyOf: ['suppliers.view'] },
       { label: 'SR approvals', icon: 'check', to: '/b2b/sales', anyOf: ['b2b.view'] },
       { label: 'B2B shops', icon: 'suppliers', to: '/b2b/shops', anyOf: ['b2b.view'] },
       {

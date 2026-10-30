@@ -30,3 +30,10 @@ Board (append-only): `plan/swarm/BOARD-step7a.md` (`cat >>`, `[agent HH:MM] msg`
 4. Print `/print/po/$id` (same shell as invoice print, A4, `.bdc-light`): store header, "PURCHASE ORDER" + PO no, supplier block, dates, lines table, total, notes, "DRAFT" watermark when draft.
 5. e2e `e2e/tests/purchasing.spec.ts` (read `e2e/README` or `order-ops.spec.ts` for login/fixtures; API on :4100, admin :5180): create supplier → new PO with 1 variant (qty 10, cost) → send → receive 6 good + 1 rejected → status Partially received, stock +6 → close short → supplier ledger shows the receipt amount → record cash payment → balance drops. Don't run the full e2e suite; the lead runs it. If you can run just your spec (`cd e2e && pnpm test:e2e purchasing`), do it and report.
 6. Tests: list tabs/counts, editor validation (≥1 line, qty ≥ 1), locked lines when sent, receive modal caps + cost preview math.
+
+## API notes from wave 1 (built, commit 28ac342)
+
+- Ledger writes return 201 `{…entry, balanceP}`. Missing reference (bkash/nagad/bank) or missing note → 400 (DTO). Phone invalid → 422 `SUPPLIER_PHONE_INVALID`. Link DELETE → 204. Errors: `SUPPLIER_NAME_TAKEN`, `LEDGER_ALREADY_REVERSED`, `LEDGER_NOT_REVERSIBLE`, `LEDGER_OVERFLOW`.
+- `variant-options` also returns dropship variants (`fulfillment: 'dropship'`): show them disabled ("dropship: not on POs"); creating with one → 409 `PO_DROPSHIP_VARIANT`. Without `q` it lists linked variants first then other active ones.
+- PO errors: 409 `SUPPLIER_INACTIVE`, `PO_LOCKED`, `PO_BAD_STATUS`, `PO_OVER_RECEIVE` (body has `remaining`); 422 `PO_NOTHING_RECEIVED`, `PO_EMPTY`. `send` → `{po, emailed}`.
+- `routeTree.gen.ts` is generated: both agents may regenerate it; never hand-edit.
