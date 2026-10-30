@@ -7724,6 +7724,7 @@ export interface components {
                 expectedAt: string | null;
                 notes: string | null;
                 subtotalP: number;
+                receivedValueP: number;
             };
             items: {
                 sku: string;
@@ -7733,6 +7734,7 @@ export interface components {
                     bn: string | null;
                 }[];
                 qtyOrdered: number;
+                qtyReceived: number;
                 unitCostP: number;
                 lineTotalP: number;
             }[];

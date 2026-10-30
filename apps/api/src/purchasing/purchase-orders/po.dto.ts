@@ -221,6 +221,7 @@ export class PoPrintDto extends createZodDto(
       expectedAt: date.nullable(),
       notes: z.string().nullable(),
       subtotalP: z.number().int(),
+      receivedValueP: z.number().int(),
     }),
     items: z.array(
       z.object({
@@ -228,6 +229,7 @@ export class PoPrintDto extends createZodDto(
         title: z.string(),
         options: z.array(optionLabel),
         qtyOrdered: z.number().int(),
+        qtyReceived: z.number().int(),
         unitCostP: z.number().int(),
         lineTotalP: z.number().int(),
       }),

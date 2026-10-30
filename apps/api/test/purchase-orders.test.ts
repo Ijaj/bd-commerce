@@ -237,10 +237,20 @@ describe('purchase orders', () => {
       expect(again.body.code).toBe('PO_BAD_STATUS');
 
       const pr = await admin.agent.get(`${base}/${po.id}/print`).expect(200);
-      expect(pr.body.po).toMatchObject({ poNo: po.poNo, subtotalP: 24_690, status: 'sent' });
+      expect(pr.body.po).toMatchObject({
+        poNo: po.poNo,
+        subtotalP: 24_690,
+        status: 'sent',
+        receivedValueP: 0,
+      });
       expect(pr.body.store.name).toBeTypeOf('string');
       expect(pr.body.supplier.name).toBe(sup.name);
-      expect(pr.body.items[0]).toMatchObject({ sku: v.sku, qtyOrdered: 2, lineTotalP: 24_690 });
+      expect(pr.body.items[0]).toMatchObject({
+        sku: v.sku,
+        qtyOrdered: 2,
+        qtyReceived: 0,
+        lineTotalP: 24_690,
+      });
     });
 
     it('sends without email when the supplier has none, and mail failure never fails the call', async () => {
@@ -346,6 +356,9 @@ describe('purchase orders', () => {
         .expect(200);
       expect(r1.body.status).toBe('partially_received');
       expect(r1.body).toMatchObject({ qtyReceived: 4, qtyRejected: 1, receivedValueP: 4000 });
+      const printed = await admin.agent.get(`${base}/${po.id}/print`).expect(200);
+      expect(printed.body.po.receivedValueP).toBe(4000);
+      expect(printed.body.items.find((i: { sku: string }) => i.sku === a.sku).qtyReceived).toBe(4);
       expect(r1.body.items.find((i: { id: string }) => i.id === ia)).toMatchObject({
         qtyReceived: 4,
         qtyRejected: 1,

@@ -34895,6 +34895,11 @@
                 "type": "integer",
                 "minimum": -9007199254740991,
                 "maximum": 9007199254740991
+              },
+              "receivedValueP": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
               }
             },
             "required": [
@@ -34904,7 +34909,8 @@
               "sentAt",
               "expectedAt",
               "notes",
-              "subtotalP"
+              "subtotalP",
+              "receivedValueP"
             ]
           },
           "items": {
@@ -34944,6 +34950,11 @@
                   "minimum": -9007199254740991,
                   "maximum": 9007199254740991
                 },
+                "qtyReceived": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
                 "unitCostP": {
                   "type": "integer",
                   "minimum": -9007199254740991,
@@ -34960,6 +34971,7 @@
                 "title",
                 "options",
                 "qtyOrdered",
+                "qtyReceived",
                 "unitCostP",
                 "lineTotalP"
               ]
