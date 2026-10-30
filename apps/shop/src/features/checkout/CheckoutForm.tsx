@@ -405,6 +405,7 @@ export function CheckoutForm({
             </h2>
             <Field
               label={d.note}
+              hideLabel
               hint={d.noteHint}
               maxLength={500}
               value={note}

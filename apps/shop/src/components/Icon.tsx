@@ -17,6 +17,7 @@ const PATHS = {
   close: '<path d="M6 6l12 12M18 6 6 18"/>',
   pkg: '<path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/>',
   check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  undo: '<path d="M4 9h11a5 5 0 0 1 0 10H8"/><path d="m8 5-4 4 4 4"/>',
   info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.1"/>',
 } as const;
 

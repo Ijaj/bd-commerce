@@ -5,19 +5,21 @@ import s from './account.module.css';
 
 type Props = Omit<InputHTMLAttributes<HTMLInputElement>, 'id'> & {
   label: string;
+  /** Keep the label for assistive tech only (the surrounding heading already says it). */
+  hideLabel?: boolean;
   hint?: ReactNode;
   error?: string | null;
 };
 
 /** Labelled input with hint + inline error, wired with aria-describedby / aria-invalid. */
-export function Field({ label, hint, error, className, ...input }: Props) {
+export function Field({ label, hideLabel, hint, error, className, ...input }: Props) {
   const id = useId();
   const hintId = `${id}-h`;
   const errId = `${id}-e`;
   const describedBy = [hint ? hintId : null, error ? errId : null].filter(Boolean).join(' ');
   return (
     <div className={s.field}>
-      <label className={s.label} htmlFor={id}>
+      <label className={hideLabel ? `${s.label} sr-only` : s.label} htmlFor={id}>
         {label}
       </label>
       <input

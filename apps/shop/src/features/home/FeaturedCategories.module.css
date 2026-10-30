@@ -55,7 +55,25 @@
   text-transform: none;
   letter-spacing: 0;
 }
+/* Fill the row: as many columns as tiles (max 6) on desktop, and for few tiles on tablets/phones. */
+.few {
+  grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr));
+}
+@media (min-width: 1024px) {
+  .tiles {
+    grid-template-columns: repeat(var(--n, 6), minmax(0, 1fr));
+  }
+}
 @media (max-width: 640px) {
+  .tiles.few {
+    grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr));
+    grid-template-rows: none;
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+    overflow: visible;
+    padding: 0;
+    margin-inline: 0;
+  }
   .tiles {
     grid-template-columns: none;
     grid-template-rows: repeat(2, auto);

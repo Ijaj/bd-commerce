@@ -13,7 +13,10 @@
   display: grid;
   grid-template-columns: 1fr auto;
   gap: var(--s2);
-  align-items: center;
+  align-items: stretch;
+}
+.form > button {
+  min-height: 44px;
 }
 .err {
   margin: 0;

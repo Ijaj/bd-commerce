@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { CSSProperties } from 'react';
 import { Icon } from '~/components/Icon';
 import { Img } from '~/components/Img';
 import { dict, type Lang, pick } from '~/i18n';
@@ -23,7 +24,10 @@ export function FeaturedCategories({ items, lang }: { items: CategoryNode[]; lan
           <Icon name="chevR" size={16} />
         </Link>
       </div>
-      <ul className={s.tiles}>
+      <ul
+        className={items.length <= 4 ? `${s.tiles} ${s.few}` : s.tiles}
+        style={{ '--n': Math.min(items.length, 6) } as CSSProperties}
+      >
         {items.map((c) => {
           const bg = c.chipColor ?? 'var(--primary)';
           return (

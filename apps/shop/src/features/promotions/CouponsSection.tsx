@@ -55,7 +55,15 @@ export function CouponsSection({
 
   if (!items) return null;
   if (items.length === 0) {
-    return empty ? <p className={s.facts}>{empty}</p> : null;
+    if (!empty) return null;
+    return (
+      <section className={`${s.section} ${className ?? ''}`} aria-label={heading}>
+        <div className="sec-head">
+          <h2>{heading}</h2>
+        </div>
+        <p className={s.facts}>{empty}</p>
+      </section>
+    );
   }
   return (
     <section className={`${s.section} ${className ?? ''}`} aria-label={heading}>
