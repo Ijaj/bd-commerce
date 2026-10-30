@@ -32,7 +32,8 @@ body {
 .bdc-btn:hover {
   text-decoration: none;
 }
-.bdc-btn[data-variant="filled"] {
+.bdc-btn[data-variant="filled"]:not(:disabled):not([data-disabled]),
+.bdc-btn:not([data-variant]):not(:disabled):not([data-disabled]) {
   color: var(--bdc-on-filled);
 }
 .bdc-btn[data-variant="default"] {
@@ -61,7 +62,8 @@ body {
 .bdc-action {
   border-radius: var(--bdc-r);
 }
-.bdc-action[data-variant="filled"] {
+.bdc-action[data-variant="filled"]:not(:disabled):not([data-disabled]),
+.bdc-action:not([data-variant]):not(:disabled):not([data-disabled]) {
   color: var(--bdc-on-filled);
 }
 .bdc-action[data-variant="default"] {
@@ -209,6 +211,11 @@ body {
   background: color-mix(in srgb, var(--bdc-muted) 45%, var(--bdc-surface));
   border-color: transparent;
   cursor: pointer;
+}
+.bdc-switch-track[data-checked],
+input:checked + .bdc-switch-track {
+  background: var(--bdc-primary);
+  border-color: var(--bdc-primary);
 }
 .bdc-switch-thumb {
   background: #fff;
@@ -378,4 +385,36 @@ body {
 }
 .bdc-table tbody tr:last-child td {
   border-bottom: 0;
+}
+
+/* Fieldset: navy surface instead of Mantine's neutral grey (settings objects) */
+.mantine-Fieldset-root[data-variant] {
+  background: var(--bdc-surface-2);
+  border-color: var(--bdc-border);
+}
+
+/* Print views force the light palette on a subtree; Mantine's own colour vars are resolved on :root,
+   so re-point the ones controls paint with at the (light) tokens of this subtree. */
+.bdc-light {
+  --mantine-color-body: var(--bdc-surface);
+  --mantine-color-text: var(--bdc-text);
+  --mantine-color-dimmed: var(--bdc-muted);
+  --mantine-color-default: var(--bdc-surface);
+  --mantine-color-default-hover: var(--bdc-surface-2);
+  --mantine-color-default-color: var(--bdc-text);
+  --mantine-color-default-border: var(--bdc-border);
+  --mantine-primary-color-filled: var(--bdc-primary);
+  --mantine-primary-color-filled-hover: color-mix(in srgb, var(--bdc-primary) 88%, #000);
+  --mantine-primary-color-contrast: var(--bdc-on-primary);
+  --mantine-color-indigo-filled: var(--bdc-primary);
+  --mantine-color-indigo-filled-hover: color-mix(in srgb, var(--bdc-primary) 88%, #000);
+  --mantine-color-gray-light: var(--bdc-surface-2);
+  --mantine-color-gray-light-color: var(--bdc-muted);
+  --mantine-color-gray-text: var(--bdc-muted);
+}
+
+/* Select clear (x) button: navy surface instead of Mantine's neutral grey */
+.mantine-InputClearButton-root {
+  background: var(--bdc-surface-2);
+  color: var(--bdc-muted);
 }

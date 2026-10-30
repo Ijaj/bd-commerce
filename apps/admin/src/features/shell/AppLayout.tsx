@@ -2,7 +2,7 @@ import { Icon } from '@bdc/ui';
 import { Menu } from '@mantine/core';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, Outlet, useNavigate, useRouterState } from '@tanstack/react-router';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { api } from '~/api';
 import { useCallQueueCount } from '~/features/orders/queries';
 import { meQuery } from '~/lib/auth';
@@ -18,7 +18,7 @@ function initials(name: string | undefined): string {
 }
 
 /** Admin shell (plan/mockups/admin/shared/admin-core.js): 54px gradient top bar + 236px dark sidebar. */
-export function AppLayout() {
+export function AppLayout({ children }: { children?: ReactNode } = {}) {
   const { data: me } = useQuery(meQuery);
   const [sideOpen, setSideOpen] = useState(false);
   const [pwOpen, setPwOpen] = useState(false);
@@ -126,9 +126,7 @@ export function AppLayout() {
             </Menu>
           </div>
         </header>
-        <main className="a-page">
-          <Outlet />
-        </main>
+        <main className="a-page">{children ?? <Outlet />}</main>
       </div>
 
       <ChangePasswordModal opened={pwOpen} onClose={() => setPwOpen(false)} />

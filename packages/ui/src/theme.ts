@@ -194,8 +194,8 @@ export const bdcTheme = createTheme({
     PasswordInput: { defaultProps: { size: 'xs' } },
     NumberInput: { defaultProps: { size: 'xs' } },
     Textarea: { defaultProps: { size: 'xs' } },
-    Select: { defaultProps: { size: 'xs' } },
-    MultiSelect: { defaultProps: { size: 'xs' } },
+    Select: { defaultProps: { size: 'xs', clearSectionMode: 'clear' } },
+    MultiSelect: { defaultProps: { size: 'xs', clearSectionMode: 'clear' } },
     Checkbox: { defaultProps: { size: 'xs' } },
     Switch: Switch.extend({
       defaultProps: { size: 'sm', color: 'green' },

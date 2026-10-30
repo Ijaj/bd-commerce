@@ -164,12 +164,14 @@ function EditorBody({ detail }: { detail: CouponDetail | null }) {
           ))}
         </Alert>
       )}
-      <IdentitySection {...props('identity')} />
-      <DiscountSection {...props('discount')} />
-      <ScopeSection {...props('scope')} />
-      <ConditionsSection {...props('conditions')} />
-      <LimitsSection {...props('limits')} />
-      <StackingSection {...props('stacking')} />
+      <div className={classes.sections}>
+        <IdentitySection {...props('identity')} />
+        <DiscountSection {...props('discount')} />
+        <ScopeSection {...props('scope')} />
+        <ConditionsSection {...props('conditions')} />
+        <LimitsSection {...props('limits')} />
+        <StackingSection {...props('stacking')} />
+      </div>
       {canManage && (
         <Group justify="flex-end" className={classes.foot}>
           <Button loading={save.isPending} onClick={() => save.mutate()}>

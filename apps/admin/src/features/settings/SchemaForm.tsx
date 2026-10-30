@@ -7,6 +7,8 @@ import {
   Textarea,
   TextInput,
 } from '@mantine/core';
+import { DateTimePicker } from '@mantine/dates';
+import { isoToLocal, localToIso } from '~/features/carousel/logic';
 
 /** Subset of JSON Schema produced by zod for the settings registry. */
 export interface JsonSchema {
@@ -93,12 +95,13 @@ export function SchemaForm({ schema, value, onChange, label, disabled }: Props) 
 
   if (type === 'string' && s.format === 'date-time') {
     return (
-      <TextInput
-        type="datetime-local"
+      <DateTimePicker
         label={label}
-        value={isoToLocalInput(typeof value === 'string' ? value : null)}
+        clearable
+        valueFormat="DD MMM YYYY HH:mm"
+        value={isoToLocal(typeof value === 'string' ? value : null)}
         disabled={disabled}
-        onChange={(e) => onChange(localInputToIso(e.currentTarget.value))}
+        onChange={(x) => onChange(localToIso(x))}
       />
     );
   }

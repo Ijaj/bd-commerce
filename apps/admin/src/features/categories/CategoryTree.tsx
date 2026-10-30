@@ -83,8 +83,8 @@ export function CategoryTree({
       >
         <Box w={56} />
         <Box className={classes.name}>Category</Box>
-        <Box w={90}>Slug</Box>
-        <Box w={64} ta="right">
+        <Box w={150}>Slug</Box>
+        <Box w={84} pr={16} ta="right">
           Products
         </Box>
         <Box w={170}>Status</Box>
@@ -222,10 +222,10 @@ const Row = memo(function Row({
           </div>
         </Group>
       </UnstyledButton>
-      <Text w={90} truncate className={classes.slug}>
+      <Text w={150} truncate className={classes.slug}>
         {c.slug}
       </Text>
-      <Text size="sm" w={64} ta="right" className={classes.count}>
+      <Text size="sm" w={84} pr={16} ta="right" className={classes.count}>
         {c.productCount}
       </Text>
       <Group gap={4} w={170} wrap="nowrap">

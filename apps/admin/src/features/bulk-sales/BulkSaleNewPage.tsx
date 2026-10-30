@@ -11,7 +11,7 @@ import {
 } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import { useMutation } from '@tanstack/react-query';
-import { Link, useNavigate } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { ConfirmDelete } from '~/components/ConfirmDelete';
 import { MoneyInput } from '~/components/MoneyInput';
@@ -64,9 +64,6 @@ export function BulkSaleNewPage() {
 
   return (
     <>
-      <Button component={Link} to="/promotions/bulk-sales" variant="subtle" size="xs" mb="xs">
-        All bulk sales
-      </Button>
       <PageHeader
         title="New bulk sale"
         crumbs={['Marketing', 'Bulk sales', 'New']}

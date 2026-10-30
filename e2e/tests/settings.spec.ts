@@ -13,7 +13,7 @@ test('maintenance mode toggle persists across reload', async ({ page }) => {
   try {
     await toggle.check({ force: true });
     await card.getByRole('button', { name: 'Save', exact: true }).click();
-    await expect(page.getByText('maintenance_mode saved')).toBeVisible();
+    await expect(page.getByText('Maintenance mode saved')).toBeVisible();
 
     await page.reload();
     await expect(

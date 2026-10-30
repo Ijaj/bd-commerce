@@ -675,7 +675,7 @@ a.a-stat:hover {
 .a-field input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 .a-field select,
 .a-field textarea,
-.a-toolbar input:not([type="checkbox"]):not([type="radio"]),
+.a-toolbar input:not([type="checkbox"]):not([type="radio"]):not(.bdc-input),
 .a-toolbar select {
   height: 34px;
   padding: 0 10px;
@@ -686,7 +686,7 @@ a.a-stat:hover {
   width: 100%;
   min-width: 0;
 }
-.a-toolbar input:not([type="checkbox"]):not([type="radio"]),
+.a-toolbar input:not([type="checkbox"]):not([type="radio"]):not(.bdc-input),
 .a-toolbar select {
   width: auto;
 }
@@ -700,7 +700,7 @@ a.a-stat:hover {
 .a-field input:focus,
 .a-field select:focus,
 .a-field textarea:focus,
-.a-toolbar input:focus,
+.a-toolbar input:not(.bdc-input):focus,
 .a-toolbar select:focus {
   outline: 0;
   border-color: var(--primary);

@@ -34,8 +34,7 @@
   align-items: center;
   gap: 6px;
   flex-wrap: wrap;
-  font-family: ui-monospace, Menlo, monospace;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
 }
 

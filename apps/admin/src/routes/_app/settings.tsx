@@ -6,7 +6,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { api, unwrap } from '~/api';
 import { PageHeader } from '~/components/PageHeader';
-import { type JsonSchema, SchemaForm } from '~/features/settings/SchemaForm';
+import { type JsonSchema, prettify, SchemaForm } from '~/features/settings/SchemaForm';
 import classes from '~/features/settings/settings.module.css';
 import { formatDateTime } from '~/lib/format';
 import { useCan } from '~/lib/perm';
@@ -36,7 +36,7 @@ function SettingCard({ setting, canManage }: { setting: Setting; canManage: bool
       ),
     onSuccess: async () => {
       await done();
-      notifications.show({ color: 'teal', message: `${setting.key} saved` });
+      notifications.show({ color: 'teal', message: `${prettify(setting.key)} saved` });
     },
   });
   const reset = useMutation({
@@ -45,7 +45,7 @@ function SettingCard({ setting, canManage }: { setting: Setting; canManage: bool
     onSuccess: async () => {
       await done();
       setDraft(setting.default);
-      notifications.show({ color: 'teal', message: `${setting.key} reset to default` });
+      notifications.show({ color: 'teal', message: `${prettify(setting.key)} reset to default` });
     },
   });
 
@@ -54,7 +54,7 @@ function SettingCard({ setting, canManage }: { setting: Setting; canManage: bool
       <div className={classes.head}>
         <div className={classes.title}>
           <span className={classes.key}>
-            {setting.key}
+            {prettify(setting.key)}
             {setting.isDefault && <Badge color="gray">default</Badge>}
             {setting.public && <Badge color="green">public</Badge>}
           </span>

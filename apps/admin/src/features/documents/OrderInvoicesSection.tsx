@@ -43,9 +43,7 @@ export function OrderInvoicesSection({ orderId }: { orderId: string }) {
     >
       {list.isLoading && <Loader size="sm" />}
       {list.isError && <Banner tone="danger">{list.error.message}</Banner>}
-      {list.data && items.length === 0 && (
-        <EmptyState icon="reports" title="No invoice issued yet." />
-      )}
+      {list.data && items.length === 0 && <EmptyState icon="po" title="No invoice issued yet." />}
       {items.length > 0 && (
         <TableWrap>
           <Table miw={480}>

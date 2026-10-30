@@ -38,7 +38,7 @@ export function CouponsPage() {
   const [search, setSearch] = useState('');
   const [q] = useDebouncedValue(search.trim(), 300);
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(25);
+  const [limit, setLimit] = useState(20);
   const list = useQuery(
     couponsQuery({
       kind: kind ?? undefined,
@@ -123,6 +123,7 @@ export function CouponsPage() {
     <>
       <PageHeader
         title="Coupons"
+        crumbs={['Marketing', 'Coupons']}
         description="Codes and automatic discounts for the cart and checkout."
         actions={
           canManage && (

@@ -42,7 +42,6 @@ export function FlashSaleEditorPage({ id }: { id?: string }) {
   if (!id) {
     return (
       <>
-        {back}
         <PageHeader
           title="New flash sale"
           crumbs={['Marketing', 'Flash sales', 'New']}
