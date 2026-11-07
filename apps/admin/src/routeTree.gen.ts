@@ -20,6 +20,9 @@ import { Route as AppDeliveryRouteImport } from './routes/_app/delivery'
 import { Route as AppRolesRouteImport } from './routes/_app/roles'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppStaffRouteImport } from './routes/_app/staff'
+import { Route as AppAffiliatesIndexRouteImport } from './routes/_app/affiliates.index'
+import { Route as AppAffiliatesIdRouteImport } from './routes/_app/affiliates.$id'
+import { Route as AppAffiliatesPayoutsRouteImport } from './routes/_app/affiliates.payouts'
 import { Route as AppB2bCollectionsRouteImport } from './routes/_app/b2b.collections'
 import { Route as AppB2bDuesRouteImport } from './routes/_app/b2b.dues'
 import { Route as AppB2bSalesRouteImport } from './routes/_app/b2b.sales'
@@ -109,6 +112,21 @@ const AppSettingsRoute = AppSettingsRouteImport.update({
 const AppStaffRoute = AppStaffRouteImport.update({
   id: '/staff',
   path: '/staff',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAffiliatesIndexRoute = AppAffiliatesIndexRouteImport.update({
+  id: '/affiliates/',
+  path: '/affiliates/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAffiliatesIdRoute = AppAffiliatesIdRouteImport.update({
+  id: '/affiliates/$id',
+  path: '/affiliates/$id',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAffiliatesPayoutsRoute = AppAffiliatesPayoutsRouteImport.update({
+  id: '/affiliates/payouts',
+  path: '/affiliates/payouts',
   getParentRoute: () => AppRoute,
 } as any)
 const AppB2bCollectionsRoute = AppB2bCollectionsRouteImport.update({
@@ -314,6 +332,8 @@ export interface FileRoutesByFullPath {
   '/roles': typeof AppRolesRoute
   '/settings': typeof AppSettingsRoute
   '/staff': typeof AppStaffRoute
+  '/affiliates/$id': typeof AppAffiliatesIdRoute
+  '/affiliates/payouts': typeof AppAffiliatesPayoutsRoute
   '/b2b/collections': typeof AppB2bCollectionsRoute
   '/b2b/dues': typeof AppB2bDuesRoute
   '/b2b/sales': typeof AppB2bSalesRoute
@@ -329,6 +349,7 @@ export interface FileRoutesByFullPath {
   '/sr/team': typeof AppSrTeamRoute
   '/suppliers/$id': typeof AppSuppliersIdRoute
   '/print/labels': typeof PrintPrintLabelsRoute
+  '/affiliates/': typeof AppAffiliatesIndexRoute
   '/orders/': typeof AppOrdersIndexRoute
   '/purchase-orders/': typeof AppPurchaseOrdersIndexRoute
   '/refunds/': typeof AppRefundsIndexRoute
@@ -362,6 +383,8 @@ export interface FileRoutesByTo {
   '/roles': typeof AppRolesRoute
   '/settings': typeof AppSettingsRoute
   '/staff': typeof AppStaffRoute
+  '/affiliates/$id': typeof AppAffiliatesIdRoute
+  '/affiliates/payouts': typeof AppAffiliatesPayoutsRoute
   '/b2b/collections': typeof AppB2bCollectionsRoute
   '/b2b/dues': typeof AppB2bDuesRoute
   '/b2b/sales': typeof AppB2bSalesRoute
@@ -377,6 +400,7 @@ export interface FileRoutesByTo {
   '/sr/team': typeof AppSrTeamRoute
   '/suppliers/$id': typeof AppSuppliersIdRoute
   '/print/labels': typeof PrintPrintLabelsRoute
+  '/affiliates': typeof AppAffiliatesIndexRoute
   '/orders': typeof AppOrdersIndexRoute
   '/purchase-orders': typeof AppPurchaseOrdersIndexRoute
   '/refunds': typeof AppRefundsIndexRoute
@@ -413,6 +437,8 @@ export interface FileRoutesById {
   '/_app/settings': typeof AppSettingsRoute
   '/_app/staff': typeof AppStaffRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/affiliates/$id': typeof AppAffiliatesIdRoute
+  '/_app/affiliates/payouts': typeof AppAffiliatesPayoutsRoute
   '/_app/b2b/collections': typeof AppB2bCollectionsRoute
   '/_app/b2b/dues': typeof AppB2bDuesRoute
   '/_app/b2b/sales': typeof AppB2bSalesRoute
@@ -428,6 +454,7 @@ export interface FileRoutesById {
   '/_app/sr/team': typeof AppSrTeamRoute
   '/_app/suppliers/$id': typeof AppSuppliersIdRoute
   '/_print/print/labels': typeof PrintPrintLabelsRoute
+  '/_app/affiliates/': typeof AppAffiliatesIndexRoute
   '/_app/orders/': typeof AppOrdersIndexRoute
   '/_app/purchase-orders/': typeof AppPurchaseOrdersIndexRoute
   '/_app/refunds/': typeof AppRefundsIndexRoute
@@ -463,6 +490,8 @@ export interface FileRouteTypes {
     | '/roles'
     | '/settings'
     | '/staff'
+    | '/affiliates/$id'
+    | '/affiliates/payouts'
     | '/b2b/collections'
     | '/b2b/dues'
     | '/b2b/sales'
@@ -478,6 +507,7 @@ export interface FileRouteTypes {
     | '/sr/team'
     | '/suppliers/$id'
     | '/print/labels'
+    | '/affiliates/'
     | '/orders/'
     | '/purchase-orders/'
     | '/refunds/'
@@ -511,6 +541,8 @@ export interface FileRouteTypes {
     | '/roles'
     | '/settings'
     | '/staff'
+    | '/affiliates/$id'
+    | '/affiliates/payouts'
     | '/b2b/collections'
     | '/b2b/dues'
     | '/b2b/sales'
@@ -526,6 +558,7 @@ export interface FileRouteTypes {
     | '/sr/team'
     | '/suppliers/$id'
     | '/print/labels'
+    | '/affiliates'
     | '/orders'
     | '/purchase-orders'
     | '/refunds'
@@ -561,6 +594,8 @@ export interface FileRouteTypes {
     | '/_app/settings'
     | '/_app/staff'
     | '/_app/'
+    | '/_app/affiliates/$id'
+    | '/_app/affiliates/payouts'
     | '/_app/b2b/collections'
     | '/_app/b2b/dues'
     | '/_app/b2b/sales'
@@ -576,6 +611,7 @@ export interface FileRouteTypes {
     | '/_app/sr/team'
     | '/_app/suppliers/$id'
     | '/_print/print/labels'
+    | '/_app/affiliates/'
     | '/_app/orders/'
     | '/_app/purchase-orders/'
     | '/_app/refunds/'
@@ -685,6 +721,27 @@ declare module '@tanstack/react-router' {
       path: '/staff'
       fullPath: '/staff'
       preLoaderRoute: typeof AppStaffRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/affiliates/': {
+      id: '/_app/affiliates/'
+      path: '/affiliates'
+      fullPath: '/affiliates/'
+      preLoaderRoute: typeof AppAffiliatesIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/affiliates/$id': {
+      id: '/_app/affiliates/$id'
+      path: '/affiliates/$id'
+      fullPath: '/affiliates/$id'
+      preLoaderRoute: typeof AppAffiliatesIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/affiliates/payouts': {
+      id: '/_app/affiliates/payouts'
+      path: '/affiliates/payouts'
+      fullPath: '/affiliates/payouts'
+      preLoaderRoute: typeof AppAffiliatesPayoutsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/b2b/collections': {
@@ -956,6 +1013,8 @@ interface AppRouteChildren {
   AppSettingsRoute: typeof AppSettingsRoute
   AppStaffRoute: typeof AppStaffRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppAffiliatesIdRoute: typeof AppAffiliatesIdRoute
+  AppAffiliatesPayoutsRoute: typeof AppAffiliatesPayoutsRoute
   AppB2bCollectionsRoute: typeof AppB2bCollectionsRoute
   AppB2bDuesRoute: typeof AppB2bDuesRoute
   AppB2bSalesRoute: typeof AppB2bSalesRoute
@@ -970,6 +1029,7 @@ interface AppRouteChildren {
   AppReturnsIdRoute: typeof AppReturnsIdRoute
   AppSrTeamRoute: typeof AppSrTeamRoute
   AppSuppliersIdRoute: typeof AppSuppliersIdRoute
+  AppAffiliatesIndexRoute: typeof AppAffiliatesIndexRoute
   AppOrdersIndexRoute: typeof AppOrdersIndexRoute
   AppPurchaseOrdersIndexRoute: typeof AppPurchaseOrdersIndexRoute
   AppRefundsIndexRoute: typeof AppRefundsIndexRoute
@@ -998,6 +1058,8 @@ const AppRouteChildren: AppRouteChildren = {
   AppSettingsRoute: AppSettingsRoute,
   AppStaffRoute: AppStaffRoute,
   AppIndexRoute: AppIndexRoute,
+  AppAffiliatesIdRoute: AppAffiliatesIdRoute,
+  AppAffiliatesPayoutsRoute: AppAffiliatesPayoutsRoute,
   AppB2bCollectionsRoute: AppB2bCollectionsRoute,
   AppB2bDuesRoute: AppB2bDuesRoute,
   AppB2bSalesRoute: AppB2bSalesRoute,
@@ -1012,6 +1074,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppReturnsIdRoute: AppReturnsIdRoute,
   AppSrTeamRoute: AppSrTeamRoute,
   AppSuppliersIdRoute: AppSuppliersIdRoute,
+  AppAffiliatesIndexRoute: AppAffiliatesIndexRoute,
   AppOrdersIndexRoute: AppOrdersIndexRoute,
   AppPurchaseOrdersIndexRoute: AppPurchaseOrdersIndexRoute,
   AppRefundsIndexRoute: AppRefundsIndexRoute,

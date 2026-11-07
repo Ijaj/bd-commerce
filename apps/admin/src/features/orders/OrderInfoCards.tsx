@@ -1,6 +1,7 @@
 import { KeyValue, SectionCard } from '@bdc/ui';
 import { Badge } from '@mantine/core';
 import type { ReactNode } from 'react';
+import { OrderAffiliateCard } from '~/features/affiliates/OrderAffiliateCard';
 import { formatDateTime } from '~/lib/format';
 import { CallBadge } from './badges';
 import { actorText, riskReasonText } from './logic';
@@ -92,6 +93,7 @@ export function OrderInfoCards({ order }: { order: OrderDetail }) {
       >
         <KeyValue items={callRows} />
       </SectionCard>
+      <OrderAffiliateCard affiliate={order.affiliate} />
     </>
   );
 }

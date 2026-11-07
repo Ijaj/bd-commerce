@@ -1,0 +1,26 @@
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.tabs {
+  margin-top: 4px;
+}
+
+.muted {
+  color: var(--bdc-muted);
+}
+
+.code {
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.details {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

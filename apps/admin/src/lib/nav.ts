@@ -18,6 +18,7 @@ export interface NavItem {
     | '/promotions/coupons'
     | '/promotions/flash-sales'
     | '/promotions/bulk-sales'
+    | '/affiliates'
     | '/content/carousel'
     | '/b2b/sales'
     | '/b2b/shops'
@@ -102,6 +103,12 @@ export const NAV: NavSection[] = [
         icon: 'coupons',
         to: '/promotions/bulk-sales',
         anyOf: ['bulk_sales.manage'],
+      },
+      {
+        label: 'Affiliates',
+        icon: 'affiliate',
+        to: '/affiliates',
+        anyOf: ['affiliates.view'],
       },
       { label: 'Home & feed', icon: 'home', to: '/content/carousel', anyOf: ['content.manage'] },
     ],
