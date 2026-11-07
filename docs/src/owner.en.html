@@ -1,0 +1,280 @@
+<h1>Owner Manual</h1>
+<p class="lead">How to run your online shop from the admin panel: take orders, send parcels, manage products, run offers, pay suppliers and watch your sales reps. No technical knowledge needed.</p>
+<div class="callout ok"><strong class="t">The admin panel is in English</strong>Screen names and buttons are in English. This manual keeps them in English (in quotes) so you can match them on screen. Your customers see the shop in English or Bangla.</div>
+
+<h2 id="start">1. Getting started</h2>
+<h3 id="login">Signing in</h3>
+<ol class="steps">
+  <li>Open the admin address your developer gave you and enter your email and password.</li>
+  <li><strong>Two-step verification (2FA):</strong> the first time, you scan a QR code with an authenticator app (Google Authenticator, Microsoft Authenticator, Authy). From then on you type the 6-digit code from the app after your password.</li>
+  <li><strong>Save your 10 backup codes</strong> shown at setup (print or write them down, keep them private). Each works once, if you lose your phone.</li>
+</ol>
+<div class="callout warn"><strong class="t">Lost phone and no backup codes?</strong>Another staff member with permission can reset your 2FA, or ask your developer. You can only be locked out, never see someone else’s data.</div>
+<ul>
+  <li>You are signed out automatically after 8 hours without activity (and always after 7 days).</li>
+  <li>If you sign in from a new computer or phone, you get an email alert. If it was not you, change your password immediately.</li>
+  <li>Too many wrong passwords temporarily blocks sign-in (about 15 minutes).</li>
+  <li>Top-right account menu: change password and sign out. The theme switch changes light / dark / automatic.</li>
+</ul>
+
+<h3 id="layout">What you see</h3>
+<table>
+  <thead><tr><th>Area</th><th>What it does</th></tr></thead>
+  <tbody>
+    <tr><td>Left sidebar</td><td>All screens, grouped. You only see screens your role allows.</td></tr>
+    <tr><td>Top search</td><td>Finds products.</td></tr>
+    <tr><td>Bell icon</td><td>Number of orders waiting in the Call queue. Click to open it.</td></tr>
+    <tr><td>Dashboard</td><td>Landing page. Today it shows placeholders only; real sales reports are not built yet.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="map">2. Screen map</h2>
+<table>
+  <thead><tr><th>Sidebar group</th><th>Screens</th><th>Use it to</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Sales</strong></td><td>Orders · Call queue · Shipments · Returns &amp; refunds · Refunds</td><td>Handle customer orders from the moment they arrive to delivery and returns.</td></tr>
+    <tr><td><strong>Catalog</strong></td><td>Products · Categories &amp; attributes · Brands · Inventory · Import / Export</td><td>What you sell, how it is organised, and how much is in stock.</td></tr>
+    <tr><td><strong>Marketing</strong></td><td>Coupons &amp; discounts · Flash sales · Bulk sales · Home &amp; feed</td><td>Offers and what shows on the shop’s home page.</td></tr>
+    <tr><td><strong>People &amp; partners</strong></td><td>Suppliers &amp; POs · Purchase orders · SR approvals · B2B shops · Collections · SR team · B2B dues · Delivery &amp; couriers</td><td>Buying stock, wholesale to shops through sales reps (SR), and delivery pricing.</td></tr>
+    <tr><td><strong>System</strong></td><td>Staff · Roles &amp; permissions · Settings</td><td>Who can do what, and store-wide switches.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="daily">3. A typical day</h2>
+<ol class="steps">
+  <li><strong>Morning:</strong> open <em>Call queue</em>. Phone each flagged customer and record the result (section 5).</li>
+  <li>Open <em>Orders</em> → filter new ones. Check anything on hold or unusual.</li>
+  <li>Open <em>Shipments</em>. Pack ready orders, book the courier, print labels and invoices, hand parcels to the courier (section 6).</li>
+  <li><em>Inventory</em>: look at low-stock items and plan purchases (section 9).</li>
+  <li><em>Returns &amp; refunds</em>: approve, receive and inspect returns (section 7).</li>
+  <li><em>Collections</em> and <em>SR approvals</em> if you sell through sales reps (section 12).</li>
+</ol>
+
+<h2 id="orders">4. Orders</h2>
+<p>Customers pay <strong>Cash on Delivery (COD)</strong> today. Online payment (bKash, Nagad, cards) is not switched on yet.</p>
+<h3 id="order-status">Order statuses</h3>
+<table>
+  <thead><tr><th>Status</th><th>Meaning</th><th>What happens next</th></tr></thead>
+  <tbody>
+    <tr><td><code>processing</code></td><td>Accepted. Stock is reserved for it.</td><td>Create a shipment.</td></tr>
+    <tr><td><code>on_hold</code></td><td>You paused it (e.g. waiting for customer).</td><td>Use “Resume” to continue.</td></tr>
+    <tr><td><code>partially_shipped</code></td><td>Some items sent, others not yet.</td><td>Ship the rest.</td></tr>
+    <tr><td><code>shipped</code></td><td>All items handed to the courier.</td><td>Wait for delivery.</td></tr>
+    <tr><td><code>delivered</code></td><td>Courier delivered and collected cash.</td><td>Return window runs (7 days by default).</td></tr>
+    <tr><td><code>completed</code></td><td>Delivered and the return window passed. Done.</td><td>Automatic.</td></tr>
+    <tr><td><code>cancelled</code></td><td>Cancelled. Stock and coupon use are given back.</td><td>—</td></tr>
+  </tbody>
+</table>
+<p>You do <strong>not</strong> set “shipped” or “delivered” by hand. They follow the shipments automatically.</p>
+<h3 id="order-detail">Working an order</h3>
+<ul>
+  <li><strong>Orders</strong> lists all orders with filters and search. Click one to open the detail page: customer, delivery address, items, discounts, payment, shipments, and a history of every status change with who did it.</li>
+  <li><strong>Hold / Resume:</strong> pause an order, with a reason.</li>
+  <li><strong>Cancel:</strong> asks for a reason. Not possible while a courier booking exists. Cancel the shipment first.</li>
+  <li><strong>Invoice:</strong> create and print an A4 invoice (VAT included in price; your BIN and VAT show if filled in Settings). The invoice is frozen when issued, so reprints always match.</li>
+  <li>Prices on an order never change later, even if you edit the product or coupon afterwards.</li>
+</ul>
+
+<h2 id="callq">5. Call queue</h2>
+<p>Not every order needs a call. The system flags only risky ones:</p>
+<ul>
+  <li>the same phone or address ordering many times in a day;</li>
+  <li>a cash-on-delivery total above ৳5,000 (changeable);</li>
+  <li>a customer’s first guest (not logged-in) order.</li>
+</ul>
+<p>The order still goes ahead. The queue only reminds you to confirm. For each one press “Log call” and choose the result:</p>
+<table>
+  <thead><tr><th>Result</th><th>Effect</th></tr></thead>
+  <tbody>
+    <tr><td>Confirmed</td><td>Order continues normally.</td></tr>
+    <tr><td>Unreachable</td><td>Recorded; try again later or cancel.</td></tr>
+    <tr><td>Cancelled</td><td>Customer said no; the order is cancelled.</td></tr>
+  </tbody>
+</table>
+<p>Add a note. It stays on the order. You can change the thresholds in <em>Settings → call queue</em>.</p>
+
+<h2 id="ship">6. Shipments and couriers</h2>
+<ol class="steps">
+  <li>On <em>Shipments</em> (or the order page) create a shipment from the order’s items. You can split an order into several parcels.</li>
+  <li><strong>Book courier:</strong> pick the courier (Steadfast, Pathao). The system sends the parcel details and stores the consignment number and tracking link.</li>
+  <li>Print the <strong>4x6 inch label</strong> (order number, address, cash to collect, barcode) and the invoice; stick the label on the parcel.</li>
+  <li><strong>Mark handed over</strong> when the courier takes it. Stock leaves your warehouse count now.</li>
+  <li><strong>Sync status</strong> pulls the latest courier status. This also happens automatically every 10 minutes.</li>
+</ol>
+<ul>
+  <li>The delivery charge is collected once, on the first parcel sent.</li>
+  <li>If the courier cannot deliver (failed), the order is <em>not</em> cancelled automatically. Decide: re-book, or cancel.</li>
+  <li>The real courier connections need your merchant API keys from Steadfast / Pathao. Until the developer adds them, only a test “fake” courier works. <strong>Ask your developer to set these up before launch.</strong></li>
+</ul>
+
+<h2 id="returns">7. Returns and refunds</h2>
+<div class="flow"><span class="n">Requested</span><span class="a">→</span><span class="n">Approve / Reject</span><span class="a">→</span><span class="n">Pickup booked</span><span class="a">→</span><span class="n">Mark received</span><span class="a">→</span><span class="n">Inspect</span><span class="a">→</span><span class="n">Refund</span><span class="a">→</span><span class="n">Close return</span></div>
+<ul>
+  <li>A customer can request a return from their account within <strong>7 days</strong> of delivery (change in Settings; a product or category can have its own).</li>
+  <li><strong>Inspect:</strong> for each item choose <em>resellable</em> (goes back to stock with “Restock”) or <em>damaged</em> (not restocked).</li>
+  <li><strong>Fault:</strong> “ours” (wrong/damaged item) means you pay return shipping. “customer” (changed mind) means the customer pays.</li>
+  <li><strong>Refund</strong> amount is worked out per item after the discount that item received. Refund to “original” method or “wallet”. Because only COD is live, you pay the money back yourself, then press <strong>Mark paid out</strong>.</li>
+  <li><strong>Approval rule:</strong> refunds above ৳3,000 (changeable) must be approved by a <em>different</em> staff member who has the “approve refunds” permission. This protects you from one person refunding to themselves.</li>
+</ul>
+
+<h2 id="catalog">8. Products and catalog</h2>
+<h3 id="product-new">Adding a product</h3>
+<ol class="steps">
+  <li><em>Catalog → Products → New product</em>. Tabs: <strong>Basics</strong> (English/Bangla title, brand, category, status), <strong>Description</strong> (rich text, EN/BN), <strong>Attributes</strong> (specs like “Material”), <strong>Variants</strong>, images (<strong>Media</strong>), <strong>Shipping</strong> (weight, delivery charge override, return window).</li>
+  <li><strong>Variants:</strong> a variant is one sellable version (e.g. “Red / M”). Add up to <strong>two options</strong> (Colour, Size) and the grid of combinations appears. A product with no options has one variant. Each variant has its own <strong>SKU</strong> (unique code), <strong>price</strong>, optional <strong>old price</strong> (shown struck through), <strong>sale price</strong> with start/end dates, <strong>cost price</strong> (only people with permission see it), and weight.</li>
+  <li>Enter all money in <strong>taka</strong> (e.g. 125.50).</li>
+  <li><strong>Images:</strong> upload; drag to reorder; the first is the main image. Large or very high-resolution images are rejected or shrunk, and camera location data is removed.</li>
+  <li><strong>Status:</strong> <code>draft</code> (hidden), <code>active</code> (visible in shop), <code>archived</code> (hidden, history kept). Products that have been ordered cannot be deleted. Archive them.</li>
+  <li>Save. If something is missing, a “Problems” list tells you what.</li>
+</ol>
+<h3 id="catalog-other">Categories, brands, inventory, import/export</h3>
+<table>
+  <thead><tr><th>Screen</th><th>How to use it</th></tr></thead>
+  <tbody>
+    <tr><td>Categories &amp; attributes</td><td>A tree up to 4 levels (e.g. Fashion → Men → Shirts). Drag to reorder. A top-level category needs an image. Add “attributes” per category (e.g. Size, Brand-specific specs); filterable ones appear as filters in the shop. “Show on home” puts a category on the home page.</td></tr>
+    <tr><td>Brands</td><td>Name (EN/BN) and logo.</td></tr>
+    <tr><td>Inventory</td><td>Stock per variant. <strong>On hand</strong> = physically in your warehouse. <strong>Reserved</strong> = held for open orders. <strong>Available</strong> = on hand − reserved. Use “Adjust” to correct counts (a note is required; every change is logged forever). Set a <strong>low-stock threshold</strong> per variant; use “Low stock only”.</td></tr>
+    <tr><td>Import / Export</td><td>Download products as Excel/CSV, edit many at once, upload back. A report lists any rows that failed. Export also gives you a backup copy of your catalog.</td></tr>
+  </tbody>
+</table>
+<div class="callout warn"><strong class="t">Never edit stock by re-importing</strong>Use “Adjust” or purchase order receiving, so there is always a record of why stock changed.</div>
+
+<h2 id="promo">9. Promotions</h2>
+<h3 id="coupons">Coupons &amp; discounts</h3>
+<p>Two kinds: <strong>Code</strong> (customer types it, e.g. EID10) and <strong>Automatic</strong> (applies by itself when conditions match). Types:</p>
+<table>
+  <thead><tr><th>Type</th><th>Example</th></tr></thead>
+  <tbody>
+    <tr><td>Percent</td><td>10% off, max ৳500 discount</td></tr>
+    <tr><td>Fixed</td><td>৳100 off</td></tr>
+    <tr><td>Tiered</td><td>Spend ৳2,000 get ৳100; spend ৳5,000 get ৳400</td></tr>
+    <tr><td>Free delivery</td><td>No delivery charge</td></tr>
+    <tr><td>Buy X get Y</td><td>Buy 2 get 1 half-price</td></tr>
+    <tr><td>Bundle</td><td>These 3 items together for ৳999</td></tr>
+  </tbody>
+</table>
+<p>Controls: start/end dates, minimum order, which products/categories/brands (include or exclude), which delivery zones, which customers (all, first order, specific, inactive for N days), web/app, total uses, uses per customer/phone/device, total budget, and whether it combines with sale prices or other coupons. Statuses: <em>draft</em> → <em>active</em> → <em>paused</em>. “Hidden” coupons are not listed publicly; “public” ones appear on the shop’s offers page and customers can collect them. The <strong>Report</strong> tab shows uses and discount given. You can generate many one-time codes at once.</p>
+<p><strong>Rule of thumb:</strong> a customer gets all automatic discounts that combine, plus at most one typed code (two only if both allow combining).</p>
+<h3 id="flash">Flash sales</h3>
+<p>Pick a time window, add variants with a special price and a <strong>quantity limit</strong>. A countdown shows in the shop. When the limit is gone (or the customer’s own limit is reached) the shop will not sell more at that price. Orders keep the flash price they were placed at.</p>
+<h3 id="bulk">Bulk sales</h3>
+<p>Put a whole category, brand or list of products on sale in one go: percent or fixed amount off, with dates. Use <strong>Preview</strong> first. It shows the new prices. <strong>Undo</strong> restores previous sale prices exactly.</p>
+<h3 id="home">Home &amp; feed</h3>
+<p>Manage home page <strong>carousel slides</strong>: desktop and mobile image, link (e.g. <code>/p/product-name</code>), start/end dates, language (all / English / Bangla), on/off, order. Home feed ordering weights are also managed under this menu (needs the “content” permission).</p>
+
+<h2 id="buy">10. Suppliers and purchase orders</h2>
+<ol class="steps">
+  <li><strong>Suppliers &amp; POs:</strong> add suppliers (contact, payment terms, “ship mode”: normally <em>Via our warehouse first</em>). On a supplier page: details, the products they supply (with last price), and the <strong>ledger</strong> (what you owe).</li>
+  <li><strong>Purchase orders → New:</strong> choose supplier, add variants and quantities and unit cost. Save as <code>draft</code>, edit freely.</li>
+  <li><strong>Send to supplier:</strong> the PO is locked and emailed (if the supplier has an email). Use the A4 print view to hand or send it otherwise.</li>
+  <li><strong>Receive goods</strong> when stock arrives: enter <em>good</em> quantity and <em>rejected</em> quantity per line. You cannot receive more than ordered. Only good items go into stock and into what you owe. Your item <em>cost price updates automatically</em> as a weighted average.</li>
+  <li>If the rest will never come, use <strong>Close PO</strong>: nothing more is owed for the missing part.</li>
+  <li><strong>Pay the supplier:</strong> on the supplier’s ledger record a payment (cash / bKash / Nagad / bank + reference). Use an adjustment for credit notes or opening balances. Entries cannot be edited. A mistake is corrected with a reversing entry.</li>
+</ol>
+<p>Statuses: <code>draft</code> → <code>sent</code> → <code>partially_received</code> → <code>received</code> (or <code>closed</code> / <code>cancelled</code>). The PO list also shows “received value”, the money value of what truly arrived.</p>
+
+<h2 id="sr">11. Sales reps (SR) and wholesale shops (B2B)</h2>
+<p>Your SRs use the separate <strong>partner portal</strong> on their phone to sell to local shops on credit. In the admin you control approval, delivery and money.</p>
+<ol class="steps">
+  <li>SR submits a sale memo for a shop (shops added from the field are marked “new” for your review).</li>
+  <li><strong>SR approvals:</strong> approve (stock is reserved) or reject with a reason.</li>
+  <li>Mark <strong>delivered</strong> (by SR or by staff). Now the shop owes the amount (minus any paid at sale).</li>
+  <li><strong>Collections:</strong> the SR records money collected from a shop. You <strong>confirm</strong> it when the cash really reaches you, or reject it with a reason. Only confirmed money reduces the shop’s due.</li>
+  <li><strong>B2B dues:</strong> list of who owes how much and how old, so you know whom to chase. <strong>B2B shops</strong> page shows each shop’s ledger and lets you block a shop.</li>
+  <li><strong>SR team:</strong> set area, monthly target and commission (default 1% of money collected, per-SR override). If a sale is reversed after commission was counted, a deduction is applied to the next commission.</li>
+</ol>
+
+<h2 id="delivery">12. Delivery charges</h2>
+<p><em>Delivery &amp; couriers</em> controls what customers pay for delivery. A <strong>zone</strong> has a base charge (for a base weight, default 1 kg), an extra charge per additional kg, estimated delivery days, and an optional “free when order reaches ৳X” (or always free). “Coverage” assigns districts, upazilas or areas to the zone. Every location belongs to one zone; one zone is the <strong>default</strong> and catches everything unassigned.</p>
+
+<h2 id="team">13. Staff, roles and settings</h2>
+<h3 id="staff">Staff and roles</h3>
+<ul>
+  <li><strong>Staff:</strong> add people, assign roles, disable (not delete) someone who leaves, reset their 2FA.</li>
+  <li><strong>Roles &amp; permissions:</strong> a role is a named set of permissions (e.g. “Warehouse”: inventory + shipments + receiving). A person can have several roles. The built-in <strong>Owner</strong> role has everything and cannot be edited or removed; the last Owner cannot be removed.</li>
+  <li>You can only give someone permissions that you have yourself.</li>
+</ul>
+<p>Suggested starting roles: <strong>Manager</strong> (everything but staff/roles/settings), <strong>Order desk</strong> (orders, call queue, returns), <strong>Warehouse</strong> (shipments, inventory, receiving), <strong>Catalog editor</strong> (products, categories, brands), <strong>Accountant</strong> (view orders, supplier payments, B2B dues). Give cost prices and refund approval only to trusted people.</p>
+<h3 id="settings">Settings</h3>
+<table>
+  <thead><tr><th>Setting</th><th>What it does</th></tr></thead>
+  <tbody>
+    <tr><td>Maintenance mode</td><td>Shows customers a “back soon” message instead of the shop. The admin keeps working.</td></tr>
+    <tr><td>Announcement bar</td><td>A message bar at the top of the shop (EN/BN, link, optional dates).</td></tr>
+    <tr><td>Store info</td><td>Name, address, phone, email, BIN and VAT rate (15%) printed on invoices. <strong>Fill this in before printing invoices.</strong></td></tr>
+    <tr><td>Shop contact</td><td>Hotline and email shown in the shop.</td></tr>
+    <tr><td>Call queue</td><td>When orders need a confirmation call.</td></tr>
+    <tr><td>Returns</td><td>Return window days and the refund approval limit.</td></tr>
+    <tr><td>Checkout / Guest orders</td><td>OTP threshold for guests and anti-abuse limits.</td></tr>
+    <tr><td>Staff session timeout, customer sign-in days</td><td>How long people stay signed in.</td></tr>
+    <tr><td>SR default commission</td><td>Default % for sales reps.</td></tr>
+    <tr><td>Online payments, Advance payments, Pre-orders</td><td>Switches for future features. Leave off; they do nothing yet.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="data">14. What information the system keeps</h2>
+<table>
+  <thead><tr><th>Information</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>Customers</td><td>Name, phone, email, encrypted password, saved addresses, wishlist, order history, collected coupons.</td></tr>
+    <tr><td>Orders</td><td>Items and prices as they were on the day, delivery address text, discounts used, risk flags, call result, every status change with who did it.</td></tr>
+    <tr><td>Stock</td><td>Current count plus a permanent log of every change (who, when, why). It cannot be edited or deleted.</td></tr>
+    <tr><td>Money records</td><td>Shop dues, supplier payables, refunds, SR commissions. These are permanent ledgers, corrected only by adding a reversing entry.</td></tr>
+    <tr><td>Staff</td><td>Login, roles, last sign-in, devices used. Passwords and 2FA secrets are stored encrypted/hashed, nobody can read them.</td></tr>
+    <tr><td>Pictures</td><td>Stored separately from the database and delivered quickly through an image service.</td></tr>
+  </tbody>
+</table>
+<p>Deletion is deliberately limited. Things with history are archived or disabled, not erased, so your records stay trustworthy.</p>
+
+<h2 id="safe">15. Good habits and safety</h2>
+<ul>
+  <li>Give each person their own account. Never share a login.</li>
+  <li>Disable accounts the same day someone leaves.</li>
+  <li>Keep 2FA on for everyone. Keep backup codes safe.</li>
+  <li>Ask your developer to back up the database regularly and to keep the 2FA encryption key safe.</li>
+  <li>Use “Preview” and “Undo” on bulk sales; test a new coupon with a small budget cap first.</li>
+  <li>Count stock physically now and then and use “Adjust” with a note to fix differences.</li>
+</ul>
+
+<h2 id="missing">16. Not available yet</h2>
+<ul>
+  <li>Online payment (bKash, Nagad, cards), customer wallet, loyalty points, referral rewards.</li>
+  <li>Real SMS delivery of OTP codes. A provider must be chosen before launch.</li>
+  <li>Live Steadfast / Pathao booking (needs your merchant keys).</li>
+  <li>Sales reports and a working dashboard.</li>
+  <li>Supplier portal and direct-from-supplier (dropship) selling, affiliate program, product reviews, abandoned-cart reminders, events and page builder.</li>
+  <li>A staff-activity audit log (the order, stock and ledger histories do track who did what).</li>
+</ul>
+
+<h2 id="faq">17. Quick answers</h2>
+<table>
+  <thead><tr><th>Problem</th><th>What to do</th></tr></thead>
+  <tbody>
+    <tr><td>Product not visible in the shop</td><td>Status must be <code>active</code> and it needs at least one active variant with a price. Out-of-stock items cannot be bought. Changes can take up to a minute to show in the shop.</td></tr>
+    <tr><td>Cannot cancel an order</td><td>A shipment is booked with the courier. Cancel the shipment first.</td></tr>
+    <tr><td>Cannot delete a product, category or variant</td><td>It has orders or stock history. Archive it instead.</td></tr>
+    <tr><td>Stock number looks wrong</td><td>Open Inventory → the variant → stock history to see every change and who made it.</td></tr>
+    <tr><td>Do not see a menu item</td><td>Your role lacks that permission. Ask an Owner.</td></tr>
+    <tr><td>Wrong supplier payment recorded</td><td>You cannot edit it. Add a reversing entry with a note, then record the correct payment.</td></tr>
+    <tr><td>Customer says coupon did not work</td><td>Check dates, minimum order, targeted products, usage limits and whether it combines with their other offer. The coupon’s report tab shows uses.</td></tr>
+    <tr><td>Shop shows “maintenance”</td><td>Turn off Maintenance mode in Settings.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="glossary">18. Glossary</h2>
+<table>
+  <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+  <tbody>
+    <tr><td>SKU</td><td>Unique stock code for one variant.</td></tr>
+    <tr><td>Variant</td><td>One sellable version of a product (size/colour).</td></tr>
+    <tr><td>COD</td><td>Cash on Delivery.</td></tr>
+    <tr><td>Reserved stock</td><td>Stock held for orders not yet shipped.</td></tr>
+    <tr><td>PO</td><td>Purchase order: your order to a supplier.</td></tr>
+    <tr><td>SR</td><td>Sales representative selling to shops.</td></tr>
+    <tr><td>B2B</td><td>Business-to-business (selling to shops).</td></tr>
+    <tr><td>Ledger</td><td>A permanent list of money movements for one party.</td></tr>
+    <tr><td>2FA</td><td>Second sign-in step with a code from your phone.</td></tr>
+    <tr><td>BIN</td><td>Business Identification Number (printed on invoices).</td></tr>
+    <tr><td>Paisa</td><td>1/100 of a taka. The system stores money in paisa internally.</td></tr>
+  </tbody>
+</table>

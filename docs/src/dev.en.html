@@ -1,0 +1,178 @@
+<h1>Developer Manual</h1>
+<p class="lead">How the bd-commerce backend is built, what it stores, and how data moves through it. Written for a developer who needs to understand the system quickly. The database reference (section 5) is generated from <code>apps/api/prisma/schema.prisma</code>, so it matches the code.</p>
+
+<h2 id="overview">1. System overview</h2>
+<div class="cards">
+  <div class="card"><h4>apps/api</h4><p>NestJS 11 + Prisma 7 + PostgreSQL 18. The only thing that touches the database. REST under <code>/v1</code>, Swagger at <code>/docs</code>.</p></div>
+  <div class="card"><h4>apps/admin</h4><p>Staff admin panel. Vite + React 19 + Mantine 9 + TanStack Router/Query. Port 5173.</p></div>
+  <div class="card"><h4>apps/portal</h4><p>Partner portal for SR (sales reps). Same stack. Port 5190.</p></div>
+  <div class="card"><h4>apps/shop</h4><p>Customer storefront. Next.js 16, English at <code>/</code>, Bangla at <code>/bn</code>. Port 3100.</p></div>
+  <div class="card"><h4>packages/*</h4><p><code>api-client</code> (typed fetch from OpenAPI), <code>i18n</code> (money/number/BN helpers), <code>ui</code> (design tokens and shared components).</p></div>
+  <div class="card"><h4>infra/dev</h4><p>Compose stack: Postgres 18, Redis 8, Garage (S3), imgproxy, Mailpit.</p></div>
+</div>
+<table>
+  <thead><tr><th>Store</th><th>Holds</th></tr></thead>
+  <tbody>
+    <tr><td><strong>PostgreSQL</strong></td><td>All business data (80 tables, see section 5). Extension <code>pg_trgm</code> for fuzzy search; full-text search for the storefront.</td></tr>
+    <tr><td><strong>Redis</strong></td><td>Settings cache (5 min, invalidated on write), login throttles, OTP/lock counters, scheduler lock (<code>lock:job:*</code>). Nothing here is the source of truth; flushing Redis loses no business data.</td></tr>
+    <tr><td><strong>Garage (S3)</strong></td><td>Uploaded image files. Postgres keeps only metadata (<code>media</code>). Images are served through imgproxy (signed URLs, WebP).</td></tr>
+    <tr><td><strong>Mail</strong></td><td>SMTP (Mailpit in dev): new-device alerts, PO emails, OTP fallback in dev.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="run">2. Run it locally</h2>
+<pre><code>./dev.sh            # containers, migrations, API :4000, admin :5173, portal :5190, shop :3100
+./dev.sh status | logs | stop
+pnpm stack:up|init|down|reset        # just the containers
+pnpm api:gen                          # regenerate OpenAPI + packages/api-client types
+pnpm biome ci .                       # lint/format
+cd e2e &amp;&amp; pnpm test:e2e              # Playwright, own DB bdc_e2e</code></pre>
+<p>Create the first admin: <code>pnpm --filter @bdc/api cli create-owner &lt;email&gt; &lt;password&gt;</code>. Dev <code>.env</code> sets <code>DISABLE_2FA=true</code>; production startup refuses that, and refuses <code>SMS_PROVIDER=dev</code>.</p>
+
+<h2 id="conventions">3. Conventions that explain the data</h2>
+<table>
+  <thead><tr><th>Convention</th><th>Detail</th></tr></thead>
+  <tbody>
+    <tr><td>Money</td><td>Integer <strong>paisa</strong> (100 = ৳1). Columns end in <code>_p</code> (<code>price_p</code>, <code>grand_total_p</code>). Never floats. <code>@bdc/i18n formatPrice()</code> renders it.</td></tr>
+    <tr><td>Percentages</td><td>Basis points: 1500 = 15%. Columns end in <code>_bp</code> / <code>Bp</code> (VAT, SR commission, percent coupons).</td></tr>
+    <tr><td>IDs</td><td>UUID v7 (time-ordered) for most tables. Geography uses fixed integer ids (upazilas 1001+ for Dhaka thanas). Human numbers (order, shipment, invoice, return, PO, memo) come from Postgres sequences: <code>YYMM-NNNNN</code> for orders.</td></tr>
+    <tr><td>Naming</td><td>Prisma models are PascalCase; tables and columns are snake_case via <code>@@map</code>/<code>@map</code>. Timestamps are <code>timestamptz</code>.</td></tr>
+    <tr><td>Bilingual text</td><td>Pairs <code>name_en</code> / <code>name_bn</code> (BN optional, falls back to EN). Settings that show in the shop hold <code>{en, bn}</code> objects.</td></tr>
+    <tr><td>Snapshots</td><td>Orders copy title, SKU, price, discounts, address text and invoice print data at placement, so later catalog edits never rewrite history. <code>order_items.image_media_id</code> has no FK on purpose.</td></tr>
+    <tr><td>Ledgers</td><td>Money and stock histories are append-only. Corrections are new rows (reversal/adjustment), never edits.</td></tr>
+    <tr><td>Soft state</td><td><code>disabled_at</code>, <code>archived_at</code>, <code>revoked_at</code>, <code>is_active</code>. Rows with history are archived, not deleted (FKs are mostly RESTRICT).</td></tr>
+  </tbody>
+</table>
+
+<h2 id="auth">4. Authentication and access</h2>
+<h3 id="auth-staff">Staff (admin + portal)</h3>
+<ol class="steps">
+  <li>Email + password (Argon2id) → creates <code>staff_sessions</code> row, cookie <code>bdc_staff_session</code> (only the hash is stored).</li>
+  <li>2FA: TOTP (secret encrypted with <code>STAFF_TOTP_KEY</code>), replay guard via <code>totp_last_step</code>, 10 one-time backup codes (hashed). Until <code>mfa_verified_at</code> is set, only 2FA endpoints work.</li>
+  <li>Throttle in Redis: 5 failures per email and 30 per IP per 15 minutes.</li>
+  <li>New device (cookie <code>bdc_staff_device</code> fingerprint not in <code>staff_known_devices</code>) → email alert.</li>
+  <li>Idle timeout 8 h by default (setting <code>staff_session_timeout_min</code>, per-staff override), absolute cap 7 days.</li>
+</ol>
+<h3 id="auth-rbac">Permissions (RBAC)</h3>
+<p>Permissions are defined in code (<code>apps/api/src/auth/permissions.ts</code>) and synced into <code>permissions</code> at boot. Roles are rows; a staff member may hold several roles and gets the union. The <strong>Owner</strong> role is a system role: always every permission, cannot be edited or deleted, and the last Owner cannot be removed. A staff member can only grant permissions they hold (rule Q65). The admin sidebar hides items the user lacks permission for; the API enforces the same permission on every endpoint.</p>
+<!--PERMS-->
+<h3 id="auth-customer">Customers and guests</h3>
+<p>Customers sign in with phone or email + password, SMS OTP at signup/reset (<code>otp_codes</code>, HMAC-hashed, escalating lock). Guests keep a <code>bdc_vid</code> visitor cookie that owns a cart; the cart merges into the customer cart on login. Guest COD orders above a threshold need an OTP; limits per phone/IP/day apply (<code>guest_orders</code> setting). Linking a guest order to an account requires a verified phone/email.</p>
+
+<h2 id="db">5. Database reference</h2>
+<p>80 tables in 11 groups. Click a table to expand. “nullable” = optional column. Foreign keys are real constraints; most are <code>RESTRICT</code>, so a row with history cannot be deleted.</p>
+<!--DB-->
+
+<h2 id="integrity">6. Integrity rules enforced in the database</h2>
+<table>
+  <thead><tr><th>Rule</th><th>Mechanism</th></tr></thead>
+  <tbody>
+    <tr><td><code>stock_movements</code> never changes</td><td>Trigger <code>stock_movements_append_only</code> rejects UPDATE/DELETE.</td></tr>
+    <tr><td><code>b2b_ledger</code> append-only</td><td>Trigger <code>b2b_ledger_guard</code>: DELETE rejected; the only allowed UPDATE is a one-time confirm (or reject) of a collection.</td></tr>
+    <tr><td><code>supplier_ledger</code>, <code>po_receipts</code>, <code>po_receipt_items</code> append-only</td><td>Append-only triggers; sign CHECK on <code>supplier_ledger</code> (payments negative, receipts positive); one reversal per entry (unique <code>reverses_id</code>).</td></tr>
+    <tr><td>Positive quantities</td><td>CHECK <code>qty &gt; 0</code> on cart, order, shipment, return, refund and SR lines; <code>refunds.amount_p &gt; 0</code>.</td></tr>
+    <tr><td>Flash sale integrity</td><td>CHECKs: window end &gt; start, <code>qty_sold ≤ qty_limit</code>, price &gt; 0.</td></tr>
+    <tr><td>Coupon codes upper-case</td><td>CHECK <code>code = upper(code)</code>; only <code>kind='code'</code> coupons may have a code.</td></tr>
+    <tr><td>One variant per option combination</td><td>Unique <code>(product_id, option_value1_id, option_value2_id)</code>; SKU unique globally.</td></tr>
+    <tr><td>One zone per location</td><td>Unique on <code>zone_locations</code> district / upazila / area; exactly one default zone.</td></tr>
+    <tr><td>One coupon use per order</td><td>Unique <code>(order_id, coupon_id)</code> on redemptions.</td></tr>
+  </tbody>
+</table>
+<div class="callout"><strong class="t">Application-level rules</strong>
+  Stock changes only through <code>InventoryService.move(tx, …)</code>. Order status changes only through <code>OrderStatusService</code>. Both write their history row in the same transaction.</div>
+
+<h2 id="flows">7. How data moves: the main flows</h2>
+<h3 id="flow-order">Placing an order (COD)</h3>
+<div class="flow"><span class="n">cart</span><span class="a">→</span><span class="n">quote</span><span class="a">→</span><span class="n">place (idempotent)</span><span class="a">→</span><span class="n">order + items</span><span class="a">→</span><span class="n">reserve stock</span><span class="a">→</span><span class="n">risk check</span></div>
+<ol class="steps">
+  <li><strong>Quote</strong>: evaluates prices (base → sale/flash, lowest wins) → auto coupons → at most 1 typed code → delivery charge from the zone. Nothing written.</li>
+  <li><strong>Place</strong>, one transaction: insert <code>orders</code> + <code>order_items</code> (frozen snapshot), <code>payments</code> row (method cod), <code>order_status_history</code>, stock <code>reserved += qty</code> with a <code>stock_movements</code> row (<code>order_reserve</code>), coupon redemptions, flash <code>qty_sold</code>. Idempotent on a client key so double-clicks do not duplicate.</li>
+  <li><strong>Risk</strong> (<code>RiskService</code>): sets <code>risk_score</code>, <code>risk_reasons</code> (velocity by phone/IP/device, COD above threshold, first guest order) and <code>call_status = pending</code> when risky. Never blocks the order.</li>
+</ol>
+<h3 id="flow-status">Order status</h3>
+<div class="flow"><span class="n">processing</span><span class="a">→</span><span class="n">partially_shipped</span><span class="a">→</span><span class="n">shipped</span><span class="a">→</span><span class="n">delivered</span><span class="a">→</span><span class="n">completed</span></div>
+<p>Side states: <code>on_hold</code>, <code>cancelled</code>, <code>pending_payment</code> (unused until online payments). <code>on_hold/cancelled/pending_payment</code> are set explicitly by staff; <code>processing → delivered</code> is <em>derived</em> from shipments by <code>recompute()</code>. <code>delivered → completed</code> happens in the <code>complete-orders</code> job after the return window. Cancelling releases reserved stock and reverses coupon uses, flash stock and bulk-code use; it is refused while a shipment is <code>booked</code>.</p>
+<h3 id="flow-ship">Shipping</h3>
+<p>Staff create shipments from order lines (split allowed) → <code>pending</code> → <code>ready</code> → book a courier (adapter writes <code>courier_bookings</code> with raw request/response, sets <code>consignment_id</code>) → <code>handed_over</code> → <code>in_transit</code> → <code>delivered</code>/<code>failed</code>/<code>returning</code>/<code>returned</code>. Status arrives by webhook or by the <code>sync-couriers</code> job and is stored in <code>courier_status_events</code> (raw and mapped). Stock leaves on handover (<code>ship</code> movement: <code>on_hand -= qty</code>, <code>reserved -= qty</code>). The delivery charge sits on the first shipment sent. Adapters: <code>fake</code> (works), <code>steadfast</code> and <code>pathao</code> (<strong>unverified against sandboxes</strong>; keys come from env, not DB).</p>
+<h3 id="flow-return">Returns and refunds</h3>
+<p><code>requested → approved|rejected → pickup_booked → received → inspected → closed</code>. At inspection each line gets a condition (<code>resellable</code>/<code>damaged</code>) and may restock (<code>return_restock</code> movement). A <code>refunds</code> row is created per refund: per-line amount = (line total − line discount) pro rata. Amount above <code>returns.refundApprovalAboveP</code> sets <code>needs_approval</code> and a <em>different</em> staff member holding <code>refunds.approve</code> must approve. Refunds are recorded only (no payment gateway or wallet ledger yet).</p>
+<h3 id="flow-sr">SR (field sales) and B2B</h3>
+<p>SR creates a memo (<code>sr_sales</code>, status <code>submitted</code>) for a buyer shop with SR-entered prices. Office staff <em>approve</em> (stock reserved, <code>sr_reserve</code>) or reject; on <em>delivery</em> stock ships (<code>sr_ship</code>) and a <code>sale_due</code> ledger row adds to the shop’s due; collections are recorded by the SR and <em>confirmed</em> (or rejected) by staff. Reversal posts a <code>reversal</code> row and restocks. Monthly <code>sr_commissions</code> = confirmed collections × rate (SR override or setting <code>sr_default_commission_bp</code>); clawbacks are <code>sr_commission_adjustments</code>.</p>
+<h3 id="flow-po">Purchasing</h3>
+<p><code>draft → sent</code> (lines locked, emailed to supplier) <code>→ partially_received → received</code>, or <code>closed</code> (close-short) / <code>cancelled</code>. Receiving (<code>purchase_orders.receive</code>) records <em>good</em> and <em>rejected</em> qty per line (never more than remaining). Only good qty is stocked (<code>po_receive</code> movement), updates <code>variants.cost_p</code> by <strong>weighted average</strong> (before/after kept in <code>po_receipt_items</code>) and adds a <code>receipt</code> row to <code>supplier_ledger</code>. Payments and adjustments are further ledger rows; mistakes are reversed, not edited.</p>
+<h3 id="flow-promo">Promotions</h3>
+<p>Price order: base → sale price or flash price (lowest) → automatic coupons (priority order, must stack with each other) → one typed code (a second only if both allow stacking) → delivery discounts. Flash quantities are capped per item and per customer; the cart refuses more (409 <code>FLASH_LIMIT</code>). Bulk sale writes <code>variants.sale_*</code> and records old values in <code>sale_batch_items</code> so “Undo” restores them.</p>
+
+<h2 id="settings">8. Settings and feature flags</h2>
+<p>Table <code>settings</code> stores <em>overrides only</em>. Keys, schemas (Zod) and defaults live in <code>apps/api/src/settings/registry.ts</code>; a missing row means default. Reads go through a 5-minute Redis cache invalidated on write. <code>GET /v1/admin/settings</code> returns a JSON Schema per key, which the admin uses to render the form.</p>
+<table>
+  <thead><tr><th>Key</th><th>Default</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td><code>maintenance_mode</code></td><td>off</td><td>Shop returns 503 with a message; admin, <code>/public/site</code>, health and docs stay up.</td></tr>
+    <tr><td><code>announcement_bar</code></td><td>off</td><td>Top-of-shop bar, EN/BN text, link, optional time window.</td></tr>
+    <tr><td><code>staff_session_timeout_min</code></td><td>480</td><td>Idle timeout for staff.</td></tr>
+    <tr><td><code>customer_session_days</code></td><td>60</td><td>Customer sign-in lifetime since last activity.</td></tr>
+    <tr><td><code>shop_contact</code></td><td>empty</td><td>Hotline and email in shop header/footer.</td></tr>
+    <tr><td><code>home_feed</code></td><td>see code</td><td>Weights for the home product feed.</td></tr>
+    <tr><td><code>checkout</code></td><td>OTP above ৳5,000; max 10 per line</td><td><code>guestOtpAboveP</code>, <code>maxQtyPerLine</code>.</td></tr>
+    <tr><td><code>guest_orders</code></td><td>3 open/phone; ৳20,000/day; 5/IP/hour</td><td>Abuse limits for guests.</td></tr>
+    <tr><td><code>store_info</code></td><td>name only</td><td>Printed on invoices/labels: address, phone, email, BIN, <code>vatRateBp</code> (1500 = 15%, prices are VAT-inclusive).</td></tr>
+    <tr><td><code>call_queue</code></td><td>COD &gt; ৳5,000; 3 orders/24 h; first guest on</td><td>When an order goes to the call queue.</td></tr>
+    <tr><td><code>returns</code></td><td>7 days; approval above ৳3,000</td><td>Return window and refund approval threshold.</td></tr>
+    <tr><td><code>sr_default_commission_bp</code></td><td>100 (1%)</td><td>SR commission on money collected.</td></tr>
+    <tr><td><code>online_payments</code>, <code>advance_payments</code>, <code>preorders</code></td><td>false</td><td>Feature flags; the features are not built yet.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="jobs">9. Background jobs and CLI</h2>
+<p>The API runs an in-process scheduler (<code>src/scheduler</code>) guarded by a Redis lock so only one instance runs each job. <code>SCHEDULER=0</code> disables it (also off under tests).</p>
+<table>
+  <thead><tr><th>Job / command</th><th>When</th><th>Does</th></tr></thead>
+  <tbody>
+    <tr><td><code>sync-couriers</code></td><td>every 10 min</td><td>Pulls status of open courier bookings, updates shipments and order status.</td></tr>
+    <tr><td><code>complete-orders</code></td><td>hourly</td><td>Moves <code>delivered</code> orders to <code>completed</code> after the return window.</td></tr>
+  </tbody>
+</table>
+<pre><code>pnpm --filter @bdc/api cli create-owner &lt;email&gt; &lt;password&gt;
+pnpm --filter @bdc/api cli reset-2fa &lt;email&gt;
+pnpm --filter @bdc/api cli seed-demo          # refuses in production
+pnpm --filter @bdc/api cli sync-couriers
+pnpm --filter @bdc/api cli complete-orders</code></pre>
+
+<h2 id="config">10. Environment variables</h2>
+<p>See <code>.env.example</code>. Validated with Zod at boot.</p>
+<table>
+  <thead><tr><th>Variable</th><th>Meaning</th></tr></thead>
+  <tbody>
+    <tr><td><code>DATABASE_URL</code>, <code>TEST_DATABASE_URL</code></td><td>Postgres.</td></tr>
+    <tr><td><code>REDIS_URL</code></td><td>Redis.</td></tr>
+    <tr><td><code>S3_*</code>, <code>IMGPROXY_*</code></td><td>Image storage and signed image URLs.</td></tr>
+    <tr><td><code>STAFF_TOTP_KEY</code></td><td>Encrypts staff TOTP secrets. Losing it locks everyone out of 2FA.</td></tr>
+    <tr><td><code>DISABLE_2FA</code></td><td>Dev only; production refuses to start with it.</td></tr>
+    <tr><td><code>SMTP_URL</code>, <code>MAIL_FROM</code></td><td>Outgoing mail.</td></tr>
+    <tr><td><code>SMS_PROVIDER</code></td><td><code>dev</code> logs OTPs to Mailpit; production refuses <code>dev</code>. A real SMS provider is not chosen yet (Q75).</td></tr>
+    <tr><td><code>ADMIN_ORIGIN</code>, <code>PUBLIC_API_URL</code>, <code>API_URL</code>, <code>SITE_URL</code></td><td>CORS, link building, SSR calls.</td></tr>
+    <tr><td><code>SCHEDULER</code></td><td><code>0</code> disables the in-app scheduler.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="change">11. Changing the schema safely</h2>
+<ol class="steps">
+  <li>Edit <code>apps/api/prisma/schema.prisma</code>.</li>
+  <li><code>prisma migrate dev</code> hangs without a TTY. Instead: <code>pnpm exec prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --script &gt; prisma/migrations/&lt;ts&gt;_&lt;name&gt;/migration.sql</code>, append hand-written SQL (triggers, partial indexes, sequences, CHECKs), then <code>prisma migrate deploy</code> and <code>prisma generate</code>.</li>
+  <li>New permission → <code>permissions.ts</code>; new setting → <code>settings/registry.ts</code>.</li>
+  <li><code>pnpm api:gen</code> (CI fails on drift), then typecheck all apps, run tests, <code>pnpm biome ci .</code>.</li>
+  <li>DTO class names must be unique across the API (Swagger merges same-named classes).</li>
+  <li>After editing the schema, regenerate this manual: <code>node docs/build-manuals.mjs</code>.</li>
+</ol>
+
+<h2 id="known">12. Known gaps</h2>
+<ul>
+  <li>Only COD is live. No gateway, no wallet/points/referral ledger yet (settings toggles stored, unused).</li>
+  <li>Steadfast/Pathao adapters untested against real sandboxes (no merchant accounts yet).</li>
+  <li>No audit-log table: only 2FA reset is recorded on the staff row. Order, stock, ledger and status histories are the audit trail.</li>
+  <li>Dropship (<code>fulfillment = dropship</code>, supplier portal), affiliates, reviews and abandoned-cart messages are planned, not built (<code>carts.abandoned_notified_at</code> exists for later).</li>
+  <li>Home feed does a full scan (~650 ms at 20k products); add cached min price/stock columns if the catalog grows.</li>
+  <li>The admin dashboard shows placeholders: there is no reports API yet.</li>
+</ul>
+<p class="muted">Decisions behind these choices: <code>plan/10-decisions-log.md</code> (C-numbers). Data model design: <code>plan/12-data-model.md</code>.</p>

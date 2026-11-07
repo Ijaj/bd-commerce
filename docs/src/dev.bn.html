@@ -1,0 +1,178 @@
+<h1>ডেভেলপার ম্যানুয়াল</h1>
+<p class="lead">bd-commerce ব্যাকএন্ড কীভাবে তৈরি, কী কী ডেটা সংরক্ষণ করে, এবং ডেটা কীভাবে চলাচল করে। যে ডেভেলপার দ্রুত সিস্টেমটি বুঝতে চান তাঁর জন্য। ডেটাবেস রেফারেন্স (অংশ ৫) সরাসরি <code>apps/api/prisma/schema.prisma</code> থেকে তৈরি, তাই কোডের সাথে মিলে যায়।</p>
+
+<h2 id="overview">১. সিস্টেমের সারসংক্ষেপ</h2>
+<div class="cards">
+  <div class="card"><h4>apps/api</h4><p>NestJS 11 + Prisma 7 + PostgreSQL 18। একমাত্র এটিই ডেটাবেস ছোঁয়। REST <code>/v1</code> এর নিচে, Swagger <code>/docs</code>-এ।</p></div>
+  <div class="card"><h4>apps/admin</h4><p>স্টাফের অ্যাডমিন প্যানেল। Vite + React 19 + Mantine 9 + TanStack Router/Query। পোর্ট 5173।</p></div>
+  <div class="card"><h4>apps/portal</h4><p>SR (সেলস রিপ্রেজেন্টেটিভ) এর পার্টনার পোর্টাল। একই স্ট্যাক। পোর্ট 5190।</p></div>
+  <div class="card"><h4>apps/shop</h4><p>কাস্টমার স্টোরফ্রন্ট। Next.js 16; ইংরেজি <code>/</code>-এ, বাংলা <code>/bn</code>-এ। পোর্ট 3100।</p></div>
+  <div class="card"><h4>packages/*</h4><p><code>api-client</code> (OpenAPI থেকে টাইপড fetch), <code>i18n</code> (টাকা/সংখ্যা/বাংলা হেল্পার), <code>ui</code> (ডিজাইন টোকেন ও শেয়ার্ড কম্পোনেন্ট)।</p></div>
+  <div class="card"><h4>infra/dev</h4><p>Compose স্ট্যাক: Postgres 18, Redis 8, Garage (S3), imgproxy, Mailpit।</p></div>
+</div>
+<table>
+  <thead><tr><th>স্টোর</th><th>কী রাখে</th></tr></thead>
+  <tbody>
+    <tr><td><strong>PostgreSQL</strong></td><td>সব ব্যবসায়িক ডেটা (৮০টি টেবিল, অংশ ৫ দেখুন)। ফাজি সার্চের জন্য <code>pg_trgm</code>; স্টোরফ্রন্টে full-text search।</td></tr>
+    <tr><td><strong>Redis</strong></td><td>সেটিংস ক্যাশ (৫ মিনিট, লেখার সময় মুছে যায়), লগইন থ্রটল, লক কাউন্টার, শিডিউলার লক (<code>lock:job:*</code>)। এখানে কিছুই আসল সূত্র নয়; Redis ফ্লাশ করলে ব্যবসায়িক ডেটা হারায় না।</td></tr>
+    <tr><td><strong>Garage (S3)</strong></td><td>আপলোড করা ছবির ফাইল। Postgres-এ শুধু মেটাডেটা (<code>media</code>)। ছবি imgproxy দিয়ে দেওয়া হয় (সাইন করা URL, WebP)।</td></tr>
+    <tr><td><strong>মেইল</strong></td><td>SMTP (ডেভে Mailpit): নতুন ডিভাইসের সতর্কতা, PO ইমেইল, ডেভে OTP।</td></tr>
+  </tbody>
+</table>
+
+<h2 id="run">২. লোকালে চালানো</h2>
+<pre><code>./dev.sh            # কন্টেইনার, মাইগ্রেশন, API :4000, admin :5173, portal :5190, shop :3100
+./dev.sh status | logs | stop
+pnpm stack:up|init|down|reset        # শুধু কন্টেইনার
+pnpm api:gen                          # OpenAPI + packages/api-client টাইপ আবার তৈরি
+pnpm biome ci .                       # lint/format
+cd e2e &amp;&amp; pnpm test:e2e              # Playwright, নিজস্ব DB bdc_e2e</code></pre>
+<p>প্রথম অ্যাডমিন তৈরি: <code>pnpm --filter @bdc/api cli create-owner &lt;email&gt; &lt;password&gt;</code>। ডেভ <code>.env</code>-এ <code>DISABLE_2FA=true</code>; প্রোডাকশন এটি নিয়ে চালু হতে অস্বীকার করে, এবং <code>SMS_PROVIDER=dev</code>-ও অস্বীকার করে।</p>
+
+<h2 id="conventions">৩. ডেটা বোঝার নিয়মকানুন</h2>
+<table>
+  <thead><tr><th>নিয়ম</th><th>বিবরণ</th></tr></thead>
+  <tbody>
+    <tr><td>টাকা</td><td>পূর্ণসংখ্যা <strong>পয়সা</strong> (১০০ = ৳১)। কলামের নাম <code>_p</code> দিয়ে শেষ (<code>price_p</code>, <code>grand_total_p</code>)। কখনো float নয়। <code>@bdc/i18n formatPrice()</code> দেখানোর কাজ করে।</td></tr>
+    <tr><td>শতাংশ</td><td>বেসিস পয়েন্ট: ১৫০০ = ১৫%। কলাম <code>_bp</code> / <code>Bp</code> (ভ্যাট, SR কমিশন, শতাংশ কুপন)।</td></tr>
+    <tr><td>আইডি</td><td>বেশিরভাগ টেবিলে UUID v7 (সময়ানুক্রমিক)। ভূগোলে নির্দিষ্ট পূর্ণসংখ্যা আইডি (ঢাকার থানা ১০০১+)। মানুষের পড়ার নম্বর (অর্ডার, শিপমেন্ট, ইনভয়েস, রিটার্ন, PO, মেমো) Postgres sequence থেকে আসে; অর্ডার <code>YYMM-NNNNN</code>।</td></tr>
+    <tr><td>নামকরণ</td><td>Prisma মডেল PascalCase; টেবিল ও কলাম <code>@@map</code>/<code>@map</code> দিয়ে snake_case। টাইমস্ট্যাম্প <code>timestamptz</code>।</td></tr>
+    <tr><td>দ্বিভাষিক লেখা</td><td><code>name_en</code> / <code>name_bn</code> জোড়া (BN ঐচ্ছিক, না থাকলে EN)। শপে দেখানো সেটিংসে <code>{en, bn}</code> অবজেক্ট।</td></tr>
+    <tr><td>স্ন্যাপশট</td><td>অর্ডার দেওয়ার সময় টাইটেল, SKU, দাম, ডিসকাউন্ট, ঠিকানার টেক্সট ও ইনভয়েস প্রিন্ট ডেটা কপি হয়; তাই পরে ক্যাটালগ বদলালে ইতিহাস বদলায় না। <code>order_items.image_media_id</code>-এ ইচ্ছা করেই FK নেই।</td></tr>
+    <tr><td>লেজার</td><td>টাকা ও স্টকের ইতিহাস শুধু-যোগ-করা। ভুল শোধরাতে নতুন রো (reversal/adjustment) যোগ হয়, এডিট নয়।</td></tr>
+    <tr><td>সফট স্টেট</td><td><code>disabled_at</code>, <code>archived_at</code>, <code>revoked_at</code>, <code>is_active</code>। ইতিহাসওয়ালা রো আর্কাইভ হয়, মোছা হয় না (বেশিরভাগ FK RESTRICT)।</td></tr>
+  </tbody>
+</table>
+
+<h2 id="auth">৪. অথেন্টিকেশন ও অ্যাক্সেস</h2>
+<h3 id="auth-staff">স্টাফ (অ্যাডমিন + পোর্টাল)</h3>
+<ol class="steps">
+  <li>ইমেইল + পাসওয়ার্ড (Argon2id) → <code>staff_sessions</code> রো তৈরি, কুকি <code>bdc_staff_session</code> (শুধু হ্যাশ সংরক্ষিত)।</li>
+  <li>2FA: TOTP (সিক্রেট <code>STAFF_TOTP_KEY</code> দিয়ে এনক্রিপ্টেড), <code>totp_last_step</code> দিয়ে রিপ্লে ঠেকানো, ১০টি এককালীন ব্যাকআপ কোড (হ্যাশ করা)। <code>mfa_verified_at</code> সেট না হওয়া পর্যন্ত শুধু 2FA এন্ডপয়েন্ট চলে।</li>
+  <li>Redis থ্রটল: প্রতি ১৫ মিনিটে ইমেইলপ্রতি ৫টি ও IP প্রতি ৩০টি ব্যর্থ চেষ্টা।</li>
+  <li>নতুন ডিভাইস (কুকি <code>bdc_staff_device</code> ফিঙ্গারপ্রিন্ট <code>staff_known_devices</code>-এ নেই) → ইমেইল সতর্কতা।</li>
+  <li>নিষ্ক্রিয়তার সময়সীমা ডিফল্ট ৮ ঘণ্টা (সেটিং <code>staff_session_timeout_min</code>, স্টাফভিত্তিক ওভাররাইড), সর্বোচ্চ ৭ দিন।</li>
+</ol>
+<h3 id="auth-rbac">পারমিশন (RBAC)</h3>
+<p>পারমিশন কোডে সংজ্ঞায়িত (<code>apps/api/src/auth/permissions.ts</code>) এবং বুটের সময় <code>permissions</code> টেবিলে সিঙ্ক হয়। রোল রো আকারে থাকে; একজন স্টাফের একাধিক রোল থাকতে পারে, ফল হয় সবগুলোর যোগফল। <strong>Owner</strong> একটি সিস্টেম রোল: সবসময় সব পারমিশন, এডিট/ডিলিট করা যায় না, এবং শেষ Owner সরানো যায় না। স্টাফ কেবল নিজের থাকা পারমিশনই অন্যকে দিতে পারে (নিয়ম Q65)। সাইডবারে পারমিশন না থাকলে আইটেম লুকানো থাকে; API প্রতিটি এন্ডপয়েন্টে একই পারমিশন জোর করে।</p>
+<!--PERMS-->
+<h3 id="auth-customer">কাস্টমার ও গেস্ট</h3>
+<p>কাস্টমার ফোন বা ইমেইল + পাসওয়ার্ডে সাইন ইন করে; সাইনআপ/রিসেটে SMS OTP (<code>otp_codes</code>, HMAC হ্যাশ, ক্রমবর্ধমান লক)। গেস্টের <code>bdc_vid</code> ভিজিটর কুকি একটি কার্টের মালিক; লগইনে কার্ট কাস্টমারের কার্টে মার্জ হয়। নির্দিষ্ট অঙ্কের ওপরে গেস্ট COD অর্ডারে OTP লাগে; ফোন/IP/দিনভিত্তিক সীমা আছে (<code>guest_orders</code> সেটিং)। গেস্ট অর্ডার অ্যাকাউন্টে যুক্ত করতে ভেরিফাইড ফোন/ইমেইল লাগে।</p>
+
+<h2 id="db">৫. ডেটাবেস রেফারেন্স</h2>
+<p>১১টি গ্রুপে ৮০টি টেবিল। টেবিলে ক্লিক করে খুলুন। “nullable” = ঐচ্ছিক কলাম। ফরেন কী আসল constraint; বেশিরভাগ <code>RESTRICT</code>, তাই ইতিহাসওয়ালা রো মোছা যায় না।</p>
+<!--DB-->
+
+<h2 id="integrity">৬. ডেটাবেস নিজে যে নিয়ম জোর করে</h2>
+<table>
+  <thead><tr><th>নিয়ম</th><th>কীভাবে</th></tr></thead>
+  <tbody>
+    <tr><td><code>stock_movements</code> কখনো বদলায় না</td><td>ট্রিগার <code>stock_movements_append_only</code> UPDATE/DELETE আটকায়।</td></tr>
+    <tr><td><code>b2b_ledger</code> শুধু-যোগ</td><td>ট্রিগার <code>b2b_ledger_guard</code>: DELETE বন্ধ; একমাত্র অনুমোদিত UPDATE হলো আদায়ের একবারের confirm (বা reject)।</td></tr>
+    <tr><td><code>supplier_ledger</code>, <code>po_receipts</code>, <code>po_receipt_items</code> শুধু-যোগ</td><td>append-only ট্রিগার; <code>supplier_ledger</code>-এ চিহ্ন CHECK (পেমেন্ট ঋণাত্মক, রসিদ ধনাত্মক); প্রতি এন্ট্রির একটিই reversal (unique <code>reverses_id</code>)।</td></tr>
+    <tr><td>ধনাত্মক পরিমাণ</td><td>কার্ট, অর্ডার, শিপমেন্ট, রিটার্ন, রিফান্ড ও SR লাইনে CHECK <code>qty &gt; 0</code>; <code>refunds.amount_p &gt; 0</code>।</td></tr>
+    <tr><td>ফ্ল্যাশ সেলের শুদ্ধতা</td><td>CHECK: শেষ &gt; শুরু, <code>qty_sold ≤ qty_limit</code>, দাম &gt; 0।</td></tr>
+    <tr><td>কুপন কোড বড় হাতের</td><td>CHECK <code>code = upper(code)</code>; শুধু <code>kind='code'</code> কুপনে কোড থাকতে পারে।</td></tr>
+    <tr><td>অপশন কম্বিনেশনপ্রতি একটি ভ্যারিয়েন্ট</td><td>unique <code>(product_id, option_value1_id, option_value2_id)</code>; SKU সর্বত্র ইউনিক।</td></tr>
+    <tr><td>লোকেশনপ্রতি একটি জোন</td><td><code>zone_locations</code>-এ জেলা/উপজেলা/এলাকা ইউনিক; ঠিক একটি ডিফল্ট জোন।</td></tr>
+    <tr><td>অর্ডারপ্রতি কুপনের একবার ব্যবহার</td><td>redemptions-এ unique <code>(order_id, coupon_id)</code>।</td></tr>
+  </tbody>
+</table>
+<div class="callout"><strong class="t">অ্যাপ্লিকেশন স্তরের নিয়ম</strong>
+  স্টক শুধু <code>InventoryService.move(tx, …)</code> দিয়ে বদলায়। অর্ডার স্ট্যাটাস শুধু <code>OrderStatusService</code> দিয়ে। দুটোই একই ট্রানজ্যাকশনে হিস্ট্রি রো লেখে।</div>
+
+<h2 id="flows">৭. ডেটার প্রবাহ: প্রধান ফ্লো</h2>
+<h3 id="flow-order">অর্ডার দেওয়া (COD)</h3>
+<div class="flow"><span class="n">কার্ট</span><span class="a">→</span><span class="n">quote</span><span class="a">→</span><span class="n">place (idempotent)</span><span class="a">→</span><span class="n">অর্ডার + আইটেম</span><span class="a">→</span><span class="n">স্টক রিজার্ভ</span><span class="a">→</span><span class="n">ঝুঁকি যাচাই</span></div>
+<ol class="steps">
+  <li><strong>Quote</strong>: দাম হিসাব (base → সেল/ফ্ল্যাশ, সবচেয়ে কম) → অটো কুপন → সর্বোচ্চ ১টি টাইপ করা কোড → জোন থেকে ডেলিভারি চার্জ। কিছুই লেখা হয় না।</li>
+  <li><strong>Place</strong>, একটি ট্রানজ্যাকশনে: <code>orders</code> + <code>order_items</code> (ফ্রিজ স্ন্যাপশট), <code>payments</code> রো (method cod), <code>order_status_history</code>, স্টক <code>reserved += qty</code> ও <code>stock_movements</code> রো (<code>order_reserve</code>), কুপন redemption, ফ্ল্যাশ <code>qty_sold</code>। ক্লায়েন্ট কী-তে idempotent, তাই ডাবল ক্লিকে ডুপ্লিকেট হয় না।</li>
+  <li><strong>ঝুঁকি</strong> (<code>RiskService</code>): <code>risk_score</code>, <code>risk_reasons</code> (ফোন/IP/ডিভাইসে velocity, COD সীমার ওপরে, প্রথম গেস্ট অর্ডার) সেট করে এবং ঝুঁকিপূর্ণ হলে <code>call_status = pending</code>। অর্ডার কখনো আটকায় না।</li>
+</ol>
+<h3 id="flow-status">অর্ডার স্ট্যাটাস</h3>
+<div class="flow"><span class="n">processing</span><span class="a">→</span><span class="n">partially_shipped</span><span class="a">→</span><span class="n">shipped</span><span class="a">→</span><span class="n">delivered</span><span class="a">→</span><span class="n">completed</span></div>
+<p>পাশের স্টেট: <code>on_hold</code>, <code>cancelled</code>, <code>pending_payment</code> (অনলাইন পেমেন্টের আগে অব্যবহৃত)। <code>on_hold/cancelled/pending_payment</code> স্টাফ সরাসরি বসায়; <code>processing → delivered</code> শিপমেন্ট থেকে <code>recompute()</code> দিয়ে <em>নির্ণীত</em> হয়। <code>delivered → completed</code> রিটার্ন উইন্ডোর পর <code>complete-orders</code> জবে হয়। বাতিলে রিজার্ভ স্টক ফিরে আসে এবং কুপন ব্যবহার, ফ্ল্যাশ স্টক ও বাল্ক-কোড ব্যবহার রিভার্স হয়; শিপমেন্ট <code>booked</code> থাকলে বাতিল প্রত্যাখ্যাত।</p>
+<h3 id="flow-ship">শিপিং</h3>
+<p>স্টাফ অর্ডার লাইন থেকে শিপমেন্ট বানায় (ভাগ করা যায়) → <code>pending</code> → <code>ready</code> → কুরিয়ার বুক (অ্যাডাপ্টার <code>courier_bookings</code>-এ কাঁচা রিকোয়েস্ট/রেসপন্স লেখে, <code>consignment_id</code> বসায়) → <code>handed_over</code> → <code>in_transit</code> → <code>delivered</code>/<code>failed</code>/<code>returning</code>/<code>returned</code>। স্ট্যাটাস ওয়েবহুক বা <code>sync-couriers</code> জবে আসে এবং <code>courier_status_events</code>-এ (কাঁচা ও ম্যাপ করা) জমে। হ্যান্ডওভারে স্টক বের হয় (<code>ship</code> মুভমেন্ট: <code>on_hand -= qty</code>, <code>reserved -= qty</code>)। ডেলিভারি চার্জ প্রথম পাঠানো শিপমেন্টে বসে। অ্যাডাপ্টার: <code>fake</code> (কাজ করে), <code>steadfast</code> ও <code>pathao</code> (<strong>স্যান্ডবক্সে যাচাই হয়নি</strong>; কী আসে env থেকে, DB থেকে নয়)।</p>
+<h3 id="flow-return">রিটার্ন ও রিফান্ড</h3>
+<p><code>requested → approved|rejected → pickup_booked → received → inspected → closed</code>। ইন্সপেকশনে প্রতি লাইনের অবস্থা (<code>resellable</code>/<code>damaged</code>) বসে এবং রিস্টক হতে পারে (<code>return_restock</code> মুভমেন্ট)। প্রতি রিফান্ডে একটি <code>refunds</code> রো: লাইনপ্রতি অঙ্ক = (লাইন মোট − লাইন ডিসকাউন্ট) আনুপাতিক। <code>returns.refundApprovalAboveP</code>-এর ওপরে হলে <code>needs_approval</code> সেট হয় এবং <code>refunds.approve</code> পারমিশনওয়ালা <em>অন্য</em> স্টাফকে অনুমোদন দিতে হয়। রিফান্ড শুধু রেকর্ড হয় (এখনো পেমেন্ট গেটওয়ে বা ওয়ালেট লেজার নেই)।</p>
+<h3 id="flow-sr">SR (ফিল্ড সেলস) ও B2B</h3>
+<p>SR ক্রেতা দোকানের জন্য মেমো (<code>sr_sales</code>, স্ট্যাটাস <code>submitted</code>) বানায়, দাম SR-ই দেয়। অফিস স্টাফ <em>অনুমোদন</em> করে (স্টক রিজার্ভ, <code>sr_reserve</code>) বা বাতিল করে; <em>ডেলিভারিতে</em> স্টক বের হয় (<code>sr_ship</code>) এবং দোকানের বাকিতে <code>sale_due</code> লেজার রো যোগ হয়; আদায় SR রেকর্ড করে, স্টাফ <em>confirm</em> (বা reject) করে। Reversal <code>reversal</code> রো বসায় ও স্টক ফেরত দেয়। মাসিক <code>sr_commissions</code> = কনফার্ম হওয়া আদায় × হার (SR-এর ওভাররাইড বা সেটিং <code>sr_default_commission_bp</code>); কর্তন হলো <code>sr_commission_adjustments</code>।</p>
+<h3 id="flow-po">ক্রয়</h3>
+<p><code>draft → sent</code> (লাইন লক, সাপ্লায়ারকে ইমেইল) <code>→ partially_received → received</code>, অথবা <code>closed</code> (বাকি ছেড়ে বন্ধ) / <code>cancelled</code>। গ্রহণে (<code>purchase_orders.receive</code>) প্রতি লাইনে <em>ভালো</em> ও <em>রিজেক্ট</em> পরিমাণ লেখা হয় (বাকির বেশি নয়)। শুধু ভালো পরিমাণ স্টকে যায় (<code>po_receive</code> মুভমেন্ট), <code>variants.cost_p</code> <strong>ওয়েটেড অ্যাভারেজে</strong> হালনাগাদ হয় (আগে/পরে <code>po_receipt_items</code>-এ থাকে) এবং <code>supplier_ledger</code>-এ <code>receipt</code> রো যোগ হয়। পেমেন্ট ও অ্যাডজাস্টমেন্ট আরও লেজার রো; ভুল reverse হয়, এডিট নয়।</p>
+<h3 id="flow-promo">প্রমোশন</h3>
+<p>দামের ক্রম: base → সেল বা ফ্ল্যাশ দাম (সবচেয়ে কম) → অটো কুপন (প্রায়োরিটি ক্রমে, পরস্পরের সাথে স্ট্যাক করতে হবে) → একটি টাইপ করা কোড (দ্বিতীয়টি তখনই যখন দুটোই স্ট্যাক অনুমতি দেয়) → ডেলিভারি ডিসকাউন্ট। ফ্ল্যাশের পরিমাণ আইটেম ও কাস্টমারপ্রতি সীমিত; কার্ট বেশি নিতে দেয় না (409 <code>FLASH_LIMIT</code>)। বাল্ক সেল <code>variants.sale_*</code> লেখে এবং পুরনো মান <code>sale_batch_items</code>-এ রাখে, যাতে “Undo” ফিরিয়ে দিতে পারে।</p>
+
+<h2 id="settings">৮. সেটিংস ও ফিচার ফ্ল্যাগ</h2>
+<p><code>settings</code> টেবিলে শুধু <em>ওভাররাইড</em> থাকে। কী, স্কিমা (Zod) ও ডিফল্ট <code>apps/api/src/settings/registry.ts</code>-এ; রো না থাকলে ডিফল্ট। পড়া হয় ৫ মিনিটের Redis ক্যাশ দিয়ে, লেখায় ক্যাশ মোছে। <code>GET /v1/admin/settings</code> প্রতি কী-র JSON Schema দেয়, অ্যাডমিন তা দিয়ে ফর্ম আঁকে।</p>
+<table>
+  <thead><tr><th>কী</th><th>ডিফল্ট</th><th>উদ্দেশ্য</th></tr></thead>
+  <tbody>
+    <tr><td><code>maintenance_mode</code></td><td>বন্ধ</td><td>শপ বার্তাসহ 503 দেয়; অ্যাডমিন, <code>/public/site</code>, health ও docs চালু থাকে।</td></tr>
+    <tr><td><code>announcement_bar</code></td><td>বন্ধ</td><td>শপের ওপরের বার, EN/BN লেখা, লিংক, ঐচ্ছিক সময়সীমা।</td></tr>
+    <tr><td><code>staff_session_timeout_min</code></td><td>৪৮০</td><td>স্টাফের নিষ্ক্রিয়তার সময়সীমা।</td></tr>
+    <tr><td><code>customer_session_days</code></td><td>৬০</td><td>শেষ কার্যকলাপের পর কাস্টমার সাইন-ইনের মেয়াদ।</td></tr>
+    <tr><td><code>shop_contact</code></td><td>ফাঁকা</td><td>শপের হেডার/ফুটারে হটলাইন ও ইমেইল।</td></tr>
+    <tr><td><code>home_feed</code></td><td>কোড দেখুন</td><td>হোম পণ্য ফিডের ওজন।</td></tr>
+    <tr><td><code>checkout</code></td><td>৳৫,০০০-এর ওপরে OTP; লাইনপ্রতি সর্বোচ্চ ১০</td><td><code>guestOtpAboveP</code>, <code>maxQtyPerLine</code>।</td></tr>
+    <tr><td><code>guest_orders</code></td><td>ফোনপ্রতি ৩ খোলা; দিনে ৳২০,০০০; IP প্রতি ঘণ্টায় ৫</td><td>গেস্টের অপব্যবহার সীমা।</td></tr>
+    <tr><td><code>store_info</code></td><td>শুধু নাম</td><td>ইনভয়েস/লেবেলে ছাপা: ঠিকানা, ফোন, ইমেইল, BIN, <code>vatRateBp</code> (১৫০০ = ১৫%, দামে ভ্যাট অন্তর্ভুক্ত)।</td></tr>
+    <tr><td><code>call_queue</code></td><td>COD &gt; ৳৫,০০০; ২৪ ঘণ্টায় ৩ অর্ডার; প্রথম গেস্ট চালু</td><td>কখন অর্ডার কল কিউতে যায়।</td></tr>
+    <tr><td><code>returns</code></td><td>৭ দিন; ৳৩,০০০-এর ওপরে অনুমোদন</td><td>রিটার্ন উইন্ডো ও রিফান্ড অনুমোদনের সীমা।</td></tr>
+    <tr><td><code>sr_default_commission_bp</code></td><td>১০০ (১%)</td><td>আদায় করা টাকার ওপর SR কমিশন।</td></tr>
+    <tr><td><code>online_payments</code>, <code>advance_payments</code>, <code>preorders</code></td><td>false</td><td>ফিচার ফ্ল্যাগ; ফিচারগুলো এখনো তৈরি হয়নি।</td></tr>
+  </tbody>
+</table>
+
+<h2 id="jobs">৯. ব্যাকগ্রাউন্ড জব ও CLI</h2>
+<p>API-র ভেতরে শিডিউলার চলে (<code>src/scheduler</code>), Redis লক দিয়ে প্রতিটি জব একবারে একটি ইনস্ট্যান্সে চলে। <code>SCHEDULER=0</code> বন্ধ করে (টেস্টেও বন্ধ)।</p>
+<table>
+  <thead><tr><th>জব / কমান্ড</th><th>কখন</th><th>কী করে</th></tr></thead>
+  <tbody>
+    <tr><td><code>sync-couriers</code></td><td>প্রতি ১০ মিনিট</td><td>খোলা কুরিয়ার বুকিংয়ের স্ট্যাটাস টেনে শিপমেন্ট ও অর্ডার স্ট্যাটাস হালনাগাদ করে।</td></tr>
+    <tr><td><code>complete-orders</code></td><td>প্রতি ঘণ্টা</td><td>রিটার্ন উইন্ডোর পর <code>delivered</code> অর্ডারকে <code>completed</code> করে।</td></tr>
+  </tbody>
+</table>
+<pre><code>pnpm --filter @bdc/api cli create-owner &lt;email&gt; &lt;password&gt;
+pnpm --filter @bdc/api cli reset-2fa &lt;email&gt;
+pnpm --filter @bdc/api cli seed-demo          # প্রোডাকশনে অস্বীকার করে
+pnpm --filter @bdc/api cli sync-couriers
+pnpm --filter @bdc/api cli complete-orders</code></pre>
+
+<h2 id="config">১০. এনভায়রনমেন্ট ভেরিয়েবল</h2>
+<p><code>.env.example</code> দেখুন। বুটের সময় Zod দিয়ে যাচাই হয়।</p>
+<table>
+  <thead><tr><th>ভেরিয়েবল</th><th>অর্থ</th></tr></thead>
+  <tbody>
+    <tr><td><code>DATABASE_URL</code>, <code>TEST_DATABASE_URL</code></td><td>Postgres।</td></tr>
+    <tr><td><code>REDIS_URL</code></td><td>Redis।</td></tr>
+    <tr><td><code>S3_*</code>, <code>IMGPROXY_*</code></td><td>ছবি স্টোরেজ ও সাইন করা ছবির URL।</td></tr>
+    <tr><td><code>STAFF_TOTP_KEY</code></td><td>স্টাফের TOTP সিক্রেট এনক্রিপ্ট করে। হারালে সবাই 2FA থেকে লক হয়ে যাবে।</td></tr>
+    <tr><td><code>DISABLE_2FA</code></td><td>শুধু ডেভ; প্রোডাকশন এটি নিয়ে চালু হয় না।</td></tr>
+    <tr><td><code>SMTP_URL</code>, <code>MAIL_FROM</code></td><td>আউটগোয়িং মেইল।</td></tr>
+    <tr><td><code>SMS_PROVIDER</code></td><td><code>dev</code> OTP Mailpit-এ পাঠায়; প্রোডাকশন <code>dev</code> অস্বীকার করে। আসল SMS প্রোভাইডার এখনো ঠিক হয়নি (Q75)।</td></tr>
+    <tr><td><code>ADMIN_ORIGIN</code>, <code>PUBLIC_API_URL</code>, <code>API_URL</code>, <code>SITE_URL</code></td><td>CORS, লিংক তৈরি, SSR কল।</td></tr>
+    <tr><td><code>SCHEDULER</code></td><td><code>0</code> দিলে ইন-অ্যাপ শিডিউলার বন্ধ।</td></tr>
+  </tbody>
+</table>
+
+<h2 id="change">১১. নিরাপদে স্কিমা বদলানো</h2>
+<ol class="steps">
+  <li><code>apps/api/prisma/schema.prisma</code> এডিট করুন।</li>
+  <li>TTY ছাড়া <code>prisma migrate dev</code> আটকে যায়। বদলে: <code>pnpm exec prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --script &gt; prisma/migrations/&lt;ts&gt;_&lt;name&gt;/migration.sql</code>, হাতে লেখা SQL (ট্রিগার, partial index, sequence, CHECK) জুড়ুন, তারপর <code>prisma migrate deploy</code> ও <code>prisma generate</code>।</li>
+  <li>নতুন পারমিশন → <code>permissions.ts</code>; নতুন সেটিং → <code>settings/registry.ts</code>।</li>
+  <li><code>pnpm api:gen</code> (drift হলে CI ফেল করে), তারপর সব অ্যাপের typecheck, টেস্ট, <code>pnpm biome ci .</code>।</li>
+  <li>DTO ক্লাসের নাম পুরো API-তে ইউনিক হতে হবে (Swagger একই নামের ক্লাস মার্জ করে)।</li>
+  <li>স্কিমা বদলের পর এই ম্যানুয়াল আবার তৈরি করুন: <code>node docs/build-manuals.mjs</code>।</li>
+</ol>
+
+<h2 id="known">১২. জানা ঘাটতি</h2>
+<ul>
+  <li>শুধু COD চালু। পেমেন্ট গেটওয়ে নেই; ওয়ালেট/পয়েন্ট/রেফারেল লেজার নেই (সেটিং টগল আছে, ব্যবহৃত হয় না)।</li>
+  <li>Steadfast/Pathao অ্যাডাপ্টার আসল স্যান্ডবক্সে পরীক্ষা হয়নি (এখনো মার্চেন্ট অ্যাকাউন্ট নেই)।</li>
+  <li>আলাদা অডিট-লগ টেবিল নেই: শুধু 2FA রিসেট স্টাফ রো-তে লেখা থাকে। অর্ডার, স্টক, লেজার ও স্ট্যাটাস হিস্ট্রিই অডিট ট্রেইল।</li>
+  <li>ড্রপশিপ (<code>fulfillment = dropship</code>, সাপ্লায়ার পোর্টাল), অ্যাফিলিয়েট, রিভিউ ও অ্যাবান্ডনড-কার্ট মেসেজ পরিকল্পিত, তৈরি হয়নি (<code>carts.abandoned_notified_at</code> ভবিষ্যতের জন্য আছে)।</li>
+  <li>হোম ফিড ফুল স্ক্যান করে (২০ হাজার পণ্যে ~৬৫০ ms); ক্যাটালগ বাড়লে ক্যাশ করা min price/stock কলাম যোগ করুন।</li>
+  <li>অ্যাডমিন ড্যাশবোর্ডে প্লেসহোল্ডার: এখনো রিপোর্ট API নেই।</li>
+</ul>
+<p class="muted">এই সিদ্ধান্তগুলোর কারণ: <code>plan/10-decisions-log.md</code> (C-নম্বর)। ডেটা মডেল ডিজাইন: <code>plan/12-data-model.md</code>।</p>

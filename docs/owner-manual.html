@@ -1,0 +1,758 @@
+<!doctype html>
+<html lang="en" data-lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>bd-commerce Owner Manual / বিডি-কমার্স মালিকের ম্যানুয়াল</title>
+<style>
+:root {
+  --bg: #f7f8fa;
+  --panel: #ffffff;
+  --text: #1c2330;
+  --muted: #5d6879;
+  --line: #e1e5ec;
+  --primary: #4f46e5;
+  --primary-soft: #eceafd;
+  --accent: #0f9d8a;
+  --warn: #b7791f;
+  --warn-soft: #fdf3dc;
+  --danger: #c0392b;
+  --danger-soft: #fdeaea;
+  --ok-soft: #e3f6f1;
+  --code-bg: #f0f2f6;
+  --side: #1b2133;
+  --side-text: #c9d1e3;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0f1320;
+    --panel: #171c2e;
+    --text: #e4e8f2;
+    --muted: #9aa5ba;
+    --line: #2a3250;
+    --primary: #8b85ff;
+    --primary-soft: #25264d;
+    --accent: #38c9b3;
+    --warn: #e6b24c;
+    --warn-soft: #3a2f16;
+    --danger: #ff7b6b;
+    --danger-soft: #3d1f1f;
+    --ok-soft: #163a35;
+    --code-bg: #20263c;
+    --side: #0b0e19;
+    --side-text: #aab4cc;
+  }
+}
+:root[data-theme='dark'] {
+  --bg: #0f1320;
+  --panel: #171c2e;
+  --text: #e4e8f2;
+  --muted: #9aa5ba;
+  --line: #2a3250;
+  --primary: #8b85ff;
+  --primary-soft: #25264d;
+  --accent: #38c9b3;
+  --warn: #e6b24c;
+  --warn-soft: #3a2f16;
+  --danger: #ff7b6b;
+  --danger-soft: #3d1f1f;
+  --ok-soft: #163a35;
+  --code-bg: #20263c;
+  --side: #0b0e19;
+  --side-text: #aab4cc;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 16px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.65 system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Noto Sans Bengali', sans-serif;
+}
+.layout { display: grid; grid-template-columns: 270px minmax(0, 1fr); min-height: 100vh; }
+nav.toc {
+  position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto;
+  background: var(--side); color: var(--side-text); padding: 20px 16px 40px;
+  font-size: 14px;
+}
+nav.toc .brand { font-weight: 700; color: #fff; font-size: 16px; margin-bottom: 4px; }
+nav.toc .sub { font-size: 12px; opacity: .7; margin-bottom: 16px; }
+nav.toc a { display: block; color: var(--side-text); text-decoration: none; padding: 4px 8px; border-radius: 6px; line-height: 1.35; }
+nav.toc a:hover { background: rgba(255,255,255,.08); color: #fff; }
+nav.toc a.h3 { padding-left: 22px; font-size: 13px; opacity: .85; }
+nav.toc .grp { margin: 14px 8px 4px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; opacity: .55; }
+nav.toc .switch { margin-top: 18px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.12); }
+nav.toc button.theme {
+  margin-top: 8px; background: transparent; color: var(--side-text); border: 1px solid rgba(255,255,255,.2);
+  border-radius: 6px; padding: 4px 10px; cursor: pointer; font: inherit; font-size: 13px;
+}
+main { padding: 32px clamp(16px, 4vw, 56px) 80px; max-width: 1040px; width: 100%; }
+h1 { font-size: 2rem; margin: 0 0 6px; line-height: 1.2; }
+h2 { font-size: 1.5rem; margin: 2.6em 0 .6em; padding-top: .6em; border-top: 1px solid var(--line); line-height: 1.25; }
+h2:first-of-type { border-top: 0; }
+h3 { font-size: 1.15rem; margin: 1.8em 0 .4em; }
+h4 { font-size: 1rem; margin: 1.4em 0 .3em; }
+p, li { max-width: 78ch; }
+.lead { color: var(--muted); font-size: 1.1rem; max-width: 70ch; }
+a { color: var(--primary); }
+code, kbd, pre { font-family: ui-monospace, 'JetBrains Mono', Menlo, Consolas, monospace; font-size: .88em; }
+code, kbd { background: var(--code-bg); padding: 1px 6px; border-radius: 5px; }
+kbd { border: 1px solid var(--line); border-bottom-width: 2px; }
+pre { background: var(--code-bg); padding: 14px 16px; border-radius: 10px; overflow-x: auto; line-height: 1.5; border: 1px solid var(--line); }
+pre code { background: none; padding: 0; font-size: 1em; }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .93rem; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { background: var(--code-bg); font-weight: 600; font-size: .85rem; }
+tr:last-child td { border-bottom: 0; }
+.table-wrap { overflow-x: auto; }
+.callout { border-left: 4px solid var(--primary); background: var(--primary-soft); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 1.2em 0; max-width: 78ch; }
+.callout.warn { border-color: var(--warn); background: var(--warn-soft); }
+.callout.danger { border-color: var(--danger); background: var(--danger-soft); }
+.callout.ok { border-color: var(--accent); background: var(--ok-soft); }
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+.callout strong.t { display: block; margin-bottom: 2px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; margin: 1.2em 0; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+.card h4 { margin: 0 0 4px; }
+.card p { margin: 0; color: var(--muted); font-size: .92rem; }
+.pill { display: inline-block; font-size: .75rem; padding: 1px 8px; border-radius: 99px; background: var(--code-bg); border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.pill.pk { background: var(--primary-soft); color: var(--primary); border-color: transparent; }
+.pill.uq { background: var(--ok-soft); color: var(--accent); border-color: transparent; }
+.pill.opt { opacity: .8; }
+.steps { counter-reset: s; list-style: none; padding: 0; }
+.steps > li { counter-increment: s; position: relative; padding: 4px 0 10px 44px; }
+.steps > li::before {
+  content: counter(s); position: absolute; left: 0; top: 2px; width: 30px; height: 30px; border-radius: 50%;
+  background: var(--primary); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: .9rem;
+}
+.flow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 1em 0; }
+.flow .n { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px 10px; font-size: .9rem; }
+.flow .a { color: var(--muted); }
+details { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; margin: 10px 0; }
+details > summary { cursor: pointer; padding: 10px 14px; font-weight: 600; list-style-position: inside; }
+details > summary .tn { font-weight: 400; color: var(--muted); font-family: ui-monospace, monospace; font-size: .85rem; margin-left: 8px; }
+details[open] > summary { border-bottom: 1px solid var(--line); }
+details .body { padding: 4px 14px 12px; }
+details .body table { margin: .6em 0; }
+.muted { color: var(--muted); }
+.mono { font-family: ui-monospace, monospace; }
+.tag { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.menu-btn { display: none; }
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  nav.toc { position: static; height: auto; max-height: 60vh; }
+}
+@media print {
+  nav.toc { display: none; }
+  .layout { display: block; }
+  details { break-inside: avoid; }
+  details:not([open]) > .body { display: block; }
+  body { background: #fff; color: #000; }
+}
+
+[data-l] { display: none; }
+html[data-lang='en'] [data-l='en'], html[data-lang='bn'] [data-l='bn'] { display: block; }
+nav.toc .langs { display: flex; gap: 6px; margin: 4px 0 14px; }
+nav.toc .langs button { flex: 1; background: transparent; color: var(--side-text); border: 1px solid rgba(255,255,255,.25); border-radius: 6px; padding: 5px 8px; cursor: pointer; font: inherit; font-size: 13px; }
+html[data-lang='en'] nav.toc .langs [data-set='en'], html[data-lang='bn'] nav.toc .langs [data-set='bn'] { background: var(--primary); color: #fff; border-color: transparent; }
+@media print { html[data-lang='en'] [data-l='bn'], html[data-lang='bn'] [data-l='en'] { display: none !important; } }
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="toc" aria-label="Contents">
+  <div class="brand">bd-commerce</div>
+  <div class="sub">Owner manual · মালিকের ম্যানুয়াল</div>
+  <div class="langs"><button data-set="en">English</button><button data-set="bn">বাংলা</button></div>
+  <div data-l="en"><a href="#en-start">1. Getting started</a><a class="h3" href="#en-login">Signing in</a><a class="h3" href="#en-layout">What you see</a><a href="#en-map">2. Screen map</a><a href="#en-daily">3. A typical day</a><a href="#en-orders">4. Orders</a><a class="h3" href="#en-order-status">Order statuses</a><a class="h3" href="#en-order-detail">Working an order</a><a href="#en-callq">5. Call queue</a><a href="#en-ship">6. Shipments and couriers</a><a href="#en-returns">7. Returns and refunds</a><a href="#en-catalog">8. Products and catalog</a><a class="h3" href="#en-product-new">Adding a product</a><a class="h3" href="#en-catalog-other">Categories, brands, inventory, import/export</a><a href="#en-promo">9. Promotions</a><a class="h3" href="#en-coupons">Coupons &amp; discounts</a><a class="h3" href="#en-flash">Flash sales</a><a class="h3" href="#en-bulk">Bulk sales</a><a class="h3" href="#en-home">Home &amp; feed</a><a href="#en-buy">10. Suppliers and purchase orders</a><a href="#en-sr">11. Sales reps (SR) and wholesale shops (B2B)</a><a href="#en-delivery">12. Delivery charges</a><a href="#en-team">13. Staff, roles and settings</a><a class="h3" href="#en-staff">Staff and roles</a><a class="h3" href="#en-settings">Settings</a><a href="#en-data">14. What information the system keeps</a><a href="#en-safe">15. Good habits and safety</a><a href="#en-missing">16. Not available yet</a><a href="#en-faq">17. Quick answers</a><a href="#en-glossary">18. Glossary</a></div><div data-l="bn"><a href="#bn-start">১. শুরু করা</a><a class="h3" href="#bn-login">সাইন ইন</a><a class="h3" href="#bn-layout">স্ক্রিনে কী দেখবেন</a><a href="#bn-map">২. স্ক্রিনের মানচিত্র</a><a href="#bn-daily">৩. একটি সাধারণ দিন</a><a href="#bn-orders">৪. অর্ডার</a><a class="h3" href="#bn-order-status">অর্ডারের স্ট্যাটাস</a><a class="h3" href="#bn-order-detail">অর্ডার সামলানো</a><a href="#bn-callq">৫. কল কিউ (Call queue)</a><a href="#bn-ship">৬. শিপমেন্ট ও কুরিয়ার</a><a href="#bn-returns">৭. রিটার্ন ও রিফান্ড</a><a href="#bn-catalog">৮. পণ্য ও ক্যাটালগ</a><a class="h3" href="#bn-product-new">পণ্য যোগ করা</a><a class="h3" href="#bn-catalog-other">ক্যাটেগরি, ব্র্যান্ড, ইনভেন্টরি, ইমপোর্ট/এক্সপোর্ট</a><a href="#bn-promo">৯. প্রমোশন</a><a class="h3" href="#bn-coupons">কুপন ও ডিসকাউন্ট</a><a class="h3" href="#bn-flash">ফ্ল্যাশ সেল</a><a class="h3" href="#bn-bulk">বাল্ক সেল</a><a class="h3" href="#bn-home">Home &amp; feed</a><a href="#bn-buy">১০. সাপ্লায়ার ও পারচেজ অর্ডার</a><a href="#bn-sr">১১. সেলস রিপ্রেজেন্টেটিভ (SR) ও পাইকারি দোকান (B2B)</a><a href="#bn-delivery">১২. ডেলিভারি চার্জ</a><a href="#bn-team">১৩. স্টাফ, রোল ও সেটিংস</a><a class="h3" href="#bn-staff">স্টাফ ও রোল</a><a class="h3" href="#bn-settings">সেটিংস</a><a href="#bn-data">১৪. সিস্টেম কী কী তথ্য রাখে</a><a href="#bn-safe">১৫. ভালো অভ্যাস ও নিরাপত্তা</a><a href="#bn-missing">১৬. যা এখনো নেই</a><a href="#bn-faq">১৭. দ্রুত উত্তর</a><a href="#bn-glossary">১৮. শব্দকোষ</a></div>
+  <div class="switch"><button class="theme" id="themeBtn" type="button">Light / Dark</button></div>
+  <div class="sub" style="margin-top:14px">Built 2026-11-04</div>
+</nav>
+<main>
+<div data-l="en"><h1>Owner Manual</h1>
+<p class="lead">How to run your online shop from the admin panel: take orders, send parcels, manage products, run offers, pay suppliers and watch your sales reps. No technical knowledge needed.</p>
+<div class="callout ok"><strong class="t">The admin panel is in English</strong>Screen names and buttons are in English. This manual keeps them in English (in quotes) so you can match them on screen. Your customers see the shop in English or Bangla.</div>
+
+<h2 id="en-start">1. Getting started</h2>
+<h3 id="en-login">Signing in</h3>
+<ol class="steps">
+  <li>Open the admin address your developer gave you and enter your email and password.</li>
+  <li><strong>Two-step verification (2FA):</strong> the first time, you scan a QR code with an authenticator app (Google Authenticator, Microsoft Authenticator, Authy). From then on you type the 6-digit code from the app after your password.</li>
+  <li><strong>Save your 10 backup codes</strong> shown at setup (print or write them down, keep them private). Each works once, if you lose your phone.</li>
+</ol>
+<div class="callout warn"><strong class="t">Lost phone and no backup codes?</strong>Another staff member with permission can reset your 2FA, or ask your developer. You can only be locked out, never see someone else’s data.</div>
+<ul>
+  <li>You are signed out automatically after 8 hours without activity (and always after 7 days).</li>
+  <li>If you sign in from a new computer or phone, you get an email alert. If it was not you, change your password immediately.</li>
+  <li>Too many wrong passwords temporarily blocks sign-in (about 15 minutes).</li>
+  <li>Top-right account menu: change password and sign out. The theme switch changes light / dark / automatic.</li>
+</ul>
+
+<h3 id="en-layout">What you see</h3>
+<table>
+  <thead><tr><th>Area</th><th>What it does</th></tr></thead>
+  <tbody>
+    <tr><td>Left sidebar</td><td>All screens, grouped. You only see screens your role allows.</td></tr>
+    <tr><td>Top search</td><td>Finds products.</td></tr>
+    <tr><td>Bell icon</td><td>Number of orders waiting in the Call queue. Click to open it.</td></tr>
+    <tr><td>Dashboard</td><td>Landing page. Today it shows placeholders only; real sales reports are not built yet.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="en-map">2. Screen map</h2>
+<table>
+  <thead><tr><th>Sidebar group</th><th>Screens</th><th>Use it to</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Sales</strong></td><td>Orders · Call queue · Shipments · Returns &amp; refunds · Refunds</td><td>Handle customer orders from the moment they arrive to delivery and returns.</td></tr>
+    <tr><td><strong>Catalog</strong></td><td>Products · Categories &amp; attributes · Brands · Inventory · Import / Export</td><td>What you sell, how it is organised, and how much is in stock.</td></tr>
+    <tr><td><strong>Marketing</strong></td><td>Coupons &amp; discounts · Flash sales · Bulk sales · Home &amp; feed</td><td>Offers and what shows on the shop’s home page.</td></tr>
+    <tr><td><strong>People &amp; partners</strong></td><td>Suppliers &amp; POs · Purchase orders · SR approvals · B2B shops · Collections · SR team · B2B dues · Delivery &amp; couriers</td><td>Buying stock, wholesale to shops through sales reps (SR), and delivery pricing.</td></tr>
+    <tr><td><strong>System</strong></td><td>Staff · Roles &amp; permissions · Settings</td><td>Who can do what, and store-wide switches.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="en-daily">3. A typical day</h2>
+<ol class="steps">
+  <li><strong>Morning:</strong> open <em>Call queue</em>. Phone each flagged customer and record the result (section 5).</li>
+  <li>Open <em>Orders</em> → filter new ones. Check anything on hold or unusual.</li>
+  <li>Open <em>Shipments</em>. Pack ready orders, book the courier, print labels and invoices, hand parcels to the courier (section 6).</li>
+  <li><em>Inventory</em>: look at low-stock items and plan purchases (section 9).</li>
+  <li><em>Returns &amp; refunds</em>: approve, receive and inspect returns (section 7).</li>
+  <li><em>Collections</em> and <em>SR approvals</em> if you sell through sales reps (section 12).</li>
+</ol>
+
+<h2 id="en-orders">4. Orders</h2>
+<p>Customers pay <strong>Cash on Delivery (COD)</strong> today. Online payment (bKash, Nagad, cards) is not switched on yet.</p>
+<h3 id="en-order-status">Order statuses</h3>
+<table>
+  <thead><tr><th>Status</th><th>Meaning</th><th>What happens next</th></tr></thead>
+  <tbody>
+    <tr><td><code>processing</code></td><td>Accepted. Stock is reserved for it.</td><td>Create a shipment.</td></tr>
+    <tr><td><code>on_hold</code></td><td>You paused it (e.g. waiting for customer).</td><td>Use “Resume” to continue.</td></tr>
+    <tr><td><code>partially_shipped</code></td><td>Some items sent, others not yet.</td><td>Ship the rest.</td></tr>
+    <tr><td><code>shipped</code></td><td>All items handed to the courier.</td><td>Wait for delivery.</td></tr>
+    <tr><td><code>delivered</code></td><td>Courier delivered and collected cash.</td><td>Return window runs (7 days by default).</td></tr>
+    <tr><td><code>completed</code></td><td>Delivered and the return window passed. Done.</td><td>Automatic.</td></tr>
+    <tr><td><code>cancelled</code></td><td>Cancelled. Stock and coupon use are given back.</td><td>—</td></tr>
+  </tbody>
+</table>
+<p>You do <strong>not</strong> set “shipped” or “delivered” by hand. They follow the shipments automatically.</p>
+<h3 id="en-order-detail">Working an order</h3>
+<ul>
+  <li><strong>Orders</strong> lists all orders with filters and search. Click one to open the detail page: customer, delivery address, items, discounts, payment, shipments, and a history of every status change with who did it.</li>
+  <li><strong>Hold / Resume:</strong> pause an order, with a reason.</li>
+  <li><strong>Cancel:</strong> asks for a reason. Not possible while a courier booking exists. Cancel the shipment first.</li>
+  <li><strong>Invoice:</strong> create and print an A4 invoice (VAT included in price; your BIN and VAT show if filled in Settings). The invoice is frozen when issued, so reprints always match.</li>
+  <li>Prices on an order never change later, even if you edit the product or coupon afterwards.</li>
+</ul>
+
+<h2 id="en-callq">5. Call queue</h2>
+<p>Not every order needs a call. The system flags only risky ones:</p>
+<ul>
+  <li>the same phone or address ordering many times in a day;</li>
+  <li>a cash-on-delivery total above ৳5,000 (changeable);</li>
+  <li>a customer’s first guest (not logged-in) order.</li>
+</ul>
+<p>The order still goes ahead. The queue only reminds you to confirm. For each one press “Log call” and choose the result:</p>
+<table>
+  <thead><tr><th>Result</th><th>Effect</th></tr></thead>
+  <tbody>
+    <tr><td>Confirmed</td><td>Order continues normally.</td></tr>
+    <tr><td>Unreachable</td><td>Recorded; try again later or cancel.</td></tr>
+    <tr><td>Cancelled</td><td>Customer said no; the order is cancelled.</td></tr>
+  </tbody>
+</table>
+<p>Add a note. It stays on the order. You can change the thresholds in <em>Settings → call queue</em>.</p>
+
+<h2 id="en-ship">6. Shipments and couriers</h2>
+<ol class="steps">
+  <li>On <em>Shipments</em> (or the order page) create a shipment from the order’s items. You can split an order into several parcels.</li>
+  <li><strong>Book courier:</strong> pick the courier (Steadfast, Pathao). The system sends the parcel details and stores the consignment number and tracking link.</li>
+  <li>Print the <strong>4x6 inch label</strong> (order number, address, cash to collect, barcode) and the invoice; stick the label on the parcel.</li>
+  <li><strong>Mark handed over</strong> when the courier takes it. Stock leaves your warehouse count now.</li>
+  <li><strong>Sync status</strong> pulls the latest courier status. This also happens automatically every 10 minutes.</li>
+</ol>
+<ul>
+  <li>The delivery charge is collected once, on the first parcel sent.</li>
+  <li>If the courier cannot deliver (failed), the order is <em>not</em> cancelled automatically. Decide: re-book, or cancel.</li>
+  <li>The real courier connections need your merchant API keys from Steadfast / Pathao. Until the developer adds them, only a test “fake” courier works. <strong>Ask your developer to set these up before launch.</strong></li>
+</ul>
+
+<h2 id="en-returns">7. Returns and refunds</h2>
+<div class="flow"><span class="n">Requested</span><span class="a">→</span><span class="n">Approve / Reject</span><span class="a">→</span><span class="n">Pickup booked</span><span class="a">→</span><span class="n">Mark received</span><span class="a">→</span><span class="n">Inspect</span><span class="a">→</span><span class="n">Refund</span><span class="a">→</span><span class="n">Close return</span></div>
+<ul>
+  <li>A customer can request a return from their account within <strong>7 days</strong> of delivery (change in Settings; a product or category can have its own).</li>
+  <li><strong>Inspect:</strong> for each item choose <em>resellable</em> (goes back to stock with “Restock”) or <em>damaged</em> (not restocked).</li>
+  <li><strong>Fault:</strong> “ours” (wrong/damaged item) means you pay return shipping. “customer” (changed mind) means the customer pays.</li>
+  <li><strong>Refund</strong> amount is worked out per item after the discount that item received. Refund to “original” method or “wallet”. Because only COD is live, you pay the money back yourself, then press <strong>Mark paid out</strong>.</li>
+  <li><strong>Approval rule:</strong> refunds above ৳3,000 (changeable) must be approved by a <em>different</em> staff member who has the “approve refunds” permission. This protects you from one person refunding to themselves.</li>
+</ul>
+
+<h2 id="en-catalog">8. Products and catalog</h2>
+<h3 id="en-product-new">Adding a product</h3>
+<ol class="steps">
+  <li><em>Catalog → Products → New product</em>. Tabs: <strong>Basics</strong> (English/Bangla title, brand, category, status), <strong>Description</strong> (rich text, EN/BN), <strong>Attributes</strong> (specs like “Material”), <strong>Variants</strong>, images (<strong>Media</strong>), <strong>Shipping</strong> (weight, delivery charge override, return window).</li>
+  <li><strong>Variants:</strong> a variant is one sellable version (e.g. “Red / M”). Add up to <strong>two options</strong> (Colour, Size) and the grid of combinations appears. A product with no options has one variant. Each variant has its own <strong>SKU</strong> (unique code), <strong>price</strong>, optional <strong>old price</strong> (shown struck through), <strong>sale price</strong> with start/end dates, <strong>cost price</strong> (only people with permission see it), and weight.</li>
+  <li>Enter all money in <strong>taka</strong> (e.g. 125.50).</li>
+  <li><strong>Images:</strong> upload; drag to reorder; the first is the main image. Large or very high-resolution images are rejected or shrunk, and camera location data is removed.</li>
+  <li><strong>Status:</strong> <code>draft</code> (hidden), <code>active</code> (visible in shop), <code>archived</code> (hidden, history kept). Products that have been ordered cannot be deleted. Archive them.</li>
+  <li>Save. If something is missing, a “Problems” list tells you what.</li>
+</ol>
+<h3 id="en-catalog-other">Categories, brands, inventory, import/export</h3>
+<table>
+  <thead><tr><th>Screen</th><th>How to use it</th></tr></thead>
+  <tbody>
+    <tr><td>Categories &amp; attributes</td><td>A tree up to 4 levels (e.g. Fashion → Men → Shirts). Drag to reorder. A top-level category needs an image. Add “attributes” per category (e.g. Size, Brand-specific specs); filterable ones appear as filters in the shop. “Show on home” puts a category on the home page.</td></tr>
+    <tr><td>Brands</td><td>Name (EN/BN) and logo.</td></tr>
+    <tr><td>Inventory</td><td>Stock per variant. <strong>On hand</strong> = physically in your warehouse. <strong>Reserved</strong> = held for open orders. <strong>Available</strong> = on hand − reserved. Use “Adjust” to correct counts (a note is required; every change is logged forever). Set a <strong>low-stock threshold</strong> per variant; use “Low stock only”.</td></tr>
+    <tr><td>Import / Export</td><td>Download products as Excel/CSV, edit many at once, upload back. A report lists any rows that failed. Export also gives you a backup copy of your catalog.</td></tr>
+  </tbody>
+</table>
+<div class="callout warn"><strong class="t">Never edit stock by re-importing</strong>Use “Adjust” or purchase order receiving, so there is always a record of why stock changed.</div>
+
+<h2 id="en-promo">9. Promotions</h2>
+<h3 id="en-coupons">Coupons &amp; discounts</h3>
+<p>Two kinds: <strong>Code</strong> (customer types it, e.g. EID10) and <strong>Automatic</strong> (applies by itself when conditions match). Types:</p>
+<table>
+  <thead><tr><th>Type</th><th>Example</th></tr></thead>
+  <tbody>
+    <tr><td>Percent</td><td>10% off, max ৳500 discount</td></tr>
+    <tr><td>Fixed</td><td>৳100 off</td></tr>
+    <tr><td>Tiered</td><td>Spend ৳2,000 get ৳100; spend ৳5,000 get ৳400</td></tr>
+    <tr><td>Free delivery</td><td>No delivery charge</td></tr>
+    <tr><td>Buy X get Y</td><td>Buy 2 get 1 half-price</td></tr>
+    <tr><td>Bundle</td><td>These 3 items together for ৳999</td></tr>
+  </tbody>
+</table>
+<p>Controls: start/end dates, minimum order, which products/categories/brands (include or exclude), which delivery zones, which customers (all, first order, specific, inactive for N days), web/app, total uses, uses per customer/phone/device, total budget, and whether it combines with sale prices or other coupons. Statuses: <em>draft</em> → <em>active</em> → <em>paused</em>. “Hidden” coupons are not listed publicly; “public” ones appear on the shop’s offers page and customers can collect them. The <strong>Report</strong> tab shows uses and discount given. You can generate many one-time codes at once.</p>
+<p><strong>Rule of thumb:</strong> a customer gets all automatic discounts that combine, plus at most one typed code (two only if both allow combining).</p>
+<h3 id="en-flash">Flash sales</h3>
+<p>Pick a time window, add variants with a special price and a <strong>quantity limit</strong>. A countdown shows in the shop. When the limit is gone (or the customer’s own limit is reached) the shop will not sell more at that price. Orders keep the flash price they were placed at.</p>
+<h3 id="en-bulk">Bulk sales</h3>
+<p>Put a whole category, brand or list of products on sale in one go: percent or fixed amount off, with dates. Use <strong>Preview</strong> first. It shows the new prices. <strong>Undo</strong> restores previous sale prices exactly.</p>
+<h3 id="en-home">Home &amp; feed</h3>
+<p>Manage home page <strong>carousel slides</strong>: desktop and mobile image, link (e.g. <code>/p/product-name</code>), start/end dates, language (all / English / Bangla), on/off, order. Home feed ordering weights are also managed under this menu (needs the “content” permission).</p>
+
+<h2 id="en-buy">10. Suppliers and purchase orders</h2>
+<ol class="steps">
+  <li><strong>Suppliers &amp; POs:</strong> add suppliers (contact, payment terms, “ship mode”: normally <em>Via our warehouse first</em>). On a supplier page: details, the products they supply (with last price), and the <strong>ledger</strong> (what you owe).</li>
+  <li><strong>Purchase orders → New:</strong> choose supplier, add variants and quantities and unit cost. Save as <code>draft</code>, edit freely.</li>
+  <li><strong>Send to supplier:</strong> the PO is locked and emailed (if the supplier has an email). Use the A4 print view to hand or send it otherwise.</li>
+  <li><strong>Receive goods</strong> when stock arrives: enter <em>good</em> quantity and <em>rejected</em> quantity per line. You cannot receive more than ordered. Only good items go into stock and into what you owe. Your item <em>cost price updates automatically</em> as a weighted average.</li>
+  <li>If the rest will never come, use <strong>Close PO</strong>: nothing more is owed for the missing part.</li>
+  <li><strong>Pay the supplier:</strong> on the supplier’s ledger record a payment (cash / bKash / Nagad / bank + reference). Use an adjustment for credit notes or opening balances. Entries cannot be edited. A mistake is corrected with a reversing entry.</li>
+</ol>
+<p>Statuses: <code>draft</code> → <code>sent</code> → <code>partially_received</code> → <code>received</code> (or <code>closed</code> / <code>cancelled</code>). The PO list also shows “received value”, the money value of what truly arrived.</p>
+
+<h2 id="en-sr">11. Sales reps (SR) and wholesale shops (B2B)</h2>
+<p>Your SRs use the separate <strong>partner portal</strong> on their phone to sell to local shops on credit. In the admin you control approval, delivery and money.</p>
+<ol class="steps">
+  <li>SR submits a sale memo for a shop (shops added from the field are marked “new” for your review).</li>
+  <li><strong>SR approvals:</strong> approve (stock is reserved) or reject with a reason.</li>
+  <li>Mark <strong>delivered</strong> (by SR or by staff). Now the shop owes the amount (minus any paid at sale).</li>
+  <li><strong>Collections:</strong> the SR records money collected from a shop. You <strong>confirm</strong> it when the cash really reaches you, or reject it with a reason. Only confirmed money reduces the shop’s due.</li>
+  <li><strong>B2B dues:</strong> list of who owes how much and how old, so you know whom to chase. <strong>B2B shops</strong> page shows each shop’s ledger and lets you block a shop.</li>
+  <li><strong>SR team:</strong> set area, monthly target and commission (default 1% of money collected, per-SR override). If a sale is reversed after commission was counted, a deduction is applied to the next commission.</li>
+</ol>
+
+<h2 id="en-delivery">12. Delivery charges</h2>
+<p><em>Delivery &amp; couriers</em> controls what customers pay for delivery. A <strong>zone</strong> has a base charge (for a base weight, default 1 kg), an extra charge per additional kg, estimated delivery days, and an optional “free when order reaches ৳X” (or always free). “Coverage” assigns districts, upazilas or areas to the zone. Every location belongs to one zone; one zone is the <strong>default</strong> and catches everything unassigned.</p>
+
+<h2 id="en-team">13. Staff, roles and settings</h2>
+<h3 id="en-staff">Staff and roles</h3>
+<ul>
+  <li><strong>Staff:</strong> add people, assign roles, disable (not delete) someone who leaves, reset their 2FA.</li>
+  <li><strong>Roles &amp; permissions:</strong> a role is a named set of permissions (e.g. “Warehouse”: inventory + shipments + receiving). A person can have several roles. The built-in <strong>Owner</strong> role has everything and cannot be edited or removed; the last Owner cannot be removed.</li>
+  <li>You can only give someone permissions that you have yourself.</li>
+</ul>
+<p>Suggested starting roles: <strong>Manager</strong> (everything but staff/roles/settings), <strong>Order desk</strong> (orders, call queue, returns), <strong>Warehouse</strong> (shipments, inventory, receiving), <strong>Catalog editor</strong> (products, categories, brands), <strong>Accountant</strong> (view orders, supplier payments, B2B dues). Give cost prices and refund approval only to trusted people.</p>
+<h3 id="en-settings">Settings</h3>
+<table>
+  <thead><tr><th>Setting</th><th>What it does</th></tr></thead>
+  <tbody>
+    <tr><td>Maintenance mode</td><td>Shows customers a “back soon” message instead of the shop. The admin keeps working.</td></tr>
+    <tr><td>Announcement bar</td><td>A message bar at the top of the shop (EN/BN, link, optional dates).</td></tr>
+    <tr><td>Store info</td><td>Name, address, phone, email, BIN and VAT rate (15%) printed on invoices. <strong>Fill this in before printing invoices.</strong></td></tr>
+    <tr><td>Shop contact</td><td>Hotline and email shown in the shop.</td></tr>
+    <tr><td>Call queue</td><td>When orders need a confirmation call.</td></tr>
+    <tr><td>Returns</td><td>Return window days and the refund approval limit.</td></tr>
+    <tr><td>Checkout / Guest orders</td><td>OTP threshold for guests and anti-abuse limits.</td></tr>
+    <tr><td>Staff session timeout, customer sign-in days</td><td>How long people stay signed in.</td></tr>
+    <tr><td>SR default commission</td><td>Default % for sales reps.</td></tr>
+    <tr><td>Online payments, Advance payments, Pre-orders</td><td>Switches for future features. Leave off; they do nothing yet.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="en-data">14. What information the system keeps</h2>
+<table>
+  <thead><tr><th>Information</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>Customers</td><td>Name, phone, email, encrypted password, saved addresses, wishlist, order history, collected coupons.</td></tr>
+    <tr><td>Orders</td><td>Items and prices as they were on the day, delivery address text, discounts used, risk flags, call result, every status change with who did it.</td></tr>
+    <tr><td>Stock</td><td>Current count plus a permanent log of every change (who, when, why). It cannot be edited or deleted.</td></tr>
+    <tr><td>Money records</td><td>Shop dues, supplier payables, refunds, SR commissions. These are permanent ledgers, corrected only by adding a reversing entry.</td></tr>
+    <tr><td>Staff</td><td>Login, roles, last sign-in, devices used. Passwords and 2FA secrets are stored encrypted/hashed, nobody can read them.</td></tr>
+    <tr><td>Pictures</td><td>Stored separately from the database and delivered quickly through an image service.</td></tr>
+  </tbody>
+</table>
+<p>Deletion is deliberately limited. Things with history are archived or disabled, not erased, so your records stay trustworthy.</p>
+
+<h2 id="en-safe">15. Good habits and safety</h2>
+<ul>
+  <li>Give each person their own account. Never share a login.</li>
+  <li>Disable accounts the same day someone leaves.</li>
+  <li>Keep 2FA on for everyone. Keep backup codes safe.</li>
+  <li>Ask your developer to back up the database regularly and to keep the 2FA encryption key safe.</li>
+  <li>Use “Preview” and “Undo” on bulk sales; test a new coupon with a small budget cap first.</li>
+  <li>Count stock physically now and then and use “Adjust” with a note to fix differences.</li>
+</ul>
+
+<h2 id="en-missing">16. Not available yet</h2>
+<ul>
+  <li>Online payment (bKash, Nagad, cards), customer wallet, loyalty points, referral rewards.</li>
+  <li>Real SMS delivery of OTP codes. A provider must be chosen before launch.</li>
+  <li>Live Steadfast / Pathao booking (needs your merchant keys).</li>
+  <li>Sales reports and a working dashboard.</li>
+  <li>Supplier portal and direct-from-supplier (dropship) selling, affiliate program, product reviews, abandoned-cart reminders, events and page builder.</li>
+  <li>A staff-activity audit log (the order, stock and ledger histories do track who did what).</li>
+</ul>
+
+<h2 id="en-faq">17. Quick answers</h2>
+<table>
+  <thead><tr><th>Problem</th><th>What to do</th></tr></thead>
+  <tbody>
+    <tr><td>Product not visible in the shop</td><td>Status must be <code>active</code> and it needs at least one active variant with a price. Out-of-stock items cannot be bought. Changes can take up to a minute to show in the shop.</td></tr>
+    <tr><td>Cannot cancel an order</td><td>A shipment is booked with the courier. Cancel the shipment first.</td></tr>
+    <tr><td>Cannot delete a product, category or variant</td><td>It has orders or stock history. Archive it instead.</td></tr>
+    <tr><td>Stock number looks wrong</td><td>Open Inventory → the variant → stock history to see every change and who made it.</td></tr>
+    <tr><td>Do not see a menu item</td><td>Your role lacks that permission. Ask an Owner.</td></tr>
+    <tr><td>Wrong supplier payment recorded</td><td>You cannot edit it. Add a reversing entry with a note, then record the correct payment.</td></tr>
+    <tr><td>Customer says coupon did not work</td><td>Check dates, minimum order, targeted products, usage limits and whether it combines with their other offer. The coupon’s report tab shows uses.</td></tr>
+    <tr><td>Shop shows “maintenance”</td><td>Turn off Maintenance mode in Settings.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="en-glossary">18. Glossary</h2>
+<table>
+  <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+  <tbody>
+    <tr><td>SKU</td><td>Unique stock code for one variant.</td></tr>
+    <tr><td>Variant</td><td>One sellable version of a product (size/colour).</td></tr>
+    <tr><td>COD</td><td>Cash on Delivery.</td></tr>
+    <tr><td>Reserved stock</td><td>Stock held for orders not yet shipped.</td></tr>
+    <tr><td>PO</td><td>Purchase order: your order to a supplier.</td></tr>
+    <tr><td>SR</td><td>Sales representative selling to shops.</td></tr>
+    <tr><td>B2B</td><td>Business-to-business (selling to shops).</td></tr>
+    <tr><td>Ledger</td><td>A permanent list of money movements for one party.</td></tr>
+    <tr><td>2FA</td><td>Second sign-in step with a code from your phone.</td></tr>
+    <tr><td>BIN</td><td>Business Identification Number (printed on invoices).</td></tr>
+    <tr><td>Paisa</td><td>1/100 of a taka. The system stores money in paisa internally.</td></tr>
+  </tbody>
+</table>
+</div>
+<div data-l="bn"><h1>মালিকের ম্যানুয়াল</h1>
+<p class="lead">অ্যাডমিন প্যানেল থেকে কীভাবে আপনার অনলাইন শপ চালাবেন: অর্ডার নেওয়া, পার্সেল পাঠানো, পণ্য সামলানো, অফার চালানো, সাপ্লায়ারকে টাকা দেওয়া এবং সেলস রিপ্রেজেন্টেটিভদের হিসাব রাখা। কোনো টেকনিক্যাল জ্ঞান লাগবে না।</p>
+<div class="callout ok"><strong class="t">অ্যাডমিন প্যানেল ইংরেজিতে</strong>স্ক্রিনের নাম ও বোতাম ইংরেজিতে। তাই এই ম্যানুয়ালে সেগুলো ইংরেজিতেই (উদ্ধৃতি চিহ্নে) রাখা হয়েছে, যাতে স্ক্রিনের সাথে মেলানো যায়। আপনার কাস্টমাররা শপ ইংরেজি বা বাংলায় দেখে।</div>
+
+<h2 id="bn-start">১. শুরু করা</h2>
+<h3 id="bn-login">সাইন ইন</h3>
+<ol class="steps">
+  <li>আপনার ডেভেলপারের দেওয়া অ্যাডমিন ঠিকানা খুলে ইমেইল ও পাসওয়ার্ড দিন।</li>
+  <li><strong>টু-স্টেপ ভেরিফিকেশন (2FA):</strong> প্রথমবার একটি অথেন্টিকেটর অ্যাপ (Google Authenticator, Microsoft Authenticator, Authy) দিয়ে QR কোড স্ক্যান করবেন। এরপর থেকে পাসওয়ার্ডের পর অ্যাপের ৬ অঙ্কের কোড দিতে হবে।</li>
+  <li>সেটআপের সময় দেখানো <strong>১০টি ব্যাকআপ কোড সংরক্ষণ করুন</strong> (প্রিন্ট করুন বা লিখে রাখুন, গোপন রাখুন)। ফোন হারালে প্রতিটি কোড একবার কাজ করবে।</li>
+</ol>
+<div class="callout warn"><strong class="t">ফোন হারিয়েছে, ব্যাকআপ কোডও নেই?</strong>অনুমতিপ্রাপ্ত অন্য কোনো স্টাফ আপনার 2FA রিসেট করে দিতে পারবেন, অথবা ডেভেলপারকে জানান। তালাবন্ধ হতে পারেন, কিন্তু অন্যের ডেটা দেখতে পারবেন না।</div>
+<ul>
+  <li>৮ ঘণ্টা কিছু না করলে স্বয়ংক্রিয়ভাবে সাইন আউট হবে (আর ৭ দিন পর সবসময়)।</li>
+  <li>নতুন কম্পিউটার বা ফোন থেকে সাইন ইন করলে ইমেইলে সতর্কতা আসে। আপনি না হলে এখনই পাসওয়ার্ড বদলান।</li>
+  <li>অনেকবার ভুল পাসওয়ার্ড দিলে সাইন-ইন সাময়িক (প্রায় ১৫ মিনিট) বন্ধ থাকে।</li>
+  <li>ওপরে ডানে অ্যাকাউন্ট মেনু: পাসওয়ার্ড বদল ও সাইন আউট। থিম সুইচ লাইট / ডার্ক / অটো বদলায়।</li>
+</ul>
+
+<h3 id="bn-layout">স্ক্রিনে কী দেখবেন</h3>
+<table>
+  <thead><tr><th>অংশ</th><th>কাজ</th></tr></thead>
+  <tbody>
+    <tr><td>বাঁ পাশের সাইডবার</td><td>সব স্ক্রিন, গ্রুপ করা। আপনার রোল যা অনুমতি দেয় শুধু সেগুলোই দেখবেন।</td></tr>
+    <tr><td>ওপরের সার্চ</td><td>পণ্য খোঁজে।</td></tr>
+    <tr><td>ঘণ্টা আইকন</td><td>Call queue-তে অপেক্ষমাণ অর্ডারের সংখ্যা। ক্লিক করলে খোলে।</td></tr>
+    <tr><td>Dashboard</td><td>প্রথম পাতা। এখন শুধু প্লেসহোল্ডার; আসল বিক্রির রিপোর্ট এখনো তৈরি হয়নি।</td></tr>
+  </tbody>
+</table>
+
+<h2 id="bn-map">২. স্ক্রিনের মানচিত্র</h2>
+<table>
+  <thead><tr><th>সাইডবার গ্রুপ</th><th>স্ক্রিন</th><th>কী কাজে</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Sales</strong></td><td>Orders · Call queue · Shipments · Returns &amp; refunds · Refunds</td><td>অর্ডার আসা থেকে ডেলিভারি ও রিটার্ন পর্যন্ত সামলানো।</td></tr>
+    <tr><td><strong>Catalog</strong></td><td>Products · Categories &amp; attributes · Brands · Inventory · Import / Export</td><td>কী বিক্রি করছেন, কীভাবে সাজানো, আর স্টকে কত আছে।</td></tr>
+    <tr><td><strong>Marketing</strong></td><td>Coupons &amp; discounts · Flash sales · Bulk sales · Home &amp; feed</td><td>অফার এবং শপের হোম পেজে কী দেখাবে।</td></tr>
+    <tr><td><strong>People &amp; partners</strong></td><td>Suppliers &amp; POs · Purchase orders · SR approvals · B2B shops · Collections · SR team · B2B dues · Delivery &amp; couriers</td><td>মাল কেনা, সেলস রিপ্রেজেন্টেটিভ (SR) দিয়ে দোকানে পাইকারি বিক্রি, ডেলিভারি চার্জ।</td></tr>
+    <tr><td><strong>System</strong></td><td>Staff · Roles &amp; permissions · Settings</td><td>কে কী করতে পারবে, আর পুরো স্টোরের সুইচ।</td></tr>
+  </tbody>
+</table>
+
+<h2 id="bn-daily">৩. একটি সাধারণ দিন</h2>
+<ol class="steps">
+  <li><strong>সকালে:</strong> <em>Call queue</em> খুলুন। চিহ্নিত প্রতিটি কাস্টমারকে ফোন করে ফলাফল লিখুন (অংশ ৫)।</li>
+  <li><em>Orders</em> খুলে নতুনগুলো ফিল্টার করুন। হোল্ডে থাকা বা অস্বাভাবিক কিছু দেখুন।</li>
+  <li><em>Shipments</em> খুলুন। রেডি অর্ডার প্যাক করুন, কুরিয়ার বুক করুন, লেবেল ও ইনভয়েস প্রিন্ট করুন, পার্সেল কুরিয়ারকে দিন (অংশ ৬)।</li>
+  <li><em>Inventory</em>: কম স্টকের পণ্য দেখে কেনার পরিকল্পনা করুন (অংশ ১০)।</li>
+  <li><em>Returns &amp; refunds</em>: রিটার্ন অনুমোদন, গ্রহণ ও ইন্সপেক্ট করুন (অংশ ৭)।</li>
+  <li>SR দিয়ে বিক্রি করলে <em>Collections</em> ও <em>SR approvals</em> দেখুন (অংশ ১১)।</li>
+</ol>
+
+<h2 id="bn-orders">৪. অর্ডার</h2>
+<p>এখন কাস্টমার <strong>ক্যাশ অন ডেলিভারি (COD)</strong>-এ দাম দেয়। অনলাইন পেমেন্ট (বিকাশ, নগদ, কার্ড) এখনো চালু হয়নি।</p>
+<h3 id="bn-order-status">অর্ডারের স্ট্যাটাস</h3>
+<table>
+  <thead><tr><th>স্ট্যাটাস</th><th>অর্থ</th><th>এরপর কী</th></tr></thead>
+  <tbody>
+    <tr><td><code>processing</code></td><td>গৃহীত। এর জন্য স্টক রিজার্ভ আছে।</td><td>শিপমেন্ট বানান।</td></tr>
+    <tr><td><code>on_hold</code></td><td>আপনি থামিয়ে রেখেছেন (যেমন কাস্টমারের অপেক্ষায়)।</td><td>চালাতে “Resume” দিন।</td></tr>
+    <tr><td><code>partially_shipped</code></td><td>কিছু আইটেম গেছে, কিছু বাকি।</td><td>বাকিটা পাঠান।</td></tr>
+    <tr><td><code>shipped</code></td><td>সব আইটেম কুরিয়ারকে দেওয়া হয়েছে।</td><td>ডেলিভারির অপেক্ষা।</td></tr>
+    <tr><td><code>delivered</code></td><td>কুরিয়ার ডেলিভারি দিয়ে ক্যাশ নিয়েছে।</td><td>রিটার্ন উইন্ডো চলে (ডিফল্ট ৭ দিন)।</td></tr>
+    <tr><td><code>completed</code></td><td>ডেলিভারি হয়ে রিটার্ন উইন্ডোও শেষ। সম্পন্ন।</td><td>স্বয়ংক্রিয়।</td></tr>
+    <tr><td><code>cancelled</code></td><td>বাতিল। স্টক ও কুপন ব্যবহার ফেরত আসে।</td><td>—</td></tr>
+  </tbody>
+</table>
+<p>“shipped” বা “delivered” আপনি <strong>হাতে</strong> বসান না। শিপমেন্ট অনুযায়ী এগুলো নিজে নিজে হয়।</p>
+<h3 id="bn-order-detail">অর্ডার সামলানো</h3>
+<ul>
+  <li><strong>Orders</strong> তালিকায় ফিল্টার ও সার্চ আছে। একটিতে ক্লিক করলে বিস্তারিত পাতা: কাস্টমার, ঠিকানা, আইটেম, ডিসকাউন্ট, পেমেন্ট, শিপমেন্ট, এবং প্রতিটি স্ট্যাটাস বদলের ইতিহাস (কে করেছে সহ)।</li>
+  <li><strong>Hold / Resume:</strong> কারণ লিখে অর্ডার থামান ও আবার চালু করুন।</li>
+  <li><strong>Cancel:</strong> কারণ চাইবে। কুরিয়ার বুকিং থাকলে হবে না; আগে শিপমেন্ট বাতিল করুন।</li>
+  <li><strong>Invoice:</strong> A4 ইনভয়েস তৈরি ও প্রিন্ট (দামে ভ্যাট ধরা; Settings-এ ভরলে আপনার BIN ও ভ্যাট দেখাবে)। ইস্যুর পর ইনভয়েস ফ্রিজ হয়, তাই পুনঃপ্রিন্ট সবসময় এক।</li>
+  <li>অর্ডারের দাম পরে আর বদলায় না, পরে পণ্য বা কুপন এডিট করলেও না।</li>
+</ul>
+
+<h2 id="bn-callq">৫. কল কিউ (Call queue)</h2>
+<p>সব অর্ডারে ফোন লাগে না। সিস্টেম শুধু ঝুঁকিপূর্ণগুলো চিহ্নিত করে:</p>
+<ul>
+  <li>একই ফোন বা ঠিকানা থেকে একদিনে অনেকবার অর্ডার;</li>
+  <li>ক্যাশ অন ডেলিভারি মোট ৳৫,০০০-এর বেশি (বদলানো যায়);</li>
+  <li>কাস্টমারের প্রথম গেস্ট (লগইন ছাড়া) অর্ডার।</li>
+</ul>
+<p>অর্ডার তবু চলতে থাকে। কিউ শুধু কনফার্ম করার কথা মনে করায়। প্রতিটির জন্য “Log call” চেপে ফলাফল বাছুন:</p>
+<table>
+  <thead><tr><th>ফলাফল</th><th>প্রভাব</th></tr></thead>
+  <tbody>
+    <tr><td>Confirmed</td><td>অর্ডার স্বাভাবিকভাবে চলে।</td></tr>
+    <tr><td>Unreachable</td><td>লেখা থাকে; পরে আবার চেষ্টা বা বাতিল করুন।</td></tr>
+    <tr><td>Cancelled</td><td>কাস্টমার না বলেছে; অর্ডার বাতিল।</td></tr>
+  </tbody>
+</table>
+<p>একটি নোট যোগ করুন; অর্ডারে থেকে যাবে। সীমা বদলাতে <em>Settings → call queue</em>।</p>
+
+<h2 id="bn-ship">৬. শিপমেন্ট ও কুরিয়ার</h2>
+<ol class="steps">
+  <li><em>Shipments</em> (বা অর্ডার পাতা) থেকে অর্ডারের আইটেম দিয়ে শিপমেন্ট বানান। একটি অর্ডার কয়েকটি পার্সেলে ভাগ করা যায়।</li>
+  <li><strong>Book courier:</strong> কুরিয়ার বাছুন (Steadfast, Pathao)। সিস্টেম পার্সেলের তথ্য পাঠায় এবং কনসাইনমেন্ট নম্বর ও ট্র্যাকিং লিংক রাখে।</li>
+  <li><strong>৪x৬ ইঞ্চি লেবেল</strong> (অর্ডার নম্বর, ঠিকানা, আদায়ের টাকা, বারকোড) ও ইনভয়েস প্রিন্ট করুন; লেবেল পার্সেলে লাগান।</li>
+  <li>কুরিয়ার নিলে <strong>Mark handed over</strong> দিন। এখন আপনার গুদামের স্টক গণনা থেকে বের হয়।</li>
+  <li><strong>Sync status</strong> কুরিয়ারের সর্বশেষ অবস্থা আনে। প্রতি ১০ মিনিটে এটি নিজেও হয়।</li>
+</ol>
+<ul>
+  <li>ডেলিভারি চার্জ একবারই নেওয়া হয়, প্রথম পাঠানো পার্সেলে।</li>
+  <li>কুরিয়ার ডেলিভারি দিতে না পারলে (failed) অর্ডার স্বয়ংক্রিয়ভাবে বাতিল <em>হয় না</em>। আপনি ঠিক করুন: আবার বুক, নাকি বাতিল।</li>
+  <li>আসল কুরিয়ার সংযোগের জন্য Steadfast / Pathao থেকে আপনার মার্চেন্ট API কী লাগবে। ডেভেলপার যোগ না করা পর্যন্ত শুধু পরীক্ষামূলক “fake” কুরিয়ার চলে। <strong>চালুর আগে ডেভেলপারকে দিয়ে এটি সেট করিয়ে নিন।</strong></li>
+</ul>
+
+<h2 id="bn-returns">৭. রিটার্ন ও রিফান্ড</h2>
+<div class="flow"><span class="n">Requested</span><span class="a">→</span><span class="n">Approve / Reject</span><span class="a">→</span><span class="n">Pickup booked</span><span class="a">→</span><span class="n">Mark received</span><span class="a">→</span><span class="n">Inspect</span><span class="a">→</span><span class="n">Refund</span><span class="a">→</span><span class="n">Close return</span></div>
+<ul>
+  <li>কাস্টমার ডেলিভারির <strong>৭ দিনের</strong> মধ্যে নিজের অ্যাকাউন্ট থেকে রিটার্ন চাইতে পারে (Settings-এ বদলানো যায়; পণ্য বা ক্যাটেগরির আলাদা সময়ও দেওয়া যায়)।</li>
+  <li><strong>Inspect:</strong> প্রতি আইটেমে <em>resellable</em> (“Restock” দিলে স্টকে ফেরে) বা <em>damaged</em> (স্টকে ফেরে না) বাছুন।</li>
+  <li><strong>দোষ (Fault):</strong> “ours” (ভুল/নষ্ট পণ্য) হলে রিটার্ন শিপিং আপনি দেবেন। “customer” (মত বদল) হলে কাস্টমার দেবে।</li>
+  <li><strong>Refund</strong> অঙ্ক প্রতি আইটেমের পাওয়া ডিসকাউন্ট বাদ দিয়ে হিসাব হয়। “original” মাধ্যমে বা “wallet”-এ ফেরত। শুধু COD চালু থাকায় টাকা আপনি নিজে ফেরত দেবেন, তারপর <strong>Mark paid out</strong> চাপবেন।</li>
+  <li><strong>অনুমোদন নিয়ম:</strong> ৳৩,০০০-এর (বদলানো যায়) ওপরের রিফান্ড “approve refunds” অনুমতিওয়ালা <em>অন্য</em> একজন স্টাফকে অনুমোদন দিতে হবে। একজন নিজেই নিজের কাছে রিফান্ড করা থেকে এটি আপনাকে বাঁচায়।</li>
+</ul>
+
+<h2 id="bn-catalog">৮. পণ্য ও ক্যাটালগ</h2>
+<h3 id="bn-product-new">পণ্য যোগ করা</h3>
+<ol class="steps">
+  <li><em>Catalog → Products → New product</em>। ট্যাব: <strong>Basics</strong> (ইংরেজি/বাংলা টাইটেল, ব্র্যান্ড, ক্যাটেগরি, স্ট্যাটাস), <strong>Description</strong> (রিচ টেক্সট, EN/BN), <strong>Attributes</strong> (“Material”-এর মতো স্পেক), <strong>Variants</strong>, ছবি (<strong>Media</strong>), <strong>Shipping</strong> (ওজন, ডেলিভারি চার্জ ওভাররাইড, রিটার্ন উইন্ডো)।</li>
+  <li><strong>Variants:</strong> ভ্যারিয়েন্ট মানে একটি বিক্রয়যোগ্য সংস্করণ (যেমন “লাল / M”)। সর্বোচ্চ <strong>দুটি অপশন</strong> (রং, সাইজ) যোগ করলে কম্বিনেশনের ছক আসে। অপশন না থাকলে একটিই ভ্যারিয়েন্ট। প্রতিটির নিজস্ব <strong>SKU</strong> (ইউনিক কোড), <strong>দাম</strong>, ঐচ্ছিক <strong>আগের দাম</strong> (কাটা দাগ দিয়ে দেখায়), তারিখসহ <strong>সেল প্রাইস</strong>, <strong>কস্ট প্রাইস</strong> (শুধু অনুমতিওয়ালারা দেখেন) ও ওজন।</li>
+  <li>সব টাকার অঙ্ক <strong>টাকায়</strong> দিন (যেমন ১২৫.৫০)।</li>
+  <li><strong>ছবি:</strong> আপলোড করুন; টেনে ক্রম বদলান; প্রথমটি মূল ছবি। অতি বড় বা অতি হাই-রেজোলিউশন ছবি প্রত্যাখ্যাত হয় এবং ক্যামেরার লোকেশন তথ্য মুছে ফেলা হয়।</li>
+  <li><strong>স্ট্যাটাস:</strong> <code>draft</code> (লুকানো), <code>active</code> (শপে দৃশ্যমান), <code>archived</code> (লুকানো, ইতিহাস থাকে)। যে পণ্যের অর্ডার হয়েছে তা মোছা যায় না; আর্কাইভ করুন।</li>
+  <li>সেভ করুন। কিছু বাদ পড়লে “Problems” তালিকা জানাবে।</li>
+</ol>
+<h3 id="bn-catalog-other">ক্যাটেগরি, ব্র্যান্ড, ইনভেন্টরি, ইমপোর্ট/এক্সপোর্ট</h3>
+<table>
+  <thead><tr><th>স্ক্রিন</th><th>কীভাবে ব্যবহার করবেন</th></tr></thead>
+  <tbody>
+    <tr><td>Categories &amp; attributes</td><td>সর্বোচ্চ ৪ স্তরের গাছ (যেমন Fashion → Men → Shirts)। টেনে ক্রম বদলান। শীর্ষ স্তরের ক্যাটেগরিতে ছবি লাগে। ক্যাটেগরিভিত্তিক “attributes” যোগ করুন (যেমন সাইজ, স্পেক); ফিল্টারযোগ্যগুলো শপে ফিল্টার হয়ে আসে। “Show on home” দিলে ক্যাটেগরি হোম পেজে আসে।</td></tr>
+    <tr><td>Brands</td><td>নাম (EN/BN) ও লোগো।</td></tr>
+    <tr><td>Inventory</td><td>ভ্যারিয়েন্টপ্রতি স্টক। <strong>On hand</strong> = গুদামে সত্যিই আছে। <strong>Reserved</strong> = খোলা অর্ডারের জন্য আটকানো। <strong>Available</strong> = on hand − reserved। সংখ্যা শোধরাতে “Adjust” (নোট বাধ্যতামূলক; প্রতিটি পরিবর্তন চিরদিনের জন্য লগ হয়)। ভ্যারিয়েন্টপ্রতি <strong>low-stock threshold</strong> দিন; “Low stock only” ফিল্টার ব্যবহার করুন।</td></tr>
+    <tr><td>Import / Export</td><td>পণ্য Excel/CSV-তে নামান, অনেকগুলো একসাথে এডিট করে আবার আপলোড করুন। ব্যর্থ সারির রিপোর্ট দেখায়। Export আপনার ক্যাটালগের ব্যাকআপ কপিও।</td></tr>
+  </tbody>
+</table>
+<div class="callout warn"><strong class="t">ইমপোর্ট দিয়ে স্টক বদলাবেন না</strong>“Adjust” বা পারচেজ অর্ডারে মাল গ্রহণ ব্যবহার করুন, যাতে স্টক কেন বদলাল তার রেকর্ড থাকে।</div>
+
+<h2 id="bn-promo">৯. প্রমোশন</h2>
+<h3 id="bn-coupons">কুপন ও ডিসকাউন্ট</h3>
+<p>দুই ধরন: <strong>Code</strong> (কাস্টমার টাইপ করে, যেমন EID10) এবং <strong>Automatic</strong> (শর্ত মিললে নিজে প্রযোজ্য)। ধরন:</p>
+<table>
+  <thead><tr><th>ধরন</th><th>উদাহরণ</th></tr></thead>
+  <tbody>
+    <tr><td>Percent</td><td>১০% ছাড়, সর্বোচ্চ ৳৫০০</td></tr>
+    <tr><td>Fixed</td><td>৳১০০ ছাড়</td></tr>
+    <tr><td>Tiered</td><td>৳২,০০০ কিনলে ৳১০০; ৳৫,০০০ কিনলে ৳৪০০</td></tr>
+    <tr><td>Free delivery</td><td>ডেলিভারি চার্জ নেই</td></tr>
+    <tr><td>Buy X get Y</td><td>২টি কিনলে ১টি অর্ধেক দামে</td></tr>
+    <tr><td>Bundle</td><td>এই ৩টি একসাথে ৳৯৯৯</td></tr>
+  </tbody>
+</table>
+<p>নিয়ন্ত্রণ: শুরু/শেষ তারিখ, ন্যূনতম অর্ডার, কোন পণ্য/ক্যাটেগরি/ব্র্যান্ড (অন্তর্ভুক্ত বা বাদ), কোন ডেলিভারি জোন, কোন কাস্টমার (সবাই, প্রথম অর্ডার, নির্দিষ্ট, N দিন নিষ্ক্রিয়), ওয়েব/অ্যাপ, মোট ব্যবহার, কাস্টমার/ফোন/ডিভাইসপ্রতি ব্যবহার, মোট বাজেট, এবং সেল প্রাইস বা অন্য কুপনের সাথে মিলবে কিনা। স্ট্যাটাস: <em>draft</em> → <em>active</em> → <em>paused</em>। “Hidden” কুপন প্রকাশ্যে তালিকাভুক্ত হয় না; “public” কুপন শপের অফার পেজে আসে এবং কাস্টমার সংগ্রহ করতে পারে। <strong>Report</strong> ট্যাবে ব্যবহার ও দেওয়া ছাড় দেখা যায়। একসাথে অনেকগুলো এককালীন কোড বানানো যায়।</p>
+<p><strong>সহজ নিয়ম:</strong> কাস্টমার মেলানো যায় এমন সব অটোমেটিক ডিসকাউন্ট পায়, সাথে সর্বোচ্চ একটি টাইপ করা কোড (দুটো কেবল তখনই, যখন দুটোই মেলানোর অনুমতি দেয়)।</p>
+<h3 id="bn-flash">ফ্ল্যাশ সেল</h3>
+<p>সময়সীমা বাছুন, বিশেষ দাম ও <strong>পরিমাণ সীমা</strong> দিয়ে ভ্যারিয়েন্ট যোগ করুন। শপে কাউন্টডাউন দেখায়। সীমা শেষ হলে (বা কাস্টমারের নিজস্ব সীমা পূর্ণ হলে) ওই দামে আর বিক্রি হয় না। অর্ডার যে ফ্ল্যাশ দামে হয়েছে সেটাই থাকে।</p>
+<h3 id="bn-bulk">বাল্ক সেল</h3>
+<p>একটি পুরো ক্যাটেগরি, ব্র্যান্ড বা পণ্যের তালিকা একসাথে সেলে দিন: শতাংশ বা নির্দিষ্ট অঙ্ক ছাড়, তারিখসহ। আগে <strong>Preview</strong> দেখুন; নতুন দাম দেখাবে। <strong>Undo</strong> আগের সেল প্রাইস হুবহু ফিরিয়ে দেয়।</p>
+<h3 id="bn-home">Home &amp; feed</h3>
+<p>হোম পেজের <strong>ক্যারোসেল স্লাইড</strong> সামলান: ডেস্কটপ ও মোবাইল ছবি, লিংক (যেমন <code>/p/product-name</code>), শুরু/শেষ তারিখ, ভাষা (সব / ইংরেজি / বাংলা), অন/অফ, ক্রম। হোম ফিডের ক্রমের ওজনও এই মেনুর অধীনে (“content” অনুমতি লাগে)।</p>
+
+<h2 id="bn-buy">১০. সাপ্লায়ার ও পারচেজ অর্ডার</h2>
+<ol class="steps">
+  <li><strong>Suppliers &amp; POs:</strong> সাপ্লায়ার যোগ করুন (যোগাযোগ, পেমেন্ট শর্ত, “ship mode”: সাধারণত <em>Via our warehouse first</em>)। সাপ্লায়ারের পাতায়: বিবরণ, তাঁর সরবরাহ করা পণ্য (শেষ দামসহ), এবং <strong>ledger</strong> (আপনি কত দেনা)।</li>
+  <li><strong>Purchase orders → New:</strong> সাপ্লায়ার বাছুন, ভ্যারিয়েন্ট, পরিমাণ ও একক কস্ট যোগ করুন। <code>draft</code> হিসেবে সেভ করে ইচ্ছামতো এডিট করুন।</li>
+  <li><strong>Send to supplier:</strong> PO লক হয় এবং (সাপ্লায়ারের ইমেইল থাকলে) ইমেইলে যায়। অন্যভাবে দিতে A4 প্রিন্ট ভিউ ব্যবহার করুন।</li>
+  <li>মাল এলে <strong>গ্রহণ (Receive)</strong> করুন: প্রতি লাইনে <em>ভালো</em> ও <em>রিজেক্ট</em> পরিমাণ দিন। অর্ডারের বেশি নেওয়া যায় না। শুধু ভালো আইটেম স্টকে ও আপনার দেনায় যায়। আপনার আইটেমের <em>কস্ট প্রাইস নিজে হালনাগাদ</em> হয় (ওয়েটেড অ্যাভারেজ)।</li>
+  <li>বাকিটা কখনো না এলে <strong>Close PO</strong>: অনুপস্থিত অংশের জন্য আর কিছু দেনা থাকে না।</li>
+  <li><strong>সাপ্লায়ারকে টাকা দিন:</strong> সাপ্লায়ারের লেজারে পেমেন্ট লিখুন (ক্যাশ / বিকাশ / নগদ / ব্যাংক + রেফারেন্স)। ক্রেডিট নোট বা ওপেনিং ব্যালেন্সের জন্য adjustment। এন্ট্রি এডিট করা যায় না; ভুল হলে উল্টো এন্ট্রি (reversal) দিয়ে শোধরান।</li>
+</ol>
+<p>স্ট্যাটাস: <code>draft</code> → <code>sent</code> → <code>partially_received</code> → <code>received</code> (বা <code>closed</code> / <code>cancelled</code>)। PO তালিকায় “received value”-ও দেখায়, মানে যা সত্যিই এসেছে তার টাকার মূল্য।</p>
+
+<h2 id="bn-sr">১১. সেলস রিপ্রেজেন্টেটিভ (SR) ও পাইকারি দোকান (B2B)</h2>
+<p>আপনার SR-রা ফোনে আলাদা <strong>পার্টনার পোর্টাল</strong> ব্যবহার করে স্থানীয় দোকানে বাকিতে বিক্রি করে। অ্যাডমিনে আপনি অনুমোদন, ডেলিভারি ও টাকার হিসাব নিয়ন্ত্রণ করেন।</p>
+<ol class="steps">
+  <li>SR একটি দোকানের জন্য সেল মেমো জমা দেয় (মাঠ থেকে যোগ করা দোকান আপনার পর্যালোচনার জন্য “new” চিহ্নিত থাকে)।</li>
+  <li><strong>SR approvals:</strong> অনুমোদন (স্টক রিজার্ভ হয়) বা কারণসহ বাতিল।</li>
+  <li><strong>Delivered</strong> চিহ্নিত করুন (SR বা স্টাফ দ্বারা)। এখন দোকান টাকাটি দেনা (বিক্রির সময় যা দিয়েছে তা বাদে)।</li>
+  <li><strong>Collections:</strong> SR দোকান থেকে আদায়ের টাকা লেখে। টাকা সত্যিই আপনার কাছে পৌঁছালে আপনি <strong>confirm</strong> করেন, নয়তো কারণসহ reject। শুধু কনফার্ম করা টাকাই দোকানের বাকি কমায়।</li>
+  <li><strong>B2B dues:</strong> কার কত বাকি আর কতদিনের পুরনো, যাতে জানেন কার পেছনে লাগতে হবে। <strong>B2B shops</strong> পাতায় প্রতিটি দোকানের লেজার দেখা ও দোকান ব্লক করা যায়।</li>
+  <li><strong>SR team:</strong> এলাকা, মাসিক টার্গেট ও কমিশন ঠিক করুন (ডিফল্ট আদায়ের ১%, SR-ভিত্তিক ওভাররাইড সম্ভব)। কমিশন গোনার পরে কোনো সেল reverse হলে পরের কমিশন থেকে কর্তন হয়।</li>
+</ol>
+
+<h2 id="bn-delivery">১২. ডেলিভারি চার্জ</h2>
+<p><em>Delivery &amp; couriers</em> ঠিক করে কাস্টমার ডেলিভারির জন্য কত দেবে। একটি <strong>জোনে</strong> থাকে বেস চার্জ (বেস ওজনের জন্য, ডিফল্ট ১ কেজি), প্রতি অতিরিক্ত কেজির চার্জ, আনুমানিক ডেলিভারি দিন, এবং ঐচ্ছিক “অর্ডার ৳X ছুঁলে ফ্রি” (বা সবসময় ফ্রি)। “Coverage” জোনে জেলা, উপজেলা বা এলাকা বসায়। প্রতিটি লোকেশন একটি জোনেই থাকে; একটি জোন <strong>ডিফল্ট</strong> যা বাকি সব ধরে।</p>
+
+<h2 id="bn-team">১৩. স্টাফ, রোল ও সেটিংস</h2>
+<h3 id="bn-staff">স্টাফ ও রোল</h3>
+<ul>
+  <li><strong>Staff:</strong> মানুষ যোগ করুন, রোল দিন, চলে গেলে disable করুন (ডিলিট নয়), তাদের 2FA রিসেট করুন।</li>
+  <li><strong>Roles &amp; permissions:</strong> রোল হলো নামকরা পারমিশনের সেট (যেমন “Warehouse”: ইনভেন্টরি + শিপমেন্ট + মাল গ্রহণ)। একজনের একাধিক রোল থাকতে পারে। বিল্ট-ইন <strong>Owner</strong> রোলে সবকিছু আছে, এডিট বা মোছা যায় না; শেষ Owner সরানো যায় না।</li>
+  <li>নিজের যে পারমিশন আছে শুধু সেটাই অন্যকে দিতে পারবেন।</li>
+</ul>
+<p>শুরুর জন্য প্রস্তাবিত রোল: <strong>Manager</strong> (স্টাফ/রোল/সেটিংস বাদে সব), <strong>Order desk</strong> (অর্ডার, কল কিউ, রিটার্ন), <strong>Warehouse</strong> (শিপমেন্ট, ইনভেন্টরি, মাল গ্রহণ), <strong>Catalog editor</strong> (পণ্য, ক্যাটেগরি, ব্র্যান্ড), <strong>Accountant</strong> (অর্ডার দেখা, সাপ্লায়ার পেমেন্ট, B2B বাকি)। কস্ট প্রাইস ও রিফান্ড অনুমোদন শুধু বিশ্বস্ত লোককে দিন।</p>
+<h3 id="bn-settings">সেটিংস</h3>
+<table>
+  <thead><tr><th>সেটিং</th><th>কী করে</th></tr></thead>
+  <tbody>
+    <tr><td>Maintenance mode</td><td>শপের জায়গায় কাস্টমারকে “শীঘ্রই ফিরছি” বার্তা দেখায়। অ্যাডমিন চলতে থাকে।</td></tr>
+    <tr><td>Announcement bar</td><td>শপের ওপরে বার্তার বার (EN/BN, লিংক, ঐচ্ছিক তারিখ)।</td></tr>
+    <tr><td>Store info</td><td>ইনভয়েসে ছাপা নাম, ঠিকানা, ফোন, ইমেইল, BIN ও ভ্যাট হার (১৫%)। <strong>ইনভয়েস ছাপার আগে এটি পূরণ করুন।</strong></td></tr>
+    <tr><td>Shop contact</td><td>শপে দেখানো হটলাইন ও ইমেইল।</td></tr>
+    <tr><td>Call queue</td><td>কখন অর্ডারে কনফার্মেশন কল লাগবে।</td></tr>
+    <tr><td>Returns</td><td>রিটার্ন উইন্ডোর দিন এবং রিফান্ড অনুমোদনের সীমা।</td></tr>
+    <tr><td>Checkout / Guest orders</td><td>গেস্টের OTP সীমা এবং অপব্যবহার ঠেকানোর সীমা।</td></tr>
+    <tr><td>Staff session timeout, customer sign-in days</td><td>মানুষ কতক্ষণ সাইন ইন থাকবে।</td></tr>
+    <tr><td>SR default commission</td><td>সেলস রিপ্রেজেন্টেটিভের ডিফল্ট %।</td></tr>
+    <tr><td>Online payments, Advance payments, Pre-orders</td><td>ভবিষ্যৎ ফিচারের সুইচ। বন্ধ রাখুন; এখনো কিছু করে না।</td></tr>
+  </tbody>
+</table>
+
+<h2 id="bn-data">১৪. সিস্টেম কী কী তথ্য রাখে</h2>
+<table>
+  <thead><tr><th>তথ্য</th><th>মন্তব্য</th></tr></thead>
+  <tbody>
+    <tr><td>কাস্টমার</td><td>নাম, ফোন, ইমেইল, এনক্রিপ্টেড পাসওয়ার্ড, সেভ করা ঠিকানা, উইশলিস্ট, অর্ডারের ইতিহাস, সংগ্রহ করা কুপন।</td></tr>
+    <tr><td>অর্ডার</td><td>সেদিনের আইটেম ও দাম, ডেলিভারি ঠিকানার লেখা, ব্যবহৃত ডিসকাউন্ট, ঝুঁকির চিহ্ন, কলের ফলাফল, প্রতিটি স্ট্যাটাস বদল (কে করেছে সহ)।</td></tr>
+    <tr><td>স্টক</td><td>বর্তমান সংখ্যা এবং প্রতিটি পরিবর্তনের স্থায়ী লগ (কে, কখন, কেন)। এডিট বা ডিলিট করা যায় না।</td></tr>
+    <tr><td>টাকার রেকর্ড</td><td>দোকানের বাকি, সাপ্লায়ারের দেনা, রিফান্ড, SR কমিশন। এগুলো স্থায়ী লেজার; শুধু উল্টো এন্ট্রি যোগ করে শোধরানো যায়।</td></tr>
+    <tr><td>স্টাফ</td><td>লগইন, রোল, শেষ সাইন-ইন, ব্যবহৃত ডিভাইস। পাসওয়ার্ড ও 2FA সিক্রেট এনক্রিপ্টেড/হ্যাশ করা; কেউ পড়তে পারে না।</td></tr>
+    <tr><td>ছবি</td><td>ডেটাবেস থেকে আলাদা জায়গায় রাখা এবং ইমেজ সার্ভিস দিয়ে দ্রুত পরিবেশন করা হয়।</td></tr>
+  </tbody>
+</table>
+<p>মোছা ইচ্ছা করেই সীমিত। ইতিহাসওয়ালা জিনিস আর্কাইভ বা disable হয়, মুছে ফেলা হয় না, যাতে আপনার রেকর্ড নির্ভরযোগ্য থাকে।</p>
+
+<h2 id="bn-safe">১৫. ভালো অভ্যাস ও নিরাপত্তা</h2>
+<ul>
+  <li>প্রত্যেকের নিজের অ্যাকাউন্ট দিন। লগইন কখনো শেয়ার করবেন না।</li>
+  <li>কেউ চলে গেলে সেদিনই অ্যাকাউন্ট disable করুন।</li>
+  <li>সবার জন্য 2FA চালু রাখুন। ব্যাকআপ কোড নিরাপদে রাখুন।</li>
+  <li>ডেভেলপারকে নিয়মিত ডেটাবেস ব্যাকআপ নিতে এবং 2FA এনক্রিপশন কী নিরাপদে রাখতে বলুন।</li>
+  <li>বাল্ক সেলে “Preview” ও “Undo” ব্যবহার করুন; নতুন কুপন আগে ছোট বাজেট সীমায় পরীক্ষা করুন।</li>
+  <li>মাঝে মাঝে গুদামে হাতে গুনে স্টক মেলান, পার্থক্য থাকলে নোটসহ “Adjust” দিন।</li>
+</ul>
+
+<h2 id="bn-missing">১৬. যা এখনো নেই</h2>
+<ul>
+  <li>অনলাইন পেমেন্ট (বিকাশ, নগদ, কার্ড), কাস্টমার ওয়ালেট, লয়্যালটি পয়েন্ট, রেফারেল রিওয়ার্ড।</li>
+  <li>OTP কোডের আসল SMS পাঠানো। চালুর আগে একটি প্রোভাইডার ঠিক করতে হবে।</li>
+  <li>Steadfast / Pathao-তে সরাসরি বুকিং (আপনার মার্চেন্ট কী লাগবে)।</li>
+  <li>বিক্রির রিপোর্ট ও কার্যকর ড্যাশবোর্ড।</li>
+  <li>সাপ্লায়ার পোর্টাল ও সরাসরি-সাপ্লায়ার-থেকে (ড্রপশিপ) বিক্রি, অ্যাফিলিয়েট প্রোগ্রাম, পণ্য রিভিউ, অ্যাবান্ডনড-কার্ট রিমাইন্ডার, ইভেন্ট ও পেজ বিল্ডার।</li>
+  <li>স্টাফের কাজের আলাদা অডিট লগ (তবে অর্ডার, স্টক ও লেজারের ইতিহাস কে কী করেছে তা রাখে)।</li>
+</ul>
+
+<h2 id="bn-faq">১৭. দ্রুত উত্তর</h2>
+<table>
+  <thead><tr><th>সমস্যা</th><th>কী করবেন</th></tr></thead>
+  <tbody>
+    <tr><td>শপে পণ্য দেখা যাচ্ছে না</td><td>স্ট্যাটাস <code>active</code> হতে হবে এবং দামসহ অন্তত একটি সক্রিয় ভ্যারিয়েন্ট লাগবে। স্টক না থাকলে কেনা যায় না। শপে পরিবর্তন আসতে এক মিনিট পর্যন্ত লাগতে পারে।</td></tr>
+    <tr><td>অর্ডার বাতিল করা যাচ্ছে না</td><td>কুরিয়ারে শিপমেন্ট বুক করা আছে। আগে শিপমেন্ট বাতিল করুন।</td></tr>
+    <tr><td>পণ্য, ক্যাটেগরি বা ভ্যারিয়েন্ট মোছা যাচ্ছে না</td><td>অর্ডার বা স্টক ইতিহাস আছে। বদলে আর্কাইভ করুন।</td></tr>
+    <tr><td>স্টকের সংখ্যা ভুল মনে হচ্ছে</td><td>Inventory → ভ্যারিয়েন্ট → স্টক হিস্ট্রিতে প্রতিটি পরিবর্তন ও কে করেছে দেখুন।</td></tr>
+    <tr><td>মেনুর কোনো আইটেম দেখছি না</td><td>আপনার রোলে সেই পারমিশন নেই। Owner-কে বলুন।</td></tr>
+    <tr><td>সাপ্লায়ারের ভুল পেমেন্ট লিখে ফেলেছি</td><td>এডিট করা যায় না। নোটসহ উল্টো এন্ট্রি (reversal) দিন, তারপর সঠিক পেমেন্ট লিখুন।</td></tr>
+    <tr><td>কাস্টমার বলছে কুপন কাজ করেনি</td><td>তারিখ, ন্যূনতম অর্ডার, নির্দিষ্ট পণ্য, ব্যবহারের সীমা এবং তার অন্য অফারের সাথে মেলে কিনা দেখুন। কুপনের Report ট্যাবে ব্যবহার দেখা যায়।</td></tr>
+    <tr><td>শপে “maintenance” দেখাচ্ছে</td><td>Settings-এ Maintenance mode বন্ধ করুন।</td></tr>
+  </tbody>
+</table>
+
+<h2 id="bn-glossary">১৮. শব্দকোষ</h2>
+<table>
+  <thead><tr><th>শব্দ</th><th>অর্থ</th></tr></thead>
+  <tbody>
+    <tr><td>SKU</td><td>একটি ভ্যারিয়েন্টের ইউনিক স্টক কোড।</td></tr>
+    <tr><td>Variant (ভ্যারিয়েন্ট)</td><td>পণ্যের একটি বিক্রয়যোগ্য সংস্করণ (সাইজ/রং)।</td></tr>
+    <tr><td>COD</td><td>ক্যাশ অন ডেলিভারি।</td></tr>
+    <tr><td>Reserved stock</td><td>এখনো না-পাঠানো অর্ডারের জন্য আটকানো স্টক।</td></tr>
+    <tr><td>PO</td><td>পারচেজ অর্ডার: সাপ্লায়ারের কাছে আপনার অর্ডার।</td></tr>
+    <tr><td>SR</td><td>দোকানে বিক্রয়কারী সেলস রিপ্রেজেন্টেটিভ।</td></tr>
+    <tr><td>B2B</td><td>ব্যবসা-থেকে-ব্যবসা (দোকানে বিক্রি)।</td></tr>
+    <tr><td>Ledger (লেজার)</td><td>একজন পক্ষের টাকার লেনদেনের স্থায়ী তালিকা।</td></tr>
+    <tr><td>2FA</td><td>ফোনের কোড দিয়ে সাইন-ইনের দ্বিতীয় ধাপ।</td></tr>
+    <tr><td>BIN</td><td>ব্যবসা শনাক্তকরণ নম্বর (ইনভয়েসে ছাপা হয়)।</td></tr>
+    <tr><td>পয়সা</td><td>টাকার ১/১০০ অংশ। সিস্টেম ভেতরে টাকা পয়সায় রাখে।</td></tr>
+  </tbody>
+</table>
+</div>
+</main>
+</div>
+<script>
+(function () {
+  var root = document.documentElement;
+  function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  var lang = get('bdc-manual-lang') || ((navigator.language || '').toLowerCase().indexOf('bn') === 0 ? 'bn' : 'en');
+  function apply(l) { root.setAttribute('data-lang', l); root.lang = l; set('bdc-manual-lang', l); }
+  apply(lang);
+  document.querySelectorAll('[data-set]').forEach(function (b) {
+    b.addEventListener('click', function () { apply(b.getAttribute('data-set')); window.scrollTo(0, 0); });
+  });
+  var th = get('bdc-manual-theme');
+  if (th) root.setAttribute('data-theme', th);
+  document.getElementById('themeBtn').addEventListener('click', function () {
+    var dark = root.getAttribute('data-theme') === 'dark' || (!root.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches);
+    var n = dark ? 'light' : 'dark';
+    root.setAttribute('data-theme', n); set('bdc-manual-theme', n);
+  });
+})();
+</script>
+</body>
+</html>
