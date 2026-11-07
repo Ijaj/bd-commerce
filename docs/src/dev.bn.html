@@ -148,6 +148,7 @@ pnpm --filter @bdc/api cli complete-orders</code></pre>
     <tr><td><code>REDIS_URL</code></td><td>Redis।</td></tr>
     <tr><td><code>S3_*</code>, <code>IMGPROXY_*</code></td><td>ছবি স্টোরেজ ও সাইন করা ছবির URL।</td></tr>
     <tr><td><code>STAFF_TOTP_KEY</code></td><td>স্টাফের TOTP সিক্রেট এনক্রিপ্ট করে। হারালে সবাই 2FA থেকে লক হয়ে যাবে।</td></tr>
+    <tr><td><code>AFFILIATE_PAYOUT_KEY</code></td><td>অ্যাফিলিয়েট পেআউট তথ্য (বিকাশ/ব্যাংক) এনক্রিপ্ট করে। হারালে সংরক্ষিত তথ্য পড়া যাবে না (অ্যাফিলিয়েটরা আবার দেবেন)।</td></tr>
     <tr><td><code>DISABLE_2FA</code></td><td>শুধু ডেভ; প্রোডাকশন এটি নিয়ে চালু হয় না।</td></tr>
     <tr><td><code>SMTP_URL</code>, <code>MAIL_FROM</code></td><td>আউটগোয়িং মেইল।</td></tr>
     <tr><td><code>SMS_PROVIDER</code></td><td><code>dev</code> OTP Mailpit-এ পাঠায়; প্রোডাকশন <code>dev</code> অস্বীকার করে। আসল SMS প্রোভাইডার এখনো ঠিক হয়নি (Q75)।</td></tr>

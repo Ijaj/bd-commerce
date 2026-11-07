@@ -20,14 +20,15 @@ let cur = null;
 let pending = [];
 for (const raw of lines) {
   const line = raw.trim();
-  let m;
-  if ((m = /^model (\w+) \{/.exec(line))) {
+  let m = /^model (\w+) \{/.exec(line);
+  if (m) {
     cur = { name: m[1], doc: pending.join(' '), table: null, fields: [], attrs: [] };
     models.push(cur);
     pending = [];
     continue;
   }
-  if ((m = /^enum (\w+) \{/.exec(line))) {
+  m = /^enum (\w+) \{/.exec(line);
+  if (m) {
     cur = { name: m[1], isEnum: true, values: [], table: null };
     enums.push(cur);
     pending = [];
@@ -76,6 +77,7 @@ const domains = [
   ['b2b', ['SrProfile', 'B2bShop', 'SrSale', 'SrSaleItem', 'B2bLedger', 'SrTarget', 'SrCommission', 'SrCommissionAdjustment']],
   ['purchasing', ['Supplier', 'VariantSupplier', 'PurchaseOrder', 'PurchaseOrderItem', 'PoReceipt', 'PoReceiptItem', 'SupplierLedger']],
   ['promo', ['Coupon', 'CouponTarget', 'CouponZone', 'CouponTier', 'CouponCustomer', 'CouponCode', 'CouponWallet', 'CouponRedemption', 'FlashSale', 'FlashSaleItem', 'SaleBatch', 'SaleBatchItem']],
+  ['affiliates', ['Affiliate', 'AffiliateClick', 'AffiliateCommission', 'AffiliatePayout']],
 ];
 const domainText = {
   access: ['Staff, access & settings', 'স্টাফ, অ্যাক্সেস ও সেটিংস',
@@ -105,6 +107,9 @@ const domainText = {
   b2b: ['Sales Representatives (SR) & B2B shops', 'সেলস রিপ্রেজেন্টেটিভ (SR) ও B2B দোকান',
     'Field reps sell to buyer shops on credit. The B2B ledger is the source of truth for dues; b2b_shops.due_balance_p is only a cache.',
     'ফিল্ড SR বাকিতে দোকানে বিক্রি করে। বাকির আসল হিসাব B2B লেজারে; b2b_shops.due_balance_p শুধু ক্যাশ।'],
+  affiliates: ['Affiliates', 'অ্যাফিলিয়েট',
+    'Customers who join the affiliate program, link clicks (last click wins), commissions approved after delivery + return window, and monthly payouts.',
+    'যে গ্রাহকরা অ্যাফিলিয়েট প্রোগ্রামে যোগ দেন, লিংক ক্লিক (শেষ ক্লিক গণ্য), ডেলিভারি + রিটার্ন সময়ের পরে অনুমোদিত কমিশন, এবং মাসিক পেআউট।'],
   purchasing: ['Suppliers & purchasing', 'সাপ্লায়ার ও ক্রয়',
     'Purchase orders, receiving (good vs rejected qty, weighted-average cost) and a per-supplier payable ledger.',
     'পারচেজ অর্ডার, মাল গ্রহণ (ভালো বনাম রিজেক্ট পরিমাণ, ওয়েটেড-অ্যাভারেজ কস্ট) এবং প্রতি সাপ্লায়ারের দেনার লেজার।'],
@@ -174,6 +179,10 @@ const modelText = {
   SrTarget: ['Monthly sales target per SR', 'প্রতি SR-এর মাসিক টার্গেট'],
   SrCommission: ['Monthly commission per SR (pending → approved → paid)', 'প্রতি SR-এর মাসিক কমিশন'],
   SrCommissionAdjustment: ['Commission clawbacks/bonuses', 'কমিশন কর্তন/বোনাস'],
+  Affiliate: ['Affiliate profile on a customer: code, rate override, status, encrypted payout details', 'গ্রাহকের অ্যাফিলিয়েট প্রোফাইল: কোড, রেট, স্ট্যাটাস, এনক্রিপ্টেড পেআউট তথ্য'],
+  AffiliateClick: ['One tracked ?ref= link visit per visitor', 'ভিজিটর প্রতি একটি ট্র্যাক করা ?ref= লিংক ভিজিট'],
+  AffiliateCommission: ['One commission per attributed order: pending → approved/reversed → paid', 'অ্যাট্রিবিউটেড অর্ডার প্রতি একটি কমিশন: pending → approved/reversed → paid'],
+  AffiliatePayout: ['Monthly payout recorded by staff, covers approved commissions', 'স্টাফের রেকর্ড করা মাসিক পেআউট, অনুমোদিত কমিশন কভার করে'],
   Supplier: ['Supplier master data and ship mode', 'সাপ্লায়ার তথ্য ও শিপ মোড'],
   VariantSupplier: ['Which suppliers provide a variant, last cost, lead time', 'কোন সাপ্লায়ার কোন ভ্যারিয়েন্ট দেয়, শেষ কস্ট, লিড টাইম'],
   PurchaseOrder: ['PO header and lifecycle', 'পিও হেডার ও লাইফসাইকেল'],
@@ -273,9 +282,7 @@ function dbToc(li) {
 function permsTable(li) {
   const src = readFileSync(join(here, '../apps/api/src/auth/permissions.ts'), 'utf8');
   const re = /'([a-z_]+\.[a-z_]+)':\s*\{\s*group:\s*'([^']+)',\s*description:\s*'([^']+)'/g;
-  const rows = [];
-  let m;
-  while ((m = re.exec(src))) rows.push(m);
+  const rows = [...src.matchAll(re)];
   if (rows.length < 30) throw new Error('permission parse failed: ' + rows.length);
   const H = li === 'en' ? ['Key', 'Group', 'Allows'] : ['কী', 'গ্রুপ', 'কী করতে দেয় (ইংরেজি)'];
   return `<div class="table-wrap"><table><thead><tr>${H.map((h) => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows
@@ -293,8 +300,7 @@ function tocFrom(html, li, extra) {
   // h2 -> top entry, h3 -> sub entry, built from the (already prefixed) body
   let out = '';
   const re = /<h([23]) id="([^"]+)"[^>]*>(.*?)<\/h\1>/gs;
-  let m;
-  while ((m = re.exec(html))) {
+  for (const m of html.matchAll(re)) {
     const text = m[3].replace(/<[^>]+>/g, '');
     out += `<a${m[1] === '3' ? ' class="h3"' : ''} href="#${m[2]}">${text}</a>`;
     if (extra && m[2] === `${li}-db`) out += extra;

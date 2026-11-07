@@ -59,7 +59,7 @@ const meJoined = z.object({
   programEnabled: z.boolean(),
 });
 
-/// `{joined:false}` or `{joined:true, ...profile}`: the profile fields are only present when joined.
+/// `{joined:false, ...program terms}` or `{joined:true, ...profile}`: profile fields only when joined.
 export class AffiliateMeDto extends createZodDto(
   meJoined.omit({ joined: true }).partial().extend({ joined: z.boolean() }),
 ) {}

@@ -30,7 +30,14 @@ export class AffiliateAccountService {
       this.prisma.affiliate.findUnique({ where: { customerId } }),
       this.settings.get('affiliates'),
     ]);
-    if (!a) return { joined: false };
+    // Program terms go to non-members too, so the join card can show them.
+    const terms = {
+      commissionBp: cfg.defaultCommissionBp,
+      clickWindowDays: cfg.clickWindowDays,
+      minPayoutP: cfg.minPayoutP,
+      programEnabled: cfg.enabled,
+    };
+    if (!a) return { joined: false, ...terms };
     return {
       joined: true,
       id: a.id,

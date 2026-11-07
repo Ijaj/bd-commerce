@@ -121,7 +121,13 @@ describe('affiliates: join, codes, clicks, attribution', () => {
     it('is not joined by default and needs a customer session', async () => {
       const a = guest();
       await signupCustomer(app, a, '01711112222');
-      expect((await a.get('/v1/customer/affiliate').expect(200)).body).toEqual({ joined: false });
+      expect((await a.get('/v1/customer/affiliate').expect(200)).body).toEqual({
+        joined: false,
+        commissionBp: 500,
+        clickWindowDays: 30,
+        minPayoutP: 50000,
+        programEnabled: true,
+      });
       await guest().get('/v1/customer/affiliate').expect(401);
       await a.get('/v1/customer/affiliate/stats').expect(404);
     });
