@@ -2,6 +2,7 @@ import { Alert, Button, Loader, Modal, Stack, Text, TextInput } from '@mantine/c
 import { useDebouncedValue } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import { DROPSHIP_ENABLED } from '~/lib/features';
 import { optionsText } from './logic';
 import { type VariantOption, variantOptionsQuery } from './queries';
 import classes from './suppliers.module.css';
@@ -57,7 +58,7 @@ export function LinkProductsModal({
                   )}
                   <div className={`${classes.muted} ${classes.small}`}>
                     {v.sku}
-                    {dropship && ' · dropship: not on POs'}
+                    {DROPSHIP_ENABLED && dropship && ' · dropship: not on POs'}
                   </div>
                 </div>
                 <Button

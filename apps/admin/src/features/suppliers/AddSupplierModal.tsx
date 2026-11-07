@@ -1,6 +1,7 @@
 import { Button, Group, Modal, Select, Stack } from '@mantine/core';
 import { useMutation } from '@tanstack/react-query';
 import { notifyOk } from '~/features/categories/queries';
+import { DROPSHIP_ENABLED } from '~/lib/features';
 import { suppliersApi } from './api';
 import { notifyApiError } from './errors';
 import { AddressFields, ContactFields, toBody, useSupplierForm } from './form';
@@ -31,16 +32,18 @@ export function AddSupplierModal({
       <form onSubmit={form.onSubmit((v) => create.mutate(toBody(v)))}>
         <Stack>
           <ContactFields form={form} />
-          <Select
-            label="Ship mode"
-            allowDeselect={false}
-            data={(Object.keys(SHIP_MODE_LABEL) as ShipMode[]).map((m) => ({
-              value: m,
-              label: SHIP_MODE_LABEL[m],
-            }))}
-            value={form.values.shipMode}
-            onChange={(v) => v && form.setFieldValue('shipMode', v as ShipMode)}
-          />
+          {DROPSHIP_ENABLED && (
+            <Select
+              label="Ship mode"
+              allowDeselect={false}
+              data={(Object.keys(SHIP_MODE_LABEL) as ShipMode[]).map((m) => ({
+                value: m,
+                label: SHIP_MODE_LABEL[m],
+              }))}
+              value={form.values.shipMode}
+              onChange={(v) => v && form.setFieldValue('shipMode', v as ShipMode)}
+            />
+          )}
           <AddressFields form={form} />
         </Stack>
         <Group justify="flex-end" mt="md">

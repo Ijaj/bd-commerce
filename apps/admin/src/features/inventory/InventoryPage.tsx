@@ -7,6 +7,7 @@ import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { type Column, DataTable } from '~/components/DataTable';
 import { PageHeader } from '~/components/PageHeader';
+import { DROPSHIP_ENABLED } from '~/lib/features';
 import { formatNumber } from '~/lib/format';
 import { useCan } from '~/lib/perm';
 import { AdjustModal } from './AdjustModal';
@@ -41,7 +42,7 @@ export function InventoryPage({ search, onSearch }: Props) {
   const list = useQuery(inventoryListQuery(search));
   const low = useQuery(lowStockCountQuery);
 
-  const columns: Column<InventoryRow>[] = [
+  const allColumns: Column<InventoryRow>[] = [
     {
       key: 'product',
       header: 'Product',
@@ -134,6 +135,7 @@ export function InventoryPage({ search, onSearch }: Props) {
       ),
     },
   ];
+  const columns = allColumns.filter((c) => DROPSHIP_ENABLED || c.key !== 'fulfillment');
 
   const lowCount = low.data?.count;
 
@@ -174,23 +176,25 @@ export function InventoryPage({ search, onSearch }: Props) {
           value={search.category}
           onChange={(id) => onSearch({ category: id ?? undefined, page: undefined })}
         />
-        <Select
-          label="Fulfillment"
-          w={150}
-          placeholder="All"
-          clearable
-          data={[
-            { value: 'stock', label: 'Own stock' },
-            { value: 'dropship', label: 'Dropship' },
-          ]}
-          value={search.fulfillment ?? null}
-          onChange={(v) =>
-            onSearch({
-              fulfillment: (v as 'stock' | 'dropship' | null) ?? undefined,
-              page: undefined,
-            })
-          }
-        />
+        {DROPSHIP_ENABLED && (
+          <Select
+            label="Fulfillment"
+            w={150}
+            placeholder="All"
+            clearable
+            data={[
+              { value: 'stock', label: 'Own stock' },
+              { value: 'dropship', label: 'Dropship' },
+            ]}
+            value={search.fulfillment ?? null}
+            onChange={(v) =>
+              onSearch({
+                fulfillment: (v as 'stock' | 'dropship' | null) ?? undefined,
+                page: undefined,
+              })
+            }
+          />
+        )}
         <Checkbox
           label="Low stock only"
           pb={6}

@@ -140,7 +140,8 @@ describe('SuppliersPage', () => {
     const table = within(screen.getByRole('table'));
     expect(table.getByText('Active')).toBeInTheDocument();
     expect(table.getByText('Paused')).toBeInTheDocument();
-    expect(screen.getAllByText('Ship direct to customer').length).toBe(2);
+    // Ship-mode column is hidden while dropship is deferred (C80).
+    expect(screen.queryByText('Ship direct to customer')).not.toBeInTheDocument();
   });
 
   it('sends the search text to the API', async () => {

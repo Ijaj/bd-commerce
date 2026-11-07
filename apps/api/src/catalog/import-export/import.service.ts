@@ -10,7 +10,13 @@ import type { VariantsPayload } from '../products/products.dto';
 import { rethrowUnique, slugSchemaPattern } from '../products/slug';
 import { VariantsService } from '../products/variants.service';
 import { isYoutubeUrl } from '../products/youtube';
-import { ATTR_PREFIX, COLUMN_NAMES, COST_COLUMN, MAX_IMPORT_ROWS } from './columns';
+import {
+  ATTR_PREFIX,
+  COLUMN_NAMES,
+  COST_COLUMN,
+  DROPSHIP_ENABLED,
+  MAX_IMPORT_ROWS,
+} from './columns';
 import { readSheet } from './file-io';
 import type { ImportIssue } from './import-export.dto';
 import { parseBool, parseDate, parseDecimal, parseInteger, parsePrice, splitList } from './parse';
@@ -179,7 +185,8 @@ export class ImportService {
         warnings.push({ row: 1, column: h, message: 'Unknown column ignored' });
       }
     }
-    const has = (name: string) => seenHeaders.has(name);
+    const has = (name: string) =>
+      seenHeaders.has(name) && (DROPSHIP_ENABLED || name !== 'fulfillment');
     for (const must of ['product_slug', 'sku']) {
       if (!has(must)) err(1, must, `Column ${must} is required`);
     }

@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { type Column, DataTable } from '~/components/DataTable';
 import { ConfirmAction } from '~/features/b2b/components';
 import { notifyOk } from '~/features/categories/queries';
+import { DROPSHIP_ENABLED } from '~/lib/features';
 import { formatPrice } from '~/lib/format';
 import { suppliersApi } from './api';
 import { type LinkDraft, LinkEditModal } from './LinkEditModal';
@@ -81,7 +82,9 @@ export function LinksTab({ supplierId, canManage }: { supplierId: string; canMan
       render: (l) => (
         <span style={{ display: 'inline-flex', gap: 4 }}>
           {l.isDefault && <StatusBadge tone="ok">Default</StatusBadge>}
-          {l.fulfillment === 'dropship' && <StatusBadge tone="muted">Dropship</StatusBadge>}
+          {DROPSHIP_ENABLED && l.fulfillment === 'dropship' && (
+            <StatusBadge tone="muted">Dropship</StatusBadge>
+          )}
         </span>
       ),
     },

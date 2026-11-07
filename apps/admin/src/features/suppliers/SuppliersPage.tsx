@@ -6,6 +6,7 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { type Column, DataTable } from '~/components/DataTable';
 import { PageHeader } from '~/components/PageHeader';
+import { DROPSHIP_ENABLED } from '~/lib/features';
 import { useCan } from '~/lib/perm';
 import { AddSupplierModal } from './AddSupplierModal';
 import type { SupplierFilters } from './api';
@@ -34,7 +35,7 @@ export function SuppliersPage() {
   };
   const list = useQuery(suppliersQuery(filters));
 
-  const columns: Column<SupplierRow>[] = [
+  const allColumns: Column<SupplierRow>[] = [
     {
       key: 'supplier',
       header: 'Supplier',
@@ -61,6 +62,7 @@ export function SuppliersPage() {
     },
     { key: 'status', header: 'Status', render: (s) => <ActiveBadge active={s.isActive} /> },
   ];
+  const columns = allColumns.filter((c) => DROPSHIP_ENABLED || c.key !== 'ship');
 
   return (
     <div>

@@ -320,3 +320,8 @@ Note on S6: our order tracking covers status until the parcel is handed to the c
 | C77 | Supplier payments need **no second-person approval**: staff with `supplier_payments.manage` record method (cash/bKash/Nagad/bank) + reference and it counts at once |
 | C78 | PO totals (owner, 2026-10-30, session 14): keep the ordered total and add **Received value** (Σ good qty × unit cost) as a list column and a line in PO detail + print. The ledger stays the source of what is owed |
 | C79 | Add supplier form preselects ship mode **Via our warehouse first** (same as the DB default); direct-to-customer is picked on purpose for dropship (7b) |
+| C80 | **Dropship + supplier portal deferred until after launch** (owner, 2026-11-07, session 16): step 7b is not built now. Existing dropship code (schema, API, `fulfillment` field, ship mode, shipment statuses, ledger type) stays where it is; **all dropship UI is hidden** (admin flag `DROPSHIP_ENABLED = false` in `apps/admin/src/lib/features.ts`; import/export omits the `fulfillment` column). Owner decides the dropship design after running the business for a while. Notes + early answers: `plan/16-dropship-later.md` |
+| C81 | Step 7c affiliates (owner, 2026-11-07, session 16). Checkout affiliate code is **tracking only** (no buyer discount); typed in the coupon box but does **not** use the 1-code coupon slot |
+| C82 | Attribution: **last click wins** within the 30-day window (Q89); a typed code beats any link |
+| C83 | Defaults (settings): commission **5%**, minimum payout **৳500** (smaller balances carry over) |
+| C84 | **Guest orders count** for commission (link visitor cookie or typed code); self-referral check (C69) uses phone + address |

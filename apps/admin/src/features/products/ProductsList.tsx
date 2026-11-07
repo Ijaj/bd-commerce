@@ -30,6 +30,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ConfirmDelete } from '~/components/ConfirmDelete';
 import { type Column, DataTable } from '~/components/DataTable';
 import { PageHeader } from '~/components/PageHeader';
+import { DROPSHIP_ENABLED } from '~/lib/features';
 import { formatNumber, formatPrice } from '~/lib/format';
 import { useCan } from '~/lib/perm';
 import { useDeleteProduct, useProductActions } from './actions';
@@ -335,20 +336,22 @@ export function ProductsList({ search }: { search: ProductsSearch }) {
           value={search.brand ?? null}
           onChange={(v) => setSearch({ brand: v ?? undefined })}
         />
-        <Select
-          placeholder="Fulfillment"
-          aria-label="Fulfillment"
-          clearable
-          w={140}
-          data={[
-            { value: 'stock', label: 'Stock' },
-            { value: 'dropship', label: 'Dropship' },
-          ]}
-          value={search.fulfillment ?? null}
-          onChange={(v) =>
-            setSearch({ fulfillment: (v as ProductsSearch['fulfillment']) ?? undefined })
-          }
-        />
+        {DROPSHIP_ENABLED && (
+          <Select
+            placeholder="Fulfillment"
+            aria-label="Fulfillment"
+            clearable
+            w={140}
+            data={[
+              { value: 'stock', label: 'Stock' },
+              { value: 'dropship', label: 'Dropship' },
+            ]}
+            value={search.fulfillment ?? null}
+            onChange={(v) =>
+              setSearch({ fulfillment: (v as ProductsSearch['fulfillment']) ?? undefined })
+            }
+          />
+        )}
         <div className={classes.checks}>
           <Checkbox
             label="Upcoming"

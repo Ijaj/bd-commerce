@@ -2,6 +2,7 @@ import { Select } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import { DROPSHIP_ENABLED } from '~/lib/features';
 import { formatPrice } from '~/lib/format';
 import type { LineDraft } from './logic';
 import { optionText } from './logic';
@@ -62,7 +63,7 @@ export function VariantPicker({
           <div>
             <div>{option.label}</div>
             <span className="sub">
-              {o.fulfillment === 'dropship'
+              {DROPSHIP_ENABLED && o.fulfillment === 'dropship'
                 ? 'Dropship: not on purchase orders'
                 : taken.has(o.variantId)
                   ? 'Already on this order'

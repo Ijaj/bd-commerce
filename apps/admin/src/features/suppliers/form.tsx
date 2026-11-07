@@ -1,5 +1,6 @@
 import { Textarea, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { DROPSHIP_ENABLED } from '~/lib/features';
 import { SHIP_MODE_HELP, SHIP_MODE_LABEL, type ShipMode } from './logic';
 import type { Supplier } from './queries';
 import classes from './suppliers.module.css';
@@ -97,13 +98,15 @@ export function AddressFields({ form, full }: { form: SupplierForm; full?: boole
       {full && (
         <Textarea label="Office address" autosize minRows={2} {...form.getInputProps('address')} />
       )}
-      <Textarea
-        label="Pickup address"
-        description="Where couriers collect dropship parcels."
-        autosize
-        minRows={2}
-        {...form.getInputProps('pickupAddress')}
-      />
+      {DROPSHIP_ENABLED && (
+        <Textarea
+          label="Pickup address"
+          description="Where couriers collect dropship parcels."
+          autosize
+          minRows={2}
+          {...form.getInputProps('pickupAddress')}
+        />
+      )}
       <TextInput
         label="Payment terms"
         placeholder="e.g. Net 15"

@@ -19,7 +19,10 @@ const c = (
   example: [string, string],
 ): ColumnDef => ({ name, scope, required, description, example });
 
-export const COLUMNS: readonly ColumnDef[] = [
+/** Dropship + supplier portal are deferred until after launch (C80). Flip to true to show the UI again. */
+export const DROPSHIP_ENABLED = false;
+
+const ALL_COLUMNS: readonly ColumnDef[] = [
   c('product_slug', 'product', true, 'Groups rows into one product; matches an existing product.', [
     'cotton-tshirt',
     'cotton-tshirt',
@@ -80,6 +83,11 @@ export const COLUMNS: readonly ColumnDef[] = [
   ]),
   c('low_stock_threshold', 'variant', false, 'Low-stock alert level.', ['5', '5']),
 ];
+
+/** The `fulfillment` column is hidden while dropship is deferred (C80). */
+export const COLUMNS: readonly ColumnDef[] = ALL_COLUMNS.filter(
+  (x) => DROPSHIP_ENABLED || x.name !== 'fulfillment',
+);
 
 export const ATTR_PREFIX = 'attr:';
 export const COLUMN_NAMES = COLUMNS.map((x) => x.name);

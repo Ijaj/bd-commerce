@@ -3,6 +3,7 @@ import { Button, Group, Stack, Textarea } from '@mantine/core';
 import { useMutation } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { notifyOk } from '~/features/categories/queries';
+import { DROPSHIP_ENABLED } from '~/lib/features';
 import { suppliersApi } from './api';
 import { notifyApiError } from './errors';
 import {
@@ -43,9 +44,11 @@ export function DetailsTab({ supplier, canManage }: { supplier: Supplier; canMan
         <SectionCard title="Contact" className="a-gap">
           <ContactFields form={form} />
         </SectionCard>
-        <SectionCard title="Ship mode" className="a-gap">
-          <ShipModeRadios form={form} />
-        </SectionCard>
+        {DROPSHIP_ENABLED && (
+          <SectionCard title="Ship mode" className="a-gap">
+            <ShipModeRadios form={form} />
+          </SectionCard>
+        )}
         <SectionCard title="Address and terms" className="a-gap">
           <Stack>
             <AddressFields form={form} full />
@@ -72,9 +75,11 @@ export function DetailsTab({ supplier, canManage }: { supplier: Supplier; canMan
           </Button>
         </Group>
       )}
-      <p className={`${classes.muted} ${classes.small}`}>
-        Portal users, on-time performance and the dropship queue arrive with step 7b.
-      </p>
+      {DROPSHIP_ENABLED && (
+        <p className={`${classes.muted} ${classes.small}`}>
+          Portal users, on-time performance and the dropship queue arrive with step 7b.
+        </p>
+      )}
     </form>
   );
 }

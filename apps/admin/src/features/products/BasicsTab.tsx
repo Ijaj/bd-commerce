@@ -1,5 +1,6 @@
 import { Input, MultiSelect, SegmentedControl, Select, Stack, TextInput } from '@mantine/core';
 import { BilingualTextInput } from '~/components/BilingualTextInput';
+import { DROPSHIP_ENABLED } from '~/lib/features';
 import type { SelectOption } from './categoryTree';
 import type { FormTabProps } from './tabProps';
 
@@ -72,20 +73,22 @@ export function BasicsTab({ form, set, disabled, categories, brands }: Props) {
         value={form.extraCategoryIds}
         onChange={(v) => set({ extraCategoryIds: v })}
       />
-      <Input.Wrapper label="Fulfillment">
-        <div>
-          <SegmentedControl
-            mt={4}
-            disabled={disabled}
-            data={[
-              { value: 'stock', label: 'From stock' },
-              { value: 'dropship', label: 'Dropship' },
-            ]}
-            value={form.fulfillment}
-            onChange={(v) => set({ fulfillment: v as 'stock' | 'dropship' })}
-          />
-        </div>
-      </Input.Wrapper>
+      {DROPSHIP_ENABLED && (
+        <Input.Wrapper label="Fulfillment">
+          <div>
+            <SegmentedControl
+              mt={4}
+              disabled={disabled}
+              data={[
+                { value: 'stock', label: 'From stock' },
+                { value: 'dropship', label: 'Dropship' },
+              ]}
+              value={form.fulfillment}
+              onChange={(v) => set({ fulfillment: v as 'stock' | 'dropship' })}
+            />
+          </div>
+        </Input.Wrapper>
+      )}
     </Stack>
   );
 }
