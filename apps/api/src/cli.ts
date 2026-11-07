@@ -4,9 +4,11 @@
 //   node dist/cli.js seed-demo                     dev-only demo catalog (refused in production)
 //   node dist/cli.js sync-couriers                 poll couriers for open shipments (run on a schedule)
 //   node dist/cli.js complete-orders               complete delivered orders whose return window has passed
+//   node dist/cli.js approve-affiliate-commissions reverse/approve pending affiliate commissions (run on a schedule)
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { z } from 'zod';
+import { AffiliateCommissionsJobService } from './affiliates/affiliate-commissions-job.service';
 import { AppModule } from './app.module';
 import { PrismaService } from './prisma/prisma.service';
 import { ReturnsCompletionService } from './returns/returns-completion.service';
@@ -47,9 +49,11 @@ async function run([command, ...args]: string[]) {
       console.log(await app.get(ShipmentSyncService).syncOpen());
     } else if (command === 'complete-orders') {
       console.log(`completed ${await app.get(ReturnsCompletionService).completeDue()} orders`);
+    } else if (command === 'approve-affiliate-commissions') {
+      console.log(await app.get(AffiliateCommissionsJobService).run());
     } else {
       console.error(
-        'usage: cli create-owner <email> <name> | reset-2fa <email> | seed-demo | sync-couriers | complete-orders',
+        'usage: cli create-owner <email> <name> | reset-2fa <email> | seed-demo | sync-couriers | complete-orders | approve-affiliate-commissions',
       );
       process.exitCode = 1;
     }

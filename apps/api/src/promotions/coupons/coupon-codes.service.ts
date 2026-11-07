@@ -63,6 +63,12 @@ export class CouponCodesService {
           })
         ).map((c) => c.code),
       );
+      for (const a of await this.prisma.affiliate.findMany({
+        where: { code: { in: codes } },
+        select: { code: true },
+      })) {
+        clash.add(a.code);
+      }
       const res = await this.prisma.couponCode.createMany({
         data: codes.filter((c) => !clash.has(c)).map((code) => ({ couponId: coupon.id, code })),
         skipDuplicates: true,

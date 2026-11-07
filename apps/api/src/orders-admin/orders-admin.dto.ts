@@ -208,6 +208,16 @@ const detail = z.object({
     z.object({ id: z.uuid(), amountP: z.number().int(), status: z.string(), method: z.string() }),
   ),
   risk: z.object({ score: z.number().int(), reasons: z.array(z.string()) }),
+  /// Affiliate that earns on this order (step 7c); null when unattributed.
+  affiliate: z
+    .object({
+      id: z.uuid(),
+      code: z.string(),
+      displayName: z.string(),
+      attribution: z.enum(['link', 'code']),
+      commission: z.object({ status: z.string(), amountP: z.number().int() }).nullable(),
+    })
+    .nullable(),
   call: z.object({
     status: z.enum(CALL_STATUSES),
     note: z.string().nullable(),

@@ -4472,6 +4472,27 @@
         ]
       }
     },
+    "/v1/cart/affiliate-code": {
+      "delete": {
+        "operationId": "CartController_removeAffiliate",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CartDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "cart"
+        ]
+      }
+    },
     "/v1/cart/coupon-suggestions": {
       "get": {
         "operationId": "CartController_suggestions",
@@ -4490,6 +4511,742 @@
         },
         "tags": [
           "cart"
+        ]
+      }
+    },
+    "/v1/public/affiliates/click": {
+      "post": {
+        "operationId": "AffiliatesPublicController_click",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AffiliateClickDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "affiliates"
+        ]
+      }
+    },
+    "/v1/customer/affiliate": {
+      "get": {
+        "operationId": "AffiliatesCustomerController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AffiliateMeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid customer session"
+          }
+        },
+        "security": [
+          {
+            "bdc_cs": []
+          }
+        ],
+        "tags": [
+          "customer affiliate"
+        ]
+      },
+      "patch": {
+        "operationId": "AffiliatesCustomerController_update",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AffiliateUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AffiliateMeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid customer session"
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AffiliateErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_cs": []
+          }
+        ],
+        "tags": [
+          "customer affiliate"
+        ]
+      }
+    },
+    "/v1/customer/affiliate/join": {
+      "post": {
+        "operationId": "AffiliatesCustomerController_join",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AffiliateJoinDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AffiliateMeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid customer session"
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AffiliateErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_cs": []
+          }
+        ],
+        "tags": [
+          "customer affiliate"
+        ]
+      }
+    },
+    "/v1/customer/affiliate/payout-details": {
+      "put": {
+        "operationId": "AffiliatesCustomerController_setPayoutDetails",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AffiliatePayoutDetailsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AffiliateMeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid customer session"
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AffiliateErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_cs": []
+          }
+        ],
+        "tags": [
+          "customer affiliate"
+        ]
+      }
+    },
+    "/v1/customer/affiliate/stats": {
+      "get": {
+        "operationId": "AffiliatesCustomerController_stats",
+        "parameters": [
+          {
+            "name": "days",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 7,
+              "maximum": 90,
+              "default": 30,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AffiliateStatsDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid customer session"
+          }
+        },
+        "security": [
+          {
+            "bdc_cs": []
+          }
+        ],
+        "tags": [
+          "customer affiliate"
+        ]
+      }
+    },
+    "/v1/customer/affiliate/commissions": {
+      "get": {
+        "operationId": "AffiliatesCustomerController_commissions",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "approved",
+                "reversed",
+                "paid"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 9007199254740991,
+              "default": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AffiliateMyCommissionListDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid customer session"
+          }
+        },
+        "security": [
+          {
+            "bdc_cs": []
+          }
+        ],
+        "tags": [
+          "customer affiliate"
+        ]
+      }
+    },
+    "/v1/customer/affiliate/payouts": {
+      "get": {
+        "operationId": "AffiliatesCustomerController_payouts",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 9007199254740991,
+              "default": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AffiliateMyPayoutListDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid customer session"
+          }
+        },
+        "security": [
+          {
+            "bdc_cs": []
+          }
+        ],
+        "tags": [
+          "customer affiliate"
+        ]
+      }
+    },
+    "/v1/admin/affiliates": {
+      "get": {
+        "operationId": "AffiliatesAdminController_list",
+        "parameters": [
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "suspended"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 9007199254740991,
+              "default": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AffiliateAdminListDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "affiliates admin"
+        ]
+      }
+    },
+    "/v1/admin/affiliates/{id}": {
+      "get": {
+        "operationId": "AffiliatesAdminController_detail",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AffiliateAdminDetailDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AffiliateErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "affiliates admin"
+        ]
+      },
+      "patch": {
+        "operationId": "AffiliatesAdminController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AffiliateAdminUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AffiliateAdminDetailDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AffiliateErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "affiliates admin"
+        ]
+      }
+    },
+    "/v1/admin/affiliates/{id}/commissions": {
+      "get": {
+        "operationId": "AffiliatesAdminController_commissions",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "approved",
+                "reversed",
+                "paid"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 9007199254740991,
+              "default": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AffiliateAdminCommissionListDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "affiliates admin"
+        ]
+      }
+    },
+    "/v1/admin/affiliate-payouts/due": {
+      "get": {
+        "operationId": "AffiliatesAdminController_due",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AffiliateDueListDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "affiliates admin"
+        ]
+      }
+    },
+    "/v1/admin/affiliate-payouts": {
+      "get": {
+        "operationId": "AffiliatesAdminController_listPayouts",
+        "parameters": [
+          {
+            "name": "affiliateId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 9007199254740991,
+              "default": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AffiliatePayoutListDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "affiliates admin"
+        ]
+      }
+    },
+    "/v1/admin/affiliates/{id}/payouts": {
+      "post": {
+        "operationId": "AffiliatesAdminController_recordPayout",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AffiliatePayoutCreateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AffiliatePayoutDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AffiliateErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bdc_staff_session": []
+          }
+        ],
+        "tags": [
+          "affiliates admin"
         ]
       }
     },
@@ -11764,7 +12521,10 @@
                 "suppliers.view",
                 "suppliers.manage",
                 "purchase_orders.receive",
-                "supplier_payments.manage"
+                "supplier_payments.manage",
+                "affiliates.view",
+                "affiliates.manage",
+                "affiliate_payouts.manage"
               ]
             }
           }
@@ -12212,7 +12972,10 @@
                   "suppliers.view",
                   "suppliers.manage",
                   "purchase_orders.receive",
-                  "supplier_payments.manage"
+                  "supplier_payments.manage",
+                  "affiliates.view",
+                  "affiliates.manage",
+                  "affiliate_payouts.manage"
                 ]
               }
             },
@@ -12296,7 +13059,10 @@
                 "suppliers.view",
                 "suppliers.manage",
                 "purchase_orders.receive",
-                "supplier_payments.manage"
+                "supplier_payments.manage",
+                "affiliates.view",
+                "affiliates.manage",
+                "affiliate_payouts.manage"
               ]
             }
           }
@@ -12377,7 +13143,10 @@
                 "suppliers.view",
                 "suppliers.manage",
                 "purchase_orders.receive",
-                "supplier_payments.manage"
+                "supplier_payments.manage",
+                "affiliates.view",
+                "affiliates.manage",
+                "affiliate_payouts.manage"
               ]
             }
           },
@@ -12467,7 +13236,10 @@
                 "suppliers.view",
                 "suppliers.manage",
                 "purchase_orders.receive",
-                "supplier_payments.manage"
+                "supplier_payments.manage",
+                "affiliates.view",
+                "affiliates.manage",
+                "affiliate_payouts.manage"
               ]
             }
           }
@@ -12527,7 +13299,10 @@
                 "suppliers.view",
                 "suppliers.manage",
                 "purchase_orders.receive",
-                "supplier_payments.manage"
+                "supplier_payments.manage",
+                "affiliates.view",
+                "affiliates.manage",
+                "affiliate_payouts.manage"
               ]
             },
             "group": {
@@ -20736,6 +21511,28 @@
                 "reason"
               ]
             }
+          },
+          "affiliate": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "displayName": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "code",
+                  "displayName"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -20745,7 +21542,8 @@
           "discountP",
           "appliedCoupons",
           "codes",
-          "rejectedCodes"
+          "rejectedCodes",
+          "affiliate"
         ]
       },
       "CartSetQtyDto": {
@@ -20820,6 +21618,1267 @@
         },
         "required": [
           "items"
+        ]
+      },
+      "AffiliateClickDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "landingUrl": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "utm": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "type": "string",
+                "maxLength": 100
+              },
+              "medium": {
+                "type": "string",
+                "maxLength": 100
+              },
+              "campaign": {
+                "type": "string",
+                "maxLength": 100
+              }
+            }
+          }
+        },
+        "required": [
+          "code",
+          "landingUrl"
+        ]
+      },
+      "AffiliateMeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "code": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "website": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "suspended"
+            ]
+          },
+          "commissionBp": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "payoutMethod": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "bkash",
+                  "bank"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "payoutDetailsMasked": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "clickWindowDays": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "minPayoutP": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "programEnabled": {
+            "type": "boolean"
+          },
+          "joined": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "joined"
+        ]
+      },
+      "AffiliateJoinDto": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 80
+          },
+          "website": {
+            "type": "string",
+            "maxLength": 300,
+            "format": "uri"
+          },
+          "code": {
+            "type": "string",
+            "pattern": "^[A-Z0-9]{4,16}$"
+          }
+        },
+        "required": [
+          "displayName"
+        ]
+      },
+      "AffiliateErrorDto": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "number"
+          },
+          "message": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "statusCode",
+          "message"
+        ]
+      },
+      "AffiliateUpdateDto": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 80
+          },
+          "website": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 300,
+                "format": "uri"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "AffiliatePayoutDetailsDto": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "bkash",
+              "bank"
+            ]
+          },
+          "bkashNumber": {
+            "type": "string"
+          },
+          "holderName": {
+            "type": "string"
+          },
+          "bankName": {
+            "type": "string"
+          },
+          "branch": {
+            "type": "string"
+          },
+          "accountNo": {
+            "type": "string"
+          },
+          "accountName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "method"
+        ]
+      },
+      "AffiliateStatsDto": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "type": "string"
+                },
+                "clicks": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "orders": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "date",
+                "clicks",
+                "orders"
+              ]
+            }
+          },
+          "totals": {
+            "type": "object",
+            "properties": {
+              "clicks": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "orders": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "conversionBp": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "pendingP": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "balanceP": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "paidP": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "reversedCount": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "clicks",
+              "orders",
+              "conversionBp",
+              "pendingP",
+              "balanceP",
+              "paidP",
+              "reversedCount"
+            ]
+          }
+        },
+        "required": [
+          "days",
+          "totals"
+        ]
+      },
+      "AffiliateMyCommissionListDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "placedAt": {
+                  "type": "string"
+                },
+                "itemCount": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "firstItemTitle": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "attribution": {
+                  "type": "string",
+                  "enum": [
+                    "link",
+                    "code"
+                  ]
+                },
+                "baseP": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "commissionBp": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "amountP": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "pending",
+                    "approved",
+                    "reversed",
+                    "paid"
+                  ]
+                },
+                "availableAt": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "reverseReason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "placedAt",
+                "itemCount",
+                "firstItemTitle",
+                "attribution",
+                "baseP",
+                "commissionBp",
+                "amountP",
+                "status",
+                "availableAt",
+                "reverseReason"
+              ]
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ]
+      },
+      "AffiliateMyPayoutListDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "period": {
+                  "type": "string"
+                },
+                "amountP": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "method": {
+                  "type": "string",
+                  "enum": [
+                    "bkash",
+                    "bank",
+                    "cash"
+                  ]
+                },
+                "reference": {
+                  "type": "string"
+                },
+                "paidAt": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "period",
+                "amountP",
+                "method",
+                "reference",
+                "paidAt"
+              ]
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ]
+      },
+      "AffiliateAdminListDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "code": {
+                  "type": "string"
+                },
+                "displayName": {
+                  "type": "string"
+                },
+                "customer": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "phone": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "email": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "phone",
+                    "email"
+                  ]
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "active",
+                    "suspended"
+                  ]
+                },
+                "commissionBp": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "rateOverridden": {
+                  "type": "boolean"
+                },
+                "clicks30": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "orders30": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "pendingP": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "balanceP": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "paidP": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "createdAt": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "code",
+                "displayName",
+                "customer",
+                "status",
+                "commissionBp",
+                "rateOverridden",
+                "clicks30",
+                "orders30",
+                "pendingP",
+                "balanceP",
+                "paidP",
+                "createdAt"
+              ]
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ]
+      },
+      "AffiliateAdminDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "code": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "customer": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "name": {
+                "type": "string"
+              },
+              "phone": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "email": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "phone",
+              "email"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "suspended"
+            ]
+          },
+          "commissionBp": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "rateOverridden": {
+            "type": "boolean"
+          },
+          "clicks30": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "orders30": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "pendingP": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "balanceP": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "paidP": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "website": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "suspendedAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "suspendedReason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "payoutMethod": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "bkash",
+                  "bank"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "payoutDetails": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "method": {
+                            "type": "string",
+                            "const": "bkash"
+                          },
+                          "bkashNumber": {
+                            "type": "string"
+                          },
+                          "holderName": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "method",
+                          "bkashNumber",
+                          "holderName"
+                        ]
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "method": {
+                            "type": "string",
+                            "const": "bank"
+                          },
+                          "bankName": {
+                            "type": "string"
+                          },
+                          "branch": {
+                            "type": "string"
+                          },
+                          "accountNo": {
+                            "type": "string"
+                          },
+                          "accountName": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "method",
+                          "bankName",
+                          "branch",
+                          "accountNo",
+                          "accountName"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "displayName",
+          "customer",
+          "status",
+          "commissionBp",
+          "rateOverridden",
+          "clicks30",
+          "orders30",
+          "pendingP",
+          "balanceP",
+          "paidP",
+          "createdAt",
+          "website",
+          "suspendedAt",
+          "suspendedReason",
+          "payoutMethod",
+          "payoutDetails"
+        ]
+      },
+      "AffiliateAdminUpdateDto": {
+        "type": "object",
+        "properties": {
+          "commissionBp": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10000
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "suspended"
+            ]
+          },
+          "suspendedReason": {
+            "type": "string",
+            "maxLength": 300
+          }
+        }
+      },
+      "AffiliateAdminCommissionListDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "placedAt": {
+                  "type": "string"
+                },
+                "itemCount": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "firstItemTitle": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "attribution": {
+                  "type": "string",
+                  "enum": [
+                    "link",
+                    "code"
+                  ]
+                },
+                "baseP": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "commissionBp": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "amountP": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "pending",
+                    "approved",
+                    "reversed",
+                    "paid"
+                  ]
+                },
+                "availableAt": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "reverseReason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "order": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "orderNo": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "orderNo"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "placedAt",
+                "itemCount",
+                "firstItemTitle",
+                "attribution",
+                "baseP",
+                "commissionBp",
+                "amountP",
+                "status",
+                "availableAt",
+                "reverseReason",
+                "order"
+              ]
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ]
+      },
+      "AffiliateDueListDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "affiliateId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "code": {
+                  "type": "string"
+                },
+                "displayName": {
+                  "type": "string"
+                },
+                "balanceP": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "commissionCount": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "payoutMethod": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "bkash",
+                        "bank"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "payoutDetails": {
+                  "anyOf": [
+                    {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "method": {
+                              "type": "string",
+                              "const": "bkash"
+                            },
+                            "bkashNumber": {
+                              "type": "string"
+                            },
+                            "holderName": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "method",
+                            "bkashNumber",
+                            "holderName"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "method": {
+                              "type": "string",
+                              "const": "bank"
+                            },
+                            "bankName": {
+                              "type": "string"
+                            },
+                            "branch": {
+                              "type": "string"
+                            },
+                            "accountNo": {
+                              "type": "string"
+                            },
+                            "accountName": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "method",
+                            "bankName",
+                            "branch",
+                            "accountNo",
+                            "accountName"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "hasPayoutDetails": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "affiliateId",
+                "code",
+                "displayName",
+                "balanceP",
+                "commissionCount",
+                "payoutMethod",
+                "payoutDetails",
+                "hasPayoutDetails"
+              ]
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "AffiliatePayoutListDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "affiliate": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "displayName": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "code",
+                    "displayName"
+                  ]
+                },
+                "period": {
+                  "type": "string"
+                },
+                "amountP": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "method": {
+                  "type": "string",
+                  "enum": [
+                    "bkash",
+                    "bank",
+                    "cash"
+                  ]
+                },
+                "reference": {
+                  "type": "string"
+                },
+                "note": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "paidBy": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name"
+                  ]
+                },
+                "paidAt": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "affiliate",
+                "period",
+                "amountP",
+                "method",
+                "reference",
+                "note",
+                "paidBy",
+                "paidAt"
+              ]
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ]
+      },
+      "AffiliatePayoutCreateDto": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "bkash",
+              "bank",
+              "cash"
+            ]
+          },
+          "reference": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 100
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "expectedAmountP": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "method",
+          "reference",
+          "expectedAmountP"
+        ]
+      },
+      "AffiliatePayoutDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "affiliate": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "code": {
+                "type": "string"
+              },
+              "displayName": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "code",
+              "displayName"
+            ]
+          },
+          "period": {
+            "type": "string"
+          },
+          "amountP": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "bkash",
+              "bank",
+              "cash"
+            ]
+          },
+          "reference": {
+            "type": "string"
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "paidBy": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "paidAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "affiliate",
+          "period",
+          "amountP",
+          "method",
+          "reference",
+          "note",
+          "paidBy",
+          "paidAt"
         ]
       },
       "OrderListDto": {
@@ -21520,6 +23579,28 @@
               ]
             }
           },
+          "affiliate": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "displayName": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "code",
+                  "displayName"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "deliveryChargeP": {
             "type": "number"
           },
@@ -21557,6 +23638,7 @@
           "couponDiscountP",
           "appliedCoupons",
           "rejectedCodes",
+          "affiliate",
           "deliveryChargeP",
           "deliveryDiscountP",
           "grandTotalP",
@@ -21711,13 +23793,36 @@
           },
           "codDueP": {
             "type": "number"
+          },
+          "affiliate": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "displayName": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "code",
+                  "displayName"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
           "orderNo",
           "orderId",
           "grandTotalP",
-          "codDueP"
+          "codDueP",
+          "affiliate"
         ]
       },
       "SrPortalMeDto": {
@@ -25977,6 +28082,67 @@
               "reasons"
             ]
           },
+          "affiliate": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "code": {
+                    "type": "string"
+                  },
+                  "displayName": {
+                    "type": "string"
+                  },
+                  "attribution": {
+                    "type": "string",
+                    "enum": [
+                      "link",
+                      "code"
+                    ]
+                  },
+                  "commission": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          },
+                          "amountP": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "required": [
+                          "status",
+                          "amountP"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "code",
+                  "displayName",
+                  "attribution",
+                  "commission"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "call": {
             "type": "object",
             "properties": {
@@ -26051,6 +28217,7 @@
           "returns",
           "refunds",
           "risk",
+          "affiliate",
           "call"
         ]
       },

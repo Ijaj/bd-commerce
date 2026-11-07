@@ -120,6 +120,8 @@ export class OrdersAdminService {
         invoices: { orderBy: { issuedAt: 'asc' } },
         returns: { orderBy: { requestedAt: 'asc' } },
         refunds: { orderBy: { createdAt: 'asc' } },
+        affiliate: { select: { id: true, code: true, displayName: true } },
+        affiliateCommission: { select: { status: true, amountP: true } },
       },
     });
     if (!o) throw new CommerceError(HttpStatus.NOT_FOUND, 'ORDER_NOT_FOUND', 'Order not found.');
@@ -251,6 +253,15 @@ export class OrdersAdminService {
         method: r.method,
       })),
       risk: { score: o.riskScore, reasons: reasonsOf(o.riskReasons) },
+      affiliate: o.affiliate
+        ? {
+            ...o.affiliate,
+            attribution: o.affiliateAttribution ?? 'link',
+            commission: o.affiliateCommission
+              ? { status: o.affiliateCommission.status, amountP: o.affiliateCommission.amountP }
+              : null,
+          }
+        : null,
       call: {
         status: o.callStatus,
         note: o.callNote,

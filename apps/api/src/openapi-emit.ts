@@ -10,6 +10,7 @@ async function emit(out: string) {
   process.env.DATABASE_URL ??= 'postgresql://openapi@localhost/openapi';
   process.env.REDIS_URL ??= 'redis://localhost:6379';
   process.env.STAFF_TOTP_KEY ??= '0'.repeat(64);
+  process.env.AFFILIATE_PAYOUT_KEY ??= '0'.repeat(64);
   process.env.SMTP_URL ??= 'smtp://localhost:1025';
   process.env.MAIL_FROM ??= 'openapi@localhost';
   process.env.ADMIN_ORIGIN ??= 'http://localhost:5173';

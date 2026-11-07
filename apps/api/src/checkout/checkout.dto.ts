@@ -27,6 +27,8 @@ export class CheckoutQuoteDto extends createZodDto(
     appliedCoupons: z.array(appliedCouponSchema),
     /// Cart codes that no longer apply for this address (the cart drops them on its next read).
     rejectedCodes: z.array(z.object({ code: z.string(), reason: z.string() })),
+    /// Affiliate code typed in the cart (tracking only, no discount); null when none or inactive.
+    affiliate: z.object({ code: z.string(), displayName: z.string() }).nullable(),
     deliveryChargeP: z.number(),
     /// Zone free-delivery plus coupon delivery discounts.
     deliveryDiscountP: z.number(),
@@ -82,5 +84,6 @@ export class CheckoutPlacedDto extends createZodDto(
     orderId: z.string(),
     grandTotalP: z.number(),
     codDueP: z.number(),
+    affiliate: z.object({ code: z.string(), displayName: z.string() }).nullable(),
   }),
 ) {}

@@ -28,6 +28,7 @@ const BASE_ENV = {
   DATABASE_URL: 'postgresql://x:y@localhost:5432/z',
   REDIS_URL: 'redis://localhost:6379',
   STAFF_TOTP_KEY: 'a'.repeat(64),
+  AFFILIATE_PAYOUT_KEY: 'b'.repeat(64),
   SMTP_URL: 'smtp://localhost:1025',
   MAIL_FROM: 'a@b.c',
   ADMIN_ORIGIN: 'http://localhost:5173',

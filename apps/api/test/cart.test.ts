@@ -13,6 +13,7 @@ const EMPTY = {
   appliedCoupons: [],
   codes: [],
   rejectedCodes: [],
+  affiliate: null,
 };
 
 describe('cart', () => {

@@ -17,6 +17,7 @@ export default function setup() {
   process.env.REDIS_URL = redis.toString();
 
   process.env.STAFF_TOTP_KEY ??= 'a'.repeat(64);
+  process.env.AFFILIATE_PAYOUT_KEY ??= 'b'.repeat(64);
   process.env.SMTP_URL ??= 'smtp://localhost:1025';
   process.env.MAIL_FROM ??= 'test@localhost';
   process.env.ADMIN_ORIGIN ??= 'http://localhost:5173';

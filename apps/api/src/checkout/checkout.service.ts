@@ -1,5 +1,7 @@
 import { ConflictException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import type Redis from 'ioredis';
+import { AffiliateAttributionService } from '../affiliates/affiliate-attribution.service';
+import { AffiliateLookupService } from '../affiliates/affiliate-lookup.service';
 import { type CartLineDetail, CartService, subtotalOf } from '../cart/cart.service';
 import type { CartIdentity } from '../cart/cart-identity.service';
 import { OtpService } from '../customers/otp.service';
@@ -84,6 +86,8 @@ export class CheckoutService {
     private readonly risk: RiskService,
     private readonly promotions: PromotionsService,
     @Inject(REDIS) private readonly redis: Redis,
+    private readonly affiliateAttribution: AffiliateAttributionService,
+    private readonly affiliates: AffiliateLookupService,
   ) {}
 
   private async place3(loc: { districtId: number; upazilaId: number; areaId?: number | null }) {
@@ -194,6 +198,7 @@ export class CheckoutService {
         freeDelivery: d.type === 'free_delivery',
       })),
       rejectedCodes: pricing.promo.rejected,
+      affiliate: await this.affiliates.refFor(found?.cart.affiliateCode),
       deliveryChargeP: pricing.deliveryChargeP,
       deliveryDiscountP: pricing.deliveryDiscountP,
       grandTotalP: pricing.grandTotalP,
@@ -394,7 +399,7 @@ export class CheckoutService {
         await tx.$queryRaw`SELECT id FROM carts WHERE id = ${cartId}::uuid FOR UPDATE`;
         const locked = await tx.cart.findUniqueOrThrow({
           where: { id: cartId },
-          select: { couponCodes: true },
+          select: { couponCodes: true, affiliateCode: true },
         });
         const lines = await this.cart.lines(tx, cartId, this.cart.buyerOf(who, buyerPhone));
         this.assertBuyable(lines);
@@ -510,6 +515,21 @@ export class CheckoutService {
           },
         });
         await this.risk.assess(tx, order.id);
+        // C81–C84: typed code beats last link click; books the pending commission in the same tx.
+        const attributed = await this.affiliateAttribution.attribute(tx, {
+          orderId: order.id,
+          cartCode: locked.affiliateCode,
+          customerId: customer?.id ?? null,
+          visitorId: who.visitorId,
+          phones: [ship.phone, guestPhone, customer?.phone],
+          upazilaId: ship.upazilaId,
+          line: ship.line,
+          lines: lines.map((l) => ({
+            lineTotalP: l.unitPriceP * l.qty,
+            discountP: money.promo.lineDiscounts[l.variantId] ?? 0,
+          })),
+          now,
+        });
         // Flash stock and coupon redemptions are taken last-ish, in tx, so a refusal rolls the order back.
         await claimFlash(
           tx,
@@ -546,12 +566,20 @@ export class CheckoutService {
           }
         }
         await this.cart.clearById(tx, cartId);
-        return { order, money };
+        return {
+          order,
+          money,
+          // Links stay invisible to the buyer; only a typed code is echoed back.
+          affiliate:
+            attributed?.attribution === 'code'
+              ? { code: attributed.code, displayName: attributed.displayName }
+              : null,
+        };
       },
       { timeout: 20_000 },
     );
 
-    const { order } = placed;
+    const { order, affiliate } = placed;
     this.notify.placed({
       orderNo: order.orderNo,
       lang: input.lang,
@@ -567,6 +595,7 @@ export class CheckoutService {
       orderId: order.id,
       grandTotalP: order.grandTotalP,
       codDueP: order.codDueP,
+      affiliate,
     } satisfies PlacedResult;
   }
 
@@ -612,4 +641,5 @@ export interface PlacedResult {
   orderId: string;
   grandTotalP: number;
   codDueP: number;
+  affiliate: { code: string; displayName: string } | null;
 }

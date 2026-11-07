@@ -11,6 +11,8 @@ const envSchema = z.object({
   DATABASE_URL: z.url(),
   REDIS_URL: z.url(),
   STAFF_TOTP_KEY: z.string().regex(/^[0-9a-f]{64}$/, '32-byte hex key'),
+  /** Seals affiliate payout details (bKash/bank). Losing it makes saved details unreadable. */
+  AFFILIATE_PAYOUT_KEY: z.string().regex(/^[0-9a-f]{64}$/, '32-byte hex key'),
   SMTP_URL: z.url(),
   MAIL_FROM: z.string().min(3),
   ADMIN_ORIGIN: z.url(),
@@ -52,6 +54,7 @@ const envSchema = z.object({
   SCHEDULER: z.enum(['0', '1']).optional(),
   SCHEDULER_SYNC_COURIERS_MIN: z.coerce.number().int().min(1).default(10),
   SCHEDULER_COMPLETE_ORDERS_MIN: z.coerce.number().int().min(1).default(60),
+  SCHEDULER_AFFILIATE_MIN: z.coerce.number().int().min(1).default(60),
   /// Listen address. Default: 127.0.0.1 in production, 0.0.0.0 otherwise.
   HOST: z.string().min(1).optional(),
 });

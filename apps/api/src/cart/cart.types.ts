@@ -69,6 +69,8 @@ export interface CartView {
   codes: string[];
   /** Codes dropped from the cart on this read, with why. */
   rejectedCodes: { code: string; reason: CodeRejectReason }[];
+  /** Affiliate code typed in the coupon box (C81: tracking only); null when none or no longer active. */
+  affiliate: { code: string; displayName: string } | null;
 }
 
 export const EMPTY_CART_VIEW: CartView = {
@@ -79,6 +81,7 @@ export const EMPTY_CART_VIEW: CartView = {
   appliedCoupons: [],
   codes: [],
   rejectedCodes: [],
+  affiliate: null,
 };
 
 /** A category path is `/a/b/c/` (ancestor ids, self last): a product sits in all of them. */

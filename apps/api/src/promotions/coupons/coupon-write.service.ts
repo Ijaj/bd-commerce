@@ -225,14 +225,16 @@ export class CouponsWriteService {
     code: string,
     exceptId: string | null,
   ) {
-    const [a, b] = await Promise.all([
+    const [a, b, aff] = await Promise.all([
       db.coupon.findFirst({
         where: { code, ...(exceptId ? { id: { not: exceptId } } : {}) },
         select: { id: true },
       }),
       db.couponCode.findUnique({ where: { code }, select: { id: true } }),
+      // Affiliate codes are typed in the same box (step 7c).
+      db.affiliate.findUnique({ where: { code }, select: { id: true } }),
     ]);
-    if (a || b) throw taken();
+    if (a || b || aff) throw taken();
   }
 }
 

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AffiliatesModule } from '../affiliates/affiliates.module';
 import { CartModule } from '../cart/cart.module';
 import { CustomerCoreModule } from '../customers/customer-core.module';
 import { DeliveryModule } from '../delivery/delivery.module';
@@ -11,6 +12,7 @@ import { CheckoutService } from './checkout.service';
 
 @Module({
   imports: [
+    AffiliatesModule,
     CartModule,
     CustomerCoreModule,
     DeliveryModule,

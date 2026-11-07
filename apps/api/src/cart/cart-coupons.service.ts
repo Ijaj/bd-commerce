@@ -1,4 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
+import { AffiliateLookupService } from '../affiliates/affiliate-lookup.service';
+import { AffiliateError } from '../affiliates/affiliates.errors';
 import { ThrottleService } from '../auth/throttle.service';
 import { CommerceError } from '../orders/commerce.errors';
 import { PrismaService } from '../prisma/prisma.service';
@@ -38,6 +40,7 @@ export class CartCouponsService {
     private readonly cart: CartService,
     private readonly throttle: ThrottleService,
     private readonly promotions: PromotionsService,
+    private readonly affiliates: AffiliateLookupService,
   ) {}
 
   private tryKey(who: CartIdentity) {
@@ -47,6 +50,11 @@ export class CartCouponsService {
   /** Adds a typed code; 422 COUPON_INVALID (with `reason`) when it cannot apply to this cart now. */
   async applyCode(who: CartIdentity, raw: string): Promise<CartView> {
     const code = raw.trim().toUpperCase();
+    // Affiliate codes live in the coupon namespace but use no coupon slot (C81).
+    if (who.customerId || who.visitorId) {
+      const aff = await this.affiliates.findActive(code);
+      if (aff) return this.applyAffiliate(who, aff);
+    }
     const key = this.tryKey(who);
     if (await this.throttle.isBlocked(key, CODE_TRIES)) {
       throw new CommerceError(
@@ -82,6 +90,30 @@ export class CartCouponsService {
       where: { id: cart.id },
       data: { couponCodes: codes.filter((c) => !dropped.has(c)), lastActivityAt: new Date() },
     });
+    return this.cart.view(who);
+  }
+
+  private async applyAffiliate(who: CartIdentity, aff: { code: string; customerId: string }) {
+    if (who.customerId === aff.customerId) {
+      throw new AffiliateError(
+        HttpStatus.UNPROCESSABLE_ENTITY,
+        'AFFILIATE_SELF',
+        'You cannot use your own affiliate code.',
+      );
+    }
+    const cart = (await this.cart.findLive(this.prisma, who)) ?? (await this.cart.getOrCreate(who));
+    await this.prisma.cart.update({
+      where: { id: cart.id },
+      data: { affiliateCode: aff.code, lastActivityAt: new Date() },
+    });
+    return this.cart.view(who);
+  }
+
+  async removeAffiliate(who: CartIdentity): Promise<CartView> {
+    const cart = await this.cart.findLive(this.prisma, who);
+    if (cart?.affiliateCode) {
+      await this.prisma.cart.update({ where: { id: cart.id }, data: { affiliateCode: null } });
+    }
     return this.cart.view(who);
   }
 

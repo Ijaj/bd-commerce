@@ -6,6 +6,7 @@ import {
   type OnModuleInit,
 } from '@nestjs/common';
 import type Redis from 'ioredis';
+import { AffiliateCommissionsJobService } from '../affiliates/affiliate-commissions-job.service';
 import { ENV, type Env } from '../config/env';
 import { REDIS } from '../redis/redis.module';
 import { ReturnsCompletionService } from '../returns/returns-completion.service';
@@ -31,6 +32,7 @@ export class SchedulerService implements OnModuleInit, OnModuleDestroy {
     @Inject(REDIS) private readonly redis: Redis,
     private readonly shipments: ShipmentSyncService,
     private readonly completion: ReturnsCompletionService,
+    private readonly affiliateCommissions: AffiliateCommissionsJobService,
   ) {}
 
   private jobs(): Job[] {
@@ -44,6 +46,11 @@ export class SchedulerService implements OnModuleInit, OnModuleDestroy {
         name: 'complete-orders',
         everyMs: this.env.SCHEDULER_COMPLETE_ORDERS_MIN * 60_000,
         run: () => this.completion.completeDue(),
+      },
+      {
+        name: 'affiliate-commissions',
+        everyMs: this.env.SCHEDULER_AFFILIATE_MIN * 60_000,
+        run: () => this.affiliateCommissions.run(),
       },
     ];
   }

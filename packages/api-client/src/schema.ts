@@ -1316,6 +1316,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/cart/affiliate-code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["CartController_removeAffiliate"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/cart/coupon-suggestions": {
         parameters: {
             query?: never;
@@ -1326,6 +1342,214 @@ export interface paths {
         get: operations["CartController_suggestions"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/affiliates/click": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AffiliatesPublicController_click"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/customer/affiliate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AffiliatesCustomerController_me"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["AffiliatesCustomerController_update"];
+        trace?: never;
+    };
+    "/v1/customer/affiliate/join": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AffiliatesCustomerController_join"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/customer/affiliate/payout-details": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["AffiliatesCustomerController_setPayoutDetails"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/customer/affiliate/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AffiliatesCustomerController_stats"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/customer/affiliate/commissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AffiliatesCustomerController_commissions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/customer/affiliate/payouts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AffiliatesCustomerController_payouts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/affiliates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AffiliatesAdminController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/affiliates/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AffiliatesAdminController_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["AffiliatesAdminController_update"];
+        trace?: never;
+    };
+    "/v1/admin/affiliates/{id}/commissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AffiliatesAdminController_commissions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/affiliate-payouts/due": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AffiliatesAdminController_due"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/affiliate-payouts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AffiliatesAdminController_listPayouts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/affiliates/{id}/payouts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AffiliatesAdminController_recordPayout"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3423,7 +3647,7 @@ export interface components {
                 id: string;
                 name: string;
             }[];
-            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage")[];
+            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage" | "affiliates.view" | "affiliates.manage" | "affiliate_payouts.manage")[];
         };
         ChangePasswordDto: {
             currentPassword: string;
@@ -3501,13 +3725,13 @@ export interface components {
             name: string;
             description: string | null;
             isSystem: boolean;
-            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage")[];
+            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage" | "affiliates.view" | "affiliates.manage" | "affiliate_payouts.manage")[];
             staffCount: number;
         }[];
         CreateRoleDto: {
             name: string;
             description?: string;
-            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage")[];
+            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage" | "affiliates.view" | "affiliates.manage" | "affiliate_payouts.manage")[];
         };
         RoleDto: {
             /** Format: uuid */
@@ -3515,17 +3739,17 @@ export interface components {
             name: string;
             description: string | null;
             isSystem: boolean;
-            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage")[];
+            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage" | "affiliates.view" | "affiliates.manage" | "affiliate_payouts.manage")[];
             staffCount: number;
         };
         UpdateRoleDto: {
             name?: string;
             description?: string | null;
-            permissions?: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage")[];
+            permissions?: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage" | "affiliates.view" | "affiliates.manage" | "affiliate_payouts.manage")[];
         };
         PermissionListDto: {
             /** @enum {string} */
-            key: "staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage";
+            key: "staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage" | "affiliates.view" | "affiliates.manage" | "affiliate_payouts.manage";
             group: string;
             description: string;
         }[];
@@ -5007,6 +5231,10 @@ export interface components {
                 /** @enum {string} */
                 reason: "NOT_FOUND" | "INACTIVE" | "NOT_STARTED" | "EXPIRED" | "MIN_ORDER" | "MIN_QTY" | "NO_MATCHING_ITEMS" | "SEGMENT" | "LIMIT_REACHED" | "BUDGET_REACHED" | "PLATFORM" | "PAYMENT_METHOD" | "ZONE" | "NOT_STACKABLE" | "ONLY_REGULAR_PRICE" | "ALREADY_USED" | "LOGIN_REQUIRED";
             }[];
+            affiliate: {
+                code: string;
+                displayName: string;
+            } | null;
         };
         CartSetQtyDto: {
             qty: number;
@@ -5023,6 +5251,279 @@ export interface components {
                 /** @enum {string} */
                 source: "wallet" | "public";
             }[];
+        };
+        AffiliateClickDto: {
+            code: string;
+            landingUrl: string;
+            utm?: {
+                source?: string;
+                medium?: string;
+                campaign?: string;
+            };
+        };
+        AffiliateMeDto: {
+            /** Format: uuid */
+            id?: string;
+            code?: string;
+            displayName?: string;
+            website?: string | null;
+            /** @enum {string} */
+            status?: "active" | "suspended";
+            commissionBp?: number;
+            payoutMethod?: ("bkash" | "bank") | null;
+            payoutDetailsMasked?: string | null;
+            clickWindowDays?: number;
+            minPayoutP?: number;
+            programEnabled?: boolean;
+            joined: boolean;
+        };
+        AffiliateJoinDto: {
+            displayName: string;
+            /** Format: uri */
+            website?: string;
+            code?: string;
+        };
+        AffiliateErrorDto: {
+            statusCode: number;
+            message: string;
+            code?: string;
+        };
+        AffiliateUpdateDto: {
+            displayName?: string;
+            website?: string | null;
+        };
+        AffiliatePayoutDetailsDto: {
+            /** @enum {string} */
+            method: "bkash" | "bank";
+            bkashNumber?: string;
+            holderName?: string;
+            bankName?: string;
+            branch?: string;
+            accountNo?: string;
+            accountName?: string;
+        };
+        AffiliateStatsDto: {
+            days: {
+                date: string;
+                clicks: number;
+                orders: number;
+            }[];
+            totals: {
+                clicks: number;
+                orders: number;
+                conversionBp: number;
+                pendingP: number;
+                balanceP: number;
+                paidP: number;
+                reversedCount: number;
+            };
+        };
+        AffiliateMyCommissionListDto: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                placedAt: string;
+                itemCount: number;
+                firstItemTitle: string | null;
+                /** @enum {string} */
+                attribution: "link" | "code";
+                baseP: number;
+                commissionBp: number;
+                amountP: number;
+                /** @enum {string} */
+                status: "pending" | "approved" | "reversed" | "paid";
+                availableAt: string | null;
+                reverseReason: string | null;
+            }[];
+            total: number;
+        };
+        AffiliateMyPayoutListDto: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                period: string;
+                amountP: number;
+                /** @enum {string} */
+                method: "bkash" | "bank" | "cash";
+                reference: string;
+                paidAt: string;
+            }[];
+            total: number;
+        };
+        AffiliateAdminListDto: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                displayName: string;
+                customer: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                    phone: string | null;
+                    email: string | null;
+                };
+                /** @enum {string} */
+                status: "active" | "suspended";
+                commissionBp: number;
+                rateOverridden: boolean;
+                clicks30: number;
+                orders30: number;
+                pendingP: number;
+                balanceP: number;
+                paidP: number;
+                createdAt: string;
+            }[];
+            total: number;
+        };
+        AffiliateAdminDetailDto: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            displayName: string;
+            customer: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+                phone: string | null;
+                email: string | null;
+            };
+            /** @enum {string} */
+            status: "active" | "suspended";
+            commissionBp: number;
+            rateOverridden: boolean;
+            clicks30: number;
+            orders30: number;
+            pendingP: number;
+            balanceP: number;
+            paidP: number;
+            createdAt: string;
+            website: string | null;
+            suspendedAt: string | null;
+            suspendedReason: string | null;
+            payoutMethod: ("bkash" | "bank") | null;
+            payoutDetails: (string | ({
+                /** @constant */
+                method: "bkash";
+                bkashNumber: string;
+                holderName: string;
+            } | {
+                /** @constant */
+                method: "bank";
+                bankName: string;
+                branch: string;
+                accountNo: string;
+                accountName: string;
+            })) | null;
+        };
+        AffiliateAdminUpdateDto: {
+            commissionBp?: number | null;
+            /** @enum {string} */
+            status?: "active" | "suspended";
+            suspendedReason?: string;
+        };
+        AffiliateAdminCommissionListDto: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                placedAt: string;
+                itemCount: number;
+                firstItemTitle: string | null;
+                /** @enum {string} */
+                attribution: "link" | "code";
+                baseP: number;
+                commissionBp: number;
+                amountP: number;
+                /** @enum {string} */
+                status: "pending" | "approved" | "reversed" | "paid";
+                availableAt: string | null;
+                reverseReason: string | null;
+                order: {
+                    /** Format: uuid */
+                    id: string;
+                    orderNo: string;
+                };
+            }[];
+            total: number;
+        };
+        AffiliateDueListDto: {
+            items: {
+                /** Format: uuid */
+                affiliateId: string;
+                code: string;
+                displayName: string;
+                balanceP: number;
+                commissionCount: number;
+                payoutMethod: ("bkash" | "bank") | null;
+                payoutDetails: ({
+                    /** @constant */
+                    method: "bkash";
+                    bkashNumber: string;
+                    holderName: string;
+                } | {
+                    /** @constant */
+                    method: "bank";
+                    bankName: string;
+                    branch: string;
+                    accountNo: string;
+                    accountName: string;
+                }) | null;
+                hasPayoutDetails: boolean;
+            }[];
+        };
+        AffiliatePayoutListDto: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                affiliate: {
+                    /** Format: uuid */
+                    id: string;
+                    code: string;
+                    displayName: string;
+                };
+                period: string;
+                amountP: number;
+                /** @enum {string} */
+                method: "bkash" | "bank" | "cash";
+                reference: string;
+                note: string | null;
+                paidBy: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                };
+                paidAt: string;
+            }[];
+            total: number;
+        };
+        AffiliatePayoutCreateDto: {
+            /** @enum {string} */
+            method: "bkash" | "bank" | "cash";
+            reference: string;
+            note?: string;
+            expectedAmountP: number;
+        };
+        AffiliatePayoutDto: {
+            /** Format: uuid */
+            id: string;
+            affiliate: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                displayName: string;
+            };
+            period: string;
+            amountP: number;
+            /** @enum {string} */
+            method: "bkash" | "bank" | "cash";
+            reference: string;
+            note: string | null;
+            paidBy: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            };
+            paidAt: string;
         };
         OrderListDto: {
             items: {
@@ -5171,6 +5672,10 @@ export interface components {
                 code: string;
                 reason: string;
             }[];
+            affiliate: {
+                code: string;
+                displayName: string;
+            } | null;
             deliveryChargeP: number;
             deliveryDiscountP: number;
             grandTotalP: number;
@@ -5210,6 +5715,10 @@ export interface components {
             orderId: string;
             grandTotalP: number;
             codDueP: number;
+            affiliate: {
+                code: string;
+                displayName: string;
+            } | null;
         };
         SrPortalMeDto: {
             staff: {
@@ -6066,6 +6575,18 @@ export interface components {
                 score: number;
                 reasons: string[];
             };
+            affiliate: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                displayName: string;
+                /** @enum {string} */
+                attribution: "link" | "code";
+                commission: {
+                    status: string;
+                    amountP: number;
+                } | null;
+            } | null;
             call: {
                 /** @enum {string} */
                 status: "not_needed" | "pending" | "confirmed" | "unreachable" | "cancelled";
@@ -10647,6 +11168,25 @@ export interface operations {
             };
         };
     };
+    CartController_removeAffiliate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CartDto"];
+                };
+            };
+        };
+    };
     CartController_suggestions: {
         parameters: {
             query?: never;
@@ -10662,6 +11202,440 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CartCouponSuggestionsDto"];
+                };
+            };
+        };
+    };
+    AffiliatesPublicController_click: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AffiliateClickDto"];
+            };
+        };
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AffiliatesCustomerController_me: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AffiliateMeDto"];
+                };
+            };
+            /** @description No valid customer session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AffiliatesCustomerController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AffiliateUpdateDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AffiliateMeDto"];
+                };
+            };
+            /** @description No valid customer session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AffiliateErrorDto"];
+                };
+            };
+        };
+    };
+    AffiliatesCustomerController_join: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AffiliateJoinDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AffiliateMeDto"];
+                };
+            };
+            /** @description No valid customer session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AffiliateErrorDto"];
+                };
+            };
+        };
+    };
+    AffiliatesCustomerController_setPayoutDetails: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AffiliatePayoutDetailsDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AffiliateMeDto"];
+                };
+            };
+            /** @description No valid customer session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AffiliateErrorDto"];
+                };
+            };
+        };
+    };
+    AffiliatesCustomerController_stats: {
+        parameters: {
+            query?: {
+                days?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AffiliateStatsDto"];
+                };
+            };
+            /** @description No valid customer session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AffiliatesCustomerController_commissions: {
+        parameters: {
+            query?: {
+                status?: "pending" | "approved" | "reversed" | "paid";
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AffiliateMyCommissionListDto"];
+                };
+            };
+            /** @description No valid customer session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AffiliatesCustomerController_payouts: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AffiliateMyPayoutListDto"];
+                };
+            };
+            /** @description No valid customer session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AffiliatesAdminController_list: {
+        parameters: {
+            query?: {
+                q?: string;
+                status?: "active" | "suspended";
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AffiliateAdminListDto"];
+                };
+            };
+        };
+    };
+    AffiliatesAdminController_detail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AffiliateAdminDetailDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AffiliateErrorDto"];
+                };
+            };
+        };
+    };
+    AffiliatesAdminController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AffiliateAdminUpdateDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AffiliateAdminDetailDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AffiliateErrorDto"];
+                };
+            };
+        };
+    };
+    AffiliatesAdminController_commissions: {
+        parameters: {
+            query?: {
+                status?: "pending" | "approved" | "reversed" | "paid";
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AffiliateAdminCommissionListDto"];
+                };
+            };
+        };
+    };
+    AffiliatesAdminController_due: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AffiliateDueListDto"];
+                };
+            };
+        };
+    };
+    AffiliatesAdminController_listPayouts: {
+        parameters: {
+            query?: {
+                affiliateId?: string;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AffiliatePayoutListDto"];
+                };
+            };
+        };
+    };
+    AffiliatesAdminController_recordPayout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AffiliatePayoutCreateDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AffiliatePayoutDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AffiliateErrorDto"];
                 };
             };
         };

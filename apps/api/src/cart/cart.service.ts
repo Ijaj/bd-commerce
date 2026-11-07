@@ -1,4 +1,5 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
+import { AffiliateLookupService } from '../affiliates/affiliate-lookup.service';
 import { ThrottleService } from '../auth/throttle.service';
 import { Prisma } from '../generated/prisma/client';
 import { CommerceError } from '../orders/commerce.errors';
@@ -73,6 +74,7 @@ export class CartService {
     private readonly images: ImageService,
     private readonly throttle: ThrottleService,
     private readonly promotions: PromotionsService,
+    private readonly affiliates: AffiliateLookupService,
   ) {}
 
   findLive(db: Db, who: Pick<CartIdentity, 'customerId' | 'visitorId'>) {
@@ -87,7 +89,7 @@ export class CartService {
     return Promise.resolve(null);
   }
 
-  private async getOrCreate(who: Pick<CartIdentity, 'customerId' | 'visitorId' | 'ip'>) {
+  async getOrCreate(who: Pick<CartIdentity, 'customerId' | 'visitorId' | 'ip'>) {
     const found = await this.findLive(this.prisma, who);
     if (found) return found;
     if (!who.customerId) {
@@ -216,6 +218,7 @@ export class CartService {
     lines: CartLineDetail[],
     promo: PromoResult = EMPTY_PROMO,
     codes: string[] = [],
+    affiliate: CartView['affiliate'] = null,
   ): CartView {
     return {
       items: lines.map((l) => ({
@@ -252,6 +255,7 @@ export class CartService {
       })),
       codes,
       rejectedCodes: promo.rejected,
+      affiliate,
     };
   }
 
@@ -317,7 +321,7 @@ export class CartService {
       codes = codes.filter((c) => !dropped.has(c.toUpperCase()));
       await this.prisma.cart.update({ where: { id: cart.id }, data: { couponCodes: codes } });
     }
-    return this.toView(lines, promo, codes);
+    return this.toView(lines, promo, codes, await this.affiliates.refFor(cart.affiliateCode));
   }
 
   async setQty(who: CartIdentity, variantId: string, qty: number): Promise<CartView> {
@@ -410,7 +414,10 @@ export class CartService {
     const cart = await this.findLive(this.prisma, who);
     if (cart) {
       await this.prisma.cartItem.deleteMany({ where: { cartId: cart.id } });
-      await this.prisma.cart.update({ where: { id: cart.id }, data: { couponCodes: [] } });
+      await this.prisma.cart.update({
+        where: { id: cart.id },
+        data: { couponCodes: [], affiliateCode: null },
+      });
     }
     return EMPTY_CART_VIEW;
   }
@@ -420,7 +427,7 @@ export class CartService {
     await db.cartItem.deleteMany({ where: { cartId } });
     await db.cart.update({
       where: { id: cartId },
-      data: { lastActivityAt: new Date(), couponCodes: [] },
+      data: { lastActivityAt: new Date(), couponCodes: [], affiliateCode: null },
     });
   }
 
@@ -463,7 +470,11 @@ export class CartService {
       );
       await tx.cart.update({
         where: { id: mine.id },
-        data: { lastActivityAt: new Date(), couponCodes: codes },
+        data: {
+          lastActivityAt: new Date(),
+          couponCodes: codes,
+          affiliateCode: mine.affiliateCode ?? guest.affiliateCode,
+        },
       });
     });
   }

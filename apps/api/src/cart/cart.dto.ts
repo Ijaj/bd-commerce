@@ -80,6 +80,8 @@ export class CartDto extends createZodDto(
     codes: z.array(z.string()),
     /// Codes dropped from the cart on this read, with the reason.
     rejectedCodes: z.array(z.object({ code: z.string(), reason: rejectReason })),
+    /// Affiliate code typed in the coupon box (tracking only, no discount); null when none or inactive.
+    affiliate: z.object({ code: z.string(), displayName: z.string() }).nullable(),
   }),
 ) {}
 

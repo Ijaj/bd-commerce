@@ -168,6 +168,19 @@ export const SETTINGS = {
     default: 100,
     public: false,
   },
+  affiliates: {
+    group: 'Marketing',
+    description:
+      'Affiliate program (C69, C70, C81–C84). enabled: customers can join and links/codes are tracked. defaultCommissionBp: commission in basis points of kept item totals after discounts (500 = 5%), unless set per affiliate. minPayoutP: approved balance (paisa) needed for a payout; smaller balances carry over. clickWindowDays: how long a link click attributes orders (last click wins).',
+    schema: z.object({
+      enabled: z.boolean(),
+      defaultCommissionBp: z.number().int().min(0).max(10000),
+      minPayoutP: z.number().int().min(0),
+      clickWindowDays: z.number().int().min(1).max(90),
+    }),
+    default: { enabled: true, defaultCommissionBp: 500, minPayoutP: 50000, clickWindowDays: 30 },
+    public: false,
+  },
   online_payments_enabled: flag('Online payments at checkout (off for the COD-only launch)'),
   advance_payments_enabled: flag('Advance payment on COD orders (Q106)'),
   preorders_enabled: flag('Pre-order products can be bought (Q109)'),

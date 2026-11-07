@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { APP_PIPE } from '@nestjs/core';
 import { ZodValidationPipe } from 'nestjs-zod';
+import { AffiliatesModule } from './affiliates/affiliates.module';
 import { AuthModule } from './auth/auth.module';
 import { BrandsModule } from './catalog/brands/brands.module';
 import { CategoriesModule } from './catalog/categories/categories.module';
@@ -61,6 +62,7 @@ import { StorefrontModule } from './storefront/storefront.module';
     BulkSaleModule,
     SuppliersModule,
     PurchaseOrdersModule,
+    AffiliatesModule,
     SchedulerModule,
   ],
   controllers: [HealthController],

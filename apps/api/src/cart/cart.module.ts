@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AffiliatesModule } from '../affiliates/affiliates.module';
 import { CustomerCoreModule } from '../customers/customer-core.module';
 import { PromotionsModule } from '../promotions/promotions.module';
 import { StorefrontModule } from '../storefront/storefront.module';
@@ -8,7 +9,7 @@ import { CartCouponsService } from './cart-coupons.service';
 import { CartIdentityService } from './cart-identity.service';
 
 @Module({
-  imports: [CustomerCoreModule, StorefrontModule, PromotionsModule],
+  imports: [AffiliatesModule, CustomerCoreModule, StorefrontModule, PromotionsModule],
   controllers: [CartController],
   providers: [CartService, CartCouponsService, CartIdentityService],
   exports: [CartService, CartCouponsService, CartIdentityService],

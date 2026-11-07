@@ -113,6 +113,19 @@ export const PERMISSIONS = {
     group: 'Suppliers & POs',
     description: 'Record supplier payments and ledger adjustments',
   },
+  // Step 7c: affiliates (C67–C70, C81–C84).
+  'affiliates.view': {
+    group: 'Affiliates',
+    description: 'View affiliates, clicks and commissions',
+  },
+  'affiliates.manage': {
+    group: 'Affiliates',
+    description: 'Suspend/reactivate affiliates and set per-affiliate commission rates',
+  },
+  'affiliate_payouts.manage': {
+    group: 'Affiliates',
+    description: 'See affiliate payout details (bKash/bank) and record payouts',
+  },
 } as const satisfies Record<string, { group: string; description: string }>;
 
 export type PermissionKey = keyof typeof PERMISSIONS;

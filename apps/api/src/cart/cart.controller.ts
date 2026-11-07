@@ -89,6 +89,16 @@ export class CartController {
     return this.coupons.removeCode(await this.identity.resolve(req, res), code);
   }
 
+  /** Drops the affiliate code typed in the coupon box. */
+  @Delete('affiliate-code')
+  @ApiOkResponse({ type: CartDto })
+  async removeAffiliate(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<CartDto> {
+    return this.coupons.removeAffiliate(await this.identity.resolve(req, res));
+  }
+
   /** Code coupons the customer could add, with what each would save on the current cart. */
   @Get('coupon-suggestions')
   @ApiOkResponse({ type: CartCouponSuggestionsDto })

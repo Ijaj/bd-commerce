@@ -34,31 +34,32 @@ model Staff {
   createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz
 
-  totpResetBy     Staff?                   @relation("TotpReset", fields: [totpResetById], references: [id])
-  totpResets      Staff[]                  @relation("TotpReset")
-  sessions        StaffSession[]
-  devices         StaffKnownDevice[]
-  backupCodes     StaffBackupCode[]
-  roles           StaffRole[]
-  settings        Setting[]
-  media           Media[]
-  stockMoves      StockMovement[]
-  srProfile       SrProfile?
-  srSales         SrSale[]                 @relation("SrSaleSr")
-  srApprovals     SrSale[]                 @relation("SrSaleApprover")
-  srDeliveries    SrSale[]                 @relation("SrSaleDeliverer")
-  b2bShopsCreated B2bShop[]
-  ledgerRecorded  B2bLedger[]              @relation("LedgerRecordedBy")
-  ledgerConfirmed B2bLedger[]              @relation("LedgerConfirmedBy")
-  ledgerRejected  B2bLedger[]              @relation("LedgerRejectedBy")
-  srReversals     SrSale[]                 @relation("SrSaleReverser")
-  srCommissionAdj SrCommissionAdjustment[] @relation("SrCommissionAdjSr")
-  srTargets       SrTarget[]
-  srCommissions   SrCommission[]
-  purchaseOrders  PurchaseOrder[]          @relation("PoCreatedBy")
-  posClosed       PurchaseOrder[]          @relation("PoClosedBy")
-  poReceipts      PoReceipt[]
-  supplierLedger  SupplierLedger[]
+  totpResetBy      Staff?                   @relation("TotpReset", fields: [totpResetById], references: [id])
+  totpResets       Staff[]                  @relation("TotpReset")
+  sessions         StaffSession[]
+  devices          StaffKnownDevice[]
+  backupCodes      StaffBackupCode[]
+  roles            StaffRole[]
+  settings         Setting[]
+  media            Media[]
+  stockMoves       StockMovement[]
+  srProfile        SrProfile?
+  srSales          SrSale[]                 @relation("SrSaleSr")
+  srApprovals      SrSale[]                 @relation("SrSaleApprover")
+  srDeliveries     SrSale[]                 @relation("SrSaleDeliverer")
+  b2bShopsCreated  B2bShop[]
+  ledgerRecorded   B2bLedger[]              @relation("LedgerRecordedBy")
+  ledgerConfirmed  B2bLedger[]              @relation("LedgerConfirmedBy")
+  ledgerRejected   B2bLedger[]              @relation("LedgerRejectedBy")
+  srReversals      SrSale[]                 @relation("SrSaleReverser")
+  srCommissionAdj  SrCommissionAdjustment[] @relation("SrCommissionAdjSr")
+  srTargets        SrTarget[]
+  srCommissions    SrCommission[]
+  purchaseOrders   PurchaseOrder[]          @relation("PoCreatedBy")
+  posClosed        PurchaseOrder[]          @relation("PoClosedBy")
+  poReceipts       PoReceipt[]
+  supplierLedger   SupplierLedger[]
+  affiliatePayouts AffiliatePayout[]
 
   @@map("staff")
 }
@@ -605,6 +606,7 @@ model Customer {
   couponRedemptions CouponRedemption[]
   couponCodes       CouponCode[]
   couponCustomers   CouponCustomer[]
+  affiliate         Affiliate?
 
   @@map("customers")
 }
@@ -841,6 +843,8 @@ model Cart {
   mergedIntoId        String?   @map("merged_into_id") @db.Uuid
   /// Codes the customer applied (C57: at most 2, the 2nd only when both coupons stack).
   couponCodes         String[]  @default([]) @map("coupon_codes")
+  /// Affiliate code typed in the coupon box (C81: tracking only, not a coupon slot).
+  affiliateCode       String?   @map("affiliate_code")
   createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz
 
   customer Customer?  @relation(fields: [customerId], references: [id])
@@ -897,81 +901,87 @@ enum PaymentStatus {
 }
 
 model Order {
-  id                  String        @id @default(uuid(7)) @db.Uuid
-  orderNo             String        @unique @map("order_no")
-  customerId          String?       @map("customer_id") @db.Uuid
-  guestName           String?       @map("guest_name")
-  guestPhone          String?       @map("guest_phone")
-  guestEmail          String?       @map("guest_email")
-  visitorId           String?       @map("visitor_id")
-  platform            String        @default("web")
-  ip                  String?
-  userAgent           String?       @map("user_agent")
-  lang                Lang          @default(en)
+  id                   String                @id @default(uuid(7)) @db.Uuid
+  orderNo              String                @unique @map("order_no")
+  customerId           String?               @map("customer_id") @db.Uuid
+  guestName            String?               @map("guest_name")
+  guestPhone           String?               @map("guest_phone")
+  guestEmail           String?               @map("guest_email")
+  visitorId            String?               @map("visitor_id")
+  platform             String                @default("web")
+  ip                   String?
+  userAgent            String?               @map("user_agent")
+  lang                 Lang                  @default(en)
   // Ship-to snapshot
-  shipName            String        @map("ship_name")
-  shipPhone           String        @map("ship_phone")
-  shipDivisionId      Int           @map("ship_division_id")
-  shipDistrictId      Int           @map("ship_district_id")
-  shipUpazilaId       Int           @map("ship_upazila_id")
-  shipAreaId          Int?          @map("ship_area_id")
+  shipName             String                @map("ship_name")
+  shipPhone            String                @map("ship_phone")
+  shipDivisionId       Int                   @map("ship_division_id")
+  shipDistrictId       Int                   @map("ship_district_id")
+  shipUpazilaId        Int                   @map("ship_upazila_id")
+  shipAreaId           Int?                  @map("ship_area_id")
   /// "Area, Upazila, District" in the order's language, frozen at placement.
-  shipPlaceText       String        @map("ship_place_text")
-  shipLine            String        @map("ship_line")
-  shipLandmark        String?       @map("ship_landmark")
-  zoneId              String        @map("zone_id") @db.Uuid
-  customerNote        String?       @map("customer_note")
+  shipPlaceText        String                @map("ship_place_text")
+  shipLine             String                @map("ship_line")
+  shipLandmark         String?               @map("ship_landmark")
+  zoneId               String                @map("zone_id") @db.Uuid
+  customerNote         String?               @map("customer_note")
   // Status
-  status              OrderStatus   @default(processing)
-  paymentStatus       PaymentStatus @default(unpaid) @map("payment_status")
-  paymentMethodChosen String        @default("cod") @map("payment_method_chosen")
-  isPreorder          Boolean       @default(false) @map("is_preorder")
-  cancelReason        String?       @map("cancel_reason")
-  heldReason          String?       @map("held_reason")
+  status               OrderStatus           @default(processing)
+  paymentStatus        PaymentStatus         @default(unpaid) @map("payment_status")
+  paymentMethodChosen  String                @default("cod") @map("payment_method_chosen")
+  isPreorder           Boolean               @default(false) @map("is_preorder")
+  cancelReason         String?               @map("cancel_reason")
+  heldReason           String?               @map("held_reason")
   // Money (paisa)
-  subtotalP           Int           @map("subtotal_p")
-  autoDiscountP       Int           @default(0) @map("auto_discount_p")
-  couponDiscountP     Int           @default(0) @map("coupon_discount_p")
-  deliveryChargeP     Int           @map("delivery_charge_p")
-  deliveryDiscountP   Int           @default(0) @map("delivery_discount_p")
+  subtotalP            Int                   @map("subtotal_p")
+  autoDiscountP        Int                   @default(0) @map("auto_discount_p")
+  couponDiscountP      Int                   @default(0) @map("coupon_discount_p")
+  deliveryChargeP      Int                   @map("delivery_charge_p")
+  deliveryDiscountP    Int                   @default(0) @map("delivery_discount_p")
   /// Snapshot of every discount applied: [{couponId,name,kind,type,code,amountP,deliveryP}] (coupons may change later).
-  discountsJson       Json          @default("[]") @map("discounts_json")
-  grandTotalP         Int           @map("grand_total_p")
-  advanceRequiredP    Int           @default(0) @map("advance_required_p")
-  paidP               Int           @default(0) @map("paid_p")
-  refundedP           Int           @default(0) @map("refunded_p")
-  codDueP             Int           @map("cod_due_p")
+  discountsJson        Json                  @default("[]") @map("discounts_json")
+  grandTotalP          Int                   @map("grand_total_p")
+  advanceRequiredP     Int                   @default(0) @map("advance_required_p")
+  paidP                Int                   @default(0) @map("paid_p")
+  refundedP            Int                   @default(0) @map("refunded_p")
+  codDueP              Int                   @map("cod_due_p")
   // Call-confirmation queue (C53, Q53/Q54): flagged orders wait for an optional staff call; never blocks.
-  riskScore           Int           @default(0) @map("risk_score")
+  riskScore            Int                   @default(0) @map("risk_score")
   /// string[] of reason codes: velocity_phone | velocity_ip | velocity_device | cod_high | first_guest
-  riskReasons         Json          @default("[]") @map("risk_reasons")
-  callStatus          CallStatus    @default(not_needed) @map("call_status")
-  callNote            String?       @map("call_note")
-  callStaffId         String?       @map("call_staff_id") @db.Uuid
-  callAt              DateTime?     @map("call_at") @db.Timestamptz
+  riskReasons          Json                  @default("[]") @map("risk_reasons")
+  callStatus           CallStatus            @default(not_needed) @map("call_status")
+  callNote             String?               @map("call_note")
+  callStaffId          String?               @map("call_staff_id") @db.Uuid
+  callAt               DateTime?             @map("call_at") @db.Timestamptz
   // Checks
-  guestOtpVerifiedAt  DateTime?     @map("guest_otp_verified_at") @db.Timestamptz
-  placedAt            DateTime      @default(now()) @map("placed_at") @db.Timestamptz
-  deliveredAt         DateTime?     @map("delivered_at") @db.Timestamptz
-  completedAt         DateTime?     @map("completed_at") @db.Timestamptz
-  createdAt           DateTime      @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt           DateTime      @updatedAt @map("updated_at") @db.Timestamptz
+  guestOtpVerifiedAt   DateTime?             @map("guest_otp_verified_at") @db.Timestamptz
+  placedAt             DateTime              @default(now()) @map("placed_at") @db.Timestamptz
+  deliveredAt          DateTime?             @map("delivered_at") @db.Timestamptz
+  completedAt          DateTime?             @map("completed_at") @db.Timestamptz
+  // Affiliate attribution (C81–C84): typed code beats the last link click within the window.
+  affiliateId          String?               @map("affiliate_id") @db.Uuid
+  affiliateAttribution AffiliateAttribution? @map("affiliate_attribution")
+  createdAt            DateTime              @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt            DateTime              @updatedAt @map("updated_at") @db.Timestamptz
 
-  customer          Customer?            @relation(fields: [customerId], references: [id])
-  zone              DeliveryZone         @relation(fields: [zoneId], references: [id])
-  items             OrderItem[]
-  history           OrderStatusHistory[]
-  payments          Payment[]
-  shipments         Shipment[]
-  invoices          Invoice[]
-  returns           Return[]
-  refunds           Refund[]
-  couponRedemptions CouponRedemption[]
+  customer            Customer?            @relation(fields: [customerId], references: [id])
+  affiliate           Affiliate?           @relation(fields: [affiliateId], references: [id], onDelete: Restrict)
+  affiliateCommission AffiliateCommission?
+  zone                DeliveryZone         @relation(fields: [zoneId], references: [id])
+  items               OrderItem[]
+  history             OrderStatusHistory[]
+  payments            Payment[]
+  shipments           Shipment[]
+  invoices            Invoice[]
+  returns             Return[]
+  refunds             Refund[]
+  couponRedemptions   CouponRedemption[]
 
   @@index([callStatus, placedAt])
   @@index([customerId])
   @@index([guestPhone])
   @@index([status, placedAt])
+  @@index([affiliateId])
   @@map("orders")
 }
 
@@ -2071,4 +2081,130 @@ model SaleBatchItem {
   @@index([batchId])
   @@index([variantId])
   @@map("sale_batch_items")
+}
+
+// ---------------------------------------------------------------------------
+// Affiliates (step 7c; doc 12 §8, Q78, Q89, C67–C70, C81–C84). Dashboard in the shop on the
+// customer login. No join approval (C70). Commission = % of kept line totals after discounts,
+// excluding delivery (C68); approved after delivery + return window; paid monthly by staff.
+// ---------------------------------------------------------------------------
+
+enum AffiliateStatus {
+  active
+  suspended
+
+  @@map("affiliate_status")
+}
+
+enum AffiliateAttribution {
+  link
+  code
+
+  @@map("affiliate_attribution")
+}
+
+enum AffiliateCommissionStatus {
+  /// Order placed, not yet past delivery + return window. amount_p is an estimate.
+  pending
+  /// Final amount fixed; counts toward the payable balance.
+  approved
+  /// Order cancelled / nothing kept / self-referral found later. amount_p kept for history.
+  reversed
+  paid
+
+  @@map("affiliate_commission_status")
+}
+
+model Affiliate {
+  id               String          @id @default(uuid(7)) @db.Uuid
+  customerId       String          @unique @map("customer_id") @db.Uuid
+  /// Upper-case A-Z0-9, 4–16 chars. Also the `?ref=` value.
+  code             String          @unique
+  /// Page / channel name shown to staff.
+  displayName      String          @map("display_name")
+  website          String?
+  /// Null = settings `affiliates.defaultCommissionBp`.
+  commissionBp     Int?            @map("commission_bp")
+  status           AffiliateStatus @default(active)
+  suspendedAt      DateTime?       @map("suspended_at") @db.Timestamptz
+  suspendedReason  String?         @map("suspended_reason")
+  /// bkash | bank
+  payoutMethod     String?         @map("payout_method")
+  /// AES-GCM sealed JSON (AFFILIATE_PAYOUT_KEY): {bkashNumber, holderName} or {bankName, branch, accountNo, accountName}.
+  payoutDetailsEnc String?         @map("payout_details_enc")
+  createdAt        DateTime        @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime        @updatedAt @map("updated_at") @db.Timestamptz
+
+  customer    Customer              @relation(fields: [customerId], references: [id])
+  clicks      AffiliateClick[]
+  commissions AffiliateCommission[]
+  payouts     AffiliatePayout[]
+  orders      Order[]
+
+  @@map("affiliates")
+}
+
+model AffiliateClick {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  affiliateId String   @map("affiliate_id") @db.Uuid
+  visitorId   String   @map("visitor_id")
+  landingUrl  String   @map("landing_url")
+  /// {source, medium, campaign} from utm_* params.
+  utm         Json?
+  ip          String?
+  clickedAt   DateTime @default(now()) @map("clicked_at") @db.Timestamptz
+
+  affiliate Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Restrict)
+
+  @@index([visitorId, clickedAt])
+  @@index([affiliateId, clickedAt])
+  @@map("affiliate_clicks")
+}
+
+model AffiliateCommission {
+  id            String                    @id @default(uuid(7)) @db.Uuid
+  affiliateId   String                    @map("affiliate_id") @db.Uuid
+  orderId       String                    @unique @map("order_id") @db.Uuid
+  /// Rate snapshot at order time.
+  commissionBp  Int                       @map("commission_bp")
+  baseP         Int                       @map("base_p")
+  amountP       Int                       @map("amount_p")
+  status        AffiliateCommissionStatus @default(pending)
+  /// delivered_at + longest line return window; set on delivery.
+  availableAt   DateTime?                 @map("available_at") @db.Timestamptz
+  approvedAt    DateTime?                 @map("approved_at") @db.Timestamptz
+  reversedAt    DateTime?                 @map("reversed_at") @db.Timestamptz
+  reverseReason String?                   @map("reverse_reason")
+  payoutId      String?                   @map("payout_id") @db.Uuid
+  createdAt     DateTime                  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime                  @updatedAt @map("updated_at") @db.Timestamptz
+
+  affiliate Affiliate        @relation(fields: [affiliateId], references: [id], onDelete: Restrict)
+  order     Order            @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  payout    AffiliatePayout? @relation(fields: [payoutId], references: [id], onDelete: Restrict)
+
+  @@index([affiliateId, status])
+  @@index([status, availableAt])
+  @@map("affiliate_commissions")
+}
+
+model AffiliatePayout {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  affiliateId String   @map("affiliate_id") @db.Uuid
+  /// YYYY-MM of paid_at (Asia/Dhaka).
+  period      String
+  amountP     Int      @map("amount_p")
+  /// bkash | bank | cash
+  method      String
+  reference   String
+  note        String?
+  paidById    String   @map("paid_by_id") @db.Uuid
+  paidAt      DateTime @default(now()) @map("paid_at") @db.Timestamptz
+
+  affiliate   Affiliate             @relation(fields: [affiliateId], references: [id], onDelete: Restrict)
+  paidBy      Staff                 @relation(fields: [paidById], references: [id])
+  commissions AffiliateCommission[]
+
+  @@index([affiliateId, paidAt])
+  @@map("affiliate_payouts")
 }

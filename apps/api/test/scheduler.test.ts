@@ -1,5 +1,6 @@
 import type Redis from 'ioredis';
 import { describe, expect, it, vi } from 'vitest';
+import type { AffiliateCommissionsJobService } from '../src/affiliates/affiliate-commissions-job.service';
 import type { Env } from '../src/config/env';
 import type { ReturnsCompletionService } from '../src/returns/returns-completion.service';
 import { SchedulerService } from '../src/scheduler/scheduler.service';
@@ -9,10 +10,16 @@ function make(set: ReturnType<typeof vi.fn>) {
   const syncOpen = vi.fn().mockResolvedValue({ checked: 0 });
   const completeDue = vi.fn().mockResolvedValue(0);
   const svc = new SchedulerService(
-    { NODE_ENV: 'test', SCHEDULER_SYNC_COURIERS_MIN: 10, SCHEDULER_COMPLETE_ORDERS_MIN: 60 } as Env,
+    {
+      NODE_ENV: 'test',
+      SCHEDULER_SYNC_COURIERS_MIN: 10,
+      SCHEDULER_COMPLETE_ORDERS_MIN: 60,
+      SCHEDULER_AFFILIATE_MIN: 60,
+    } as Env,
     { set } as unknown as Redis,
     { syncOpen } as unknown as ShipmentSyncService,
     { completeDue } as unknown as ReturnsCompletionService,
+    { run: vi.fn() } as unknown as AffiliateCommissionsJobService,
   );
   return { svc, syncOpen };
 }
