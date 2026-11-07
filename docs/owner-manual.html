@@ -24,7 +24,7 @@
   --side-text: #c9d1e3;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
+  :root:not([data-theme="light"]) {
     --bg: #0f1320;
     --panel: #171c2e;
     --text: #e4e8f2;
@@ -43,7 +43,7 @@
     --side-text: #aab4cc;
   }
 }
-:root[data-theme='dark'] {
+:root[data-theme="dark"] {
   --bg: #0f1320;
   --panel: #171c2e;
   --text: #e4e8f2;
@@ -61,94 +61,375 @@
   --side: #0b0e19;
   --side-text: #aab4cc;
 }
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; scroll-padding-top: 16px; }
+* {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 16px;
+}
 body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font: 16px/1.65 system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Noto Sans Bengali', sans-serif;
+  font:
+    16px / 1.65 system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    "Noto Sans",
+    "Noto Sans Bengali",
+    sans-serif;
 }
-.layout { display: grid; grid-template-columns: 270px minmax(0, 1fr); min-height: 100vh; }
+.layout {
+  display: grid;
+  grid-template-columns: 270px minmax(0, 1fr);
+  min-height: 100vh;
+}
 nav.toc {
-  position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto;
-  background: var(--side); color: var(--side-text); padding: 20px 16px 40px;
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  overflow-y: auto;
+  background: var(--side);
+  color: var(--side-text);
+  padding: 20px 16px 40px;
   font-size: 14px;
 }
-nav.toc .brand { font-weight: 700; color: #fff; font-size: 16px; margin-bottom: 4px; }
-nav.toc .sub { font-size: 12px; opacity: .7; margin-bottom: 16px; }
-nav.toc a { display: block; color: var(--side-text); text-decoration: none; padding: 4px 8px; border-radius: 6px; line-height: 1.35; }
-nav.toc a:hover { background: rgba(255,255,255,.08); color: #fff; }
-nav.toc a.h3 { padding-left: 22px; font-size: 13px; opacity: .85; }
-nav.toc .grp { margin: 14px 8px 4px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; opacity: .55; }
-nav.toc .switch { margin-top: 18px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.12); }
+nav.toc .brand {
+  font-weight: 700;
+  color: #fff;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+nav.toc .sub {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-bottom: 16px;
+}
+nav.toc a {
+  display: block;
+  color: var(--side-text);
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: 6px;
+  line-height: 1.35;
+}
+nav.toc a:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+nav.toc a.h3 {
+  padding-left: 22px;
+  font-size: 13px;
+  opacity: 0.85;
+}
+nav.toc .grp {
+  margin: 14px 8px 4px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+nav.toc .switch {
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
 nav.toc button.theme {
-  margin-top: 8px; background: transparent; color: var(--side-text); border: 1px solid rgba(255,255,255,.2);
-  border-radius: 6px; padding: 4px 10px; cursor: pointer; font: inherit; font-size: 13px;
+  margin-top: 8px;
+  background: transparent;
+  color: var(--side-text);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
 }
-main { padding: 32px clamp(16px, 4vw, 56px) 80px; max-width: 1040px; width: 100%; }
-h1 { font-size: 2rem; margin: 0 0 6px; line-height: 1.2; }
-h2 { font-size: 1.5rem; margin: 2.6em 0 .6em; padding-top: .6em; border-top: 1px solid var(--line); line-height: 1.25; }
-h2:first-of-type { border-top: 0; }
-h3 { font-size: 1.15rem; margin: 1.8em 0 .4em; }
-h4 { font-size: 1rem; margin: 1.4em 0 .3em; }
-p, li { max-width: 78ch; }
-.lead { color: var(--muted); font-size: 1.1rem; max-width: 70ch; }
-a { color: var(--primary); }
-code, kbd, pre { font-family: ui-monospace, 'JetBrains Mono', Menlo, Consolas, monospace; font-size: .88em; }
-code, kbd { background: var(--code-bg); padding: 1px 6px; border-radius: 5px; }
-kbd { border: 1px solid var(--line); border-bottom-width: 2px; }
-pre { background: var(--code-bg); padding: 14px 16px; border-radius: 10px; overflow-x: auto; line-height: 1.5; border: 1px solid var(--line); }
-pre code { background: none; padding: 0; font-size: 1em; }
-table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .93rem; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
-th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
-th { background: var(--code-bg); font-weight: 600; font-size: .85rem; }
-tr:last-child td { border-bottom: 0; }
-.table-wrap { overflow-x: auto; }
-.callout { border-left: 4px solid var(--primary); background: var(--primary-soft); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 1.2em 0; max-width: 78ch; }
-.callout.warn { border-color: var(--warn); background: var(--warn-soft); }
-.callout.danger { border-color: var(--danger); background: var(--danger-soft); }
-.callout.ok { border-color: var(--accent); background: var(--ok-soft); }
-.callout > :first-child { margin-top: 0; }
-.callout > :last-child { margin-bottom: 0; }
-.callout strong.t { display: block; margin-bottom: 2px; }
-.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; margin: 1.2em 0; }
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
-.card h4 { margin: 0 0 4px; }
-.card p { margin: 0; color: var(--muted); font-size: .92rem; }
-.pill { display: inline-block; font-size: .75rem; padding: 1px 8px; border-radius: 99px; background: var(--code-bg); border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
-.pill.pk { background: var(--primary-soft); color: var(--primary); border-color: transparent; }
-.pill.uq { background: var(--ok-soft); color: var(--accent); border-color: transparent; }
-.pill.opt { opacity: .8; }
-.steps { counter-reset: s; list-style: none; padding: 0; }
-.steps > li { counter-increment: s; position: relative; padding: 4px 0 10px 44px; }
+main {
+  padding: 32px clamp(16px, 4vw, 56px) 80px;
+  max-width: 1040px;
+  width: 100%;
+}
+h1 {
+  font-size: 2rem;
+  margin: 0 0 6px;
+  line-height: 1.2;
+}
+h2 {
+  font-size: 1.5rem;
+  margin: 2.6em 0 0.6em;
+  padding-top: 0.6em;
+  border-top: 1px solid var(--line);
+  line-height: 1.25;
+}
+h2:first-of-type {
+  border-top: 0;
+}
+h3 {
+  font-size: 1.15rem;
+  margin: 1.8em 0 0.4em;
+}
+h4 {
+  font-size: 1rem;
+  margin: 1.4em 0 0.3em;
+}
+p,
+li {
+  max-width: 78ch;
+}
+.lead {
+  color: var(--muted);
+  font-size: 1.1rem;
+  max-width: 70ch;
+}
+a {
+  color: var(--primary);
+}
+code,
+kbd,
+pre {
+  font-family: ui-monospace, "JetBrains Mono", Menlo, Consolas, monospace;
+  font-size: 0.88em;
+}
+code,
+kbd {
+  background: var(--code-bg);
+  padding: 1px 6px;
+  border-radius: 5px;
+}
+kbd {
+  border: 1px solid var(--line);
+  border-bottom-width: 2px;
+}
+pre {
+  background: var(--code-bg);
+  padding: 14px 16px;
+  border-radius: 10px;
+  overflow-x: auto;
+  line-height: 1.5;
+  border: 1px solid var(--line);
+}
+pre code {
+  background: none;
+  padding: 0;
+  font-size: 1em;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+  font-size: 0.93rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+th,
+td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+th {
+  background: var(--code-bg);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+tr:last-child td {
+  border-bottom: 0;
+}
+.table-wrap {
+  overflow-x: auto;
+}
+.callout {
+  border-left: 4px solid var(--primary);
+  background: var(--primary-soft);
+  padding: 12px 16px;
+  border-radius: 0 8px 8px 0;
+  margin: 1.2em 0;
+  max-width: 78ch;
+}
+.callout.warn {
+  border-color: var(--warn);
+  background: var(--warn-soft);
+}
+.callout.danger {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+}
+.callout.ok {
+  border-color: var(--accent);
+  background: var(--ok-soft);
+}
+.callout > :first-child {
+  margin-top: 0;
+}
+.callout > :last-child {
+  margin-bottom: 0;
+}
+.callout strong.t {
+  display: block;
+  margin-bottom: 2px;
+}
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 14px;
+  margin: 1.2em 0;
+}
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.card h4 {
+  margin: 0 0 4px;
+}
+.card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+.pill {
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: 1px 8px;
+  border-radius: 99px;
+  background: var(--code-bg);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.pill.pk {
+  background: var(--primary-soft);
+  color: var(--primary);
+  border-color: transparent;
+}
+.pill.uq {
+  background: var(--ok-soft);
+  color: var(--accent);
+  border-color: transparent;
+}
+.pill.opt {
+  opacity: 0.8;
+}
+.steps {
+  counter-reset: s;
+  list-style: none;
+  padding: 0;
+}
+.steps > li {
+  counter-increment: s;
+  position: relative;
+  padding: 4px 0 10px 44px;
+}
 .steps > li::before {
-  content: counter(s); position: absolute; left: 0; top: 2px; width: 30px; height: 30px; border-radius: 50%;
-  background: var(--primary); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: .9rem;
+  content: counter(s);
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 0.9rem;
 }
-.flow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 1em 0; }
-.flow .n { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px 10px; font-size: .9rem; }
-.flow .a { color: var(--muted); }
-details { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; margin: 10px 0; }
-details > summary { cursor: pointer; padding: 10px 14px; font-weight: 600; list-style-position: inside; }
-details > summary .tn { font-weight: 400; color: var(--muted); font-family: ui-monospace, monospace; font-size: .85rem; margin-left: 8px; }
-details[open] > summary { border-bottom: 1px solid var(--line); }
-details .body { padding: 4px 14px 12px; }
-details .body table { margin: .6em 0; }
-.muted { color: var(--muted); }
-.mono { font-family: ui-monospace, monospace; }
-.tag { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
-.menu-btn { display: none; }
+.flow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin: 1em 0;
+}
+.flow .n {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 0.9rem;
+}
+.flow .a {
+  color: var(--muted);
+}
+details {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  margin: 10px 0;
+}
+details > summary {
+  cursor: pointer;
+  padding: 10px 14px;
+  font-weight: 600;
+  list-style-position: inside;
+}
+details > summary .tn {
+  font-weight: 400;
+  color: var(--muted);
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
+  margin-left: 8px;
+}
+details[open] > summary {
+  border-bottom: 1px solid var(--line);
+}
+details .body {
+  padding: 4px 14px 12px;
+}
+details .body table {
+  margin: 0.6em 0;
+}
+.muted {
+  color: var(--muted);
+}
+.mono {
+  font-family: ui-monospace, monospace;
+}
+.tag {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.menu-btn {
+  display: none;
+}
 @media (max-width: 900px) {
-  .layout { grid-template-columns: 1fr; }
-  nav.toc { position: static; height: auto; max-height: 60vh; }
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  nav.toc {
+    position: static;
+    height: auto;
+    max-height: 60vh;
+  }
 }
 @media print {
-  nav.toc { display: none; }
-  .layout { display: block; }
-  details { break-inside: avoid; }
-  details:not([open]) > .body { display: block; }
-  body { background: #fff; color: #000; }
+  nav.toc {
+    display: none;
+  }
+  .layout {
+    display: block;
+  }
+  details {
+    break-inside: avoid;
+  }
+  details:not([open]) > .body {
+    display: block;
+  }
+  body {
+    background: #fff;
+    color: #000;
+  }
 }
 
 [data-l] { display: none; }
@@ -164,7 +445,7 @@ html[data-lang='en'] nav.toc .langs [data-set='en'], html[data-lang='bn'] nav.to
 <nav class="toc" aria-label="Contents">
   <div class="brand">bd-commerce</div>
   <div class="sub">Owner manual · মালিকের ম্যানুয়াল</div>
-  <div class="langs"><button data-set="en">English</button><button data-set="bn">বাংলা</button></div>
+  <div class="langs"><button type="button" data-set="en">English</button><button type="button" data-set="bn">বাংলা</button></div>
   <div data-l="en"><a href="#en-start">1. Getting started</a><a class="h3" href="#en-login">Signing in</a><a class="h3" href="#en-layout">What you see</a><a href="#en-map">2. Screen map</a><a href="#en-daily">3. A typical day</a><a href="#en-orders">4. Orders</a><a class="h3" href="#en-order-status">Order statuses</a><a class="h3" href="#en-order-detail">Working an order</a><a href="#en-callq">5. Call queue</a><a href="#en-ship">6. Shipments and couriers</a><a href="#en-returns">7. Returns and refunds</a><a href="#en-catalog">8. Products and catalog</a><a class="h3" href="#en-product-new">Adding a product</a><a class="h3" href="#en-catalog-other">Categories, brands, inventory, import/export</a><a href="#en-promo">9. Promotions</a><a class="h3" href="#en-coupons">Coupons &amp; discounts</a><a class="h3" href="#en-flash">Flash sales</a><a class="h3" href="#en-bulk">Bulk sales</a><a class="h3" href="#en-home">Home &amp; feed</a><a href="#en-buy">10. Suppliers and purchase orders</a><a href="#en-sr">11. Sales reps (SR) and wholesale shops (B2B)</a><a href="#en-delivery">12. Delivery charges</a><a href="#en-team">13. Staff, roles and settings</a><a class="h3" href="#en-staff">Staff and roles</a><a class="h3" href="#en-settings">Settings</a><a href="#en-data">14. What information the system keeps</a><a href="#en-safe">15. Good habits and safety</a><a href="#en-missing">16. Not available yet</a><a href="#en-faq">17. Quick answers</a><a href="#en-glossary">18. Glossary</a></div><div data-l="bn"><a href="#bn-start">১. শুরু করা</a><a class="h3" href="#bn-login">সাইন ইন</a><a class="h3" href="#bn-layout">স্ক্রিনে কী দেখবেন</a><a href="#bn-map">২. স্ক্রিনের মানচিত্র</a><a href="#bn-daily">৩. একটি সাধারণ দিন</a><a href="#bn-orders">৪. অর্ডার</a><a class="h3" href="#bn-order-status">অর্ডারের স্ট্যাটাস</a><a class="h3" href="#bn-order-detail">অর্ডার সামলানো</a><a href="#bn-callq">৫. কল কিউ (Call queue)</a><a href="#bn-ship">৬. শিপমেন্ট ও কুরিয়ার</a><a href="#bn-returns">৭. রিটার্ন ও রিফান্ড</a><a href="#bn-catalog">৮. পণ্য ও ক্যাটালগ</a><a class="h3" href="#bn-product-new">পণ্য যোগ করা</a><a class="h3" href="#bn-catalog-other">ক্যাটেগরি, ব্র্যান্ড, ইনভেন্টরি, ইমপোর্ট/এক্সপোর্ট</a><a href="#bn-promo">৯. প্রমোশন</a><a class="h3" href="#bn-coupons">কুপন ও ডিসকাউন্ট</a><a class="h3" href="#bn-flash">ফ্ল্যাশ সেল</a><a class="h3" href="#bn-bulk">বাল্ক সেল</a><a class="h3" href="#bn-home">Home &amp; feed</a><a href="#bn-buy">১০. সাপ্লায়ার ও পারচেজ অর্ডার</a><a href="#bn-sr">১১. সেলস রিপ্রেজেন্টেটিভ (SR) ও পাইকারি দোকান (B2B)</a><a href="#bn-delivery">১২. ডেলিভারি চার্জ</a><a href="#bn-team">১৩. স্টাফ, রোল ও সেটিংস</a><a class="h3" href="#bn-staff">স্টাফ ও রোল</a><a class="h3" href="#bn-settings">সেটিংস</a><a href="#bn-data">১৪. সিস্টেম কী কী তথ্য রাখে</a><a href="#bn-safe">১৫. ভালো অভ্যাস ও নিরাপত্তা</a><a href="#bn-missing">১৬. যা এখনো নেই</a><a href="#bn-faq">১৭. দ্রুত উত্তর</a><a href="#bn-glossary">১৮. শব্দকোষ</a></div>
   <div class="switch"><button class="theme" id="themeBtn" type="button">Light / Dark</button></div>
   <div class="sub" style="margin-top:14px">Built 2026-11-07</div>

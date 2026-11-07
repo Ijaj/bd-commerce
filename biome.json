@@ -14,7 +14,8 @@
       "!**/src/generated",
       "!packages/api-client/src/schema.ts",
       "!packages/api-client/openapi.json",
-      "!pnpm-lock.yaml"
+      "!pnpm-lock.yaml",
+      "!docs/*-manual.html"
     ]
   },
   "formatter": {
