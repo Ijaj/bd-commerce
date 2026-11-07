@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Notice } from '~/features/account/Field';
 import { type ApiFail, call } from '~/features/account/lib';
-import { applyCoupon, removeCoupon } from '~/features/cart/store';
+import { applyCoupon, removeAffiliateCode, removeCoupon } from '~/features/cart/store';
 import type { Cart } from '~/features/cart/types';
 import { dict, fmt, type Lang } from '~/i18n';
 import { browserApi } from '~/lib/api-browser';
@@ -67,6 +67,14 @@ export function CartCoupons({ lang, cart }: { lang: Lang; cart: Cart }) {
     const next = await removeCoupon(c);
     setBusy(false);
     if (!next) setError(t.removeError);
+  }
+
+  async function removeRef() {
+    setError(null);
+    setBusy(true);
+    const next = await removeAffiliateCode();
+    setBusy(false);
+    if (!next) setError(dict(lang).affiliate.ref.removeError);
   }
 
   const shown = suggestions.filter((x) => x.code && x.savingP > 0).slice(0, 3);
@@ -137,6 +145,19 @@ export function CartCoupons({ lang, cart }: { lang: Lang; cart: Cart }) {
             </li>
           ))}
         </ul>
+      ) : null}
+      {cart.affiliate ? (
+        <p className={s.appliedRow}>
+          <span className={s.appliedName}>
+            {fmt(dict(lang).affiliate.ref.chip, {
+              name: cart.affiliate.displayName,
+              code: cart.affiliate.code,
+            })}
+          </span>
+          <button type="button" className={s.removeBtn} disabled={busy} onClick={removeRef}>
+            {fmt(dict(lang).affiliate.ref.remove, { code: cart.affiliate.code })}
+          </button>
+        </p>
       ) : null}
       {shown.length > 0 ? (
         <ul className={s.suggest}>

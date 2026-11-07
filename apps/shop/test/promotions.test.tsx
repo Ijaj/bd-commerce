@@ -487,6 +487,7 @@ describe('flash on cards and checkout', () => {
             },
           ],
           rejectedCodes: [{ code: 'OLD', reason: 'EXPIRED' }],
+          affiliate: null,
           deliveryChargeP: 6000,
           deliveryDiscountP: 6000,
           grandTotalP: 270000,

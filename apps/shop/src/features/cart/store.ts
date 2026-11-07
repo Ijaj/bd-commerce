@@ -95,6 +95,14 @@ export async function removeCoupon(code: string): Promise<Cart | null> {
   return r.data;
 }
 
+/** Drop the referral code from the cart (the "Referred by" chip). */
+export async function removeAffiliateCode(): Promise<Cart | null> {
+  const r = await call<Cart>(browserApi.DELETE('/v1/cart/affiliate-code'));
+  if (!r.ok) return null;
+  setCart(r.data);
+  return r.data;
+}
+
 export async function removeLine(variantId: string): Promise<Cart | null> {
   const r = await call<Cart>(
     browserApi.DELETE('/v1/cart/items/{variantId}', { params: { path: { variantId } } }),

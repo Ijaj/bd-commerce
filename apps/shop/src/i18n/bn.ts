@@ -1,3 +1,4 @@
+import { affiliateBn } from '~/features/affiliate/strings.bn';
 import { browseBn } from '~/features/browse/strings.bn';
 import { cartBn } from '~/features/cart/strings.bn';
 import { checkoutBn } from '~/features/checkout/strings.bn';
@@ -195,5 +196,6 @@ export const bn: Dict = {
   checkout: checkoutBn,
   orders: ordersBn,
   promos: promosBn,
+  affiliate: affiliateBn,
   returns: returnsBn,
 };

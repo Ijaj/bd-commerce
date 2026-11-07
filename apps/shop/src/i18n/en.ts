@@ -1,3 +1,4 @@
+import { affiliateEn } from '~/features/affiliate/strings.en';
 import { browseEn } from '~/features/browse/strings.en';
 import { cartEn } from '~/features/cart/strings.en';
 import { checkoutEn } from '~/features/checkout/strings.en';
@@ -200,6 +201,7 @@ export const en = {
   checkout: checkoutEn,
   orders: ordersEn,
   promos: promosEn,
+  affiliate: affiliateEn,
   returns: returnsEn,
 };
 

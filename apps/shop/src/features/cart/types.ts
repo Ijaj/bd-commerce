@@ -11,6 +11,7 @@ export const EMPTY_CART: Cart = {
   appliedCoupons: [],
   codes: [],
   rejectedCodes: [],
+  affiliate: null,
 };
 
 /** Why the visitor was sent back to the cart (query `?notice=`). */

@@ -8,6 +8,7 @@ import { Header } from '~/components/shell/Header';
 import { Maintenance } from '~/components/shell/Maintenance';
 import { UtilityBar } from '~/components/shell/UtilityBar';
 import { ServiceWorkerRegister } from '~/features/account/ServiceWorkerRegister';
+import { RefCapture } from '~/features/affiliate/RefCapture';
 import { dict } from '~/i18n';
 import { getSite } from '~/lib/api';
 import { SITE_URL } from '~/lib/env';
@@ -96,6 +97,7 @@ export default async function RootLayout({
             <Footer lang={lang} contact={site?.contact} />
             <BottomNav lang={lang} />
             <ServiceWorkerRegister />
+            <RefCapture />
           </>
         )}
       </body>

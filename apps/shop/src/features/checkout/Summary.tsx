@@ -64,6 +64,14 @@ export function Summary({
           </li>
         ))}
       </ul>
+      {(quote?.affiliate ?? cart.affiliate) ? (
+        <p className={s.muted}>
+          {fmt(dict(lang).affiliate.ref.summary, {
+            name: (quote?.affiliate ?? cart.affiliate)?.displayName ?? '',
+            code: (quote?.affiliate ?? cart.affiliate)?.code ?? '',
+          })}
+        </p>
+      ) : null}
       <dl className={s.rows} aria-busy={quoting || undefined}>
         <div className={s.row}>
           <dt>{d.subtotal}</dt>

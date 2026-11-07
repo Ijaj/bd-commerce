@@ -62,6 +62,7 @@ const cartOf = (items: CartLine[]): Cart => ({
   appliedCoupons: [],
   codes: [],
   rejectedCodes: [],
+  affiliate: null,
 });
 
 beforeEach(() => {

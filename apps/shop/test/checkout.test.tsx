@@ -71,6 +71,7 @@ const cart: Cart = {
   appliedCoupons: [],
   codes: [],
   rejectedCodes: [],
+  affiliate: null,
 };
 
 const quote = (over: Record<string, unknown> = {}) => ({
@@ -80,6 +81,7 @@ const quote = (over: Record<string, unknown> = {}) => ({
   couponDiscountP: 0,
   appliedCoupons: [],
   rejectedCodes: [],
+  affiliate: null,
   deliveryChargeP: 6000,
   deliveryDiscountP: 0,
   grandTotalP: 306000,
