@@ -81,6 +81,8 @@ function toAttributeDto(a: AttributeWithOptions): AttributeDto {
   };
 }
 
+const ARCHIVE_SLUG = 'archived-products';
+
 @Injectable()
 export class CategoriesService {
   constructor(
@@ -397,19 +399,31 @@ export class CategoriesService {
       select: { id: true, level: true },
     });
     const ids = subtree.map((c) => c.id);
-    // Products with stock history can't be hard-deleted (the ledger is append-only); the admin
-    // has to archive or move them first. Once orders exist (step 4), ordered products need the same.
-    const blocked = await tx.product.findMany({
-      where: {
-        primaryCategoryId: { in: ids },
-        variants: { some: { movements: { some: {} } } },
-      },
-      select: { id: true, titleEn: true },
+    // Q70: products with history (stock movements, orders, SR sales, POs) can't be hard-deleted;
+    // they are archived and parked in a hidden top-level category (every product needs a primary
+    // category). The rest is deleted.
+    const history = {
+      OR: [
+        { movements: { some: {} } },
+        { orderItems: { some: {} } },
+        { srSaleItems: { some: {} } },
+        { poItems: { some: {} } },
+      ],
+    };
+    const keep = await tx.product.findMany({
+      where: { primaryCategoryId: { in: ids }, variants: { some: history } },
+      select: { id: true },
     });
-    if (blocked.length) {
-      throw new ConflictException({
-        message: 'Some products have stock history; archive or move them first',
-        products: blocked,
+    if (keep.length) {
+      const parkId = await this.archiveCategory(tx, ids);
+      const keepIds = keep.map((p) => p.id);
+      await tx.productCategory.createMany({
+        data: keepIds.map((productId) => ({ productId, categoryId: parkId })),
+        skipDuplicates: true,
+      });
+      await tx.product.updateMany({
+        where: { id: { in: keepIds } },
+        data: { primaryCategoryId: parkId, status: 'archived', archivedAt: new Date() },
       });
     }
     await tx.product.deleteMany({ where: { primaryCategoryId: { in: ids } } });
@@ -419,6 +433,29 @@ export class CategoriesService {
       const levelIds = subtree.filter((c) => c.level === level).map((c) => c.id);
       if (levelIds.length) await tx.category.deleteMany({ where: { id: { in: levelIds } } });
     }
+  }
+
+  /** Hidden holding category for archived products whose own category was deleted. */
+  private async archiveCategory(tx: Tx, excludeIds: string[]): Promise<string> {
+    const found = await tx.category.findFirst({
+      where: { parentId: null, slug: ARCHIVE_SLUG, isActive: false, id: { notIn: excludeIds } },
+      select: { id: true },
+    });
+    if (found) return found.id;
+    const slug = await this.uniqueSlug(tx, ARCHIVE_SLUG);
+    const created = await tx.category.create({
+      data: {
+        parentId: null,
+        level: 1,
+        path: '',
+        nameEn: 'Archived products',
+        slug,
+        isActive: false,
+        sort: await this.nextSort(tx, null),
+      },
+    });
+    await tx.category.update({ where: { id: created.id }, data: { path: `/${created.id}/` } });
+    return created.id;
   }
 
   // ---- attributes ----

@@ -291,7 +291,7 @@ function EditorForm({ id, detail, tab, onTab, onDiscard, onSaved }: FormProps) {
             {form.titleEn.trim() || (isNew ? 'New product' : 'Untitled product')}
             {status && (
               <span className={classes.titleBadge}>
-                <StatusBadge status={status} />
+                <StatusBadge status={status} publishedAt={detail?.publishedAt} />
               </span>
             )}
           </>

@@ -1,6 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { MailService } from '../mail/mail.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { SettingsService } from '../settings/settings.service';
 import { SmsService } from '../sms/sms.service';
+import { bnDigits, buildNotice, noticeExtra, takaText } from './order-notify-texts';
 
 export interface PlacedOrderNotice {
   orderNo: string;
@@ -23,30 +26,77 @@ export type OrderNotifyKind =
   | 'delivery_failed'
   | 'edited';
 
-const BN_DIGITS = '০১২৩৪৫৬৭৮৯';
-const bnDigits = (s: string) => s.replace(/\d/g, (d) => BN_DIGITS[Number(d)] ?? d);
+/** Setting key (camelCase) per event kind. */
+const SETTING_FLAG = {
+  confirmed: 'confirmed',
+  handed_over: 'handedOver',
+  delivered: 'delivered',
+  cancelled: 'cancelled',
+  refund_paid: 'refundPaid',
+  delivery_failed: 'deliveryFailed',
+  edited: 'edited',
+} as const satisfies Record<OrderNotifyKind, string>;
 
-/** Whole taka when possible: 125000 → "1,250", 125050 → "1,250.50". */
-export function takaText(paisa: number) {
-  const whole = Math.floor(paisa / 100);
-  const frac = paisa % 100;
-  const base = whole.toLocaleString('en-US');
-  return frac === 0 ? base : `${base}.${String(frac).padStart(2, '0')}`;
-}
+export { takaText };
 
 @Injectable()
 export class OrderNotifyService {
+  private readonly logger = new Logger(OrderNotifyService.name);
+
   constructor(
     private readonly sms: SmsService,
     private readonly mail: MailService,
+    private readonly prisma: PrismaService,
+    private readonly settings: SettingsService,
   ) {}
 
   /**
-   * Hook for A2 (wave 2 fills the body: setting check, EN/BN text, SMS + mail). Wave-1 code calls
-   * it after the transaction commits; it must never throw. `extra` carries event data (courier
-   * name, tracking URL, refund amount, ...). Currently a no-op.
+   * Customer SMS + mail for an order event, gated by the `order_notifications` setting. Call it
+   * after the transaction commits. Never throws: a failure is logged and the caller carries on.
+   * `extra` may carry shipmentNo, courierName, trackingId, trackingUrl, reason, amountP, method,
+   * editId. Guest orders use the order's own phone/email.
    */
-  async event(_orderId: string, _kind: OrderNotifyKind, _extra: Record<string, unknown> = {}) {}
+  async event(orderId: string, kind: OrderNotifyKind, extra: Record<string, unknown> = {}) {
+    try {
+      const flags = await this.settings.get('order_notifications');
+      if (!flags[SETTING_FLAG[kind]]) return;
+      const order = await this.prisma.order.findUnique({
+        where: { id: orderId },
+        select: {
+          orderNo: true,
+          lang: true,
+          grandTotalP: true,
+          guestPhone: true,
+          guestEmail: true,
+          shipPhone: true,
+          customer: { select: { phone: true, email: true } },
+          shipments: { where: { status: { not: 'cancelled' } }, select: { id: true } },
+        },
+      });
+      if (!order) return;
+      const x = noticeExtra(extra);
+      const { subject, text } = buildNotice(kind, {
+        orderNo: order.orderNo,
+        lang: order.lang,
+        grandTotalP: order.grandTotalP,
+        ...x,
+        // Name the parcel only when the order has several.
+        shipmentNo: order.shipments.length > 1 ? x.shipmentNo : null,
+      });
+      const phone = order.customer?.phone ?? order.guestPhone ?? order.shipPhone ?? null;
+      const email = order.customer?.email ?? order.guestEmail ?? null;
+      if (phone) this.sms.send({ to: phone, text });
+      if (email) this.mail.send({ to: email, subject, text });
+      if (kind === 'edited' && typeof extra.editId === 'string') {
+        await this.prisma.orderEdit.updateMany({
+          where: { id: extra.editId, orderId, customerNotifiedAt: null },
+          data: { customerNotifiedAt: new Date() },
+        });
+      }
+    } catch (err) {
+      this.logger.error(`Order notification ${kind} for ${orderId} failed: ${String(err)}`);
+    }
+  }
 
   /** Fire-and-forget; SmsService and MailService never throw. */
   placed(n: PlacedOrderNotice) {

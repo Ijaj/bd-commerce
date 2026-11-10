@@ -29,6 +29,9 @@ type Tx = Prisma.TransactionClient;
 type Db = Tx | PrismaService;
 
 const blank = (v: string | null | undefined) => (v?.trim() ? v.trim() : null);
+const cleanTags = (v: string[]) => [
+  ...new Set(v.map((t) => t.trim().toLowerCase()).filter(Boolean)),
+];
 const html = (v: string | null | undefined) => (v ? sanitizeDescriptionHtml(v) || null : null);
 
 const detailInclude = {
@@ -108,6 +111,7 @@ export class ProductsService {
         slug: true,
         status: true,
         updatedAt: true,
+        publishedAt: true,
         brand: { select: { id: true, nameEn: true } },
         primaryCategory: { select: { id: true, nameEn: true } },
         images: {
@@ -153,6 +157,7 @@ export class ProductsService {
             (sum, v) => sum + (v.inventory ? v.inventory.onHand - v.inventory.reserved : 0),
             0,
           ),
+          publishedAt: r.publishedAt?.toISOString() ?? null,
           updatedAt: r.updatedAt.toISOString(),
         },
       ];
@@ -217,6 +222,12 @@ export class ProductsService {
       pinBoost: p.pinBoost,
       seoTitle: p.seoTitle,
       seoDescription: p.seoDescription,
+      tags: p.tags,
+      warrantyEn: p.warrantyEn,
+      warrantyBn: p.warrantyBn,
+      lengthMm: p.lengthMm,
+      widthMm: p.widthMm,
+      heightMm: p.heightMm,
       publishedAt: p.publishedAt?.toISOString() ?? null,
       archivedAt: p.archivedAt?.toISOString() ?? null,
       createdAt: p.createdAt.toISOString(),
@@ -430,6 +441,13 @@ export class ProductsService {
             pinBoost: body.pinBoost,
             seoTitle: blank(body.seoTitle),
             seoDescription: blank(body.seoDescription),
+            tags: cleanTags(body.tags ?? []),
+            warrantyEn: blank(body.warrantyEn),
+            warrantyBn: blank(body.warrantyBn),
+            lengthMm: body.lengthMm ?? null,
+            widthMm: body.widthMm ?? null,
+            heightMm: body.heightMm ?? null,
+            publishedAt: body.publishedAt ? new Date(body.publishedAt) : null,
             categories: { create: categoryIds.map((categoryId) => ({ categoryId })) },
           },
         });
@@ -458,6 +476,21 @@ export class ProductsService {
       })
       .catch((e) => rethrowUnique(e, 'Slug or SKU already used'));
     return this.detail(actor, id);
+  }
+
+  /**
+   * Scheduled publish (C8). Clearing the time on an active product means "visible now"
+   * (storefront needs a non-null time); on a draft it stays null until publish.
+   */
+  private nextPublishedAt(
+    current: { status: string; publishedAt: Date | null },
+    wanted: string | null | undefined,
+  ): Date | null | undefined {
+    if (wanted === undefined) return undefined;
+    if (wanted) return new Date(wanted);
+    if (current.status !== 'active') return null;
+    const now = new Date();
+    return current.publishedAt && current.publishedAt <= now ? current.publishedAt : now;
   }
 
   async update(
@@ -521,6 +554,13 @@ export class ProductsService {
             seoTitle: body.seoTitle === undefined ? undefined : blank(body.seoTitle),
             seoDescription:
               body.seoDescription === undefined ? undefined : blank(body.seoDescription),
+            tags: body.tags === undefined ? undefined : cleanTags(body.tags),
+            warrantyEn: body.warrantyEn === undefined ? undefined : blank(body.warrantyEn),
+            warrantyBn: body.warrantyBn === undefined ? undefined : blank(body.warrantyBn),
+            lengthMm: body.lengthMm,
+            widthMm: body.widthMm,
+            heightMm: body.heightMm,
+            publishedAt: this.nextPublishedAt(current, body.publishedAt),
           },
         });
 
@@ -681,6 +721,12 @@ export class ProductsService {
             vatRateBp: src.vatRateBp,
             seoTitle: src.seoTitle,
             seoDescription: src.seoDescription,
+            tags: src.tags,
+            warrantyEn: src.warrantyEn,
+            warrantyBn: src.warrantyBn,
+            lengthMm: src.lengthMm,
+            widthMm: src.widthMm,
+            heightMm: src.heightMm,
             categories: { create: src.categories.map((c) => ({ categoryId: c.categoryId })) },
           },
         });

@@ -149,7 +149,7 @@ export function DeleteCategoryModal({
                     value="cascade"
                     color="red"
                     label="Delete category, sub-categories AND their products"
-                    description="Products are permanently deleted. This cannot be undone."
+                    description="Products without stock or order history are permanently deleted; products with history are archived instead. This cannot be undone."
                   />
                 )}
                 {canCascade && mode === 'cascade' && (

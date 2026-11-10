@@ -87,7 +87,12 @@ const MAX_ERRORS_RETURNED = 500;
 
 /** Equality for scalar column values (dates compare as YYYY-MM-DD). */
 function same(a: unknown, b: unknown): boolean {
-  const n = (x: unknown) => (x instanceof Date ? x.toISOString().slice(0, 10) : (x ?? null));
+  const n = (x: unknown) =>
+    x instanceof Date
+      ? x.toISOString().slice(0, 10)
+      : Array.isArray(x)
+        ? x.join('\u0000')
+        : (x ?? null);
   return n(a) === n(b);
 }
 
@@ -379,6 +384,31 @@ export class ImportService {
           if (p.ok) data.weightG = p.value;
           else e(row, 'weight_g', p.error);
         } else data.weightG = null;
+      }
+      textField('warranty_en', 'warrantyEn', 300);
+      textField('warranty_bn', 'warrantyBn', 300);
+      if (has('tags')) {
+        const { value, row } = pv('tags');
+        const tags = [...new Set(splitList(value).map((t) => t.toLowerCase()))];
+        if (tags.length > 30 || tags.some((t) => t.length > 40)) {
+          e(row, 'tags', 'At most 30 tags of up to 40 characters');
+        }
+        data.tags = tags;
+      }
+      for (const [name, key] of [
+        ['length_mm', 'lengthMm'],
+        ['width_mm', 'widthMm'],
+        ['height_mm', 'heightMm'],
+      ] as const) {
+        if (!has(name)) continue;
+        const { value, row } = pv(name);
+        if (!value) data[key] = null;
+        else {
+          const p = parseInteger(value);
+          if (!p.ok) e(row, name, p.error);
+          else if (p.value < 1 || p.value > 100_000) e(row, name, 'Must be 1 to 100000');
+          else data[key] = p.value;
+        }
       }
       for (const [name, key] of [
         ['is_preorder', 'isPreorder'],

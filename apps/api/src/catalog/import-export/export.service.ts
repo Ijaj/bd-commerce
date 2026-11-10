@@ -20,7 +20,15 @@ const CONTENT_TYPES: Record<FileFormat, string> = {
   csv: 'text/csv; charset=utf-8',
 };
 const PRICE_COLUMNS = new Set(['price', 'compare_at_price', 'sale_price', COST_COLUMN]);
-const INT_COLUMNS = new Set(['weight_g', 'weight_g_variant', 'on_hand', 'low_stock_threshold']);
+const INT_COLUMNS = new Set([
+  'weight_g',
+  'length_mm',
+  'width_mm',
+  'height_mm',
+  'weight_g_variant',
+  'on_hand',
+  'low_stock_threshold',
+]);
 
 const exportInclude = {
   brand: { select: { slug: true } },
@@ -172,6 +180,12 @@ export class ExportService {
           description_html_bn: p.descriptionHtmlBn,
           youtube_url: p.youtubeUrl,
           weight_g: p.weightG,
+          tags: p.tags.join('|'),
+          warranty_en: p.warrantyEn,
+          warranty_bn: p.warrantyBn,
+          length_mm: p.lengthMm,
+          width_mm: p.widthMm,
+          height_mm: p.heightMm,
           is_preorder: String(p.isPreorder),
           preorder_expected_date: p.preorderExpectedDate?.toISOString().slice(0, 10) ?? null,
           is_upcoming: String(p.isUpcoming),

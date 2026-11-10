@@ -27,7 +27,30 @@ export interface ProductForm {
   pinBoost: number;
   seoTitle: string;
   seoDescription: string;
+  tags: string[];
+  warrantyEn: string;
+  warrantyBn: string;
+  lengthMm: number | null;
+  widthMm: number | null;
+  heightMm: number | null;
+  /** datetime-local value ('YYYY-MM-DDTHH:mm', browser local time); '' = publish immediately. */
+  publishAt: string;
   attributes: AttrValues;
+}
+
+/** ISO instant -> datetime-local input value in the browser's time zone. */
+export function isoToLocalInput(iso: string | null): string {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+/** datetime-local value -> ISO instant, or null when empty/invalid. */
+export function localInputToIso(v: string): string | null {
+  if (!v) return null;
+  const d = new Date(v);
+  return Number.isNaN(d.getTime()) ? null : d.toISOString();
 }
 
 export const emptyForm = (): ProductForm => ({
@@ -54,6 +77,13 @@ export const emptyForm = (): ProductForm => ({
   pinBoost: 0,
   seoTitle: '',
   seoDescription: '',
+  tags: [],
+  warrantyEn: '',
+  warrantyBn: '',
+  lengthMm: null,
+  widthMm: null,
+  heightMm: null,
+  publishAt: '',
   attributes: {},
 });
 
@@ -82,6 +112,13 @@ export function formFromDetail(d: ProductDetail, attributes: AttrValues): Produc
     pinBoost: d.pinBoost,
     seoTitle: d.seoTitle ?? '',
     seoDescription: d.seoDescription ?? '',
+    tags: d.tags,
+    warrantyEn: d.warrantyEn ?? '',
+    warrantyBn: d.warrantyBn ?? '',
+    lengthMm: d.lengthMm,
+    widthMm: d.widthMm,
+    heightMm: d.heightMm,
+    publishAt: isoToLocalInput(d.publishedAt),
     attributes,
   };
 }
@@ -112,6 +149,13 @@ export interface ProductBody {
   pinBoost: number;
   seoTitle: string | null;
   seoDescription: string | null;
+  tags: string[];
+  warrantyEn: string | null;
+  warrantyBn: string | null;
+  lengthMm: number | null;
+  widthMm: number | null;
+  heightMm: number | null;
+  publishedAt: string | null;
   attributes?: AttributePayloadRow[];
 }
 
@@ -151,6 +195,13 @@ export function buildProductPayload(
     pinBoost: form.isPinned ? form.pinBoost : 0,
     seoTitle: blank(form.seoTitle),
     seoDescription: blank(form.seoDescription),
+    tags: form.tags,
+    warrantyEn: blank(form.warrantyEn),
+    warrantyBn: blank(form.warrantyBn),
+    lengthMm: form.lengthMm,
+    widthMm: form.widthMm,
+    heightMm: form.heightMm,
+    publishedAt: localInputToIso(form.publishAt),
     ...(attrs ? { attributes: buildAttributePayload(attrs, form.attributes) } : {}),
   };
 }

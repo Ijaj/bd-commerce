@@ -40,12 +40,18 @@ describe('shipments + couriers', () => {
   beforeEach(async () => {
     await resetCommerce(app);
     fakeCourierHooks.reset();
-    // Other test files truncate couriers, so do not rely on the migration seed row.
-    await prisma.courier.upsert({
-      where: { code: 'fake' },
-      update: { isActive: true },
-      create: { code: 'fake', name: 'Fake courier', isActive: true },
-    });
+    // order-edit.test.ts truncates couriers, so restore the migration's seed rows (fake is active here).
+    for (const [code, name, isActive] of [
+      ['steadfast', 'Steadfast', true],
+      ['pathao', 'Pathao', true],
+      ['fake', 'Fake courier (dev/test)', true],
+    ] as const) {
+      await prisma.courier.upsert({
+        where: { code },
+        update: { name, isActive },
+        create: { code, name, isActive },
+      });
+    }
     admin = (await createStaffWith(app, ['shipments.manage', 'orders.view'])).agent;
   });
   afterEach(() => vi.restoreAllMocks());

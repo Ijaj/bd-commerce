@@ -1,4 +1,6 @@
+import { useQuery } from '@tanstack/react-query';
 import { api, unwrap } from '~/api';
+import { useCan } from '~/lib/perm';
 import type { InventorySearch } from './search';
 import { DEFAULT_PAGE_SIZE } from './search';
 
@@ -32,6 +34,13 @@ export const lowStockCountQuery = {
   queryKey: [...inventoryKey, 'low-stock-count'],
   queryFn: () => unwrap(api.GET('/v1/admin/inventory/low-stock-count')),
 };
+
+/** Low-stock variant count for the sidebar badge and dashboard; undefined until loaded or without inventory.view. */
+export function useLowStockCount(): number | undefined {
+  const enabled = useCan('inventory.view');
+  const { data } = useQuery({ ...lowStockCountQuery, enabled, refetchInterval: 60_000 });
+  return enabled ? data?.count : undefined;
+}
 
 export function movementsQuery(variantId: string, page: number, pageSize: number) {
   return {

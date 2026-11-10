@@ -8,6 +8,27 @@ const TONES: Record<ProductStatus, Tone> = {
   archived: 'muted',
 };
 
-export function StatusBadge({ status }: { status: ProductStatus }) {
+/** Active with a future publish time (C8): not visible in the shop yet. */
+export function isScheduled(status: ProductStatus, publishedAt: string | null | undefined) {
+  return status === 'active' && !!publishedAt && new Date(publishedAt).getTime() > Date.now();
+}
+
+export function StatusBadge({
+  status,
+  publishedAt,
+}: {
+  status: ProductStatus;
+  publishedAt?: string | null;
+}) {
+  if (isScheduled(status, publishedAt)) {
+    return (
+      <UiStatusBadge
+        tone="info"
+        title={`Visible from ${new Date(publishedAt as string).toLocaleString()}`}
+      >
+        Scheduled
+      </UiStatusBadge>
+    );
+  }
   return <UiStatusBadge tone={TONES[status]}>{status}</UiStatusBadge>;
 }

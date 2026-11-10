@@ -1,5 +1,6 @@
 import type { INestApplication } from '@nestjs/common';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { PrismaService } from '../src/prisma/prisma.service';
 import { type Agent, createApp, createOwner, resetDb, signInFresh } from './helpers';
 
 describe('staff management and RBAC', () => {
@@ -106,6 +107,48 @@ describe('staff management and RBAC', () => {
     await owner.agent.patch(`/v1/admin/roles/${ownerRole}`).send({ name: 'Boss' }).expect(400);
     await makeRole(owner.agent, 'Packer', []);
     await owner.agent.post('/v1/admin/roles').send({ name: 'Packer', permissions: [] }).expect(409);
+  });
+
+  it('seeds editable role templates only on the very first boot (B1)', async () => {
+    await resetDb(app);
+    const prisma = app.get(PrismaService);
+    await prisma.role.deleteMany();
+    const first = await createApp();
+    try {
+      const roles = await prisma.role.findMany({ include: { permissions: true } });
+      const names = roles.map((r) => r.name).sort();
+      expect(names).toEqual(
+        [
+          'Accountant',
+          'Catalog Editor',
+          'Customer Support',
+          'Manager',
+          'Marketing',
+          'Order Processor / Call Center',
+          'Owner',
+          'Warehouse / Packer',
+        ].sort(),
+      );
+      expect(roles.filter((r) => r.isSystem).map((r) => r.name)).toEqual(['Owner']);
+      const manager = roles.find((r) => r.name === 'Manager');
+      expect(manager?.permissions.some((p) => p.permissionKey === 'orders.manage')).toBe(true);
+      expect(manager?.permissions.some((p) => p.permissionKey === 'roles.manage')).toBe(false);
+      const accountant = roles.find((r) => r.name === 'Accountant');
+      expect(
+        accountant?.permissions.every((p) => /\.(view|view_cost|export)$/.test(p.permissionKey)),
+      ).toBe(true);
+      // A deleted template stays deleted on the next boot.
+      await prisma.role.delete({ where: { name: 'Marketing' } });
+    } finally {
+      await first.close();
+    }
+    const second = await createApp();
+    try {
+      expect(await prisma.role.findUnique({ where: { name: 'Marketing' } })).toBeNull();
+      expect(await prisma.role.count()).toBe(7);
+    } finally {
+      await second.close();
+    }
   });
 
   async function ownerId(agent: Agent) {

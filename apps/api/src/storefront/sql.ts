@@ -74,7 +74,7 @@ export function searchVector(alias: string) {
 
 /**
  * Ids matching a search: full-text, or trigram on the title or the brand name (typos, brand
- * searches). One indexable branch each, so a big catalog doesn't fall back to a scan.
+ * searches), or an exact tag (C7, GIN index). One indexable branch each, so a big catalog doesn't fall back to a scan.
  */
 export function searchMatches(q: string) {
   return sql`
@@ -83,7 +83,9 @@ export function searchMatches(q: string) {
     UNION
     SELECT s2.id FROM products s2 WHERE ${q} <% s2.title_en
     UNION
-    SELECT s3.id FROM products s3 JOIN brands sb ON sb.id = s3.brand_id WHERE ${q} <% sb.name_en`;
+    SELECT s3.id FROM products s3 JOIN brands sb ON sb.id = s3.brand_id WHERE ${q} <% sb.name_en
+    UNION
+    SELECT s4.id FROM products s4 WHERE s4.tags @> ARRAY[lower(trim(${q}))]::text[]`;
 }
 
 /** Unavailable-but-buyable-later products are not "out of stock" (Q114). */

@@ -467,7 +467,7 @@ describe('categories and attributes', () => {
     expect(await prisma.attributeOption.count({ where: { attributeId: attr.id } })).toBe(0);
   });
 
-  it('cascade refuses products with stock history (409) and deletes the rest, variants with options included', async () => {
+  it('cascade archives products with history, deletes the rest, variants with options included (Q70)', async () => {
     const root = await mk('Root');
     const child = await mk('Child', root.id);
     const plain = await newProduct(child.id);
@@ -488,22 +488,36 @@ describe('categories and attributes', () => {
       data: { variantId: variant.id, qtyDelta: 5, reason: 'adjust' },
     });
 
-    const res = await agent
-      .delete(`/v1/admin/categories/${root.id}`)
-      .send({ mode: 'cascade' })
-      .expect(409);
-    expect(res.body.products).toEqual([{ id: moved, titleEn: expect.any(String) }]);
-    // nothing was deleted
-    expect(await prisma.category.count()).toBe(2);
-    expect(await prisma.product.count()).toBe(3);
-
-    // once the blocking product lives elsewhere, the cascade goes through
-    const keep = await mk('Keep');
-    await prisma.product.update({ where: { id: moved }, data: { primaryCategoryId: keep.id } });
     await agent.delete(`/v1/admin/categories/${root.id}`).send({ mode: 'cascade' }).expect(204);
-    expect(await prisma.category.count()).toBe(1);
     expect(await prisma.product.count({ where: { id: { in: [plain, withOptions] } } })).toBe(0);
-    expect(await prisma.product.count({ where: { id: moved } })).toBe(1);
+    const kept = await prisma.product.findUniqueOrThrow({
+      where: { id: moved },
+      include: { primaryCategory: true, categories: true },
+    });
+    expect(kept.status).toBe('archived');
+    expect(kept.archivedAt).not.toBeNull();
+    // parked in a hidden top-level category; the deleted tree is gone
+    expect(kept.primaryCategory).toMatchObject({
+      isActive: false,
+      level: 1,
+      parentId: null,
+      slug: 'archived-products',
+    });
+    expect(kept.categories.map((c) => c.categoryId)).toEqual([kept.primaryCategoryId]);
+    expect(await prisma.category.count()).toBe(1);
+
+    // a second cascade reuses the same holding category
+    const other = await mk('Other');
+    const again = await newProduct(other.id);
+    const v2 = await prisma.variant.findFirstOrThrow({ where: { productId: again } });
+    await prisma.stockMovement.create({
+      data: { variantId: v2.id, qtyDelta: 1, reason: 'adjust' },
+    });
+    await agent.delete(`/v1/admin/categories/${other.id}`).send({ mode: 'cascade' }).expect(204);
+    expect(await prisma.category.count()).toBe(1);
+    expect(
+      (await prisma.product.findUniqueOrThrow({ where: { id: again } })).primaryCategoryId,
+    ).toBe(kept.primaryCategoryId);
   });
 
   it('runs opposite moves one at a time and keeps the tree consistent', async () => {

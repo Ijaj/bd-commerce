@@ -1,6 +1,7 @@
 import { ForbiddenException, Injectable, type OnApplicationBootstrap } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ALL_PERMISSIONS, OWNER_ROLE, PERMISSIONS, type PermissionKey } from './permissions';
+import { ROLE_TEMPLATES } from './role-templates';
 
 @Injectable()
 export class RbacService implements OnApplicationBootstrap {
@@ -8,6 +9,9 @@ export class RbacService implements OnApplicationBootstrap {
 
   /** Syncs the code catalog into `permissions` and makes sure the Owner role exists. */
   async onApplicationBootstrap() {
+    // Templates are seeded only on the very first boot (no role exists yet), so a template the
+    // owner deleted or renamed later is never recreated.
+    const firstBoot = (await this.prisma.role.count()) === 0;
     await this.prisma.$transaction([
       ...Object.entries(PERMISSIONS).map(([key, p]) =>
         this.prisma.permission.upsert({
@@ -23,6 +27,22 @@ export class RbacService implements OnApplicationBootstrap {
         update: { isSystem: true },
       }),
     ]);
+    // A second instance booting at the same time loses the unique-name race: harmless.
+    if (firstBoot) await this.seedTemplates().catch(() => undefined);
+  }
+
+  private async seedTemplates() {
+    await this.prisma.$transaction(
+      ROLE_TEMPLATES.map((t) =>
+        this.prisma.role.create({
+          data: {
+            name: t.name,
+            description: t.description,
+            permissions: { create: t.permissions.map((permissionKey) => ({ permissionKey })) },
+          },
+        }),
+      ),
+    );
   }
 
   /** Union of the staff member's role permissions (Q64); a system role grants everything. */

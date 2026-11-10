@@ -3,6 +3,7 @@ import { ApiConflictResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from
 import { CurrentStaff, StaffAuth } from '../auth/staff-auth.guard';
 import type { StaffAuthContext } from '../auth/staff-auth.service';
 import { NoStore } from '../common/no-store.guard';
+import { OrderNotifyService } from '../orders/order-notify.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CallQueueService } from './call-queue.service';
 import { OrderCancelService } from './order-cancel.service';
@@ -35,6 +36,7 @@ export class OrdersAdminController {
     private readonly cancelService: OrderCancelService,
     private readonly queue: CallQueueService,
     private readonly edits: OrderEditService,
+    private readonly notify: OrderNotifyService,
   ) {}
 
   @Get()
@@ -126,6 +128,7 @@ export class OrdersAdminController {
       { type: 'staff', id: ctx.staff.id },
       body.reason,
     );
+    await this.notify.event(orderId, 'cancelled');
     return this.orders.detail(orderId);
   }
 

@@ -9,6 +9,7 @@ import s from '~/features/browse/Product.module.css';
 import { ProductRow } from '~/features/browse/ProductRow';
 import { ProductView } from '~/features/browse/ProductView';
 import { RecentlyViewed } from '~/features/browse/RecentlyViewed';
+import { ShareRow } from '~/features/browse/ShareRow';
 import { breadcrumbLd, plainText } from '~/features/browse/seo';
 import type { ProductDetail } from '~/features/browse/types';
 import { YouTubeLite } from '~/features/browse/YouTubeLite';
@@ -139,6 +140,11 @@ export default async function Page({ params }: Props) {
   const html = descriptionOf(p, lang);
   const short = pick(lang, p.shortDescriptionEn ?? '', p.shortDescriptionBn);
   const video = youtubeId(p.youtubeUrl);
+  const warranty = pick(lang, p.warrantyEn ?? '', p.warrantyBn);
+  const dims =
+    p.lengthMm && p.widthMm && p.heightMm
+      ? `${[p.lengthMm, p.widthMm, p.heightMm].map((n) => localizeDigits(n, lang)).join(' × ')} ${b.mm}`
+      : null;
   const date = p.preorderExpectedDate
     ? new Date(p.preorderExpectedDate).toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-GB', {
         day: 'numeric',
@@ -184,6 +190,18 @@ export default async function Page({ params }: Props) {
         ) : null}
       </div>
       {short ? <p className={s.short}>{short}</p> : null}
+      <ShareRow
+        url={absoluteUrl(href(lang, `/p/${p.slug}`))}
+        title={title}
+        labels={{
+          heading: b.shareLabel,
+          native: b.shareNative,
+          copy: b.shareCopy,
+          copied: b.shareCopied,
+          whatsapp: b.shareWhatsapp,
+          facebook: b.shareFacebook,
+        }}
+      />
     </div>
   );
 
@@ -235,7 +253,7 @@ export default async function Page({ params }: Props) {
         </section>
       ) : null}
 
-      {p.specs.length > 0 ? (
+      {p.specs.length > 0 || warranty || dims ? (
         <section className={s.sec} aria-labelledby="spec-h">
           <div className="sec-head">
             <h2 id="spec-h">{b.specs}</h2>
@@ -251,8 +269,39 @@ export default async function Page({ params }: Props) {
                   </td>
                 </tr>
               ))}
+              {warranty ? (
+                <tr>
+                  <th scope="row">{b.warranty}</th>
+                  <td>{warranty}</td>
+                </tr>
+              ) : null}
+              {dims ? (
+                <tr>
+                  <th scope="row">{b.dims}</th>
+                  <td>{dims}</td>
+                </tr>
+              ) : null}
             </tbody>
           </table>
+        </section>
+      ) : null}
+
+      {p.tags.length > 0 ? (
+        <section className={s.sec} aria-labelledby="tags-h">
+          <div className="sec-head">
+            <h2 id="tags-h">{b.tags}</h2>
+          </div>
+          <div className={s.tags}>
+            {p.tags.map((t) => (
+              <Link
+                key={t}
+                className={s.tag}
+                href={`${href(lang, '/search')}?q=${encodeURIComponent(t)}`}
+              >
+                {t}
+              </Link>
+            ))}
+          </div>
         </section>
       ) : null}
 

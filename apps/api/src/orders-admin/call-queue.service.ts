@@ -1,6 +1,7 @@
 import { ForbiddenException, HttpStatus, Injectable } from '@nestjs/common';
 import type { StaffAuthContext } from '../auth/staff-auth.service';
 import type { Prisma } from '../generated/prisma/client';
+import { OrderNotifyService } from '../orders/order-notify.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { OrderCancelService } from './order-cancel.service';
 import { resolveOrderId } from './order-lookup';
@@ -16,6 +17,7 @@ export class CallQueueService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cancel: OrderCancelService,
+    private readonly notify: OrderNotifyService,
   ) {}
 
   async list(q: OrdersAdminCallQueueQueryDto) {
@@ -77,6 +79,9 @@ export class CallQueueService {
         );
       }
     });
+    // After commit. "Confirmed" is only ever sent from here (C91): staff accepted a flagged order.
+    if (outcome === 'confirmed') await this.notify.event(orderId, 'confirmed');
+    if (outcome === 'cancelled') await this.notify.event(orderId, 'cancelled');
     return { orderId };
   }
 }

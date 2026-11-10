@@ -37,10 +37,39 @@ export function ShippingTab({ form, set, disabled }: FormTabProps) {
             onChange={(v) => set({ returnWindowDays: numOrNull(v) })}
           />
         </div>
+        <div className={`${classes.grid3} ${classes.second}`}>
+          {(
+            [
+              ['lengthMm', 'Length (mm)'],
+              ['widthMm', 'Width (mm)'],
+              ['heightMm', 'Height (mm)'],
+            ] as const
+          ).map(([key, label]) => (
+            <NumberInput
+              key={key}
+              label={label}
+              min={1}
+              max={100000}
+              allowDecimal={false}
+              disabled={disabled}
+              value={form[key] ?? ''}
+              onChange={(v) => set({ [key]: numOrNull(v) })}
+            />
+          ))}
+        </div>
       </SectionCard>
 
       <SectionCard title="Availability">
         <Stack gap="sm">
+          <TextInput
+            type="datetime-local"
+            label="Publish at"
+            description="Empty = visible as soon as the product is published. A future time keeps it hidden until then."
+            disabled={disabled}
+            value={form.publishAt}
+            onChange={(e) => set({ publishAt: e.currentTarget.value })}
+            maw={260}
+          />
           <Switch
             label="Pre-order"
             disabled={disabled}

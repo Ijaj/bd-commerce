@@ -92,6 +92,12 @@ export type ProductDetail = {
   ratingAvg: number;
   ratingCount: number;
   soldCount: number;
+  tags: string[];
+  warrantyEn: string | null;
+  warrantyBn: string | null;
+  lengthMm: number | null;
+  widthMm: number | null;
+  heightMm: number | null;
   seoTitle: string | null;
   seoDescription: string | null;
   updatedAt: string;

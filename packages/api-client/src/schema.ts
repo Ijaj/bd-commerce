@@ -4395,6 +4395,7 @@ export interface components {
                 minP: number | null;
                 maxP: number | null;
                 totalAvailable: number;
+                publishedAt: string | null;
                 /** Format: date-time */
                 updatedAt: string;
             }[];
@@ -4444,6 +4445,12 @@ export interface components {
             pinBoost: number;
             seoTitle: string | null;
             seoDescription: string | null;
+            tags: string[];
+            warrantyEn: string | null;
+            warrantyBn: string | null;
+            lengthMm: number | null;
+            widthMm: number | null;
+            heightMm: number | null;
             publishedAt: string | null;
             archivedAt: string | null;
             /** Format: date-time */
@@ -4539,6 +4546,13 @@ export interface components {
                 valueBool?: boolean;
                 optionIds?: string[];
             }[];
+            tags?: string[];
+            warrantyEn?: string | null;
+            warrantyBn?: string | null;
+            lengthMm?: number | null;
+            widthMm?: number | null;
+            heightMm?: number | null;
+            publishedAt?: string | null;
             /** @default [] */
             options: {
                 position: 1 | 2;
@@ -4611,6 +4625,13 @@ export interface components {
                 valueBool?: boolean;
                 optionIds?: string[];
             }[];
+            tags?: string[];
+            warrantyEn?: string | null;
+            warrantyBn?: string | null;
+            lengthMm?: number | null;
+            widthMm?: number | null;
+            heightMm?: number | null;
+            publishedAt?: string | null;
         };
         SetVariantsDto: {
             /** @default [] */
@@ -5241,6 +5262,12 @@ export interface components {
             ratingAvg: number;
             ratingCount: number;
             soldCount: number;
+            tags: string[];
+            warrantyEn: string | null;
+            warrantyBn: string | null;
+            lengthMm: number | null;
+            widthMm: number | null;
+            heightMm: number | null;
             seoTitle: string | null;
             seoDescription: string | null;
             /** Format: date-time */

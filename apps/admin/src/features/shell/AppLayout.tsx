@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, Outlet, useNavigate, useRouterState } from '@tanstack/react-router';
 import { type ReactNode, useState } from 'react';
 import { api } from '~/api';
+import { useLowStockCount } from '~/features/inventory/queries';
 import { useCallQueueCount } from '~/features/orders/queries';
 import { meQuery } from '~/lib/auth';
 import { isActive, visibleNav } from '~/lib/nav';
@@ -27,6 +28,7 @@ export function AppLayout({ children }: { children?: ReactNode } = {}) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const nav = visibleNav(me?.permissions ?? []);
   const callQueueCount = useCallQueueCount();
+  const lowStockCount = useLowStockCount();
 
   async function logout() {
     await api.POST('/v1/admin/auth/logout').catch(() => undefined);
@@ -55,6 +57,11 @@ export function AppLayout({ children }: { children?: ReactNode } = {}) {
                     <span className="a-sp">{item.label}</span>
                     {item.to === '/call-queue' && callQueueCount ? (
                       <span className="a-nav-n">{callQueueCount}</span>
+                    ) : null}
+                    {item.to === '/catalog/inventory' && lowStockCount ? (
+                      <span className="a-nav-n" title="Low stock">
+                        {lowStockCount}
+                      </span>
                     ) : null}
                   </Link>
                 );

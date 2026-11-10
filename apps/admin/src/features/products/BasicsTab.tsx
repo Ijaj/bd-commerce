@@ -1,4 +1,12 @@
-import { Input, MultiSelect, SegmentedControl, Select, Stack, TextInput } from '@mantine/core';
+import {
+  Input,
+  MultiSelect,
+  SegmentedControl,
+  Select,
+  Stack,
+  TagsInput,
+  TextInput,
+} from '@mantine/core';
 import { BilingualTextInput } from '~/components/BilingualTextInput';
 import { DROPSHIP_ENABLED } from '~/lib/features';
 import type { SelectOption } from './categoryTree';
@@ -72,6 +80,26 @@ export function BasicsTab({ form, set, disabled, categories, brands }: Props) {
         data={categories.filter((c) => c.value !== form.primaryCategoryId)}
         value={form.extraCategoryIds}
         onChange={(v) => set({ extraCategoryIds: v })}
+      />
+      <TagsInput
+        label="Tags"
+        description="Free words shoppers can click to find similar products. Enter or comma adds one."
+        placeholder="e.g. cotton"
+        splitChars={[',']}
+        maxTags={30}
+        disabled={disabled}
+        value={form.tags}
+        onChange={(v) =>
+          set({ tags: [...new Set(v.map((t) => t.trim().toLowerCase()).filter(Boolean))] })
+        }
+      />
+      <BilingualTextInput
+        label="Warranty"
+        description="Shown in the product details, e.g. 1 year seller warranty."
+        disabled={disabled}
+        value={{ en: form.warrantyEn, bn: form.warrantyBn }}
+        onChange={(v) => set({ warrantyEn: v.en, warrantyBn: v.bn })}
+        maxLength={300}
       />
       {DROPSHIP_ENABLED && (
         <Input.Wrapper label="Fulfillment">

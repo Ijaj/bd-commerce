@@ -1,5 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import type { Prisma, RefundMethod, RefundStatus } from '../generated/prisma/client';
+import { OrderNotifyService } from '../orders/order-notify.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { SettingsService } from '../settings/settings.service';
 import type {
@@ -34,6 +35,7 @@ export class RefundsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly settings: SettingsService,
+    private readonly notify: OrderNotifyService,
   ) {}
 
   // ---- creation -------------------------------------------------------------------------------
@@ -243,7 +245,7 @@ export class RefundsService {
 
   /** Staff confirm the money went back. Wallet refunds are only recorded: the wallet ledger arrives in step 8. */
   async complete(staffId: string, id: string, providerRef?: string) {
-    await this.prisma.$transaction(async (tx) => {
+    const paid = await this.prisma.$transaction(async (tx) => {
       const probe = await tx.refund.findUnique({ where: { id }, select: { orderId: true } });
       if (!probe) {
         throw new ReturnError(HttpStatus.NOT_FOUND, 'REFUND_NOT_FOUND', 'Refund not found.');
@@ -282,6 +284,12 @@ export class RefundsService {
           paymentStatus: refundedP >= order.paidP ? 'refunded' : 'partially_refunded',
         },
       });
+      return { orderId: order.id, amountP: refund.amountP, method: refund.method };
+    });
+    // After commit; the notifier never throws.
+    await this.notify.event(paid.orderId, 'refund_paid', {
+      amountP: paid.amountP,
+      method: paid.method,
     });
     return this.detail(id);
   }

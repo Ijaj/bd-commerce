@@ -2,6 +2,7 @@ import { EmptyState, SectionCard, StatTile } from '@bdc/ui';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { PageHeader } from '~/components/PageHeader';
+import { useLowStockCount } from '~/features/inventory/queries';
 import { useCallQueueCount } from '~/features/orders/queries';
 import { meQuery } from '~/lib/auth';
 import classes from './Dashboard.module.css';
@@ -19,6 +20,7 @@ const KPIS = [
 export function Dashboard() {
   const { data: me } = useQuery(meQuery);
   const callQueueCount = useCallQueueCount();
+  const lowStockCount = useLowStockCount();
   const canCall = me?.permissions.includes('orders.call') ?? false;
   return (
     <>
@@ -39,18 +41,32 @@ export function Dashboard() {
           />
         ))}
       </div>
-      {canCall && (
+      {(canCall || lowStockCount !== undefined) && (
         <div className={classes.ops}>
-          <Link to="/call-queue" className={classes.opLink}>
-            <StatTile
-              label="Call queue"
-              value={callQueueCount ?? '—'}
-              icon="phone"
-              alert={Boolean(callQueueCount)}
-              delta="Orders waiting for a call"
-              deltaDir="neutral"
-            />
-          </Link>
+          {canCall && (
+            <Link to="/call-queue" className={classes.opLink}>
+              <StatTile
+                label="Call queue"
+                value={callQueueCount ?? '—'}
+                icon="phone"
+                alert={Boolean(callQueueCount)}
+                delta="Orders waiting for a call"
+                deltaDir="neutral"
+              />
+            </Link>
+          )}
+          {lowStockCount !== undefined && (
+            <Link to="/catalog/inventory" search={{ lowStock: true }} className={classes.opLink}>
+              <StatTile
+                label="Low stock"
+                value={lowStockCount}
+                icon="inventory"
+                alert={lowStockCount > 0}
+                delta="Variants at or below their threshold"
+                deltaDir="neutral"
+              />
+            </Link>
+          )}
         </div>
       )}
       <div className={classes.main}>
@@ -64,9 +80,15 @@ export function Dashboard() {
           </EmptyState>
         </SectionCard>
         <SectionCard title="Needs attention">
-          <EmptyState icon="check" title="Nothing flagged">
-            Alerts (held orders, refunds awaiting approval, low stock) arrive with reports.
-          </EmptyState>
+          {lowStockCount ? (
+            <Link to="/catalog/inventory" search={{ lowStock: true }}>
+              {lowStockCount} variant{lowStockCount === 1 ? '' : 's'} low on stock
+            </Link>
+          ) : (
+            <EmptyState icon="check" title="Nothing flagged">
+              More alerts (held orders, refunds awaiting approval) arrive with reports.
+            </EmptyState>
+          )}
         </SectionCard>
       </div>
     </>

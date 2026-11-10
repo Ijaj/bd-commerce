@@ -5,7 +5,14 @@ import {
   mergeAttributes,
   missingRequired,
 } from '~/features/products/attributes';
-import { buildImagesPayload, buildProductPayload, emptyForm } from '~/features/products/payload';
+import {
+  buildImagesPayload,
+  buildProductPayload,
+  emptyForm,
+  isoToLocalInput,
+  localInputToIso,
+} from '~/features/products/payload';
+import { isScheduled } from '~/features/products/StatusBadge';
 import type { CategoryAttribute, ProductDetail, ProductVariant } from '~/features/products/types';
 import {
   buildVariantsPayload,
@@ -220,6 +227,41 @@ describe('product payload', () => {
     expect(body.preorderExpectedDate).toBeNull();
     expect(body.pinBoost).toBe(0);
     expect(body.attributes).toEqual([]);
+  });
+  it('sends tags, warranty, dimensions and the publish time (C7, C8)', () => {
+    const form = {
+      ...emptyForm(),
+      primaryCategoryId: 'c1',
+      tags: ['cotton'],
+      warrantyEn: ' 1 year ',
+      warrantyBn: '',
+      lengthMm: 300,
+      publishAt: '2030-01-02T10:30',
+    };
+    const body = buildProductPayload(form, null);
+    expect(body).toMatchObject({
+      tags: ['cotton'],
+      warrantyEn: '1 year',
+      warrantyBn: null,
+      lengthMm: 300,
+      widthMm: null,
+      publishedAt: new Date('2030-01-02T10:30').toISOString(),
+    });
+    expect(buildProductPayload({ ...form, publishAt: '' }, null).publishedAt).toBeNull();
+  });
+  it('round-trips the publish time through the datetime-local input', () => {
+    const iso = new Date('2030-05-06T07:08').toISOString();
+    expect(isoToLocalInput(iso)).toBe('2030-05-06T07:08');
+    expect(localInputToIso(isoToLocalInput(iso))).toBe(iso);
+    expect(isoToLocalInput(null)).toBe('');
+  });
+  it('flags only active products with a future publish time as scheduled', () => {
+    const future = new Date(Date.now() + 86_400_000).toISOString();
+    const past = new Date(Date.now() - 86_400_000).toISOString();
+    expect(isScheduled('active', future)).toBe(true);
+    expect(isScheduled('active', past)).toBe(false);
+    expect(isScheduled('active', null)).toBe(false);
+    expect(isScheduled('draft', future)).toBe(false);
   });
   it('images fall back to all variants when the variant is gone', () => {
     const img = { mediaId: 'm', url: '', thumbUrl: '', alt: ' ', variantId: 'gone' };

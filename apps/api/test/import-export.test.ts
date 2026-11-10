@@ -94,6 +94,10 @@ describe('import/export', () => {
       fulfillment: 'stock',
       description_html_en: '<p>Soft &amp; <b>cuddly</b></p>',
       weight_g: '300',
+      tags: 'Cotton|Gift|cotton',
+      warranty_en: '1 year',
+      length_mm: '300',
+      height_mm: '120',
       is_preorder: 'false',
       is_upcoming: 'false',
       option1_name_en: 'Color',
@@ -164,6 +168,13 @@ describe('import/export', () => {
       include: { variants: { include: { inventory: true } }, categories: true },
     });
     expect(teddy.hasVariants).toBe(true);
+    expect(teddy).toMatchObject({
+      tags: ['cotton', 'gift'],
+      warrantyEn: '1 year',
+      lengthMm: 300,
+      widthMm: null,
+      heightMm: 120,
+    });
     expect(teddy.descriptionHtmlEn).toContain('cuddly');
     expect(teddy.categories).toHaveLength(2);
     expect(teddy.variants.map((v) => v.priceP).sort()).toEqual([125050, 125050]);

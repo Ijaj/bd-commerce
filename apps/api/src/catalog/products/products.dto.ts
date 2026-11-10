@@ -98,6 +98,15 @@ const productFields = {
   seoTitle: optText(250),
   seoDescription: optText(500),
   attributes: z.array(attributeValueInput).max(100).optional(),
+  /** Free tags (C7): trimmed, lower-cased and de-duplicated by the service. */
+  tags: z.array(text(40).min(1)).max(30).optional(),
+  warrantyEn: optText(300),
+  warrantyBn: optText(300),
+  lengthMm: z.number().int().min(1).max(100_000).nullable().optional(),
+  widthMm: z.number().int().min(1).max(100_000).nullable().optional(),
+  heightMm: z.number().int().min(1).max(100_000).nullable().optional(),
+  /** Scheduled publish (C8): a future time hides an active product until then; null = on publish. */
+  publishedAt: z.iso.datetime().nullable().optional(),
 };
 
 export const createProductSchema = z.object({
@@ -154,6 +163,8 @@ const listItem = z.object({
   minP: z.number().int().nullable(),
   maxP: z.number().int().nullable(),
   totalAvailable: z.number().int(),
+  /** Active but not visible yet (publishedAt in the future). */
+  publishedAt: z.iso.datetime().nullable(),
   updatedAt: z.iso.datetime(),
 });
 export type ProductListItem = z.infer<typeof listItem>;
@@ -203,6 +214,12 @@ const detailSchema = z.object({
   pinBoost: z.number().int(),
   seoTitle: z.string().nullable(),
   seoDescription: z.string().nullable(),
+  tags: z.array(z.string()),
+  warrantyEn: z.string().nullable(),
+  warrantyBn: z.string().nullable(),
+  lengthMm: z.number().int().nullable(),
+  widthMm: z.number().int().nullable(),
+  heightMm: z.number().int().nullable(),
   publishedAt: z.iso.datetime().nullable(),
   archivedAt: z.iso.datetime().nullable(),
   createdAt: z.iso.datetime(),

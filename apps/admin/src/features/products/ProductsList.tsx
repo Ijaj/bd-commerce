@@ -179,7 +179,11 @@ export function ProductsList({ search }: { search: ProductsSearch }) {
         </div>
       ),
     },
-    { key: 'status', header: 'Status', render: (p) => <StatusBadge status={p.status} /> },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (p) => <StatusBadge status={p.status} publishedAt={p.publishedAt} />,
+    },
     { key: 'brand', header: 'Brand', render: (p) => p.brand?.nameEn ?? '-' },
     { key: 'category', header: 'Category', render: (p) => p.primaryCategory.nameEn },
     {
