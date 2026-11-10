@@ -9,8 +9,11 @@ import type { OrdersAdminCallQueueQueryDto } from './orders-admin.dto';
 import { OrdersAdminError } from './orders-admin.errors';
 import { listInclude, toListItem } from './orders-admin.service';
 
-/** Cancelled orders drop out of the pending list: nobody needs to call them any more. */
-const PENDING: Prisma.OrderWhereInput = { callStatus: 'pending', status: { not: 'cancelled' } };
+/** Cancelled and failed orders drop out of the pending list: nobody needs to call them any more. */
+const PENDING: Prisma.OrderWhereInput = {
+  callStatus: 'pending',
+  status: { notIn: ['cancelled', 'failed'] },
+};
 
 @Injectable()
 export class CallQueueService {
@@ -55,7 +58,7 @@ export class CallQueueService {
     await this.prisma.$transaction(async (tx) => {
       // Conditional update: two staff acting at once, only one wins.
       const res = await tx.order.updateMany({
-        where: { id: orderId, callStatus: 'pending' },
+        where: { id: orderId, ...PENDING },
         data: {
           callStatus: outcome,
           callNote: note ?? null,

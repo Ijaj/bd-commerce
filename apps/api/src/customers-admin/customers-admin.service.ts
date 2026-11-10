@@ -1,5 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import type { Customer, Prisma } from '../generated/prisma/client';
+import { itemCountOf } from '../orders-admin/order-lookup';
 import { PrismaService } from '../prisma/prisma.service';
 import type {
   CustomerAdminDetailDto,
@@ -151,7 +152,7 @@ export class CustomersAdminService {
           status: true,
           paymentStatus: true,
           grandTotalP: true,
-          items: { select: { qty: true } },
+          items: { select: { qty: true, qtyCancelled: true } },
         },
       }),
       this.prisma.order.count({ where }),
@@ -164,7 +165,7 @@ export class CustomersAdminService {
         status: o.status,
         paymentStatus: o.paymentStatus,
         grandTotalP: o.grandTotalP,
-        itemCount: o.items.reduce((n, i) => n + i.qty, 0),
+        itemCount: itemCountOf(o.status, o.items),
       })),
       total,
     };

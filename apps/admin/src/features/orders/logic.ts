@@ -104,7 +104,7 @@ export function availableActions(order: OrderDetail): Record<OrderAction, boolea
     hold: order.status === 'processing' || order.status === 'partially_shipped',
     resume: order.status === 'on_hold',
     cancel: ['pending_payment', 'processing', 'on_hold'].includes(order.status) && !sentOut,
-    call: order.call.status === 'pending',
+    call: order.call.status === 'pending' && !['cancelled', 'failed'].includes(order.status),
   };
 }
 

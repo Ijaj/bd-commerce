@@ -5,7 +5,13 @@ import { OrderStatusService } from '../orders/order-status.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { readDiscounts } from '../promotions/engine/order-discounts';
 import { ImageService } from '../storefront/images';
-import { dayEndExclusive, dayStart, orderKey } from './order-lookup';
+import {
+  dayEndExclusive,
+  dayStart,
+  isTerminalUndelivered,
+  itemCountOf,
+  orderKey,
+} from './order-lookup';
 import type { OrdersAdminListQueryDto } from './orders-admin.dto';
 import { OrdersAdminError } from './orders-admin.errors';
 
@@ -29,6 +35,13 @@ function phoneNeedle(q: string) {
   return d;
 }
 
+/** A closed (cancelled/failed) order no longer waits for a call, whatever the stored value says. */
+export function effectiveCallStatus(o: { status: string; callStatus: string }) {
+  return o.callStatus === 'pending' && isTerminalUndelivered(o.status)
+    ? ('not_needed' as const)
+    : o.callStatus;
+}
+
 export function toListItem(o: ListRow) {
   const isGuest = o.customer === null;
   return {
@@ -37,7 +50,7 @@ export function toListItem(o: ListRow) {
     placedAt: o.placedAt.toISOString(),
     status: o.status,
     paymentStatus: o.paymentStatus,
-    callStatus: o.callStatus,
+    callStatus: effectiveCallStatus(o),
     riskScore: o.riskScore,
     riskReasons: reasonsOf(o.riskReasons),
     callNote: o.callNote,
@@ -51,7 +64,7 @@ export function toListItem(o: ListRow) {
     shipPlaceText: o.shipPlaceText,
     grandTotalP: o.grandTotalP,
     codDueP: o.codDueP,
-    itemCount: o.items.reduce((n, i) => n + i.qty - i.qtyCancelled, 0),
+    itemCount: itemCountOf(o.status, o.items),
     shipmentSummary: {
       total: o.shipments.filter((s) => s.status !== 'cancelled').length,
       delivered: o.shipments.filter((s) => s.status === 'delivered').length,
@@ -74,6 +87,7 @@ export class OrdersAdminService {
     if (q.status) where.status = q.status;
     if (q.paymentStatus) where.paymentStatus = q.paymentStatus;
     if (q.call) where.callStatus = q.call;
+    if (q.call === 'pending') where.status = { notIn: ['cancelled', 'failed'] };
     if (q.risk === '1') where.riskScore = { gt: 0 };
     if (q.courierId) where.shipments = { some: { courierId: q.courierId } };
     if (q.zoneId) where.zoneId = q.zoneId;
@@ -146,9 +160,13 @@ export class OrdersAdminService {
     ]);
     const staffName = new Map(staff.map((s) => [s.id, s.name]));
 
+    // "Shipped" = parcels really out or delivered. Ready/booked ones are still in our hands, and a
+    // failed/returned one or one received back is not out any more (a re-ship has its own shipment).
     const shippedBy = new Map<string, number>();
     for (const s of o.shipments) {
-      if (s.status === 'cancelled') continue;
+      if (!['handed_over', 'in_transit', 'delivered'].includes(s.status) || s.receivedBackAt) {
+        continue;
+      }
       for (const it of s.items) {
         shippedBy.set(it.orderItemId, (shippedBy.get(it.orderItemId) ?? 0) + it.qty);
       }
@@ -267,7 +285,7 @@ export class OrdersAdminService {
           }
         : null,
       call: {
-        status: o.callStatus,
+        status: effectiveCallStatus(o),
         note: o.callNote,
         staffName: (o.callStaffId && staffName.get(o.callStaffId)) || null,
         at: o.callAt?.toISOString() ?? null,

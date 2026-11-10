@@ -2,6 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { ThrottleService } from '../auth/throttle.service';
 import { CustomerError } from '../customers/customers.errors';
 import { maskPhone, normalizePhone } from '../customers/phone';
+import { itemCountOf } from '../orders-admin/order-lookup';
 import { PrismaService } from '../prisma/prisma.service';
 import { readDiscounts } from '../promotions/engine/order-discounts';
 import { returnableQtyByLine } from '../returns/returns.util';
@@ -54,7 +55,7 @@ export class OrdersService {
         placedAt: o.placedAt.toISOString(),
         status: o.status,
         grandTotalP: o.grandTotalP,
-        itemCount: o.items.reduce((n, i) => n + i.qty - i.qtyCancelled, 0),
+        itemCount: itemCountOf(o.status, o.items),
         firstImage: (o.items[0]?.imageMediaId && images.get(o.items[0].imageMediaId)) || null,
       })),
       total,
@@ -198,7 +199,7 @@ export class OrdersService {
       status: order.status,
       placedAt: order.placedAt.toISOString(),
       maskedPhone: maskPhone(phone),
-      itemCount: order.items.reduce((n, i) => n + i.qty - i.qtyCancelled, 0),
+      itemCount: itemCountOf(order.status, order.items),
       grandTotalP: order.grandTotalP,
       etaMinDays: order.zone.etaMinDays,
       etaMaxDays: order.zone.etaMaxDays,

@@ -26,3 +26,14 @@ export function dayEndExclusive(value: string): Date {
   if (value.length !== 10) return new Date(value);
   return new Date(dayStart(value).getTime() + 86_400_000);
 }
+
+/** Closed without a delivery: nothing more will happen, the call queue and item counts treat them alike. */
+export const TERMINAL_UNDELIVERED = ['cancelled', 'failed'] as const;
+export const isTerminalUndelivered = (status: string) =>
+  (TERMINAL_UNDELIVERED as readonly string[]).includes(status);
+
+/** Units on the order: what is still live, or for a cancelled/failed order what was ordered. */
+export function itemCountOf(status: string, items: { qty: number; qtyCancelled?: number }[]) {
+  const dead = isTerminalUndelivered(status);
+  return items.reduce((n, i) => n + i.qty - (dead ? 0 : (i.qtyCancelled ?? 0)), 0);
+}

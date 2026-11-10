@@ -207,7 +207,7 @@ describe('orders admin + call queue', () => {
         expect.objectContaining({ fromStatus: null, toStatus: 'processing', note: 'Order placed' }),
       ]);
 
-      // A non-cancelled shipment counts toward qtyShipped; a cancelled one does not.
+      // Only parcels handed over (or later) count toward qtyShipped; ready and cancelled ones do not.
       const sid = await sellerId();
       const mk = (no: string, status: 'ready' | 'cancelled', qty: number) =>
         prisma.shipment.create({
@@ -221,11 +221,13 @@ describe('orders admin + call queue', () => {
         });
       await mk('SHP-T-1', 'ready', 1);
       await mk('SHP-T-2', 'cancelled', 1);
+      await mk('SHP-T-3', 'handed_over', 1);
       const d = (await owner.agent.get(`/v1/admin/orders/${order.orderNo}`)).body;
       expect(d.items[0].qtyShipped).toBe(1);
       expect(d.shipments.map((s: { shipmentNo: string }) => s.shipmentNo)).toEqual([
         'SHP-T-1',
         'SHP-T-2',
+        'SHP-T-3',
       ]);
 
       await owner.agent.get('/v1/admin/orders/NOPE-0000').expect(404);
