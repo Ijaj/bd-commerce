@@ -3,6 +3,7 @@ import type { Prisma } from '../generated/prisma/client';
 import { InventoryService } from '../inventory/inventory.service';
 import { CommerceError } from '../orders/commerce.errors';
 import { OrderStatusService } from '../orders/order-status.service';
+import { adjustSoldCount } from '../orders/sold-count';
 import { PrismaService } from '../prisma/prisma.service';
 import { reversePromotions } from '../promotions/engine/redeem';
 import { orderKey } from './order-lookup';
@@ -50,7 +51,7 @@ export class OrderCancelService {
       where: { id: orderId },
       select: {
         status: true,
-        items: { select: { id: true, qty: true, variantId: true } },
+        items: { select: { id: true, qty: true, variantId: true, productId: true } },
         shipments: { select: { id: true, status: true } },
       },
     });
@@ -103,6 +104,7 @@ export class OrderCancelService {
     for (const i of order.items) {
       await tx.orderItem.update({ where: { id: i.id }, data: { qtyCancelled: i.qty } });
     }
+    await adjustSoldCount(tx, order.items, -1);
     // Q90: the coupon uses, budget, bulk code and flash stock come back with the cancelled order.
     await reversePromotions(tx, orderId);
     await tx.payment.updateMany({

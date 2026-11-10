@@ -563,6 +563,7 @@ model StockMovement {
   staff   Staff?  @relation(fields: [staffId], references: [id])
 
   @@index([variantId, at])
+  @@index([refType, refId])
   @@map("stock_movements")
 }
 
@@ -982,6 +983,8 @@ model Order {
   @@index([guestPhone])
   @@index([status, placedAt])
   @@index([affiliateId])
+  @@index([placedAt])
+  @@index([shipPhone])
   @@map("orders")
 }
 

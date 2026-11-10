@@ -9,6 +9,9 @@ export default defineConfig({
   resolve: { alias: { '~': new URL('./src', import.meta.url).pathname } },
   server: {
     port: 5190,
+    // Reachable from a phone/tablet on the LAN (alpha testing); hostnames such as mDNS names pass too.
+    host: true,
+    allowedHosts: true,
     // Same-origin API so the httpOnly session cookie works without CORS.
     proxy: { '/v1': { target: API_TARGET, changeOrigin: true } },
   },

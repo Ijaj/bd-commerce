@@ -318,6 +318,26 @@ describe('orders admin + call queue', () => {
       expect(await inv()).toMatchObject({ reserved: 0 });
     });
 
+    it('sold count goes up when an order is placed and back down when it is cancelled', async () => {
+      const { order, variant } = await place(anon(), { guestPhone: '01712345678', qty: 3 });
+      const sold = async () =>
+        (await prisma.product.findUniqueOrThrow({ where: { id: variant.productId } })).soldCount;
+      expect(await sold()).toBe(3);
+      await owner.agent
+        .post(`/v1/admin/orders/${order.id}/cancel`)
+        .send({ reason: 'Customer asked' })
+        .expect(200);
+      expect(await sold()).toBe(0);
+      // Never below zero, even if the counter was reset by hand.
+      await prisma.product.update({ where: { id: variant.productId }, data: { soldCount: 1 } });
+      await prisma.order.update({ where: { id: order.id }, data: { status: 'processing' } });
+      await owner.agent
+        .post(`/v1/admin/orders/${order.id}/cancel`)
+        .send({ reason: 'again' })
+        .expect(200);
+      expect(await sold()).toBe(0);
+    });
+
     it('cannot cancel once a shipment left, or while a courier booking is live', async () => {
       const a = await place(anon(), { guestPhone: '01712345678' });
       const item = await prisma.orderItem.findFirstOrThrow({ where: { orderId: a.order.id } });

@@ -325,3 +325,4 @@ Note on S6: our order tracking covers status until the parcel is handed to the c
 | C82 | Attribution: **last click wins** within the 30-day window (Q89); a typed code beats any link |
 | C83 | Defaults (settings): commission **5%**, minimum payout **৳500** (smaller balances carry over) |
 | C84 | **Guest orders count** for commission (link visitor cookie or typed code); self-referral check (C69) uses phone + address |
+| C85 | Session 17 (owner, 2026-11-10): `products.sold_count` counts units **at order placed**, subtracts on cancel, returns do not change it. Alpha prep: `cli alpha-settings` lifts dev order/OTP/call-queue/refund limits; plan-vs-code gap list in doc 17 |

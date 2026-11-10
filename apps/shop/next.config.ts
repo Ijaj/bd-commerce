@@ -2,8 +2,15 @@ import type { NextConfig } from 'next';
 
 const API_URL = process.env.API_URL ?? 'http://localhost:4000';
 
+// Dev only: hosts (no port) a phone on the LAN opens the shop from, e.g. DEV_LAN_ORIGINS=192.168.0.23,mypc.local
+const devLanOrigins = (process.env.DEV_LAN_ORIGINS ?? '')
+  .split(',')
+  .map((h) => h.trim())
+  .filter(Boolean);
+
 const config: NextConfig = {
   reactStrictMode: true,
+  ...(devLanOrigins.length > 0 ? { allowedDevOrigins: devLanOrigins } : {}),
   agentRules: false,
   poweredByHeader: false,
   // @bdc/* workspace packages ship TS source (api-client) or ESM dist (i18n).

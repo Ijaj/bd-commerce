@@ -121,6 +121,7 @@ cmd_up() {
 
 First time? Create an owner: pnpm --filter @bdc/api cli create-owner you@example.com "Your Name"
 Demo catalog:                pnpm --filter @bdc/api cli seed-demo
+Alpha test settings:        pnpm --filter @bdc/api cli alpha-settings   (relaxed limits; --reset undoes)
 Stop with ./dev.sh stop
 EOF
 }

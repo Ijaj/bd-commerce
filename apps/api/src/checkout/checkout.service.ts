@@ -13,6 +13,7 @@ import { InventoryService } from '../inventory/inventory.service';
 import { CommerceError } from '../orders/commerce.errors';
 import { OrderNotifyService } from '../orders/order-notify.service';
 import { RiskService } from '../orders/risk.service';
+import { adjustSoldCount } from '../orders/sold-count';
 import { PrismaService } from '../prisma/prisma.service';
 import { PromotionsService } from '../promotions/engine/promotions.service';
 import { claimFlash } from '../promotions/flash/flash-core';
@@ -514,6 +515,7 @@ export class CheckoutService {
             status: 'initiated',
           },
         });
+        await adjustSoldCount(tx, lines, 1);
         await this.risk.assess(tx, order.id);
         // C81–C84: typed code beats last link click; books the pending commission in the same tx.
         const attributed = await this.affiliateAttribution.attribute(tx, {

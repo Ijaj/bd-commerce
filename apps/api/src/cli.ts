@@ -2,6 +2,7 @@
 //   node dist/cli.js create-owner <email> <name>   first Owner account, prints a temporary password
 //   node dist/cli.js reset-2fa <email>             last-resort 2FA reset (C14)
 //   node dist/cli.js seed-demo                     dev-only demo catalog (refused in production)
+//   node dist/cli.js alpha-settings [--reset]      dev-only relaxed checkout/call-queue/refund limits (refused in production)
 //   node dist/cli.js sync-couriers                 poll couriers for open shipments (run on a schedule)
 //   node dist/cli.js complete-orders               complete delivered orders whose return window has passed
 //   node dist/cli.js approve-affiliate-commissions reverse/approve pending affiliate commissions (run on a schedule)
@@ -10,9 +11,11 @@ import { NestFactory } from '@nestjs/core';
 import { z } from 'zod';
 import { AffiliateCommissionsJobService } from './affiliates/affiliate-commissions-job.service';
 import { AppModule } from './app.module';
+import { applyAlphaSettings, resetAlphaSettings } from './cli/alpha-settings';
 import { PrismaService } from './prisma/prisma.service';
 import { ReturnsCompletionService } from './returns/returns-completion.service';
 import { seedDemoCatalog } from './seed/demo-catalog';
+import { SettingsService } from './settings/settings.service';
 import { ShipmentSyncService } from './shipments/shipment-sync.service';
 import { StaffService } from './staff/staff.service';
 
@@ -25,6 +28,9 @@ try {
 async function run([command, ...args]: string[]) {
   if (command === 'seed-demo' && process.env.NODE_ENV === 'production') {
     throw new Error('seed-demo is dev-only and refuses to run when NODE_ENV=production');
+  }
+  if (command === 'alpha-settings' && process.env.NODE_ENV === 'production') {
+    throw new Error('alpha-settings is dev-only and refuses to run when NODE_ENV=production');
   }
   process.env.SCHEDULER = '0';
   const app = await NestFactory.createApplicationContext(AppModule, { logger: ['error', 'warn'] });
@@ -45,6 +51,13 @@ async function run([command, ...args]: string[]) {
       console.log(`2FA reset for ${reset.email}; all their sessions were signed out.`);
     } else if (command === 'seed-demo') {
       await seedDemoCatalog(app.get(PrismaService));
+    } else if (command === 'alpha-settings') {
+      const settings = app.get(SettingsService);
+      if (args.includes('--reset')) {
+        console.log(`Alpha overrides removed: ${(await resetAlphaSettings(settings)).join(', ')}`);
+      } else {
+        console.log(`Alpha overrides written: ${(await applyAlphaSettings(settings)).join(', ')}`);
+      }
     } else if (command === 'sync-couriers') {
       console.log(await app.get(ShipmentSyncService).syncOpen());
     } else if (command === 'complete-orders') {
@@ -53,7 +66,7 @@ async function run([command, ...args]: string[]) {
       console.log(await app.get(AffiliateCommissionsJobService).run());
     } else {
       console.error(
-        'usage: cli create-owner <email> <name> | reset-2fa <email> | seed-demo | sync-couriers | complete-orders | approve-affiliate-commissions',
+        'usage: cli create-owner <email> <name> | reset-2fa <email> | seed-demo | alpha-settings [--reset] | sync-couriers | complete-orders | approve-affiliate-commissions',
       );
       process.exitCode = 1;
     }

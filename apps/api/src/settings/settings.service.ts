@@ -74,7 +74,7 @@ export class SettingsService {
     });
   }
 
-  async set(key: string, value: unknown, staffId: string) {
+  async set(key: string, value: unknown, staffId: string | null) {
     const def = this.definition(key);
     const parsed = def.schema.safeParse(value);
     if (!parsed.success) throw new BadRequestException(z.prettifyError(parsed.error));
