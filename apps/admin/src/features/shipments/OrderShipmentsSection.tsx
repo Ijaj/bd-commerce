@@ -9,7 +9,7 @@ import { CreateShipmentModal } from './CreateShipmentModal';
 import { freeQuantities } from './logic';
 import { orderShipmentsQuery, shipOrderQuery } from './queries';
 import { ShipmentActions } from './ShipmentActions';
-import { StatusBadge } from './StatusBadge';
+import { ReceivedBackInfo, StatusBadge } from './StatusBadge';
 
 /** Shipments of one order, embedded in the order detail page. */
 export function OrderShipmentsSection({ orderId }: { orderId: string }) {
@@ -30,7 +30,9 @@ export function OrderShipmentsSection({ orderId }: { orderId: string }) {
       }))
     : [];
   const hasFree = lines.some((l) => l.free > 0);
-  const shippable = order.data && ['processing', 'partially_shipped'].includes(order.data.status);
+  const shippable =
+    order.data &&
+    ['processing', 'partially_shipped', 'delivery_failed'].includes(order.data.status);
 
   return (
     <SectionCard
@@ -97,6 +99,7 @@ export function OrderShipmentsSection({ orderId }: { orderId: string }) {
                   </Table.Td>
                   <Table.Td>
                     <StatusBadge status={s.status} />
+                    <ReceivedBackInfo shipment={s} />
                   </Table.Td>
                   <Table.Td className="act">
                     <ShipmentActions shipment={s} />

@@ -1,12 +1,15 @@
 import Link from 'next/link';
+import { fetchFooterPages } from '~/features/pages/data';
+import { pageTitle } from '~/features/pages/logic';
 import { dict, type Lang } from '~/i18n';
 import { href } from '~/i18n/routing';
 import type { SiteStatus } from '~/lib/types';
 import s from './Footer.module.css';
 import { Logo } from './Logo';
 
-export function Footer({ lang, contact }: { lang: Lang; contact?: SiteStatus['contact'] }) {
+export async function Footer({ lang, contact }: { lang: Lang; contact?: SiteStatus['contact'] }) {
   const d = dict(lang).footer;
+  const pages = await fetchFooterPages();
   return (
     <footer className={`${s.foot} on-dark`}>
       <div className="wrap">
@@ -18,12 +21,11 @@ export function Footer({ lang, contact }: { lang: Lang; contact?: SiteStatus['co
           <div>
             <h3>{d.company}</h3>
             <ul>
-              <li>
-                <Link href={href(lang, '/pages/about')}>{d.aboutUs}</Link>
-              </li>
-              <li>
-                <Link href={href(lang, '/pages/contact')}>{d.contact}</Link>
-              </li>
+              {pages.map((p) => (
+                <li key={p.slug}>
+                  <Link href={href(lang, `/pages/${p.slug}`)}>{pageTitle(lang, p)}</Link>
+                </li>
+              ))}
             </ul>
           </div>
           <div>

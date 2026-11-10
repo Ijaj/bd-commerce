@@ -82,6 +82,8 @@ function order(over: Partial<OrderForReturn> = {}): OrderForReturn {
     },
     zone: { nameEn: 'Outside Dhaka', nameBn: null, etaMinDays: 3, etaMaxDays: 5 },
     history: [{ status: 'delivered', at: '2026-10-25T12:19:00.000Z' }],
+    shipments: [],
+    canCancel: false,
     ...over,
   };
 }

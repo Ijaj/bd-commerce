@@ -75,6 +75,10 @@ export class OrdersAdminService {
     if (q.paymentStatus) where.paymentStatus = q.paymentStatus;
     if (q.call) where.callStatus = q.call;
     if (q.risk === '1') where.riskScore = { gt: 0 };
+    if (q.courierId) where.shipments = { some: { courierId: q.courierId } };
+    if (q.zoneId) where.zoneId = q.zoneId;
+    if (q.paymentMethod) where.paymentMethodChosen = q.paymentMethod;
+    if (q.source) where.customerId = q.source === 'guest' ? null : { not: null };
     if (q.from || q.to) {
       where.placedAt = {
         ...(q.from ? { gte: dayStart(q.from) } : {}),

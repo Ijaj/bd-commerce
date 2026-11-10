@@ -26,7 +26,11 @@ export type CommerceErrorCode =
   | 'FLASH_LIMIT'
   | 'FLASH_SOLD_OUT'
   | 'COUPON_INVALID'
-  | 'COUPON_LIMIT';
+  | 'COUPON_LIMIT'
+  | 'ORDER_ON_HOLD'
+  | 'ORDER_NOT_CANCELLABLE'
+  | 'SHIPMENT_BOOKED'
+  | 'LOGIN_REQUIRED';
 
 /** Error with a stable machine-readable `code` next to the human `message`. */
 export class CommerceError extends HttpException {

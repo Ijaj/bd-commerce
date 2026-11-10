@@ -1,0 +1,38 @@
+.toolbarNote {
+  color: var(--bdc-muted);
+  font-size: 12px;
+}
+.sub {
+  display: block;
+  color: var(--bdc-muted);
+  font-size: 12px;
+}
+.badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.acts {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+}
+.editor {
+  max-width: 880px;
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+.foot {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}

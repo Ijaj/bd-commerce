@@ -9,11 +9,13 @@ import { ImportExportModule } from './catalog/import-export/import-export.module
 import { ProductsModule } from './catalog/products/products.module';
 import { EnvModule } from './config/env.module';
 import { CustomersModule } from './customers/customers.module';
+import { CustomersAdminModule } from './customers-admin/customers-admin.module';
 import { DocumentsModule } from './documents/documents.module';
 import { HealthController } from './health/health.controller';
 import { InventoryModule } from './inventory/inventory.module';
 import { MailModule } from './mail/mail.module';
 import { MediaModule } from './media/media.module';
+import { OrderSelfCancelModule } from './orders/order-self-cancel.module';
 import { OrdersAdminModule } from './orders-admin/orders-admin.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { BulkSaleModule } from './promotions/bulk-sale/bulk-sale.module';
@@ -53,6 +55,7 @@ import { StorefrontModule } from './storefront/storefront.module';
     StorefrontModule,
     SrModule,
     OrdersAdminModule,
+    OrderSelfCancelModule,
     ShipmentsModule,
     DocumentsModule,
     ReturnsModule,
@@ -63,6 +66,7 @@ import { StorefrontModule } from './storefront/storefront.module';
     SuppliersModule,
     PurchaseOrdersModule,
     AffiliatesModule,
+    CustomersAdminModule,
     SchedulerModule,
   ],
   controllers: [HealthController],

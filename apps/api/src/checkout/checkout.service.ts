@@ -6,6 +6,7 @@ import { type CartLineDetail, CartService, subtotalOf } from '../cart/cart.servi
 import type { CartIdentity } from '../cart/cart-identity.service';
 import { OtpService } from '../customers/otp.service';
 import { normalizePhone } from '../customers/phone';
+import { assertPhonesNotBlocked } from '../customers-admin/blocked-phone';
 import { DeliveryService } from '../delivery/delivery.service';
 import type { DeliveryZone, Prisma } from '../generated/prisma/client';
 import { GeoService, type PlaceNames } from '../geo/geo.service';
@@ -168,6 +169,7 @@ export class CheckoutService {
     loc: { districtId: number; upazilaId: number; areaId?: number | null },
   ) {
     const { zone } = await this.place3(loc);
+    await assertPhonesNotBlocked(this.prisma, [who.customer?.phone]);
     const found = await this.cart.linesFor(who);
     const lines = found?.lines ?? [];
     const pricing = await this.price(
@@ -219,6 +221,7 @@ export class CheckoutService {
         'Enter a valid Bangladesh mobile number.',
       );
     }
+    await assertPhonesNotBlocked(this.prisma, [phone]);
     return this.otp.request(phone, 'guest_cod', ip, true);
   }
 
@@ -358,6 +361,9 @@ export class CheckoutService {
         );
       }
     }
+
+    // C88: a blocked customer's phone cannot buy, whoever types it.
+    await assertPhonesNotBlocked(this.prisma, [guestPhone, who.customer?.phone, ship.phone]);
 
     // Cheap pre-check outside the transaction so a bad cart never burns the customer's OTP.
     const buyerPhone = guestPhone ?? who.customer?.phone ?? null;

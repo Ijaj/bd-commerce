@@ -326,3 +326,9 @@ Note on S6: our order tracking covers status until the parcel is handed to the c
 | C83 | Defaults (settings): commission **5%**, minimum payout **৳500** (smaller balances carry over) |
 | C84 | **Guest orders count** for commission (link visitor cookie or typed code); self-referral check (C69) uses phone + address |
 | C85 | Session 17 (owner, 2026-11-10): `products.sold_count` counts units **at order placed**, subtracts on cancel, returns do not change it. Alpha prep: `cli alpha-settings` lifts dev order/OTP/call-queue/refund limits; plan-vs-code gap list in doc 17 |
+| C86 | Gap batch "7d" (owner, 2026-11-10, doc 17 A1–A7 + small wins B1, B4, B7, C1, C7, C8). **Order edit before hand-off re-runs promotions** (totals, coupons, flash limits, delivery charge recalculated like a fresh cart; staff sees the new total before saving) |
+| C87 | Failed delivery: courier "returned" puts the order in **delivery failed**; staff press **Received back** (restock, reverse coupon/flash, close as failed) or re-ship. Nothing automatic on stock (closes Q90) |
+| C88 | Admin customers screen includes a **simple block**: blocked customer cannot log in or place orders (account + phone), one flag + reason |
+| C89 | Static pages: **free pages** (slug, EN/BN title + rich text, published, show in footer); footer lists them automatically; About, Contact, Privacy, Terms, Returns, FAQ seeded as drafts |
+| C90 | Order edit pricing: **unchanged lines keep the ordered unit price**; only new or increased-qty lines use today's price; coupons and delivery are still recalculated (refines C86) |
+| C91 | "Order confirmed" SMS/email is sent **only after a call-queue confirm**; other orders get placed → handed to courier → delivered (plus cancelled, refund paid, delivery failed, edited) |

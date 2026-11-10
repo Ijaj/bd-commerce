@@ -272,3 +272,53 @@
   flex-direction: column;
   gap: 14px;
 }
+
+/* order edit */
+.editLine {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--bdc-border);
+}
+.newTag {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--bdc-success);
+}
+.shipGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.span2 {
+  grid-column: span 2;
+}
+@media (max-width: 600px) {
+  .shipGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .span2 {
+    grid-column: auto;
+  }
+}
+.compare {
+  margin-top: 10px;
+}
+.changedRow td {
+  background: color-mix(in srgb, var(--bdc-warn) 10%, transparent);
+}
+.struck {
+  text-decoration: line-through;
+  color: var(--bdc-muted);
+}
+.editEntry {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--bdc-border);
+}
+.editFacts {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  font-size: 12px;
+}

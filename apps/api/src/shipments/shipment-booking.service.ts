@@ -3,6 +3,7 @@ import { ENV, type Env } from '../config/env';
 import { InvoicesService } from '../documents/invoices.service';
 import { Prisma } from '../generated/prisma/client';
 import { InventoryService } from '../inventory/inventory.service';
+import { OrderNotifyService } from '../orders/order-notify.service';
 import { OrderStatusService } from '../orders/order-status.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CourierRegistry } from './couriers/courier.registry';
@@ -14,7 +15,23 @@ import { lockShipment, ShipmentsService } from './shipments.service';
 type Actor = { type: 'staff' | 'system'; id?: string | null };
 
 const CANCELLABLE = ['pending', 'awaiting_supplier', 'supplier_confirmed', 'ready', 'booked'];
-const SHIPPABLE_ORDER = ['processing', 'partially_shipped'];
+// delivery_failed: a sibling parcel may still wait in the warehouse.
+const SHIPPABLE_ORDER = ['processing', 'partially_shipped', 'delivery_failed'];
+
+/** What the customer message needs: which parcel, which courier, where to track it. */
+export function handedOverExtra(view: {
+  shipmentNo: string;
+  courier: { name: string } | null;
+  consignmentId: string | null;
+  trackingUrl: string | null;
+}) {
+  return {
+    shipmentNo: view.shipmentNo,
+    courierName: view.courier?.name ?? null,
+    trackingId: view.consignmentId,
+    trackingUrl: view.trackingUrl,
+  };
+}
 
 @Injectable()
 export class ShipmentBookingService {
@@ -26,6 +43,7 @@ export class ShipmentBookingService {
     private readonly registry: CourierRegistry,
     private readonly inventory: InventoryService,
     private readonly orderStatus: OrderStatusService,
+    private readonly notify: OrderNotifyService,
     private readonly invoices: InvoicesService,
     @Inject(ENV) private readonly env: Env,
   ) {}
@@ -275,7 +293,9 @@ export class ShipmentBookingService {
       await lockShipment(tx, shipmentId);
       await this.handoverTx(tx, shipmentId, { type: 'staff', id: staffId }, true);
     });
-    return this.shipments.view(shipmentId);
+    const view = await this.shipments.view(shipmentId);
+    await this.notify.event(view.orderId, 'handed_over', handedOverExtra(view));
+    return view;
   }
 
   /**
@@ -300,7 +320,10 @@ export class ShipmentBookingService {
         `Only a booked shipment can be handed over (this one is ${s.status})`,
       );
     }
-    if (strict && !['processing', 'partially_shipped', 'shipped'].includes(s.order.status)) {
+    if (
+      strict &&
+      !['processing', 'partially_shipped', 'shipped', 'delivery_failed'].includes(s.order.status)
+    ) {
       throw new ShipmentError(
         HttpStatus.CONFLICT,
         'ORDER_NOT_SHIPPABLE',

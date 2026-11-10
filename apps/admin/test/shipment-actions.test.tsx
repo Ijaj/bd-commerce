@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { HttpError } from '~/features/categories/http';
 import { theme } from '~/theme';
 
-const mocks = vi.hoisted(() => ({ cancel: vi.fn() }));
+const mocks = vi.hoisted(() => ({ cancel: vi.fn(), receivedBack: vi.fn() }));
 vi.mock('~/features/shipments/api', () => ({ shipmentsApi: mocks }));
 vi.mock('~/lib/perm', () => ({ useCan: () => true }));
 
@@ -44,5 +44,70 @@ describe('ShipmentActions cancel', () => {
     await waitFor(() => expect(mocks.cancel).toHaveBeenCalledWith('s1', false));
     fireEvent.click(await screen.findByRole('button', { name: 'Mark cancelled manually' }));
     await waitFor(() => expect(mocks.cancel).toHaveBeenLastCalledWith('s1', true));
+  });
+});
+
+describe('ShipmentActions received back', () => {
+  const failed = {
+    ...booked,
+    id: 's2',
+    shipmentNo: 'SHP-2',
+    status: 'failed',
+    receivedBackAt: null,
+  } as unknown as Shipment;
+
+  function mount(shipment: Shipment) {
+    const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(
+      <QueryClientProvider client={qc}>
+        <MantineProvider theme={theme} env="test">
+          <Notifications />
+          <ShipmentActions shipment={shipment} />
+        </MantineProvider>
+      </QueryClientProvider>,
+    );
+  }
+
+  it('sends the note and the re-ship choice', async () => {
+    mocks.receivedBack.mockResolvedValue({ warnings: [] });
+    mount(failed);
+    fireEvent.click(screen.getByRole('button', { name: 'Actions' }));
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'Received back' }));
+    fireEvent.change(await screen.findByLabelText('Note'), {
+      target: { value: 'customer refused' },
+    });
+    fireEvent.click(screen.getByLabelText('Re-ship these items'));
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm received back' }));
+    await waitFor(() =>
+      expect(mocks.receivedBack).toHaveBeenCalledWith('s2', {
+        note: 'customer refused',
+        reship: true,
+      }),
+    );
+  });
+
+  it('defaults to not re-shipping and shows an API refusal', async () => {
+    mocks.receivedBack.mockRejectedValue(
+      new HttpError('Already received back', 409, { code: 'SHIPMENT_STATE', message: 'x' }),
+    );
+    mount(failed);
+    fireEvent.click(screen.getByRole('button', { name: 'Actions' }));
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'Received back' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Confirm received back' }));
+    await waitFor(() =>
+      expect(mocks.receivedBack).toHaveBeenCalledWith('s2', { note: '', reship: false }),
+    );
+    expect(
+      await screen.findByText(/Could not record the return|Already received back/),
+    ).toBeInTheDocument();
+  });
+
+  it('offers no action once the parcel was received back', () => {
+    mount({
+      ...failed,
+      status: 'returned',
+      receivedBackAt: '2026-11-10T10:00:00.000Z',
+    } as Shipment);
+    expect(screen.queryByRole('button', { name: 'Actions' })).not.toBeInTheDocument();
   });
 });

@@ -10,6 +10,8 @@ export const STATUS_LABEL: Record<OrderStatus, string> = {
   delivered: 'Delivered',
   completed: 'Completed',
   cancelled: 'Cancelled',
+  delivery_failed: 'Delivery failed',
+  failed: 'Failed',
 };
 
 export const STATUS_COLOR: Record<OrderStatus, string> = {
@@ -21,6 +23,8 @@ export const STATUS_COLOR: Record<OrderStatus, string> = {
   delivered: 'green',
   completed: 'green',
   cancelled: 'gray',
+  delivery_failed: 'red',
+  failed: 'red',
 };
 
 export const PAYMENT_LABEL: Record<PaymentStatus, string> = {
@@ -69,6 +73,18 @@ export const CALL_OPTIONS = (Object.keys(CALL_LABEL) as CallStatus[]).map((value
   value,
   label: CALL_LABEL[value],
 }));
+
+export const PAYMENT_METHOD_OPTIONS = [
+  { value: 'cod', label: 'Cash on delivery' },
+  { value: 'bkash', label: 'bKash' },
+  { value: 'nagad', label: 'Nagad' },
+  { value: 'gateway', label: 'Card / gateway' },
+  { value: 'wallet', label: 'Wallet' },
+];
+export const SOURCE_OPTIONS = [
+  { value: 'guest', label: 'Guest checkout' },
+  { value: 'customer', label: 'Customer account' },
+];
 
 /** "booked" means a courier already holds the parcel; the API refuses a cancel until it is cancelled. */
 export function hasBookedShipment(order: Pick<OrderDetail, 'shipments'>): boolean {

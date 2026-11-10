@@ -33,6 +33,8 @@ export class ShipmentListQueryDto extends createZodDto(
     status: z.enum(STATUSES).optional(),
     courier: z.string().trim().min(1).max(40).optional(),
     q: z.string().trim().min(1).max(100).optional(),
+    /// Failed / returning / returned and not yet received back.
+    attention: z.stringbool().optional(),
     sort: z.enum(['newest', 'oldest']).default('newest'),
     page: z.coerce.number().int().min(1).default(1),
     pageSize: z.coerce.number().int().min(1).max(100).default(25),
@@ -102,10 +104,32 @@ const shipmentBase = {
   packedAt: iso.nullable(),
   handedAt: iso.nullable(),
   deliveredAt: iso.nullable(),
+  receivedBackAt: iso.nullable(),
+  receivedBackBy: z.object({ id: z.uuid(), name: z.string().nullable() }).nullable(),
+  receivedBackNote: z.string().nullable(),
   createdAt: iso,
 };
 
 export class ShipmentDto extends createZodDto(z.object(shipmentBase)) {}
+
+export class ShipmentReceivedBackDto extends createZodDto(
+  z.object({
+    note: z.string().trim().max(300).optional(),
+    /// Reserve the goods again and create a new ready shipment instead of cancelling the lines.
+    reship: z.boolean().default(false),
+  }),
+) {}
+
+/// The shipment view plus what happened to the order.
+export class ShipmentReceivedBackResultDto extends createZodDto(
+  z.object({
+    ...shipmentBase,
+    orderStatus: z.string(),
+    /// New ready shipment when reship = true.
+    reshipmentId: z.uuid().nullable(),
+    warnings: z.array(z.string()),
+  }),
+) {}
 
 export class ShipmentDetailDto extends createZodDto(
   z.object({

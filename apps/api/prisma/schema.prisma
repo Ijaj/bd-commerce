@@ -374,7 +374,16 @@ model Product {
   viewCount               Int           @default(0) @map("view_count")
   seoTitle                String?       @map("seo_title")
   seoDescription          String?       @map("seo_description")
+  /// Storefront shows the product only when this is <= now, so a future date = scheduled publish (C8).
   publishedAt             DateTime?     @map("published_at") @db.Timestamptz
+  /// Free tags (C7), lower-cased by the API.
+  tags                    String[]      @default([])
+  warrantyEn              String?       @map("warranty_en")
+  warrantyBn              String?       @map("warranty_bn")
+  /// Package dimensions in millimetres (C7); CHECK > 0 when set.
+  lengthMm                Int?          @map("length_mm")
+  widthMm                 Int?          @map("width_mm")
+  heightMm                Int?          @map("height_mm")
   createdAt               DateTime      @default(now()) @map("created_at") @db.Timestamptz
   updatedAt               DateTime      @updatedAt @map("updated_at") @db.Timestamptz
 
@@ -392,6 +401,7 @@ model Product {
   @@index([status])
   @@index([brandId])
   @@index([primaryCategoryId])
+  @@index([tags], type: Gin)
   @@map("products")
 }
 
@@ -580,23 +590,27 @@ enum Lang {
 }
 
 model Customer {
-  id              String    @id @default(uuid(7)) @db.Uuid
-  name            String
+  id               String    @id @default(uuid(7)) @db.Uuid
+  name             String
   /// Normalized BD mobile `01XXXXXXXXX` (11 digits).
-  phone           String?   @unique
-  phoneVerifiedAt DateTime? @map("phone_verified_at") @db.Timestamptz
+  phone            String?   @unique
+  phoneVerifiedAt  DateTime? @map("phone_verified_at") @db.Timestamptz
   /// Lower-cased.
-  email           String?   @unique
-  emailVerifiedAt DateTime? @map("email_verified_at") @db.Timestamptz
+  email            String?   @unique
+  emailVerifiedAt  DateTime? @map("email_verified_at") @db.Timestamptz
   /// Argon2id. Null only for future social-login-only accounts.
-  passwordHash    String?   @map("password_hash")
-  lang            Lang      @default(en)
+  passwordHash     String?   @map("password_hash")
+  lang             Lang      @default(en)
   /// Risky customer → advance required (Q106, P2).
-  isFlagged       Boolean   @default(false) @map("is_flagged")
-  disabledAt      DateTime? @map("disabled_at") @db.Timestamptz
-  lastLoginAt     DateTime? @map("last_login_at") @db.Timestamptz
-  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  isFlagged        Boolean   @default(false) @map("is_flagged")
+  /// Blocked (C88): set = cannot log in or place orders; the phone also cannot place guest orders.
+  disabledAt       DateTime? @map("disabled_at") @db.Timestamptz
+  blockedReason    String?   @map("blocked_reason")
+  /// Plain uuid (no FK), like orders.call_staff_id.
+  blockedByStaffId String?   @map("blocked_by_staff_id") @db.Uuid
+  lastLoginAt      DateTime? @map("last_login_at") @db.Timestamptz
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz
 
   sessions          CustomerSession[]
   wishlists         Wishlist[]
@@ -608,6 +622,7 @@ model Customer {
   couponCodes       CouponCode[]
   couponCustomers   CouponCustomer[]
   affiliate         Affiliate?
+  notes             CustomerNote[]
 
   @@map("customers")
 }
@@ -886,6 +901,10 @@ enum OrderStatus {
   delivered
   completed
   cancelled
+  /// Courier reports failed/returned shipments and none are moving; waits for staff (C87).
+  delivery_failed
+  /// Terminal: goods received back, nothing delivered (C87).
+  failed
 
   @@map("order_status")
 }
@@ -933,6 +952,7 @@ model Order {
   isPreorder           Boolean               @default(false) @map("is_preorder")
   cancelReason         String?               @map("cancel_reason")
   heldReason           String?               @map("held_reason")
+  failedReason         String?               @map("failed_reason")
   // Money (paisa)
   subtotalP            Int                   @map("subtotal_p")
   autoDiscountP        Int                   @default(0) @map("auto_discount_p")
@@ -977,6 +997,7 @@ model Order {
   returns             Return[]
   refunds             Refund[]
   couponRedemptions   CouponRedemption[]
+  edits               OrderEdit[]
 
   @@index([callStatus, placedAt])
   @@index([customerId])
@@ -1148,6 +1169,11 @@ model Shipment {
   packedAt             DateTime?      @map("packed_at") @db.Timestamptz
   handedAt             DateTime?      @map("handed_at") @db.Timestamptz
   deliveredAt          DateTime?      @map("delivered_at") @db.Timestamptz
+  /// Staff pressed "Received back" on a failed/returned shipment (C87): goods restocked.
+  receivedBackAt       DateTime?      @map("received_back_at") @db.Timestamptz
+  /// Plain uuid (no FK).
+  receivedBackById     String?        @map("received_back_by_id") @db.Uuid
+  receivedBackNote     String?        @map("received_back_note")
   createdAt            DateTime       @default(now()) @map("created_at") @db.Timestamptz
   updatedAt            DateTime       @updatedAt @map("updated_at") @db.Timestamptz
 
@@ -2210,4 +2236,61 @@ model AffiliatePayout {
 
   @@index([affiliateId, paidAt])
   @@map("affiliate_payouts")
+}
+
+// ---------------------------------------------------------------------------
+// Gap batch 7d (C86–C89): order edits, customer notes, static pages.
+// ---------------------------------------------------------------------------
+
+/// One row per saved admin edit of an order before courier hand-off (C86). Staff actor = plain uuid.
+model OrderEdit {
+  id                 String    @id @default(uuid(7)) @db.Uuid
+  orderId            String    @map("order_id") @db.Uuid
+  staffId            String    @map("staff_id") @db.Uuid
+  /// Snapshots {ship, items[], totals, discounts} before and after; shape is owned by the order-edit service.
+  before             Json
+  after              Json
+  note               String?
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  customerNotifiedAt DateTime? @map("customer_notified_at") @db.Timestamptz
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId, createdAt])
+  @@map("order_edits")
+}
+
+/// Append-only staff notes on a customer (A6): never edited or deleted.
+model CustomerNote {
+  id         String   @id @default(uuid(7)) @db.Uuid
+  customerId String   @map("customer_id") @db.Uuid
+  staffId    String   @map("staff_id") @db.Uuid
+  body       String
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([customerId, createdAt])
+  @@map("customer_notes")
+}
+
+/// Free static pages (C89): About, Contact, Privacy, Terms, Returns, FAQ are seeded as drafts.
+model Page {
+  id             String   @id @default(uuid(7)) @db.Uuid
+  slug           String   @unique
+  titleEn        String   @map("title_en")
+  titleBn        String?  @map("title_bn")
+  /// Sanitized on save with the catalog HTML sanitizer, and again on render.
+  bodyHtmlEn     String?  @map("body_html_en")
+  bodyHtmlBn     String?  @map("body_html_bn")
+  isPublished    Boolean  @default(false) @map("is_published")
+  showInFooter   Boolean  @default(false) @map("show_in_footer")
+  sortOrder      Int      @default(0) @map("sort_order")
+  seoTitle       String?  @map("seo_title")
+  seoDescription String?  @map("seo_description")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([isPublished, showInFooter, sortOrder])
+  @@map("pages")
 }

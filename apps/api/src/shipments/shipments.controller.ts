@@ -13,6 +13,7 @@ import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { CurrentStaff, StaffAuth } from '../auth/staff-auth.guard';
 import type { StaffAuthContext } from '../auth/staff-auth.service';
 import { ShipmentBookingService } from './shipment-booking.service';
+import { ShipmentReceivedBackService } from './shipment-received-back.service';
 import { ShipmentSyncService } from './shipment-sync.service';
 import {
   ShipmentBookDto,
@@ -24,6 +25,8 @@ import {
   ShipmentListQueryDto,
   ShipmentOrderListDto,
   ShipmentRebookDto,
+  ShipmentReceivedBackDto,
+  ShipmentReceivedBackResultDto,
   ShipmentSyncResultDto,
   ShipmentWebhookAckDto,
 } from './shipments.dto';
@@ -38,6 +41,7 @@ export class ShipmentsAdminController {
     private readonly shipments: ShipmentsService,
     private readonly booking: ShipmentBookingService,
     private readonly sync: ShipmentSyncService,
+    private readonly back: ShipmentReceivedBackService,
   ) {}
 
   @Get('orders/:id/shipments')
@@ -99,6 +103,18 @@ export class ShipmentsAdminController {
   @ApiOkResponse({ type: ShipmentDto })
   handover(@CurrentStaff() ctx: StaffAuthContext, @Param('id', ParseUUIDPipe) id: string) {
     return this.booking.handover(id, ctx.staff.id);
+  }
+
+  @Post('shipments/:id/received-back')
+  @HttpCode(200)
+  @StaffAuth('shipments.manage')
+  @ApiOkResponse({ type: ShipmentReceivedBackResultDto })
+  receivedBack(
+    @CurrentStaff() ctx: StaffAuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: ShipmentReceivedBackDto,
+  ) {
+    return this.back.receivedBack(id, ctx.staff.id, body);
   }
 
   @Post('shipments/:id/sync')

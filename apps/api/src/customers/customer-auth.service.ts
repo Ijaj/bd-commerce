@@ -153,11 +153,7 @@ export class CustomerAuthService {
     }
     // Only said after the password matched, so it does not reveal which accounts exist.
     if (customer.disabledAt) {
-      throw new CustomerError(
-        HttpStatus.FORBIDDEN,
-        'ACCOUNT_DISABLED',
-        'This account is disabled.',
-      );
+      throw new CustomerError(HttpStatus.FORBIDDEN, 'ACCOUNT_DISABLED', 'This account is blocked.');
     }
     await this.throttle.clear(idKey);
     const updated = await this.prisma.customer.update({

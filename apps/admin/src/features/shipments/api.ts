@@ -5,14 +5,20 @@ import type { Shipment, ShipmentStatus } from './logic';
 export interface ShipmentFilters {
   status?: ShipmentStatus;
   courier?: string;
+  /** Failed / returning / returned and not yet received back. */
+  attention?: boolean;
   q?: string;
   page: number;
   pageSize: number;
 }
 
 export const shipmentsApi = {
-  list: (f: ShipmentFilters) =>
-    send(api.GET('/v1/admin/shipments', { params: { query: { ...f, sort: 'newest' } } })),
+  list: ({ attention, ...f }: ShipmentFilters) =>
+    send(
+      api.GET('/v1/admin/shipments', {
+        params: { query: { ...f, attention: attention ? 'true' : undefined, sort: 'newest' } },
+      }),
+    ),
   forOrder: (orderId: string) =>
     send(api.GET('/v1/admin/orders/{id}/shipments', { params: { path: { id: orderId } } })),
   order: (orderId: string) =>
@@ -42,6 +48,13 @@ export const shipmentsApi = {
     ),
   handover: (id: string) =>
     send(api.POST('/v1/admin/shipments/{id}/handover', { params: { path: { id } } })),
+  receivedBack: (id: string, body: { note?: string; reship: boolean }) =>
+    send(
+      api.POST('/v1/admin/shipments/{id}/received-back', {
+        params: { path: { id } },
+        body: { note: body.note || undefined, reship: body.reship },
+      }),
+    ),
   sync: (id: string) =>
     send(api.POST('/v1/admin/shipments/{id}/sync', { params: { path: { id } } })),
 };

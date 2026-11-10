@@ -31,6 +31,8 @@ import { Route as AppCatalogCategoriesRouteImport } from './routes/_app/catalog.
 import { Route as AppCatalogImportExportRouteImport } from './routes/_app/catalog.import-export'
 import { Route as AppCatalogInventoryRouteImport } from './routes/_app/catalog.inventory'
 import { Route as AppContentCarouselRouteImport } from './routes/_app/content.carousel'
+import { Route as AppCustomersIndexRouteImport } from './routes/_app/customers.index'
+import { Route as AppCustomersIdRouteImport } from './routes/_app/customers.$id'
 import { Route as AppOrdersIndexRouteImport } from './routes/_app/orders.index'
 import { Route as AppOrdersIdRouteImport } from './routes/_app/orders.$id'
 import { Route as AppPurchaseOrdersIndexRouteImport } from './routes/_app/purchase-orders.index'
@@ -48,6 +50,8 @@ import { Route as AppB2bShopsIndexRouteImport } from './routes/_app/b2b.shops.in
 import { Route as AppB2bShopsIdRouteImport } from './routes/_app/b2b.shops.$id'
 import { Route as AppCatalogProductsIndexRouteImport } from './routes/_app/catalog.products.index'
 import { Route as AppCatalogProductsIdRouteImport } from './routes/_app/catalog.products.$id'
+import { Route as AppContentPagesIndexRouteImport } from './routes/_app/content.pages.index'
+import { Route as AppContentPagesIdRouteImport } from './routes/_app/content.pages.$id'
 import { Route as AppPromotionsBulkSalesIndexRouteImport } from './routes/_app/promotions.bulk-sales.index'
 import { Route as AppPromotionsBulkSalesIdRouteImport } from './routes/_app/promotions.bulk-sales.$id'
 import { Route as AppPromotionsBulkSalesNewRouteImport } from './routes/_app/promotions.bulk-sales.new'
@@ -169,6 +173,16 @@ const AppContentCarouselRoute = AppContentCarouselRouteImport.update({
   path: '/content/carousel',
   getParentRoute: () => AppRoute,
 } as any)
+const AppCustomersIndexRoute = AppCustomersIndexRouteImport.update({
+  id: '/customers/',
+  path: '/customers/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCustomersIdRoute = AppCustomersIdRouteImport.update({
+  id: '/customers/$id',
+  path: '/customers/$id',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppOrdersIndexRoute = AppOrdersIndexRouteImport.update({
   id: '/orders/',
   path: '/orders/',
@@ -252,6 +266,16 @@ const AppCatalogProductsIndexRoute = AppCatalogProductsIndexRouteImport.update({
 const AppCatalogProductsIdRoute = AppCatalogProductsIdRouteImport.update({
   id: '/catalog/products/$id',
   path: '/catalog/products/$id',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppContentPagesIndexRoute = AppContentPagesIndexRouteImport.update({
+  id: '/content/pages/',
+  path: '/content/pages/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppContentPagesIdRoute = AppContentPagesIdRouteImport.update({
+  id: '/content/pages/$id',
+  path: '/content/pages/$id',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPromotionsBulkSalesIndexRoute =
@@ -342,6 +366,7 @@ export interface FileRoutesByFullPath {
   '/catalog/import-export': typeof AppCatalogImportExportRoute
   '/catalog/inventory': typeof AppCatalogInventoryRoute
   '/content/carousel': typeof AppContentCarouselRoute
+  '/customers/$id': typeof AppCustomersIdRoute
   '/orders/$id': typeof AppOrdersIdRoute
   '/purchase-orders/$id': typeof AppPurchaseOrdersIdRoute
   '/purchase-orders/new': typeof AppPurchaseOrdersNewRoute
@@ -350,6 +375,7 @@ export interface FileRoutesByFullPath {
   '/suppliers/$id': typeof AppSuppliersIdRoute
   '/print/labels': typeof PrintPrintLabelsRoute
   '/affiliates/': typeof AppAffiliatesIndexRoute
+  '/customers/': typeof AppCustomersIndexRoute
   '/orders/': typeof AppOrdersIndexRoute
   '/purchase-orders/': typeof AppPurchaseOrdersIndexRoute
   '/refunds/': typeof AppRefundsIndexRoute
@@ -358,6 +384,7 @@ export interface FileRoutesByFullPath {
   '/suppliers/': typeof AppSuppliersIndexRoute
   '/b2b/shops/$id': typeof AppB2bShopsIdRoute
   '/catalog/products/$id': typeof AppCatalogProductsIdRoute
+  '/content/pages/$id': typeof AppContentPagesIdRoute
   '/promotions/bulk-sales/$id': typeof AppPromotionsBulkSalesIdRoute
   '/promotions/bulk-sales/new': typeof AppPromotionsBulkSalesNewRoute
   '/promotions/coupons/$id': typeof AppPromotionsCouponsIdRoute
@@ -369,6 +396,7 @@ export interface FileRoutesByFullPath {
   '/print/po/$id': typeof PrintPrintPoIdRoute
   '/b2b/shops/': typeof AppB2bShopsIndexRoute
   '/catalog/products/': typeof AppCatalogProductsIndexRoute
+  '/content/pages/': typeof AppContentPagesIndexRoute
   '/promotions/bulk-sales/': typeof AppPromotionsBulkSalesIndexRoute
   '/promotions/coupons/': typeof AppPromotionsCouponsIndexRoute
   '/promotions/flash-sales/': typeof AppPromotionsFlashSalesIndexRoute
@@ -393,6 +421,7 @@ export interface FileRoutesByTo {
   '/catalog/import-export': typeof AppCatalogImportExportRoute
   '/catalog/inventory': typeof AppCatalogInventoryRoute
   '/content/carousel': typeof AppContentCarouselRoute
+  '/customers/$id': typeof AppCustomersIdRoute
   '/orders/$id': typeof AppOrdersIdRoute
   '/purchase-orders/$id': typeof AppPurchaseOrdersIdRoute
   '/purchase-orders/new': typeof AppPurchaseOrdersNewRoute
@@ -401,6 +430,7 @@ export interface FileRoutesByTo {
   '/suppliers/$id': typeof AppSuppliersIdRoute
   '/print/labels': typeof PrintPrintLabelsRoute
   '/affiliates': typeof AppAffiliatesIndexRoute
+  '/customers': typeof AppCustomersIndexRoute
   '/orders': typeof AppOrdersIndexRoute
   '/purchase-orders': typeof AppPurchaseOrdersIndexRoute
   '/refunds': typeof AppRefundsIndexRoute
@@ -409,6 +439,7 @@ export interface FileRoutesByTo {
   '/suppliers': typeof AppSuppliersIndexRoute
   '/b2b/shops/$id': typeof AppB2bShopsIdRoute
   '/catalog/products/$id': typeof AppCatalogProductsIdRoute
+  '/content/pages/$id': typeof AppContentPagesIdRoute
   '/promotions/bulk-sales/$id': typeof AppPromotionsBulkSalesIdRoute
   '/promotions/bulk-sales/new': typeof AppPromotionsBulkSalesNewRoute
   '/promotions/coupons/$id': typeof AppPromotionsCouponsIdRoute
@@ -420,6 +451,7 @@ export interface FileRoutesByTo {
   '/print/po/$id': typeof PrintPrintPoIdRoute
   '/b2b/shops': typeof AppB2bShopsIndexRoute
   '/catalog/products': typeof AppCatalogProductsIndexRoute
+  '/content/pages': typeof AppContentPagesIndexRoute
   '/promotions/bulk-sales': typeof AppPromotionsBulkSalesIndexRoute
   '/promotions/coupons': typeof AppPromotionsCouponsIndexRoute
   '/promotions/flash-sales': typeof AppPromotionsFlashSalesIndexRoute
@@ -447,6 +479,7 @@ export interface FileRoutesById {
   '/_app/catalog/import-export': typeof AppCatalogImportExportRoute
   '/_app/catalog/inventory': typeof AppCatalogInventoryRoute
   '/_app/content/carousel': typeof AppContentCarouselRoute
+  '/_app/customers/$id': typeof AppCustomersIdRoute
   '/_app/orders/$id': typeof AppOrdersIdRoute
   '/_app/purchase-orders/$id': typeof AppPurchaseOrdersIdRoute
   '/_app/purchase-orders/new': typeof AppPurchaseOrdersNewRoute
@@ -455,6 +488,7 @@ export interface FileRoutesById {
   '/_app/suppliers/$id': typeof AppSuppliersIdRoute
   '/_print/print/labels': typeof PrintPrintLabelsRoute
   '/_app/affiliates/': typeof AppAffiliatesIndexRoute
+  '/_app/customers/': typeof AppCustomersIndexRoute
   '/_app/orders/': typeof AppOrdersIndexRoute
   '/_app/purchase-orders/': typeof AppPurchaseOrdersIndexRoute
   '/_app/refunds/': typeof AppRefundsIndexRoute
@@ -463,6 +497,7 @@ export interface FileRoutesById {
   '/_app/suppliers/': typeof AppSuppliersIndexRoute
   '/_app/b2b/shops/$id': typeof AppB2bShopsIdRoute
   '/_app/catalog/products/$id': typeof AppCatalogProductsIdRoute
+  '/_app/content/pages/$id': typeof AppContentPagesIdRoute
   '/_app/promotions/bulk-sales/$id': typeof AppPromotionsBulkSalesIdRoute
   '/_app/promotions/bulk-sales/new': typeof AppPromotionsBulkSalesNewRoute
   '/_app/promotions/coupons/$id': typeof AppPromotionsCouponsIdRoute
@@ -474,6 +509,7 @@ export interface FileRoutesById {
   '/_print/print/po/$id': typeof PrintPrintPoIdRoute
   '/_app/b2b/shops/': typeof AppB2bShopsIndexRoute
   '/_app/catalog/products/': typeof AppCatalogProductsIndexRoute
+  '/_app/content/pages/': typeof AppContentPagesIndexRoute
   '/_app/promotions/bulk-sales/': typeof AppPromotionsBulkSalesIndexRoute
   '/_app/promotions/coupons/': typeof AppPromotionsCouponsIndexRoute
   '/_app/promotions/flash-sales/': typeof AppPromotionsFlashSalesIndexRoute
@@ -500,6 +536,7 @@ export interface FileRouteTypes {
     | '/catalog/import-export'
     | '/catalog/inventory'
     | '/content/carousel'
+    | '/customers/$id'
     | '/orders/$id'
     | '/purchase-orders/$id'
     | '/purchase-orders/new'
@@ -508,6 +545,7 @@ export interface FileRouteTypes {
     | '/suppliers/$id'
     | '/print/labels'
     | '/affiliates/'
+    | '/customers/'
     | '/orders/'
     | '/purchase-orders/'
     | '/refunds/'
@@ -516,6 +554,7 @@ export interface FileRouteTypes {
     | '/suppliers/'
     | '/b2b/shops/$id'
     | '/catalog/products/$id'
+    | '/content/pages/$id'
     | '/promotions/bulk-sales/$id'
     | '/promotions/bulk-sales/new'
     | '/promotions/coupons/$id'
@@ -527,6 +566,7 @@ export interface FileRouteTypes {
     | '/print/po/$id'
     | '/b2b/shops/'
     | '/catalog/products/'
+    | '/content/pages/'
     | '/promotions/bulk-sales/'
     | '/promotions/coupons/'
     | '/promotions/flash-sales/'
@@ -551,6 +591,7 @@ export interface FileRouteTypes {
     | '/catalog/import-export'
     | '/catalog/inventory'
     | '/content/carousel'
+    | '/customers/$id'
     | '/orders/$id'
     | '/purchase-orders/$id'
     | '/purchase-orders/new'
@@ -559,6 +600,7 @@ export interface FileRouteTypes {
     | '/suppliers/$id'
     | '/print/labels'
     | '/affiliates'
+    | '/customers'
     | '/orders'
     | '/purchase-orders'
     | '/refunds'
@@ -567,6 +609,7 @@ export interface FileRouteTypes {
     | '/suppliers'
     | '/b2b/shops/$id'
     | '/catalog/products/$id'
+    | '/content/pages/$id'
     | '/promotions/bulk-sales/$id'
     | '/promotions/bulk-sales/new'
     | '/promotions/coupons/$id'
@@ -578,6 +621,7 @@ export interface FileRouteTypes {
     | '/print/po/$id'
     | '/b2b/shops'
     | '/catalog/products'
+    | '/content/pages'
     | '/promotions/bulk-sales'
     | '/promotions/coupons'
     | '/promotions/flash-sales'
@@ -604,6 +648,7 @@ export interface FileRouteTypes {
     | '/_app/catalog/import-export'
     | '/_app/catalog/inventory'
     | '/_app/content/carousel'
+    | '/_app/customers/$id'
     | '/_app/orders/$id'
     | '/_app/purchase-orders/$id'
     | '/_app/purchase-orders/new'
@@ -612,6 +657,7 @@ export interface FileRouteTypes {
     | '/_app/suppliers/$id'
     | '/_print/print/labels'
     | '/_app/affiliates/'
+    | '/_app/customers/'
     | '/_app/orders/'
     | '/_app/purchase-orders/'
     | '/_app/refunds/'
@@ -620,6 +666,7 @@ export interface FileRouteTypes {
     | '/_app/suppliers/'
     | '/_app/b2b/shops/$id'
     | '/_app/catalog/products/$id'
+    | '/_app/content/pages/$id'
     | '/_app/promotions/bulk-sales/$id'
     | '/_app/promotions/bulk-sales/new'
     | '/_app/promotions/coupons/$id'
@@ -631,6 +678,7 @@ export interface FileRouteTypes {
     | '/_print/print/po/$id'
     | '/_app/b2b/shops/'
     | '/_app/catalog/products/'
+    | '/_app/content/pages/'
     | '/_app/promotions/bulk-sales/'
     | '/_app/promotions/coupons/'
     | '/_app/promotions/flash-sales/'
@@ -800,6 +848,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppContentCarouselRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/customers/': {
+      id: '/_app/customers/'
+      path: '/customers'
+      fullPath: '/customers/'
+      preLoaderRoute: typeof AppCustomersIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/customers/$id': {
+      id: '/_app/customers/$id'
+      path: '/customers/$id'
+      fullPath: '/customers/$id'
+      preLoaderRoute: typeof AppCustomersIdRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/orders/': {
       id: '/_app/orders/'
       path: '/orders'
@@ -919,6 +981,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCatalogProductsIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/content/pages/': {
+      id: '/_app/content/pages/'
+      path: '/content/pages'
+      fullPath: '/content/pages/'
+      preLoaderRoute: typeof AppContentPagesIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/content/pages/$id': {
+      id: '/_app/content/pages/$id'
+      path: '/content/pages/$id'
+      fullPath: '/content/pages/$id'
+      preLoaderRoute: typeof AppContentPagesIdRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/promotions/bulk-sales/': {
       id: '/_app/promotions/bulk-sales/'
       path: '/promotions/bulk-sales'
@@ -1023,6 +1099,7 @@ interface AppRouteChildren {
   AppCatalogImportExportRoute: typeof AppCatalogImportExportRoute
   AppCatalogInventoryRoute: typeof AppCatalogInventoryRoute
   AppContentCarouselRoute: typeof AppContentCarouselRoute
+  AppCustomersIdRoute: typeof AppCustomersIdRoute
   AppOrdersIdRoute: typeof AppOrdersIdRoute
   AppPurchaseOrdersIdRoute: typeof AppPurchaseOrdersIdRoute
   AppPurchaseOrdersNewRoute: typeof AppPurchaseOrdersNewRoute
@@ -1030,6 +1107,7 @@ interface AppRouteChildren {
   AppSrTeamRoute: typeof AppSrTeamRoute
   AppSuppliersIdRoute: typeof AppSuppliersIdRoute
   AppAffiliatesIndexRoute: typeof AppAffiliatesIndexRoute
+  AppCustomersIndexRoute: typeof AppCustomersIndexRoute
   AppOrdersIndexRoute: typeof AppOrdersIndexRoute
   AppPurchaseOrdersIndexRoute: typeof AppPurchaseOrdersIndexRoute
   AppRefundsIndexRoute: typeof AppRefundsIndexRoute
@@ -1038,6 +1116,7 @@ interface AppRouteChildren {
   AppSuppliersIndexRoute: typeof AppSuppliersIndexRoute
   AppB2bShopsIdRoute: typeof AppB2bShopsIdRoute
   AppCatalogProductsIdRoute: typeof AppCatalogProductsIdRoute
+  AppContentPagesIdRoute: typeof AppContentPagesIdRoute
   AppPromotionsBulkSalesIdRoute: typeof AppPromotionsBulkSalesIdRoute
   AppPromotionsBulkSalesNewRoute: typeof AppPromotionsBulkSalesNewRoute
   AppPromotionsCouponsIdRoute: typeof AppPromotionsCouponsIdRoute
@@ -1046,6 +1125,7 @@ interface AppRouteChildren {
   AppPromotionsFlashSalesNewRoute: typeof AppPromotionsFlashSalesNewRoute
   AppB2bShopsIndexRoute: typeof AppB2bShopsIndexRoute
   AppCatalogProductsIndexRoute: typeof AppCatalogProductsIndexRoute
+  AppContentPagesIndexRoute: typeof AppContentPagesIndexRoute
   AppPromotionsBulkSalesIndexRoute: typeof AppPromotionsBulkSalesIndexRoute
   AppPromotionsCouponsIndexRoute: typeof AppPromotionsCouponsIndexRoute
   AppPromotionsFlashSalesIndexRoute: typeof AppPromotionsFlashSalesIndexRoute
@@ -1068,6 +1148,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCatalogImportExportRoute: AppCatalogImportExportRoute,
   AppCatalogInventoryRoute: AppCatalogInventoryRoute,
   AppContentCarouselRoute: AppContentCarouselRoute,
+  AppCustomersIdRoute: AppCustomersIdRoute,
   AppOrdersIdRoute: AppOrdersIdRoute,
   AppPurchaseOrdersIdRoute: AppPurchaseOrdersIdRoute,
   AppPurchaseOrdersNewRoute: AppPurchaseOrdersNewRoute,
@@ -1075,6 +1156,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppSrTeamRoute: AppSrTeamRoute,
   AppSuppliersIdRoute: AppSuppliersIdRoute,
   AppAffiliatesIndexRoute: AppAffiliatesIndexRoute,
+  AppCustomersIndexRoute: AppCustomersIndexRoute,
   AppOrdersIndexRoute: AppOrdersIndexRoute,
   AppPurchaseOrdersIndexRoute: AppPurchaseOrdersIndexRoute,
   AppRefundsIndexRoute: AppRefundsIndexRoute,
@@ -1083,6 +1165,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppSuppliersIndexRoute: AppSuppliersIndexRoute,
   AppB2bShopsIdRoute: AppB2bShopsIdRoute,
   AppCatalogProductsIdRoute: AppCatalogProductsIdRoute,
+  AppContentPagesIdRoute: AppContentPagesIdRoute,
   AppPromotionsBulkSalesIdRoute: AppPromotionsBulkSalesIdRoute,
   AppPromotionsBulkSalesNewRoute: AppPromotionsBulkSalesNewRoute,
   AppPromotionsCouponsIdRoute: AppPromotionsCouponsIdRoute,
@@ -1091,6 +1174,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppPromotionsFlashSalesNewRoute: AppPromotionsFlashSalesNewRoute,
   AppB2bShopsIndexRoute: AppB2bShopsIndexRoute,
   AppCatalogProductsIndexRoute: AppCatalogProductsIndexRoute,
+  AppContentPagesIndexRoute: AppContentPagesIndexRoute,
   AppPromotionsBulkSalesIndexRoute: AppPromotionsBulkSalesIndexRoute,
   AppPromotionsCouponsIndexRoute: AppPromotionsCouponsIndexRoute,
   AppPromotionsFlashSalesIndexRoute: AppPromotionsFlashSalesIndexRoute,

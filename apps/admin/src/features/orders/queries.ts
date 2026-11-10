@@ -5,12 +5,23 @@ import { type OrderFilters, ordersApi } from './api';
 
 export type OrderListItem = components['schemas']['OrdersAdminListDto']['items'][number];
 export type OrderDetail = components['schemas']['OrdersAdminDetailDto'];
+export type EditPreview = components['schemas']['OrderEditPreviewDto'];
+export type EditRecord = components['schemas']['OrderEditHistoryDto']['items'][number];
 
 export const ordersQuery = (f: OrderFilters) =>
   queryOptions({ queryKey: ['orders', 'list', f], queryFn: () => ordersApi.list(f) });
 
 export const orderQuery = (id: string) =>
   queryOptions({ queryKey: ['orders', 'detail', id], queryFn: () => ordersApi.detail(id) });
+
+export const couriersQuery = queryOptions({
+  queryKey: ['orders', 'couriers'],
+  queryFn: ordersApi.couriers,
+  staleTime: 5 * 60_000,
+});
+
+export const editsQuery = (id: string) =>
+  queryOptions({ queryKey: ['orders', 'edits', id], queryFn: () => ordersApi.edits(id) });
 
 export const callQueueQuery = (status: 'pending' | 'done', page: number, pageSize: number) =>
   queryOptions({

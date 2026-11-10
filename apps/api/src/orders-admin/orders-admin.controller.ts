@@ -3,8 +3,17 @@ import { ApiConflictResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from
 import { CurrentStaff, StaffAuth } from '../auth/staff-auth.guard';
 import type { StaffAuthContext } from '../auth/staff-auth.service';
 import { NoStore } from '../common/no-store.guard';
+import { PrismaService } from '../prisma/prisma.service';
 import { CallQueueService } from './call-queue.service';
 import { OrderCancelService } from './order-cancel.service';
+import {
+  CourierRowDto,
+  OrderEditHistoryDto,
+  OrderEditInputDto,
+  OrderEditPreviewDto,
+  OrderEditSavedDto,
+} from './order-edit.dto';
+import { OrderEditService } from './order-edit.service';
 import {
   OrdersAdminCallCountDto,
   OrdersAdminCallOutcomeDto,
@@ -25,6 +34,7 @@ export class OrdersAdminController {
     private readonly orders: OrdersAdminService,
     private readonly cancelService: OrderCancelService,
     private readonly queue: CallQueueService,
+    private readonly edits: OrderEditService,
   ) {}
 
   @Get()
@@ -40,6 +50,41 @@ export class OrdersAdminController {
   @ApiNotFoundResponse()
   detail(@Param('id') id: string) {
     return this.orders.detail(id);
+  }
+
+  @Get(':id/edits')
+  @StaffAuth('orders.view')
+  @ApiOkResponse({ type: OrderEditHistoryDto })
+  @ApiNotFoundResponse()
+  editHistory(@Param('id') id: string) {
+    return this.edits.history(id);
+  }
+
+  @Post(':id/edit/preview')
+  @HttpCode(200)
+  @StaffAuth('orders.edit')
+  @ApiOkResponse({ type: OrderEditPreviewDto })
+  @ApiConflictResponse()
+  editPreview(
+    @CurrentStaff() ctx: StaffAuthContext,
+    @Param('id') id: string,
+    @Body() body: OrderEditInputDto,
+  ) {
+    return this.edits.preview(id, ctx.staff.id, body);
+  }
+
+  @Post(':id/edit')
+  @HttpCode(200)
+  @StaffAuth('orders.edit')
+  @ApiOkResponse({ type: OrderEditSavedDto })
+  @ApiConflictResponse()
+  async edit(
+    @CurrentStaff() ctx: StaffAuthContext,
+    @Param('id') id: string,
+    @Body() body: OrderEditInputDto,
+  ) {
+    const r = await this.edits.save(id, ctx.staff.id, body);
+    return { order: await this.orders.detail(r.orderId), edit: r.edit };
   }
 
   @Post(':id/hold')
@@ -117,5 +162,22 @@ export class CallQueueController {
   @ApiOkResponse({ type: OrdersAdminCallCountDto })
   count() {
     return this.queue.count();
+  }
+}
+
+@NoStore()
+@ApiTags('orders-admin')
+@Controller('admin/couriers')
+export class CouriersController {
+  constructor(private readonly prisma: PrismaService) {}
+
+  @Get()
+  @StaffAuth('orders.view')
+  @ApiOkResponse({ type: [CourierRowDto] })
+  list() {
+    return this.prisma.courier.findMany({
+      orderBy: { name: 'asc' },
+      select: { id: true, code: true, name: true, isActive: true },
+    });
   }
 }

@@ -20,10 +20,12 @@ export interface NavItem {
     | '/promotions/bulk-sales'
     | '/affiliates'
     | '/content/carousel'
+    | '/content/pages'
     | '/b2b/sales'
     | '/b2b/shops'
     | '/b2b/collections'
     | '/b2b/dues'
+    | '/customers'
     | '/suppliers'
     | '/purchase-orders'
     | '/sr/team'
@@ -111,11 +113,13 @@ export const NAV: NavSection[] = [
         anyOf: ['affiliates.view'],
       },
       { label: 'Home & feed', icon: 'home', to: '/content/carousel', anyOf: ['content.manage'] },
+      { label: 'Pages', icon: 'audit', to: '/content/pages', anyOf: ['content.manage'] },
     ],
   },
   {
     heading: 'People & partners',
     items: [
+      { label: 'Customers', icon: 'customers', to: '/customers', anyOf: ['customers.view'] },
       { label: 'Suppliers & POs', icon: 'suppliers', to: '/suppliers', anyOf: ['suppliers.view'] },
       { label: 'Purchase orders', icon: 'po', to: '/purchase-orders', anyOf: ['suppliers.view'] },
       { label: 'SR approvals', icon: 'check', to: '/b2b/sales', anyOf: ['b2b.view'] },

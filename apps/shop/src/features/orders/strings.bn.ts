@@ -10,6 +10,8 @@ export const ordersBn: OrdersDict = {
     delivered: 'ডেলিভারি হয়েছে',
     completed: 'সম্পন্ন',
     cancelled: 'বাতিল',
+    delivery_failed: 'ডেলিভারি ব্যর্থ',
+    failed: 'ডেলিভারি ব্যর্থ',
   },
   listTitle: 'আমার অর্ডার',
   listEmpty: 'এখনও কোনো অর্ডার নেই',
@@ -60,6 +62,50 @@ export const ordersBn: OrdersDict = {
   loadError: 'অর্ডার লোড করা যায়নি। আবার চেষ্টা করুন।',
   trackThis: 'লগইন ছাড়াই ট্র্যাক করুন',
   preorder: 'প্রি-অর্ডার',
+
+  failedNote:
+    'কুরিয়ার আপনার পার্সেলটি ডেলিভারি করতে পারেনি। আমরা বিষয়টি দেখছি এবং আপনার সাথে যোগাযোগ করব। এখন আপনাকে কিছু করতে হবে না।', // TODO native review
+  failedFinal:
+    'আমরা এই অর্ডারটি ডেলিভারি করতে পারিনি এবং এটি বন্ধ করা হয়েছে। পণ্যগুলো এখনও চাইলে আমাদের সাথে যোগাযোগ করুন।', // TODO native review
+  holdNote: 'অর্ডারটি স্থগিত আছে। বাতিল করতে চাইলে সাপোর্টের সাথে যোগাযোগ করুন।', // TODO native review
+
+  shipmentsTitle: 'শিপমেন্ট',
+  shipmentNo: 'শিপমেন্ট {no}',
+  shipmentStatus: {
+    preparing: 'প্রস্তুত হচ্ছে',
+    with_courier: 'কুরিয়ারের কাছে',
+    in_transit: 'পথে আছে',
+    delivered: 'ডেলিভারি হয়েছে',
+    failed: 'ডেলিভারি ব্যর্থ',
+    returning: 'আমাদের কাছে ফিরছে',
+    returned: 'আমাদের কাছে ফিরেছে',
+  }, // TODO native review
+  shipmentCourier: 'কুরিয়ার',
+  shipmentTrackingId: 'ট্র্যাকিং আইডি',
+  shipmentTrack: 'কুরিয়ারে ট্র্যাক করুন',
+  shipmentHanded: 'কুরিয়ারকে দেওয়া হয়েছে {date}',
+  shipmentDelivered: 'ডেলিভারি হয়েছে {date}',
+  shipmentQty: '{title} × {n}',
+
+  cancelOrder: 'অর্ডার বাতিল করুন',
+  cancelTitle: 'অর্ডারটি বাতিল করবেন?',
+  cancelBody: 'পণ্যগুলো আবার স্টকে ফিরে যাবে। এটি ফেরানো যাবে না।',
+  cancelReason: 'কারণ (ঐচ্ছিক)',
+  cancelConfirm: 'হ্যাঁ, বাতিল করুন',
+  cancelKeep: 'অর্ডার রাখুন',
+  cancelling: 'বাতিল হচ্ছে',
+  cancelDone: 'আপনার অর্ডার বাতিল করা হয়েছে।',
+  cancelLogin: 'লগইন করুন',
+  cancelErrors: {
+    generic: 'অর্ডার বাতিল করা যায়নি। আবার চেষ্টা করুন।',
+    network: 'সার্ভারে পৌঁছানো যায়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।',
+    ORDER_ON_HOLD: 'অর্ডারটি স্থগিত আছে। বাতিল করতে সাপোর্টের সাথে যোগাযোগ করুন।',
+    ORDER_NOT_CANCELLABLE: 'এই অর্ডার আর বাতিল করা যাবে না।',
+    SHIPMENT_BOOKED: 'অর্ডারটি কুরিয়ারের জন্য প্রস্তুত করা হচ্ছে। সাপোর্টের সাথে যোগাযোগ করুন।',
+    LOGIN_REQUIRED: 'এই অর্ডারটি একটি অ্যাকাউন্টের। বাতিল করতে লগইন করুন।',
+    ORDER_NOT_FOUND: 'অর্ডারটি খুঁজে পাওয়া যায়নি।',
+    TOO_MANY_REQUESTS: 'অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করুন।',
+  }, // TODO native review
 
   trackTitle: 'অর্ডার ট্র্যাক করুন',
   trackIntro: 'অর্ডার নম্বর এবং অর্ডারের সময় দেওয়া ফোন নম্বর লিখুন।',

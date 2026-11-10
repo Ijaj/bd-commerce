@@ -7,23 +7,27 @@ import { type Column, DataTable } from '~/components/DataTable';
 import { PageHeader } from '~/components/PageHeader';
 import classes from '~/features/orders/Orders.module.css';
 import { formatDateTime, formatPrice } from '~/lib/format';
-import { COURIER_OPTIONS, MAX_LABELS, type Shipment, STATUS_LABEL } from './logic';
-import { shipmentsQuery } from './queries';
+import { MAX_LABELS, type Shipment, STATUS_LABEL } from './logic';
+import { shipmentsQuery, useCourierOptions } from './queries';
 import { ShipmentActions } from './ShipmentActions';
-import { StatusBadge } from './StatusBadge';
+import { ReceivedBackInfo, StatusBadge } from './StatusBadge';
 
 const STATUS_OPTIONS = Object.entries(STATUS_LABEL).map(([value, label]) => ({ value, label }));
 
 export function ShipmentsPage() {
   const [status, setStatus] = useState<Shipment['status'] | null>('ready');
   const [courier, setCourier] = useState<string | null>(null);
+  // "Delivery failed" chip: parcels waiting to be taken back; replaces the status filter.
+  const [attention, setAttention] = useState(false);
   const [q, setQ] = useState('');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
+  const courierOptions = useCourierOptions(false);
   const [picked, setPicked] = useState<Set<string>>(new Set());
   const list = useQuery(
     shipmentsQuery({
-      status: status ?? undefined,
+      status: attention ? undefined : (status ?? undefined),
+      attention: attention || undefined,
       courier: courier ?? undefined,
       q: q.trim() || undefined,
       page,
@@ -31,6 +35,7 @@ export function ShipmentsPage() {
     }),
   );
 
+  const failedCount = useQuery(shipmentsQuery({ attention: true, page: 1, pageSize: 1 }));
   const toggle = (id: string) =>
     setPicked((cur) => {
       const next = new Set(cur);
@@ -110,7 +115,16 @@ export function ShipmentsPage() {
         </div>
       ),
     },
-    { key: 'status', header: 'Status', render: (r) => <StatusBadge status={r.status} /> },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (r) => (
+        <div>
+          <StatusBadge status={r.status} />
+          <ReceivedBackInfo shipment={r} />
+        </div>
+      ),
+    },
     { key: 'created', header: 'Created', render: (r) => formatDateTime(r.createdAt) },
     { key: 'actions', header: '', render: (r) => <ShipmentActions shipment={r} /> },
   ];
@@ -147,11 +161,24 @@ export function ShipmentsPage() {
           }}
           miw={200}
         />
+        <Button
+          variant={attention ? 'filled' : 'light'}
+          color="red"
+          size="compact-md"
+          aria-pressed={attention}
+          onClick={() => {
+            setAttention((v) => !v);
+            setPage(1);
+          }}
+        >
+          Delivery failed ({failedCount.data?.total ?? 0})
+        </Button>
         <Select
           aria-label="Status"
           placeholder="Status: all"
           data={STATUS_OPTIONS}
           value={status}
+          disabled={attention}
           onChange={(v) => {
             setStatus(v as Shipment['status'] | null);
             setPage(1);
@@ -162,7 +189,7 @@ export function ShipmentsPage() {
         <Select
           aria-label="Courier"
           placeholder="Courier: all"
-          data={COURIER_OPTIONS}
+          data={courierOptions}
           value={courier}
           onChange={(v) => {
             setCourier(v);

@@ -5,6 +5,7 @@ import { InventoryModule } from '../inventory/inventory.module';
 import { OrdersModule } from '../orders/orders.module';
 import { CourierRegistry } from './couriers/courier.registry';
 import { ShipmentBookingService } from './shipment-booking.service';
+import { ShipmentReceivedBackService } from './shipment-received-back.service';
 import { ShipmentSyncService } from './shipment-sync.service';
 import { CourierWebhookController, ShipmentsAdminController } from './shipments.controller';
 import { ShipmentsService } from './shipments.service';
@@ -13,7 +14,13 @@ import { ShipmentsService } from './shipments.service';
 @Module({
   imports: [AuthModule, DocumentsModule, InventoryModule, OrdersModule],
   controllers: [ShipmentsAdminController, CourierWebhookController],
-  providers: [CourierRegistry, ShipmentsService, ShipmentBookingService, ShipmentSyncService],
+  providers: [
+    CourierRegistry,
+    ShipmentsService,
+    ShipmentBookingService,
+    ShipmentSyncService,
+    ShipmentReceivedBackService,
+  ],
   exports: [ShipmentsService, ShipmentSyncService],
 })
 export class ShipmentsModule {}

@@ -10,8 +10,10 @@ import { dict, fmt, type Lang } from '~/i18n';
 import { href } from '~/i18n/routing';
 import { browserApi } from '~/lib/api-browser';
 import { formatPrice, localizeDigits } from '~/lib/format';
+import { CancelOrder } from './CancelOrder';
 import { formatDateTime } from './format';
 import s from './orders.module.css';
+import { ShipmentCards } from './ShipmentCards';
 import { Timeline } from './Timeline';
 import type { OrderTrack } from './types';
 
@@ -32,6 +34,9 @@ export function TrackForm({
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
   const [result, setResult] = useState<OrderTrack | null>(null);
+  // The phone that matched, kept so a cancel can repeat the same proof.
+  const [usedPhone, setUsedPhone] = useState('');
+  const [cancelled, setCancelled] = useState(false);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -51,6 +56,7 @@ export function TrackForm({
     );
     setBusy(false);
     if (r.ok) {
+      setUsedPhone(p);
       setResult(r.data);
       return;
     }
@@ -82,7 +88,23 @@ export function TrackForm({
               {fmt(d.eta, { range: etaText(lang, t.etaMinDays, t.etaMaxDays) })}
             </p>
           ) : null}
+          {t.status === 'delivery_failed' ? <p className={s.muted}>{d.failedNote}</p> : null}
+          {t.status === 'failed' ? <p className={s.muted}>{d.failedFinal}</p> : null}
+          {t.status === 'on_hold' ? <p className={s.muted}>{d.holdNote}</p> : null}
+          {t.status === 'cancelled' && cancelled ? <Notice kind="ok">{d.cancelDone}</Notice> : null}
         </section>
+        <ShipmentCards lang={lang} shipments={t.shipments} />
+        {t.canCancel ? (
+          <CancelOrder
+            lang={lang}
+            orderNo={t.orderNo}
+            phone={usedPhone}
+            onCancelled={(next) => {
+              setCancelled(true);
+              setResult(next);
+            }}
+          />
+        ) : null}
         <dl className={s.trackFacts}>
           <div className={s.row}>
             <dt>{d.trackPlaced}</dt>
@@ -99,7 +121,14 @@ export function TrackForm({
         </dl>
         <p className={s.muted}>{fmt(d.trackPhoneOn, { phone: t.maskedPhone })}</p>
         <div className={s.formActions}>
-          <button type="button" className="btn btn-ghost" onClick={() => setResult(null)}>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={() => {
+              setResult(null);
+              setCancelled(false);
+            }}
+          >
             {d.trackAgain}
           </button>
         </div>

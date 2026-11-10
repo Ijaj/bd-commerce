@@ -145,6 +145,8 @@ describe('customer orders, tracking and addresses', () => {
         etaMinDays: 1,
         etaMaxDays: 2,
         timeline: [{ status: 'processing', at: expect.any(String) }],
+        shipments: [],
+        canCancel: true,
       });
       // The guest phone works too.
       await track({ orderNo, phone: '01712345678' }).expect(200);

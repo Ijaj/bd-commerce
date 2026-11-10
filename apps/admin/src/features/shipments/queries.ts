@@ -1,4 +1,5 @@
-import { queryOptions, useQueryClient } from '@tanstack/react-query';
+import { queryOptions, useQuery, useQueryClient } from '@tanstack/react-query';
+import { couriersQuery } from '~/features/orders/queries';
 import { type ShipmentFilters, shipmentsApi } from './api';
 
 export const shipmentsQuery = (f: ShipmentFilters) =>
@@ -23,4 +24,12 @@ export function useInvalidateShipments() {
     qc.invalidateQueries({ queryKey: ['shipments'] });
     qc.invalidateQueries({ queryKey: ['orders'] });
   };
+}
+
+/** Select options from `GET /admin/couriers`; `activeOnly` for booking (the API refuses inactive ones). */
+export function useCourierOptions(activeOnly: boolean) {
+  const q = useQuery(couriersQuery);
+  return (q.data ?? [])
+    .filter((c) => !activeOnly || c.isActive)
+    .map((c) => ({ value: c.code, label: c.name }));
 }

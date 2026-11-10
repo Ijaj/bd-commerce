@@ -9,6 +9,7 @@ import { OrderShipmentsSection } from '~/features/shipments/OrderShipmentsSectio
 import { formatDateTime } from '~/lib/format';
 import { CallBadge, PaymentBadge, RiskBadge, StatusBadge } from './badges';
 import { OrderActions } from './OrderActions';
+import { OrderEditsCard } from './OrderEditsCard';
 import { OrderHistoryCard, OrderInfoCards } from './OrderInfoCards';
 import { OrderItemsCard } from './OrderItemsCard';
 import { OrderPaymentsCard } from './OrderPaymentsCard';
@@ -72,6 +73,7 @@ export function OrderDetailPage({ id }: { id: string }) {
         </div>
         <div className={classes.col}>
           <OrderInfoCards order={order} />
+          <OrderEditsCard orderId={order.id} />
           <OrderHistoryCard order={order} />
         </div>
       </div>

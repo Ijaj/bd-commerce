@@ -13,6 +13,16 @@ export interface PlacedOrderNotice {
   etaMaxDays: number;
 }
 
+/** Order events that notify the customer (A2). Keys match the `order_notifications` setting (camelCase there). */
+export type OrderNotifyKind =
+  | 'confirmed'
+  | 'handed_over'
+  | 'delivered'
+  | 'cancelled'
+  | 'refund_paid'
+  | 'delivery_failed'
+  | 'edited';
+
 const BN_DIGITS = '০১২৩৪৫৬৭৮৯';
 const bnDigits = (s: string) => s.replace(/\d/g, (d) => BN_DIGITS[Number(d)] ?? d);
 
@@ -30,6 +40,13 @@ export class OrderNotifyService {
     private readonly sms: SmsService,
     private readonly mail: MailService,
   ) {}
+
+  /**
+   * Hook for A2 (wave 2 fills the body: setting check, EN/BN text, SMS + mail). Wave-1 code calls
+   * it after the transaction commits; it must never throw. `extra` carries event data (courier
+   * name, tracking URL, refund amount, ...). Currently a no-op.
+   */
+  async event(_orderId: string, _kind: OrderNotifyKind, _extra: Record<string, unknown> = {}) {}
 
   /** Fire-and-forget; SmsService and MailService never throw. */
   placed(n: PlacedOrderNotice) {

@@ -54,13 +54,20 @@ export const PERMISSIONS = {
   // Step 3: home page content and customers.
   'content.manage': {
     group: 'Content',
-    description: 'Manage home carousel slides and home feed weights',
+    description: 'Manage home carousel slides, home feed weights and static pages',
   },
   'customers.view': { group: 'Customers', description: 'View customer accounts' },
-  'customers.manage': { group: 'Customers', description: 'Disable or flag customer accounts' },
+  'customers.manage': {
+    group: 'Customers',
+    description: 'Block/unblock customers and add staff notes',
+  },
   // Step 4: orders + delivery.
   'orders.view': { group: 'Orders', description: 'View orders' },
   'orders.manage': { group: 'Orders', description: 'Change order status, hold, cancel' },
+  'orders.edit': {
+    group: 'Orders',
+    description: 'Edit an order (items, quantities, address) before courier hand-off',
+  },
   // Step 5: order operations.
   'orders.call': { group: 'Orders', description: 'Work the call-confirmation queue' },
   'shipments.manage': {

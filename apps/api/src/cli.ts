@@ -3,6 +3,7 @@
 //   node dist/cli.js reset-2fa <email>             last-resort 2FA reset (C14)
 //   node dist/cli.js seed-demo                     dev-only demo catalog (refused in production)
 //   node dist/cli.js alpha-settings [--reset]      dev-only relaxed checkout/call-queue/refund limits (refused in production)
+//   node dist/cli.js seed-pages [--publish]        placeholder text for the six seeded static pages (fills empty ones only)
 //   node dist/cli.js sync-couriers                 poll couriers for open shipments (run on a schedule)
 //   node dist/cli.js complete-orders               complete delivered orders whose return window has passed
 //   node dist/cli.js approve-affiliate-commissions reverse/approve pending affiliate commissions (run on a schedule)
@@ -12,6 +13,7 @@ import { z } from 'zod';
 import { AffiliateCommissionsJobService } from './affiliates/affiliate-commissions-job.service';
 import { AppModule } from './app.module';
 import { applyAlphaSettings, resetAlphaSettings } from './cli/alpha-settings';
+import { seedPages } from './cli/seed-pages';
 import { PrismaService } from './prisma/prisma.service';
 import { ReturnsCompletionService } from './returns/returns-completion.service';
 import { seedDemoCatalog } from './seed/demo-catalog';
@@ -58,6 +60,9 @@ async function run([command, ...args]: string[]) {
       } else {
         console.log(`Alpha overrides written: ${(await applyAlphaSettings(settings)).join(', ')}`);
       }
+    } else if (command === 'seed-pages') {
+      const done = await seedPages(app.get(PrismaService), args.includes('--publish'));
+      console.log(done.length ? `Pages filled: ${done.join(', ')}` : 'Nothing to fill.');
     } else if (command === 'sync-couriers') {
       console.log(await app.get(ShipmentSyncService).syncOpen());
     } else if (command === 'complete-orders') {
@@ -66,7 +71,7 @@ async function run([command, ...args]: string[]) {
       console.log(await app.get(AffiliateCommissionsJobService).run());
     } else {
       console.error(
-        'usage: cli create-owner <email> <name> | reset-2fa <email> | seed-demo | alpha-settings [--reset] | sync-couriers | complete-orders | approve-affiliate-commissions',
+        'usage: cli create-owner <email> <name> | reset-2fa <email> | seed-demo | alpha-settings [--reset] | seed-pages [--publish] | sync-couriers | complete-orders | approve-affiliate-commissions',
       );
       process.exitCode = 1;
     }

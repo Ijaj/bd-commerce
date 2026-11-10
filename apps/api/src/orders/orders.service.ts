@@ -8,6 +8,11 @@ import { returnableQtyByLine } from '../returns/returns.util';
 import { SettingsService } from '../settings/settings.service';
 import { ImageService } from '../storefront/images';
 import { CommerceError } from './commerce.errors';
+import {
+  CUSTOMER_SHIPMENT_SELECT,
+  canCustomerCancel,
+  toCustomerShipments,
+} from './order-shipments.view';
 import type { OrderListQueryDto } from './orders.dto';
 
 const TRACK_WINDOW_SEC = 15 * 60;
@@ -66,6 +71,7 @@ export class OrdersService {
         history: { orderBy: [{ at: 'asc' }, { id: 'asc' }] },
         zone: true,
         payments: { orderBy: { initiatedAt: 'asc' }, take: 1 },
+        shipments: { orderBy: { createdAt: 'asc' }, select: CUSTOMER_SHIPMENT_SELECT },
       },
     });
     if (!o) throw new CommerceError(HttpStatus.NOT_FOUND, 'ORDER_NOT_FOUND', 'Order not found.');
@@ -127,11 +133,19 @@ export class OrdersService {
       },
       // Staff notes stay out; the customer sees status and time only.
       history: o.history.map((h) => ({ status: h.toStatus, at: h.at.toISOString() })),
+      shipments: toCustomerShipments(o.shipments),
+      canCancel: canCustomerCancel(
+        o.status,
+        o.shipments.map((x) => x.status),
+      ),
     };
   }
 
-  /** Public tracking: order number plus a phone on the order. Same 404 for every mismatch. */
-  async track(orderNo: string, phoneInput: string, ip: string | undefined) {
+  /**
+   * Order number plus a phone on the order, with the track throttle (failures only). Same 404 for
+   * every mismatch. Shared by track and guest cancel.
+   */
+  async findTracked(orderNo: string, phoneInput: string, ip: string | undefined) {
     const key = `track:ip:${ip ?? 'unknown'}`;
     // Per order number as well, so a botnet cannot guess phones for one order from many IPs.
     const noKey = `track:no:${orderNo.toLowerCase()}`;
@@ -152,11 +166,7 @@ export class OrdersService {
             orderNo,
             OR: [{ shipPhone: phone }, { guestPhone: phone }, { customer: { phone } }],
           },
-          include: {
-            items: true,
-            history: { orderBy: [{ at: 'asc' }, { id: 'asc' }] },
-            zone: true,
-          },
+          select: { id: true, customerId: true },
         })
       : null;
     if (!order || !phone) {
@@ -164,6 +174,25 @@ export class OrdersService {
       await this.throttle.hit(noKey, TRACK_WINDOW_SEC);
       throw new CommerceError(HttpStatus.NOT_FOUND, 'ORDER_NOT_FOUND', 'No order matches.');
     }
+    return { orderId: order.id, customerId: order.customerId, phone };
+  }
+
+  /** Public tracking: order number plus a phone on the order. */
+  async track(orderNo: string, phoneInput: string, ip: string | undefined) {
+    const { orderId, phone } = await this.findTracked(orderNo, phoneInput, ip);
+    return this.trackView(orderId, phone);
+  }
+
+  async trackView(orderId: string, phone: string) {
+    const order = await this.prisma.order.findUniqueOrThrow({
+      where: { id: orderId },
+      include: {
+        items: true,
+        history: { orderBy: [{ at: 'asc' }, { id: 'asc' }] },
+        zone: true,
+        shipments: { orderBy: { createdAt: 'asc' }, select: CUSTOMER_SHIPMENT_SELECT },
+      },
+    });
     return {
       orderNo: order.orderNo,
       status: order.status,
@@ -174,6 +203,11 @@ export class OrdersService {
       etaMinDays: order.zone.etaMinDays,
       etaMaxDays: order.zone.etaMaxDays,
       timeline: order.history.map((h) => ({ status: h.toStatus, at: h.at.toISOString() })),
+      shipments: toCustomerShipments(order.shipments),
+      canCancel: canCustomerCancel(
+        order.status,
+        order.shipments.map((x) => x.status),
+      ),
     };
   }
 }

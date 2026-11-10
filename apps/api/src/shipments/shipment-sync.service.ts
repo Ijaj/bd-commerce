@@ -1,16 +1,19 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import type { Prisma, ShipmentStatus } from '../generated/prisma/client';
+import { type OrderNotifyKind, OrderNotifyService } from '../orders/order-notify.service';
 import { OrderStatusService } from '../orders/order-status.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CourierRegistry } from './couriers/courier.registry';
 import type { CourierMapped } from './couriers/courier.types';
-import { ShipmentBookingService } from './shipment-booking.service';
+import { handedOverExtra, ShipmentBookingService } from './shipment-booking.service';
 import { ShipmentError } from './shipments.errors';
 import { lockShipment, ShipmentsService } from './shipments.service';
 
 /** Statuses in which the courier still owns the parcel and may report progress. */
 const OPEN: ShipmentStatus[] = ['booked', 'handed_over', 'in_transit', 'failed', 'returning'];
 const SYSTEM = { type: 'system' } as const;
+
+type Notice = { orderId: string; kind: OrderNotifyKind; extra: Record<string, unknown> };
 
 @Injectable()
 export class ShipmentSyncService {
@@ -22,6 +25,7 @@ export class ShipmentSyncService {
     private readonly booking: ShipmentBookingService,
     private readonly registry: CourierRegistry,
     private readonly orderStatus: OrderStatusService,
+    private readonly notify: OrderNotifyService,
   ) {}
 
   /** Pull the courier's status for one shipment and apply it. */
@@ -116,11 +120,13 @@ export class ShipmentSyncService {
     mapped: CourierMapped | null,
     payload: unknown,
   ): Promise<boolean> {
-    return this.prisma.$transaction(async (tx) => {
+    const notices: Notice[] = [];
+    const changed = await this.prisma.$transaction(async (tx) => {
+      notices.length = 0; // a retried transaction must not double the notices
       await lockShipment(tx, shipmentId);
       const s = await tx.shipment.findUniqueOrThrow({
         where: { id: shipmentId },
-        include: { courier: { select: { code: true } } },
+        include: { courier: { select: { code: true, name: true } } },
       });
       const live = await tx.courierBooking.findFirst({
         where: { shipmentId, status: 'booked' },
@@ -150,8 +156,11 @@ export class ShipmentSyncService {
         }
       }
       if (!mapped || !OPEN.includes(s.status)) return false;
-      return this.apply(tx, s, mapped, live?.id ?? null);
+      return this.apply(tx, s, mapped, live?.id ?? null, notices);
     });
+    // After commit; a notification problem never fails the sync.
+    for (const n of notices) await this.notify.event(n.orderId, n.kind, n.extra);
+    return changed;
   }
 
   private async apply(
@@ -162,10 +171,13 @@ export class ShipmentSyncService {
       status: ShipmentStatus;
       codAmountP: number;
       shipmentNo: string;
-      courier: { code: string } | null;
+      consignmentId: string | null;
+      trackingUrl: string | null;
+      courier: { code: string; name: string } | null;
     },
     mapped: CourierMapped,
     liveBookingId: string | null,
+    notices: Notice[],
   ): Promise<boolean> {
     let current = s.status;
     const touch = async (status: ShipmentStatus, extra: Prisma.ShipmentUpdateInput = {}) => {
@@ -177,6 +189,11 @@ export class ShipmentSyncService {
       if (current === 'booked') {
         await this.booking.handoverTx(tx, s.id, SYSTEM, false);
         current = 'handed_over';
+        notices.push({
+          orderId: s.orderId,
+          kind: 'handed_over',
+          extra: handedOverExtra({ ...s, courier: s.courier }),
+        });
       }
     };
     const before = current;
@@ -213,6 +230,11 @@ export class ShipmentSyncService {
         await ensureHandedOver();
         await touch('delivered', { deliveredAt: new Date() });
         await this.collectCod(tx, s);
+        notices.push({
+          orderId: s.orderId,
+          kind: 'delivered',
+          extra: { shipmentNo: s.shipmentNo },
+        });
         break;
       case 'failed':
         await ensureHandedOver();
@@ -228,7 +250,18 @@ export class ShipmentSyncService {
         break;
     }
     if (current === before) return false;
-    await this.orderStatus.recompute(tx, s.orderId, SYSTEM);
+    const was = await tx.order.findUniqueOrThrow({
+      where: { id: s.orderId },
+      select: { status: true },
+    });
+    const now = await this.orderStatus.recompute(tx, s.orderId, SYSTEM);
+    if (now === 'delivery_failed' && was.status !== 'delivery_failed') {
+      notices.push({
+        orderId: s.orderId,
+        kind: 'delivery_failed',
+        extra: { shipmentNo: s.shipmentNo },
+      });
+    }
     return true;
   }
 

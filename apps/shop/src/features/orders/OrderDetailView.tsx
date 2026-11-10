@@ -7,8 +7,10 @@ import type { OrderForReturn } from '~/features/returns/types';
 import { dict, fmt, type Lang } from '~/i18n';
 import { href } from '~/i18n/routing';
 import { formatPrice, localizeDigits } from '~/lib/format';
+import { CancelOrder } from './CancelOrder';
 import { formatDateTime } from './format';
 import s from './orders.module.css';
+import { ShipmentCards } from './ShipmentCards';
 import { Timeline } from './Timeline';
 import type { OrderDetail } from './types';
 
@@ -43,7 +45,12 @@ export function OrderDetailView({ lang, o }: { lang: Lang; o: OrderDetail }) {
                 {fmt(d.eta, { range: etaText(lang, o.zone.etaMinDays, o.zone.etaMaxDays) })}
               </p>
             ) : null}
+            {o.status === 'delivery_failed' ? <p className={s.muted}>{d.failedNote}</p> : null}
+            {o.status === 'failed' ? <p className={s.muted}>{d.failedFinal}</p> : null}
+            {o.status === 'on_hold' ? <p className={s.muted}>{d.holdNote}</p> : null}
           </section>
+
+          <ShipmentCards lang={lang} shipments={o.shipments} />
 
           <section className={s.card} aria-labelledby="od-items">
             <h2 id="od-items" className={s.cardTitle}>
@@ -147,6 +154,8 @@ export function OrderDetailView({ lang, o }: { lang: Lang; o: OrderDetail }) {
           </section>
         </div>
       </div>
+
+      {o.canCancel ? <CancelOrder lang={lang} orderNo={o.orderNo} /> : null}
 
       {canViewInvoice(o) || canRequestReturn(ret) ? (
         <p className={s.actions}>

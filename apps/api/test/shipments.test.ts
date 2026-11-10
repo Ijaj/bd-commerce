@@ -40,7 +40,12 @@ describe('shipments + couriers', () => {
   beforeEach(async () => {
     await resetCommerce(app);
     fakeCourierHooks.reset();
-    await prisma.courier.update({ where: { code: 'fake' }, data: { isActive: true } });
+    // Other test files truncate couriers, so do not rely on the migration seed row.
+    await prisma.courier.upsert({
+      where: { code: 'fake' },
+      update: { isActive: true },
+      create: { code: 'fake', name: 'Fake courier', isActive: true },
+    });
     admin = (await createStaffWith(app, ['shipments.manage', 'orders.view'])).agent;
   });
   afterEach(() => vi.restoreAllMocks());
@@ -489,7 +494,7 @@ describe('shipments + couriers', () => {
       }
       const order2 = await prisma.order.findUniqueOrThrow({ where: { id: o.id } });
       expect(order2).toMatchObject({ paidP: 0, codDueP: o.grandTotalP, paymentStatus: 'unpaid' });
-      expect(order2.status).toBe('shipped');
+      expect(order2.status).toBe('delivery_failed');
       expect(await prisma.stockMovement.count({ where: { reason: 'return_restock' } })).toBe(0);
       expect(
         await prisma.inventory.findUniqueOrThrow({ where: { variantId: variants[0].id } }),

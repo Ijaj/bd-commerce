@@ -1,0 +1,44 @@
+.prose {
+  max-width: 80ch;
+  overflow-wrap: anywhere;
+  line-height: 1.7;
+}
+.prose p,
+.prose ul,
+.prose ol,
+.prose table,
+.prose blockquote {
+  margin-bottom: var(--s3);
+}
+.prose ul {
+  list-style: disc;
+  padding-left: var(--s5);
+}
+.prose ol {
+  list-style: decimal;
+  padding-left: var(--s5);
+}
+.prose h2,
+.prose h3,
+.prose h4 {
+  margin: var(--s4) 0 var(--s2);
+  font-size: 16px;
+}
+.prose img {
+  max-width: 100%;
+  height: auto;
+}
+.prose table {
+  border-collapse: collapse;
+  display: block;
+  overflow-x: auto;
+}
+.prose td,
+.prose th {
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+}
+.prose a {
+  color: var(--primary);
+  text-decoration: underline;
+}

@@ -5,15 +5,18 @@ import { notifyOk } from '~/features/categories/queries';
 import { useCan } from '~/lib/perm';
 import { ordersApi } from './api';
 import { CallOutcomeModal } from './CallOutcomeModal';
+import { canEditOrder } from './edit-logic';
 import { availableActions, cancelBlockedReason } from './logic';
+import { OrderEditModal } from './OrderEditModal';
 import { type OrderDetail, useInvalidateOrders } from './queries';
 
-type Open = null | 'hold' | 'resume' | 'cancel' | 'call';
+type Open = null | 'hold' | 'resume' | 'cancel' | 'call' | 'edit';
 
 /** Hold / resume / cancel / log call, hidden or disabled by permission and order state. */
 export function OrderActions({ order }: { order: OrderDetail }) {
   const canManage = useCan('orders.manage');
   const canCall = useCan('orders.call');
+  const canEdit = useCan('orders.edit') && canEditOrder(order);
   const invalidate = useInvalidateOrders();
   const [open, setOpen] = useState<Open>(null);
   const can = availableActions(order);
@@ -23,6 +26,11 @@ export function OrderActions({ order }: { order: OrderDetail }) {
   return (
     <>
       <Group gap={6}>
+        {canEdit && (
+          <Button variant="default" onClick={() => setOpen('edit')}>
+            Edit order
+          </Button>
+        )}
         {canCall && can.call && <Button onClick={() => setOpen('call')}>Log call</Button>}
         {canManage && can.hold && (
           <Button variant="default" onClick={() => setOpen('hold')}>
@@ -40,6 +48,8 @@ export function OrderActions({ order }: { order: OrderDetail }) {
           </Tooltip>
         )}
       </Group>
+
+      {canEdit && <OrderEditModal order={order} opened={open === 'edit'} onClose={close} />}
 
       <ReasonModal
         opened={open === 'hold'}

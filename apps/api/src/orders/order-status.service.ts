@@ -8,9 +8,9 @@ const SENT = ['handed_over', 'in_transit', 'delivered', 'failed', 'returning', '
 
 /**
  * Single place that moves an order between statuses and writes the history row (C51+).
- * Cancelled / on_hold / pending_payment are set explicitly (orders-admin) and never overwritten
- * by `recompute`, which only derives processing -> partially_shipped -> shipped -> delivered
- * from the order's shipments.
+ * Cancelled / on_hold / pending_payment / failed are set explicitly and never overwritten by
+ * `recompute`, which derives processing -> partially_shipped -> shipped -> delivered (or
+ * delivery_failed) from the order's shipments.
  */
 @Injectable()
 export class OrderStatusService {
@@ -44,7 +44,8 @@ export class OrderStatusService {
   /**
    * Re-derive status from shipments. Active qty = qty - qtyCancelled. Sent = qty on shipments
    * handed over or later (failed/returned still count as sent: the order is not "processing").
-   * Delivered = all active qty on delivered shipments. Returns the resulting status.
+   * Delivered = all active qty on delivered shipments. delivery_failed = a failed/returning/
+   * returned shipment (not received back) and no sibling still moving. Returns the resulting status.
    */
   async recompute(
     tx: Prisma.TransactionClient,
@@ -55,24 +56,39 @@ export class OrderStatusService {
       where: { id: orderId },
       select: { status: true, items: { select: { id: true, qty: true, qtyCancelled: true } } },
     });
-    if (!['processing', 'partially_shipped', 'shipped', 'delivered'].includes(order.status)) {
+    if (
+      !['processing', 'partially_shipped', 'shipped', 'delivered', 'delivery_failed'].includes(
+        order.status,
+      )
+    ) {
       return order.status;
     }
     const lines = await tx.shipmentItem.findMany({
-      where: { orderItem: { orderId }, shipment: { status: { in: [...SENT] } } },
+      // Shipments staff marked "received back" are goods in the warehouse again, not sent.
+      where: {
+        orderItem: { orderId },
+        shipment: { status: { in: [...SENT] }, receivedBackAt: null },
+      },
       select: { orderItemId: true, qty: true, shipment: { select: { status: true } } },
     });
     let active = 0;
     let sent = 0;
     let delivered = 0;
+    let moving = 0;
+    let troubled = false;
     const byItem = new Map(order.items.map((i) => [i.id, i.qty - i.qtyCancelled]));
     for (const n of byItem.values()) active += n;
     for (const l of lines) {
       sent += l.qty;
-      if (l.shipment.status === 'delivered') delivered += l.qty;
+      const st = l.shipment.status;
+      if (st === 'delivered') delivered += l.qty;
+      else if (st === 'handed_over' || st === 'in_transit') moving += l.qty;
+      else troubled = true; // failed | returning | returned
     }
     let to: OrderStatus = 'processing';
     if (active > 0 && delivered >= active) to = 'delivered';
+    // C87: nothing is still on its way and some parcel came back: staff must act (received-back).
+    else if (active > 0 && troubled && moving === 0) to = 'delivery_failed';
     else if (active > 0 && sent >= active) to = 'shipped';
     else if (sent > 0) to = 'partially_shipped';
     const extra: Prisma.OrderUpdateInput = to === 'delivered' ? { deliveredAt: new Date() } : {};

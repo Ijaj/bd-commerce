@@ -7,10 +7,14 @@ const h = vi.hoisted(() => ({
   PUT: vi.fn(),
   PATCH: vi.fn(),
   DELETE: vi.fn(),
+  refresh: vi.fn(),
 }));
 
 vi.mock('~/lib/api-browser', () => ({
   browserApi: { GET: h.GET, POST: h.POST, PUT: h.PUT, PATCH: h.PATCH, DELETE: h.DELETE },
+}));
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ refresh: h.refresh, push: vi.fn(), replace: vi.fn() }),
 }));
 vi.mock('next/link', () => ({
   default: ({ href, children, ...rest }: { href: string; children: React.ReactNode }) => (
@@ -157,6 +161,8 @@ describe('OrderDetailView', () => {
     },
     zone: { nameEn: 'Outside Dhaka', nameBn: null, etaMinDays: 3, etaMaxDays: 5 },
     history: [{ status: 'processing', at: '2026-10-24T12:19:00.000Z' }],
+    shipments: [],
+    canCancel: false,
   };
 
   it('shows items, money, ship-to, note and ETA', () => {
@@ -171,6 +177,112 @@ describe('OrderDetailView', () => {
   });
 });
 
+describe('OrderDetailView: shipments and cancel', () => {
+  const base = {
+    orderNo: '2610-00003',
+    placedAt: '2026-10-24T12:19:00.000Z',
+    status: 'processing' as const,
+    paymentStatus: 'unpaid',
+    paymentMethod: 'cod',
+    lang: 'en' as const,
+    isPreorder: false,
+    customerNote: null,
+    items: [],
+    discounts: [],
+    money: {
+      subtotalP: 100000,
+      autoDiscountP: 0,
+      couponDiscountP: 0,
+      deliveryChargeP: 0,
+      deliveryDiscountP: 0,
+      grandTotalP: 100000,
+      paidP: 0,
+      refundedP: 0,
+      codDueP: 100000,
+    },
+    shipTo: { name: 'K', phone: '01755667788', placeText: 'Gulshan', line: 'R1', landmark: null },
+    zone: { nameEn: 'Dhaka', nameBn: null, etaMinDays: 1, etaMaxDays: 2 },
+    history: [{ status: 'processing' as const, at: '2026-10-24T12:19:00.000Z' }],
+    shipments: [],
+    canCancel: false,
+  } satisfies OrderDetail;
+  const shipment = {
+    shipmentNo: 'SHP-2610-00001',
+    status: 'with_courier' as const,
+    courier: { code: 'steadfast', name: 'Steadfast' },
+    trackingId: 'SF-123',
+    trackingUrl: 'https://steadfast.example/track/SF-123',
+    handedAt: '2026-10-25T09:00:00.000Z',
+    deliveredAt: null,
+    items: [{ title: 'Walton Dry Iron', qty: 2 }],
+  };
+
+  it('shows courier, tracking id and a safe tracking link per shipment', () => {
+    render(
+      <OrderDetailView
+        lang="en"
+        o={{
+          ...base,
+          status: 'shipped',
+          shipments: [
+            shipment,
+            { ...shipment, shipmentNo: 'SHP-2610-00002', trackingUrl: 'javascript:alert(1)' },
+          ],
+        }}
+      />,
+    );
+    expect(screen.getAllByText('Steadfast')).toHaveLength(2);
+    expect(screen.getAllByText('SF-123')).toHaveLength(2);
+    expect(screen.getAllByText('Walton Dry Iron × 2')).toHaveLength(2);
+    const links = screen.getAllByRole('link', { name: d.shipmentTrack });
+    expect(links).toHaveLength(1);
+    expect(links[0]).toHaveAttribute('href', 'https://steadfast.example/track/SF-123');
+    expect(links[0]).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+
+  it('explains a failed delivery and a closed order', () => {
+    const failed = { ...shipment, status: 'failed' as const };
+    const { rerender } = render(
+      <OrderDetailView lang="en" o={{ ...base, status: 'delivery_failed', shipments: [failed] }} />,
+    );
+    expect(screen.getAllByText(d.status.delivery_failed).length).toBeGreaterThan(0);
+    expect(screen.getByText(d.failedNote)).toBeInTheDocument();
+    expect(screen.getAllByText(d.shipmentStatus.failed).length).toBeGreaterThan(1);
+    rerender(<OrderDetailView lang="en" o={{ ...base, status: 'failed', shipments: [failed] }} />);
+    expect(screen.getByText(d.failedFinal)).toBeInTheDocument();
+  });
+
+  it('cancels after a confirmation and refreshes the page', async () => {
+    h.POST.mockResolvedValue(ok({}));
+    render(<OrderDetailView lang="en" o={{ ...base, canCancel: true }} />);
+    expect(screen.queryByText(d.cancelTitle)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: d.cancelOrder }));
+    fireEvent.change(screen.getByLabelText(d.cancelReason), { target: { value: ' wrong item ' } });
+    fireEvent.click(screen.getByRole('button', { name: d.cancelConfirm }));
+    await waitFor(() => expect(h.refresh).toHaveBeenCalled());
+    expect(h.POST).toHaveBeenCalledWith('/v1/customer/orders/{orderNo}/cancel', {
+      params: { path: { orderNo: '2610-00003' } },
+      body: { reason: 'wrong item' },
+    });
+  });
+
+  it('shows the server reason when cancel is refused, and hides the button when not allowed', async () => {
+    h.POST.mockResolvedValue({
+      error: { code: 'SHIPMENT_BOOKED' },
+      response: { ok: false, status: 409 },
+    });
+    const { rerender } = render(<OrderDetailView lang="en" o={{ ...base, canCancel: true }} />);
+    fireEvent.click(screen.getByRole('button', { name: d.cancelOrder }));
+    fireEvent.click(screen.getByRole('button', { name: d.cancelConfirm }));
+    expect(await screen.findByRole('alert')).toHaveTextContent(d.cancelErrors.SHIPMENT_BOOKED);
+    expect(h.refresh).not.toHaveBeenCalled();
+
+    rerender(<OrderDetailView lang="en" o={{ ...base, status: 'on_hold' }} />);
+    expect(screen.queryByRole('button', { name: d.cancelOrder })).not.toBeInTheDocument();
+    expect(screen.getByText(d.holdNote)).toBeInTheDocument();
+  });
+});
+
 describe('TrackForm', () => {
   const track = {
     orderNo: '2610-00001',
@@ -182,6 +294,8 @@ describe('TrackForm', () => {
     etaMinDays: 1,
     etaMaxDays: 2,
     timeline: [{ status: 'processing', at: '2026-10-24T12:16:00.000Z' }],
+    shipments: [],
+    canCancel: false,
   };
 
   const res = (status: number, body: unknown) =>
@@ -222,6 +336,61 @@ describe('TrackForm', () => {
     await waitFor(() =>
       expect(screen.getByRole('alert')).toHaveTextContent('Too many lookups. Try again in 11 min.'),
     );
+  });
+  it('cancels a guest order with the matched phone and shows the new state', async () => {
+    h.POST.mockResolvedValueOnce(res(200, { ...track, canCancel: true }));
+    render(<TrackForm lang="en" initialOrderNo="2610-00001" />);
+    fireEvent.change(screen.getByLabelText(d.trackPhone), { target: { value: '01711223344' } });
+    fireEvent.click(screen.getByRole('button', { name: d.trackButton }));
+    fireEvent.click(await screen.findByRole('button', { name: d.cancelOrder }));
+    h.POST.mockResolvedValueOnce(res(200, { ...track, status: 'cancelled', canCancel: false }));
+    fireEvent.click(screen.getByRole('button', { name: d.cancelConfirm }));
+    expect(await screen.findByText(d.cancelDone)).toBeInTheDocument();
+    expect(h.POST).toHaveBeenLastCalledWith('/v1/public/track/cancel', {
+      body: { orderNo: '2610-00001', phone: '01711223344' },
+    });
+    expect(screen.queryByRole('button', { name: d.cancelOrder })).not.toBeInTheDocument();
+  });
+
+  it('asks account holders to log in, and shows a failed delivery with its courier', async () => {
+    h.POST.mockResolvedValueOnce(res(200, { ...track, canCancel: true }));
+    render(<TrackForm lang="en" initialOrderNo="2610-00001" />);
+    fireEvent.change(screen.getByLabelText(d.trackPhone), { target: { value: '01711223344' } });
+    fireEvent.click(screen.getByRole('button', { name: d.trackButton }));
+    fireEvent.click(await screen.findByRole('button', { name: d.cancelOrder }));
+    h.POST.mockResolvedValueOnce(res(403, { code: 'LOGIN_REQUIRED' }));
+    fireEvent.click(screen.getByRole('button', { name: d.cancelConfirm }));
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent(d.cancelErrors.LOGIN_REQUIRED);
+    expect(screen.getByRole('link', { name: d.cancelLogin })).toHaveAttribute('href', '/login');
+  });
+
+  it('shows shipments and the failed-delivery note on the track page', async () => {
+    h.POST.mockResolvedValue(
+      res(200, {
+        ...track,
+        status: 'delivery_failed',
+        shipments: [
+          {
+            shipmentNo: 'SHP-2610-00001',
+            status: 'failed',
+            courier: { code: 'pathao', name: 'Pathao' },
+            trackingId: 'P-9',
+            trackingUrl: null,
+            handedAt: null,
+            deliveredAt: null,
+            items: [{ title: 'Iron', qty: 1 }],
+          },
+        ],
+      }),
+    );
+    render(<TrackForm lang="en" initialOrderNo="2610-00001" />);
+    fireEvent.change(screen.getByLabelText(d.trackPhone), { target: { value: '01711223344' } });
+    fireEvent.click(screen.getByRole('button', { name: d.trackButton }));
+    expect(await screen.findByText(d.failedNote)).toBeInTheDocument();
+    expect(screen.getByText('Pathao')).toBeInTheDocument();
+    expect(screen.getByText('P-9')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: d.shipmentTrack })).not.toBeInTheDocument();
   });
 });
 

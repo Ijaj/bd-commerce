@@ -1,10 +1,19 @@
 import { Toolbar } from '@bdc/ui';
 import { Button, Select, TextInput } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
+import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { zonesQuery } from '~/features/delivery/queries';
 import type { CallStatus, OrderFilters as Filters, OrderStatus, PaymentStatus } from './api';
-import { CALL_OPTIONS, PAYMENT_OPTIONS, STATUS_OPTIONS } from './logic';
+import {
+  CALL_OPTIONS,
+  PAYMENT_METHOD_OPTIONS,
+  PAYMENT_OPTIONS,
+  SOURCE_OPTIONS,
+  STATUS_OPTIONS,
+} from './logic';
 import classes from './Orders.module.css';
+import { couriersQuery } from './queries';
 
 export type FilterState = Omit<Filters, 'page' | 'pageSize'>;
 
@@ -25,6 +34,8 @@ export function OrderFilterBar({
     if (q !== value.q) onChange({ ...value, q });
   }, [debounced]);
 
+  const couriers = useQuery(couriersQuery);
+  const zones = useQuery(zonesQuery);
   const set = (patch: Partial<FilterState>) => onChange({ ...value, ...patch });
   const dirty = Object.values(value).some((v) => v !== undefined);
 
@@ -115,6 +126,42 @@ export function OrderFilterBar({
           ]}
           value={value.risk ?? null}
           onChange={(v) => set({ risk: (v as '0' | '1' | null) ?? undefined })}
+        />
+        <Select
+          aria-label="Courier"
+          placeholder="Courier: all"
+          w={160}
+          clearable
+          data={(couriers.data ?? []).map((c) => ({ value: c.id, label: c.name }))}
+          value={value.courierId ?? null}
+          onChange={(v) => set({ courierId: v ?? undefined })}
+        />
+        <Select
+          aria-label="Zone"
+          placeholder="Delivery zone: all"
+          w={190}
+          clearable
+          data={(zones.data ?? []).map((z) => ({ value: z.id, label: z.nameEn }))}
+          value={value.zoneId ?? null}
+          onChange={(v) => set({ zoneId: v ?? undefined })}
+        />
+        <Select
+          aria-label="Payment method"
+          placeholder="Payment method: all"
+          w={190}
+          clearable
+          data={PAYMENT_METHOD_OPTIONS}
+          value={value.paymentMethod ?? null}
+          onChange={(v) => set({ paymentMethod: v ?? undefined })}
+        />
+        <Select
+          aria-label="Source"
+          placeholder="Source: all"
+          w={150}
+          clearable
+          data={SOURCE_OPTIONS}
+          value={value.source ?? null}
+          onChange={(v) => set({ source: (v as 'guest' | 'customer' | null) ?? undefined })}
         />
         {dirty && (
           <Button

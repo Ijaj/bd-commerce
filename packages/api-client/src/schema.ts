@@ -1140,6 +1140,70 @@ export interface paths {
         patch: operations["CarouselController_update"];
         trace?: never;
     };
+    "/v1/admin/pages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PagesAdminController_list"];
+        put?: never;
+        post: operations["PagesAdminController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/pages/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PagesAdminController_get"];
+        put?: never;
+        post?: never;
+        delete: operations["PagesAdminController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["PagesAdminController_update"];
+        trace?: never;
+    };
+    "/v1/public/pages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PagesPublicController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/pages/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PagesPublicController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/public/geo/divisions": {
         parameters: {
             query?: never;
@@ -2292,6 +2356,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/orders/{id}/edits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["OrdersAdminController_editHistory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/orders/{id}/edit/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["OrdersAdminController_editPreview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/orders/{id}/edit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["OrdersAdminController_edit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/orders/{id}/hold": {
         parameters: {
             query?: never;
@@ -2382,6 +2494,54 @@ export interface paths {
         get: operations["CallQueueController_count"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/couriers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CouriersController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/customer/orders/{orderNo}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CustomerOrderCancelController_cancelOrder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/track/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["TrackCancelController_cancelOrder"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2494,6 +2654,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["ShipmentsAdminController_handover"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/shipments/{id}/received-back": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ShipmentsAdminController_receivedBack"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3556,6 +3732,102 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/customers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomersAdminController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/customers/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomersAdminController_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/customers/{id}/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomersAdminController_orders"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/customers/{id}/notes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomersAdminController_notes"];
+        put?: never;
+        post: operations["CustomersAdminController_addNote"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/customers/{id}/block": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CustomersAdminController_block"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/customers/{id}/unblock": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CustomersAdminController_unblock"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -3647,7 +3919,7 @@ export interface components {
                 id: string;
                 name: string;
             }[];
-            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage" | "affiliates.view" | "affiliates.manage" | "affiliate_payouts.manage")[];
+            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.edit" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage" | "affiliates.view" | "affiliates.manage" | "affiliate_payouts.manage")[];
         };
         ChangePasswordDto: {
             currentPassword: string;
@@ -3725,13 +3997,13 @@ export interface components {
             name: string;
             description: string | null;
             isSystem: boolean;
-            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage" | "affiliates.view" | "affiliates.manage" | "affiliate_payouts.manage")[];
+            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.edit" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage" | "affiliates.view" | "affiliates.manage" | "affiliate_payouts.manage")[];
             staffCount: number;
         }[];
         CreateRoleDto: {
             name: string;
             description?: string;
-            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage" | "affiliates.view" | "affiliates.manage" | "affiliate_payouts.manage")[];
+            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.edit" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage" | "affiliates.view" | "affiliates.manage" | "affiliate_payouts.manage")[];
         };
         RoleDto: {
             /** Format: uuid */
@@ -3739,17 +4011,17 @@ export interface components {
             name: string;
             description: string | null;
             isSystem: boolean;
-            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage" | "affiliates.view" | "affiliates.manage" | "affiliate_payouts.manage")[];
+            permissions: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.edit" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage" | "affiliates.view" | "affiliates.manage" | "affiliate_payouts.manage")[];
             staffCount: number;
         };
         UpdateRoleDto: {
             name?: string;
             description?: string | null;
-            permissions?: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage" | "affiliates.view" | "affiliates.manage" | "affiliate_payouts.manage")[];
+            permissions?: ("staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.edit" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage" | "affiliates.view" | "affiliates.manage" | "affiliate_payouts.manage")[];
         };
         PermissionListDto: {
             /** @enum {string} */
-            key: "staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage" | "affiliates.view" | "affiliates.manage" | "affiliate_payouts.manage";
+            key: "staff.view" | "staff.manage" | "roles.manage" | "settings.view" | "settings.manage" | "products.view" | "products.create" | "products.edit" | "products.delete" | "products.publish" | "products.edit_price" | "products.view_cost" | "products.export" | "products.import" | "categories.view" | "categories.create" | "categories.edit" | "categories.delete" | "categories.set_home" | "categories.delete_with_products" | "inventory.view" | "inventory.adjust" | "inventory.export" | "content.manage" | "customers.view" | "customers.manage" | "orders.view" | "orders.manage" | "orders.edit" | "orders.call" | "shipments.manage" | "returns.manage" | "refunds.manage" | "refunds.approve" | "delivery.manage" | "coupons.view" | "coupons.manage" | "flash_sales.manage" | "bulk_sales.manage" | "sr.portal" | "sr.approve" | "sr.manage" | "b2b.view" | "b2b.manage" | "suppliers.view" | "suppliers.manage" | "purchase_orders.receive" | "supplier_payments.manage" | "affiliates.view" | "affiliates.manage" | "affiliate_payouts.manage";
             group: string;
             description: string;
         }[];
@@ -5069,6 +5341,80 @@ export interface components {
             /** @enum {string} */
             lang?: "all" | "en" | "bn";
         };
+        PageListDto: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                slug: string;
+                titleEn: string;
+                titleBn: string | null;
+                isPublished: boolean;
+                showInFooter: boolean;
+                sortOrder: number;
+                /** Format: date-time */
+                updatedAt: string;
+            }[];
+        };
+        PageFullDto: {
+            /** Format: uuid */
+            id: string;
+            slug: string;
+            titleEn: string;
+            titleBn: string | null;
+            isPublished: boolean;
+            showInFooter: boolean;
+            sortOrder: number;
+            /** Format: date-time */
+            updatedAt: string;
+            bodyHtmlEn: string | null;
+            bodyHtmlBn: string | null;
+            seoTitle: string | null;
+            seoDescription: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        PageCreateDto: {
+            slug: string;
+            titleEn: string;
+            titleBn?: string | null;
+            bodyHtmlEn?: string | null;
+            bodyHtmlBn?: string | null;
+            isPublished?: boolean;
+            showInFooter?: boolean;
+            sortOrder?: number;
+            seoTitle?: string | null;
+            seoDescription?: string | null;
+        };
+        PageUpdateDto: {
+            slug?: string;
+            titleEn?: string;
+            titleBn?: string | null;
+            bodyHtmlEn?: string | null;
+            bodyHtmlBn?: string | null;
+            isPublished?: boolean;
+            showInFooter?: boolean;
+            sortOrder?: number;
+            seoTitle?: string | null;
+            seoDescription?: string | null;
+        };
+        PublicPageListDto: {
+            items: {
+                slug: string;
+                titleEn: string;
+                titleBn: string | null;
+            }[];
+        };
+        PublicPageDto: {
+            slug: string;
+            titleEn: string;
+            titleBn: string | null;
+            bodyHtmlEn: string | null;
+            bodyHtmlBn: string | null;
+            seoTitle: string | null;
+            seoDescription: string | null;
+            /** Format: date-time */
+            updatedAt: string;
+        };
         GeoDivisionListDto: {
             id: number;
             nameEn: string;
@@ -5530,7 +5876,7 @@ export interface components {
                 orderNo: string;
                 placedAt: string;
                 /** @enum {string} */
-                status: "pending_payment" | "processing" | "on_hold" | "partially_shipped" | "shipped" | "delivered" | "completed" | "cancelled";
+                status: "pending_payment" | "processing" | "on_hold" | "partially_shipped" | "shipped" | "delivered" | "completed" | "cancelled" | "delivery_failed" | "failed";
                 grandTotalP: number;
                 itemCount: number;
                 firstImage: {
@@ -5550,7 +5896,7 @@ export interface components {
             orderNo: string;
             placedAt: string;
             /** @enum {string} */
-            status: "pending_payment" | "processing" | "on_hold" | "partially_shipped" | "shipped" | "delivered" | "completed" | "cancelled";
+            status: "pending_payment" | "processing" | "on_hold" | "partially_shipped" | "shipped" | "delivered" | "completed" | "cancelled" | "delivery_failed" | "failed";
             paymentStatus: string;
             paymentMethod: string;
             /** @enum {string} */
@@ -5617,9 +5963,27 @@ export interface components {
             };
             history: {
                 /** @enum {string} */
-                status: "pending_payment" | "processing" | "on_hold" | "partially_shipped" | "shipped" | "delivered" | "completed" | "cancelled";
+                status: "pending_payment" | "processing" | "on_hold" | "partially_shipped" | "shipped" | "delivered" | "completed" | "cancelled" | "delivery_failed" | "failed";
                 at: string;
             }[];
+            shipments: {
+                shipmentNo: string;
+                /** @enum {string} */
+                status: "preparing" | "with_courier" | "in_transit" | "delivered" | "failed" | "returning" | "returned";
+                courier: {
+                    code: string;
+                    name: string;
+                } | null;
+                trackingId: string | null;
+                trackingUrl: string | null;
+                handedAt: string | null;
+                deliveredAt: string | null;
+                items: {
+                    title: string;
+                    qty: number;
+                }[];
+            }[];
+            canCancel: boolean;
         };
         OrderTrackRequestDto: {
             orderNo: string;
@@ -5628,7 +5992,7 @@ export interface components {
         OrderTrackDto: {
             orderNo: string;
             /** @enum {string} */
-            status: "pending_payment" | "processing" | "on_hold" | "partially_shipped" | "shipped" | "delivered" | "completed" | "cancelled";
+            status: "pending_payment" | "processing" | "on_hold" | "partially_shipped" | "shipped" | "delivered" | "completed" | "cancelled" | "delivery_failed" | "failed";
             placedAt: string;
             maskedPhone: string;
             itemCount: number;
@@ -5637,9 +6001,27 @@ export interface components {
             etaMaxDays: number;
             timeline: {
                 /** @enum {string} */
-                status: "pending_payment" | "processing" | "on_hold" | "partially_shipped" | "shipped" | "delivered" | "completed" | "cancelled";
+                status: "pending_payment" | "processing" | "on_hold" | "partially_shipped" | "shipped" | "delivered" | "completed" | "cancelled" | "delivery_failed" | "failed";
                 at: string;
             }[];
+            shipments: {
+                shipmentNo: string;
+                /** @enum {string} */
+                status: "preparing" | "with_courier" | "in_transit" | "delivered" | "failed" | "returning" | "returned";
+                courier: {
+                    code: string;
+                    name: string;
+                } | null;
+                trackingId: string | null;
+                trackingUrl: string | null;
+                handedAt: string | null;
+                deliveredAt: string | null;
+                items: {
+                    title: string;
+                    qty: number;
+                }[];
+            }[];
+            canCancel: boolean;
         };
         CheckoutQuoteRequestDto: {
             districtId: number;
@@ -6394,7 +6776,7 @@ export interface components {
                 /** Format: date-time */
                 placedAt: string;
                 /** @enum {string} */
-                status: "pending_payment" | "processing" | "on_hold" | "partially_shipped" | "shipped" | "delivered" | "completed" | "cancelled";
+                status: "pending_payment" | "processing" | "on_hold" | "partially_shipped" | "shipped" | "delivered" | "completed" | "cancelled" | "delivery_failed" | "failed";
                 /** @enum {string} */
                 paymentStatus: "unpaid" | "partially_paid" | "paid" | "partially_refunded" | "refunded" | "failed";
                 /** @enum {string} */
@@ -6431,7 +6813,7 @@ export interface components {
             deliveredAt: string | null;
             completedAt: string | null;
             /** @enum {string} */
-            status: "pending_payment" | "processing" | "on_hold" | "partially_shipped" | "shipped" | "delivered" | "completed" | "cancelled";
+            status: "pending_payment" | "processing" | "on_hold" | "partially_shipped" | "shipped" | "delivered" | "completed" | "cancelled" | "delivery_failed" | "failed";
             /** @enum {string} */
             paymentStatus: "unpaid" | "partially_paid" | "paid" | "partially_refunded" | "refunded" | "failed";
             paymentMethod: string;
@@ -6517,9 +6899,9 @@ export interface components {
             history: {
                 /** Format: uuid */
                 id: string;
-                fromStatus: ("pending_payment" | "processing" | "on_hold" | "partially_shipped" | "shipped" | "delivered" | "completed" | "cancelled") | null;
+                fromStatus: ("pending_payment" | "processing" | "on_hold" | "partially_shipped" | "shipped" | "delivered" | "completed" | "cancelled" | "delivery_failed" | "failed") | null;
                 /** @enum {string} */
-                toStatus: "pending_payment" | "processing" | "on_hold" | "partially_shipped" | "shipped" | "delivered" | "completed" | "cancelled";
+                toStatus: "pending_payment" | "processing" | "on_hold" | "partially_shipped" | "shipped" | "delivered" | "completed" | "cancelled" | "delivery_failed" | "failed";
                 actorType: string;
                 actorId: string | null;
                 actorName: string | null;
@@ -6595,6 +6977,343 @@ export interface components {
                 at: string | null;
             };
         };
+        OrderEditHistoryDto: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                /** Format: date-time */
+                createdAt: string;
+                staff: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                } | null;
+                note: string | null;
+                customerNotifiedAt: string | null;
+                before: {
+                    ship: {
+                        name: string;
+                        phone: string;
+                        placeText: string;
+                        line: string;
+                        landmark: string | null;
+                        /** Format: uuid */
+                        zoneId: string;
+                        zoneName: string;
+                    };
+                    lines: {
+                        /** Format: uuid */
+                        variantId: string;
+                        title: string;
+                        qty: number;
+                        unitPriceP: number;
+                        lineTotalP: number;
+                        discountP: number;
+                    }[];
+                    money: {
+                        subtotalP: number;
+                        autoDiscountP: number;
+                        couponDiscountP: number;
+                        deliveryChargeP: number;
+                        deliveryDiscountP: number;
+                        grandTotalP: number;
+                        codDueP: number;
+                    };
+                    discounts: {
+                        couponId: string;
+                        name: string;
+                        /** @enum {string} */
+                        kind: "code" | "auto";
+                        /** @enum {string} */
+                        type: "percent" | "fixed" | "free_delivery" | "bxgy" | "tiered" | "bundle";
+                        code: string | null;
+                        amountP: number;
+                        deliveryP: number;
+                    }[];
+                };
+                after: {
+                    ship: {
+                        name: string;
+                        phone: string;
+                        placeText: string;
+                        line: string;
+                        landmark: string | null;
+                        /** Format: uuid */
+                        zoneId: string;
+                        zoneName: string;
+                    };
+                    lines: {
+                        /** Format: uuid */
+                        variantId: string;
+                        title: string;
+                        qty: number;
+                        unitPriceP: number;
+                        lineTotalP: number;
+                        discountP: number;
+                    }[];
+                    money: {
+                        subtotalP: number;
+                        autoDiscountP: number;
+                        couponDiscountP: number;
+                        deliveryChargeP: number;
+                        deliveryDiscountP: number;
+                        grandTotalP: number;
+                        codDueP: number;
+                    };
+                    discounts: {
+                        couponId: string;
+                        name: string;
+                        /** @enum {string} */
+                        kind: "code" | "auto";
+                        /** @enum {string} */
+                        type: "percent" | "fixed" | "free_delivery" | "bxgy" | "tiered" | "bundle";
+                        code: string | null;
+                        amountP: number;
+                        deliveryP: number;
+                    }[];
+                };
+            }[];
+        };
+        OrderEditInputDto: {
+            lines?: {
+                /** Format: uuid */
+                orderItemId?: string;
+                /** Format: uuid */
+                variantId?: string;
+                qty: number;
+            }[];
+            ship?: {
+                name?: string;
+                phone?: string;
+                upazilaId?: number;
+                areaId?: number | null;
+                line?: string;
+                landmark?: string | null;
+            };
+            customerNote?: string | null;
+            note?: string;
+        };
+        OrderEditPreviewDto: {
+            lines: {
+                orderItemId: string | null;
+                /** Format: uuid */
+                variantId: string;
+                title: string;
+                sku: string;
+                optionsText: string | null;
+                qty: number;
+                unitPriceP: number;
+                lineTotalP: number;
+                discountP: number;
+                /** @enum {string} */
+                change: "same" | "qty" | "price" | "added" | "removed";
+            }[];
+            money: {
+                subtotalP: number;
+                autoDiscountP: number;
+                couponDiscountP: number;
+                deliveryChargeP: number;
+                deliveryDiscountP: number;
+                grandTotalP: number;
+                codDueP: number;
+            };
+            before: {
+                subtotalP: number;
+                autoDiscountP: number;
+                couponDiscountP: number;
+                deliveryChargeP: number;
+                deliveryDiscountP: number;
+                grandTotalP: number;
+                codDueP: number;
+            };
+            zone: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            };
+            warnings: string[];
+        };
+        OrderEditSavedDto: {
+            order: {
+                /** Format: uuid */
+                id: string;
+                orderNo: string;
+                /** Format: date-time */
+                placedAt: string;
+                deliveredAt: string | null;
+                completedAt: string | null;
+                /** @enum {string} */
+                status: "pending_payment" | "processing" | "on_hold" | "partially_shipped" | "shipped" | "delivered" | "completed" | "cancelled" | "delivery_failed" | "failed";
+                /** @enum {string} */
+                paymentStatus: "unpaid" | "partially_paid" | "paid" | "partially_refunded" | "refunded" | "failed";
+                paymentMethod: string;
+                /** @enum {string} */
+                lang: "en" | "bn";
+                platform: string;
+                isPreorder: boolean;
+                customerNote: string | null;
+                cancelReason: string | null;
+                heldReason: string | null;
+                customer: {
+                    id: string | null;
+                    name: string;
+                    phone: string;
+                    isGuest: boolean;
+                };
+                shipTo: {
+                    name: string;
+                    phone: string;
+                    placeText: string;
+                    line: string;
+                    landmark: string | null;
+                    districtId: number;
+                    upazilaId: number;
+                    areaId: number | null;
+                };
+                zone: {
+                    /** Format: uuid */
+                    id: string;
+                    nameEn: string;
+                    nameBn: string | null;
+                };
+                money: {
+                    subtotalP: number;
+                    autoDiscountP: number;
+                    couponDiscountP: number;
+                    deliveryChargeP: number;
+                    deliveryDiscountP: number;
+                    grandTotalP: number;
+                    advanceRequiredP: number;
+                    paidP: number;
+                    refundedP: number;
+                    codDueP: number;
+                };
+                items: {
+                    /** Format: uuid */
+                    id: string;
+                    /** Format: uuid */
+                    productId: string;
+                    /** Format: uuid */
+                    variantId: string;
+                    titleSnapshot: string;
+                    sku: string;
+                    optionsText: string | null;
+                    image: {
+                        alt: string | null;
+                        width: number;
+                        height: number;
+                        url320: string;
+                        url640: string;
+                        url1200: string;
+                    } | null;
+                    qty: number;
+                    qtyCancelled: number;
+                    qtyShipped: number;
+                    qtyReturned: number;
+                    unitPriceP: number;
+                    lineTotalP: number;
+                    discountP: number;
+                    priceSource: string;
+                }[];
+                discounts: {
+                    couponId: string;
+                    name: string;
+                    /** @enum {string} */
+                    kind: "code" | "auto";
+                    /** @enum {string} */
+                    type: "percent" | "fixed" | "free_delivery" | "bxgy" | "tiered" | "bundle";
+                    code: string | null;
+                    amountP: number;
+                    deliveryP: number;
+                }[];
+                history: {
+                    /** Format: uuid */
+                    id: string;
+                    fromStatus: ("pending_payment" | "processing" | "on_hold" | "partially_shipped" | "shipped" | "delivered" | "completed" | "cancelled" | "delivery_failed" | "failed") | null;
+                    /** @enum {string} */
+                    toStatus: "pending_payment" | "processing" | "on_hold" | "partially_shipped" | "shipped" | "delivered" | "completed" | "cancelled" | "delivery_failed" | "failed";
+                    actorType: string;
+                    actorId: string | null;
+                    actorName: string | null;
+                    note: string | null;
+                    /** Format: date-time */
+                    at: string;
+                }[];
+                payments: {
+                    /** Format: uuid */
+                    id: string;
+                    method: string;
+                    purpose: string;
+                    amountP: number;
+                    status: string;
+                    paidAt: string | null;
+                }[];
+                shipments: {
+                    /** Format: uuid */
+                    id: string;
+                    shipmentNo: string;
+                    status: string;
+                    courierCode: string | null;
+                    consignmentId: string | null;
+                    trackingUrl: string | null;
+                    codAmountP: number;
+                    items: {
+                        /** Format: uuid */
+                        orderItemId: string;
+                        qty: number;
+                    }[];
+                }[];
+                invoices: {
+                    /** Format: uuid */
+                    id: string;
+                    invoiceNo: string;
+                    /** Format: date-time */
+                    issuedAt: string;
+                }[];
+                returns: {
+                    /** Format: uuid */
+                    id: string;
+                    returnNo: string;
+                    status: string;
+                }[];
+                refunds: {
+                    /** Format: uuid */
+                    id: string;
+                    amountP: number;
+                    status: string;
+                    method: string;
+                }[];
+                risk: {
+                    score: number;
+                    reasons: string[];
+                };
+                affiliate: {
+                    /** Format: uuid */
+                    id: string;
+                    code: string;
+                    displayName: string;
+                    /** @enum {string} */
+                    attribution: "link" | "code";
+                    commission: {
+                        status: string;
+                        amountP: number;
+                    } | null;
+                } | null;
+                call: {
+                    /** @enum {string} */
+                    status: "not_needed" | "pending" | "confirmed" | "unreachable" | "cancelled";
+                    note: string | null;
+                    staffName: string | null;
+                    at: string | null;
+                };
+            };
+            edit: {
+                /** Format: uuid */
+                id: string;
+                /** Format: date-time */
+                createdAt: string;
+            } | null;
+        };
         OrdersAdminReasonDto: {
             reason: string;
         };
@@ -6605,6 +7324,21 @@ export interface components {
         };
         OrdersAdminCallCountDto: {
             pending: number;
+        };
+        CourierRowDto: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            name: string;
+            isActive: boolean;
+        };
+        OrderCancelRequestDto: {
+            reason?: string;
+        };
+        OrderTrackCancelRequestDto: {
+            orderNo: string;
+            phone: string;
+            reason?: string;
         };
         ShipmentOrderListDto: {
             items: {
@@ -6646,6 +7380,13 @@ export interface components {
                 packedAt: string | null;
                 handedAt: string | null;
                 deliveredAt: string | null;
+                receivedBackAt: string | null;
+                receivedBackBy: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string | null;
+                } | null;
+                receivedBackNote: string | null;
                 /** Format: date-time */
                 createdAt: string;
             }[];
@@ -6697,6 +7438,13 @@ export interface components {
             packedAt: string | null;
             handedAt: string | null;
             deliveredAt: string | null;
+            receivedBackAt: string | null;
+            receivedBackBy: {
+                /** Format: uuid */
+                id: string;
+                name: string | null;
+            } | null;
+            receivedBackNote: string | null;
             /** Format: date-time */
             createdAt: string;
         };
@@ -6740,6 +7488,13 @@ export interface components {
                 packedAt: string | null;
                 handedAt: string | null;
                 deliveredAt: string | null;
+                receivedBackAt: string | null;
+                receivedBackBy: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string | null;
+                } | null;
+                receivedBackNote: string | null;
                 /** Format: date-time */
                 createdAt: string;
             }[];
@@ -6786,6 +7541,13 @@ export interface components {
             packedAt: string | null;
             handedAt: string | null;
             deliveredAt: string | null;
+            receivedBackAt: string | null;
+            receivedBackBy: {
+                /** Format: uuid */
+                id: string;
+                name: string | null;
+            } | null;
+            receivedBackNote: string | null;
             /** Format: date-time */
             createdAt: string;
             bookings: {
@@ -6823,6 +7585,63 @@ export interface components {
         ShipmentRebookDto: {
             courierCode?: string;
             manualCancel?: boolean;
+        };
+        ShipmentReceivedBackDto: {
+            note?: string;
+            /** @default false */
+            reship: boolean;
+        };
+        ShipmentReceivedBackResultDto: {
+            /** Format: uuid */
+            id: string;
+            shipmentNo: string;
+            /** Format: uuid */
+            orderId: string;
+            orderNo: string;
+            /** @enum {string} */
+            status: "pending" | "awaiting_supplier" | "supplier_confirmed" | "ready" | "booked" | "handed_over" | "in_transit" | "delivered" | "failed" | "returning" | "returned" | "cancelled";
+            /** @enum {string} */
+            source: "warehouse" | "supplier";
+            courier: {
+                code: string;
+                name: string;
+            } | null;
+            consignmentId: string | null;
+            trackingUrl: string | null;
+            codAmountP: number;
+            deliveryChargeShareP: number;
+            weightG: number | null;
+            note: string | null;
+            recipient: {
+                name: string;
+                phone: string;
+                placeText: string;
+            };
+            items: {
+                /** Format: uuid */
+                id: string;
+                /** Format: uuid */
+                orderItemId: string;
+                qty: number;
+                titleSnapshot: string;
+                sku: string;
+                optionsText: string | null;
+            }[];
+            packedAt: string | null;
+            handedAt: string | null;
+            deliveredAt: string | null;
+            receivedBackAt: string | null;
+            receivedBackBy: {
+                /** Format: uuid */
+                id: string;
+                name: string | null;
+            } | null;
+            receivedBackNote: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            orderStatus: string;
+            reshipmentId: string | null;
+            warnings: string[];
         };
         ShipmentSyncResultDto: {
             shipment: {
@@ -6864,6 +7683,13 @@ export interface components {
                 packedAt: string | null;
                 handedAt: string | null;
                 deliveredAt: string | null;
+                receivedBackAt: string | null;
+                receivedBackBy: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string | null;
+                } | null;
+                receivedBackNote: string | null;
                 /** Format: date-time */
                 createdAt: string;
             };
@@ -8371,6 +9197,109 @@ export interface components {
         };
         PoCancelDto: {
             reason?: string;
+        };
+        CustomerAdminListDto: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+                phone: string | null;
+                email: string | null;
+                /** @enum {string} */
+                lang: "en" | "bn";
+                createdAt: string;
+                lastLoginAt: string | null;
+                blocked: boolean;
+                orderCount: number;
+                spentP: number;
+                lastOrderAt: string | null;
+            }[];
+            total: number;
+        };
+        CustomerAdminDetailDto: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            phone: string | null;
+            email: string | null;
+            /** @enum {string} */
+            lang: "en" | "bn";
+            createdAt: string;
+            lastLoginAt: string | null;
+            blocked: boolean;
+            orderCount: number;
+            spentP: number;
+            lastOrderAt: string | null;
+            phoneVerifiedAt: string | null;
+            emailVerifiedAt: string | null;
+            isFlagged: boolean;
+            blockedAt: string | null;
+            blockedReason: string | null;
+            blockedBy: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            } | null;
+            cancelledCount: number;
+            addresses: {
+                /** Format: uuid */
+                id: string;
+                label: string | null;
+                name: string;
+                phone: string;
+                placeText: string;
+                line: string;
+                landmark: string | null;
+                isDefault: boolean;
+            }[];
+        };
+        CustomerAdminErrorDto: {
+            statusCode: number;
+            message: string;
+            code?: string;
+        };
+        CustomerAdminOrderListDto: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                orderNo: string;
+                placedAt: string;
+                status: string;
+                paymentStatus: string;
+                grandTotalP: number;
+                itemCount: number;
+            }[];
+            total: number;
+        };
+        CustomerAdminNoteListDto: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                staff: {
+                    /** Format: uuid */
+                    id: string;
+                    name: string;
+                } | null;
+                body: string;
+                createdAt: string;
+            }[];
+        };
+        CustomerAdminNoteInputDto: {
+            body: string;
+        };
+        CustomerAdminNoteDto: {
+            /** Format: uuid */
+            id: string;
+            staff: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            } | null;
+            body: string;
+            createdAt: string;
+        };
+        CustomerAdminBlockInputDto: {
+            reason: string;
         };
     };
     responses: never;
@@ -10789,6 +11718,153 @@ export interface operations {
             };
         };
     };
+    PagesAdminController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PageListDto"];
+                };
+            };
+        };
+    };
+    PagesAdminController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PageCreateDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PageFullDto"];
+                };
+            };
+        };
+    };
+    PagesAdminController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PageFullDto"];
+                };
+            };
+        };
+    };
+    PagesAdminController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PagesAdminController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PageUpdateDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PageFullDto"];
+                };
+            };
+        };
+    };
+    PagesPublicController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicPageListDto"];
+                };
+            };
+        };
+    };
+    PagesPublicController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicPageDto"];
+                };
+            };
+        };
+    };
     GeoController_divisions: {
         parameters: {
             query?: never;
@@ -12852,13 +13928,17 @@ export interface operations {
     OrdersAdminController_list: {
         parameters: {
             query?: {
-                status?: "pending_payment" | "processing" | "on_hold" | "partially_shipped" | "shipped" | "delivered" | "completed" | "cancelled";
+                status?: "pending_payment" | "processing" | "on_hold" | "partially_shipped" | "shipped" | "delivered" | "completed" | "cancelled" | "delivery_failed" | "failed";
                 paymentStatus?: "unpaid" | "partially_paid" | "paid" | "partially_refunded" | "refunded" | "failed";
                 call?: "not_needed" | "pending" | "confirmed" | "unreachable" | "cancelled";
                 q?: string;
                 from?: string;
                 to?: string;
                 risk?: "0" | "1";
+                courierId?: string;
+                zoneId?: string;
+                paymentMethod?: string;
+                source?: "guest" | "customer";
                 page?: number;
                 pageSize?: number;
             };
@@ -12898,6 +13978,95 @@ export interface operations {
                 };
             };
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    OrdersAdminController_editHistory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderEditHistoryDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    OrdersAdminController_editPreview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrderEditInputDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderEditPreviewDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    OrdersAdminController_edit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrderEditInputDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderEditSavedDto"];
+                };
+            };
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -13067,6 +14236,120 @@ export interface operations {
             };
         };
     };
+    CouriersController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CourierRowDto"][];
+                };
+            };
+        };
+    };
+    CustomerOrderCancelController_cancelOrder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                orderNo: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrderCancelRequestDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderDetailDto"];
+                };
+            };
+            /** @description No valid customer session */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
+    TrackCancelController_cancelOrder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrderTrackCancelRequestDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderTrackDto"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerErrorDto"];
+                };
+            };
+        };
+    };
     ShipmentsAdminController_forOrder: {
         parameters: {
             query?: never;
@@ -13119,6 +14402,7 @@ export interface operations {
                 status?: "pending" | "awaiting_supplier" | "supplier_confirmed" | "ready" | "booked" | "handed_over" | "in_transit" | "delivered" | "failed" | "returning" | "returned" | "cancelled";
                 courier?: string;
                 q?: string;
+                attention?: string;
                 sort?: "newest" | "oldest";
                 page?: number;
                 pageSize?: number;
@@ -13252,6 +14536,31 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ShipmentDto"];
+                };
+            };
+        };
+    };
+    ShipmentsAdminController_receivedBack: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShipmentReceivedBackDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShipmentReceivedBackResultDto"];
                 };
             };
         };
@@ -15425,6 +16734,232 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PoErrorDto"];
+                };
+            };
+        };
+    };
+    CustomersAdminController_list: {
+        parameters: {
+            query?: {
+                q?: string;
+                blocked?: "0" | "1";
+                hasOrders?: "0" | "1";
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerAdminListDto"];
+                };
+            };
+        };
+    };
+    CustomersAdminController_detail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerAdminDetailDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerAdminErrorDto"];
+                };
+            };
+        };
+    };
+    CustomersAdminController_orders: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerAdminOrderListDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerAdminErrorDto"];
+                };
+            };
+        };
+    };
+    CustomersAdminController_notes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerAdminNoteListDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerAdminErrorDto"];
+                };
+            };
+        };
+    };
+    CustomersAdminController_addNote: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CustomerAdminNoteInputDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerAdminNoteDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerAdminErrorDto"];
+                };
+            };
+        };
+    };
+    CustomersAdminController_block: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CustomerAdminBlockInputDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerAdminDetailDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerAdminErrorDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerAdminErrorDto"];
+                };
+            };
+        };
+    };
+    CustomersAdminController_unblock: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerAdminDetailDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerAdminErrorDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerAdminErrorDto"];
                 };
             };
         };

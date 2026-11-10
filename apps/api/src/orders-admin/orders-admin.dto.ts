@@ -16,6 +16,8 @@ export const ORDER_STATUSES = [
   'delivered',
   'completed',
   'cancelled',
+  'delivery_failed',
+  'failed',
 ] as const;
 export const PAYMENT_STATUSES = [
   'unpaid',
@@ -47,6 +49,13 @@ export class OrdersAdminListQueryDto extends createZodDto(
     /** Placed before the end of this date (plain date: inclusive of the whole day, Asia/Dhaka). */
     to: dateOrTime.optional(),
     risk: z.enum(['0', '1']).optional(),
+    /** Any shipment of the order is with this courier. */
+    courierId: z.uuid().optional(),
+    zoneId: z.uuid().optional(),
+    /** `payment_method_chosen`, e.g. cod. */
+    paymentMethod: z.string().trim().min(1).max(40).optional(),
+    /** guest = no customer account on the order. */
+    source: z.enum(['guest', 'customer']).optional(),
     page,
     pageSize,
   }),
@@ -127,7 +136,7 @@ const detailItem = z.object({
   priceSource: z.string(),
 });
 
-const detail = z.object({
+export const orderDetailSchema = z.object({
   id: z.uuid(),
   orderNo: z.string(),
   placedAt: iso,
@@ -236,7 +245,7 @@ const pageOf = <T extends z.ZodType>(item: T) =>
 
 export class OrdersAdminListItemDto extends createZodDto(listItem) {}
 export class OrdersAdminListDto extends createZodDto(pageOf(listItem)) {}
-export class OrdersAdminDetailDto extends createZodDto(detail) {}
+export class OrdersAdminDetailDto extends createZodDto(orderDetailSchema) {}
 export class OrdersAdminCallCountDto extends createZodDto(
   z.object({ pending: z.number().int() }),
 ) {}

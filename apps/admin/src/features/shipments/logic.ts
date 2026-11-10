@@ -33,17 +33,12 @@ export const STATUS_COLOR: Record<ShipmentStatus, string> = {
   cancelled: 'gray',
 };
 
-/**
- * The API has no courier list endpoint (see board); these are the seeded codes.
- * An inactive one is rejected by the API with COURIER_INACTIVE.
- */
-export const COURIER_OPTIONS = [
-  { value: 'steadfast', label: 'Steadfast' },
-  { value: 'pathao', label: 'Pathao' },
-  { value: 'fake', label: 'Fake (testing)' },
-];
-
 export type ShipmentAction = 'book' | 'rebook' | 'cancel' | 'handover' | 'sync' | 'label';
+
+/** Parcels the courier gave up on that nobody has taken back into stock yet (C87). */
+export function needsReceiveBack(s: Pick<Shipment, 'status' | 'receivedBackAt'>): boolean {
+  return ['failed', 'returning', 'returned'].includes(s.status) && !s.receivedBackAt;
+}
 
 /** Mirrors the API state machine (shipment-booking.service.ts); the API stays the authority. */
 export function allowedActions(status: ShipmentStatus): ShipmentAction[] {
@@ -60,6 +55,9 @@ export function allowedActions(status: ShipmentStatus): ShipmentAction[] {
     case 'in_transit':
     case 'returning':
       return ['sync', 'label'];
+    case 'failed':
+      // The courier may still retry and deliver; sync picks that up.
+      return ['sync'];
     default:
       return [];
   }
@@ -76,14 +74,15 @@ export interface OrderLine {
   qtyCancelled: number;
 }
 
-/** Units of each order line not yet on a live (non-cancelled) shipment. */
+/** Units of each order line not yet on a live (not cancelled, not received back) shipment. */
 export function freeQuantities(
   lines: readonly OrderLine[],
-  shipments: readonly Pick<Shipment, 'status' | 'items'>[],
+  shipments: readonly (Pick<Shipment, 'status' | 'items'> & { receivedBackAt?: string | null })[],
 ): Map<string, number> {
   const used = new Map<string, number>();
   for (const s of shipments) {
-    if (s.status === 'cancelled') continue;
+    // Received-back goods are in the warehouse again (the API ignores them too).
+    if (s.status === 'cancelled' || s.receivedBackAt) continue;
     for (const i of s.items) used.set(i.orderItemId, (used.get(i.orderItemId) ?? 0) + i.qty);
   }
   return new Map(

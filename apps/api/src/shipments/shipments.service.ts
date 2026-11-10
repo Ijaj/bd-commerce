@@ -18,7 +18,7 @@ export const SHIPMENT_INCLUDE = {
 
 export type ShipmentRow = Prisma.ShipmentGetPayload<{ include: typeof SHIPMENT_INCLUDE }>;
 
-export function toShipmentView(s: ShipmentRow) {
+export function toShipmentView(s: ShipmentRow, staff: Map<string, string> = new Map()) {
   return {
     id: s.id,
     shipmentNo: s.shipmentNo,
@@ -49,9 +49,20 @@ export function toShipmentView(s: ShipmentRow) {
     packedAt: s.packedAt?.toISOString() ?? null,
     handedAt: s.handedAt?.toISOString() ?? null,
     deliveredAt: s.deliveredAt?.toISOString() ?? null,
+    receivedBackAt: s.receivedBackAt?.toISOString() ?? null,
+    receivedBackBy: s.receivedBackById
+      ? { id: s.receivedBackById, name: staff.get(s.receivedBackById) ?? null }
+      : null,
+    receivedBackNote: s.receivedBackNote,
     createdAt: s.createdAt.toISOString(),
   };
 }
+
+/** Parcels the courier gave up on that staff have not yet taken back into stock (C87). */
+export const NEEDS_RECEIVE_BACK = {
+  status: { in: ['failed', 'returning', 'returned'] },
+  receivedBackAt: null,
+} satisfies Prisma.ShipmentWhereInput;
 
 /** Locks the shipment row so booking, handover and status updates for it run one at a time. */
 export async function lockShipment(tx: Prisma.TransactionClient, id: string) {
@@ -61,6 +72,13 @@ export async function lockShipment(tx: Prisma.TransactionClient, id: string) {
 @Injectable()
 export class ShipmentsService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async nextShipmentNo(tx: Prisma.TransactionClient) {
+    const seq = await tx.$queryRaw<{ n: bigint }[]>`SELECT nextval('shipment_no_seq') AS n`;
+    const d = new Date(Date.now() + DHAKA_OFFSET_MS);
+    const yymm = `${String(d.getUTCFullYear()).slice(2)}${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
+    return `SHP-${yymm}-${String(seq[0]?.n ?? 0n).padStart(5, '0')}`;
+  }
 
   async resolveOrderId(idOrNo: string, db: Prisma.TransactionClient = this.prisma) {
     const order = await db.order.findFirst({
@@ -73,12 +91,22 @@ export class ShipmentsService {
     return order.id;
   }
 
+  private async staffNames(rows: { receivedBackById: string | null }[]) {
+    const ids = [...new Set(rows.map((r) => r.receivedBackById).filter((x): x is string => !!x))];
+    if (ids.length === 0) return new Map<string, string>();
+    const staff = await this.prisma.staff.findMany({
+      where: { id: { in: ids } },
+      select: { id: true, name: true },
+    });
+    return new Map(staff.map((x) => [x.id, x.name]));
+  }
+
   async view(id: string, db: Prisma.TransactionClient = this.prisma) {
     const s = await db.shipment.findUnique({ where: { id }, include: SHIPMENT_INCLUDE });
     if (!s) {
       throw new ShipmentError(HttpStatus.NOT_FOUND, 'SHIPMENT_NOT_FOUND', 'Shipment not found');
     }
-    return toShipmentView(s);
+    return toShipmentView(s, await this.staffNames([s]));
   }
 
   async detail(id: string) {
@@ -99,7 +127,7 @@ export class ShipmentsService {
       throw new ShipmentError(HttpStatus.NOT_FOUND, 'SHIPMENT_NOT_FOUND', 'Shipment not found');
     }
     return {
-      ...toShipmentView(s),
+      ...toShipmentView(s, await this.staffNames([s])),
       bookings: s.bookings.map((b) => ({
         id: b.id,
         attempt: b.attempt,
@@ -129,12 +157,14 @@ export class ShipmentsService {
       include: SHIPMENT_INCLUDE,
       orderBy: { createdAt: 'asc' },
     });
-    return { items: rows.map(toShipmentView) };
+    const names = await this.staffNames(rows);
+    return { items: rows.map((r) => toShipmentView(r, names)) };
   }
 
   async list(q: ShipmentListQueryDto) {
     const where: Prisma.ShipmentWhereInput = {
       ...(q.status ? { status: q.status } : {}),
+      ...(q.attention ? NEEDS_RECEIVE_BACK : {}),
       ...(q.courier ? { courier: { code: q.courier } } : {}),
       ...(q.q
         ? {
@@ -158,7 +188,13 @@ export class ShipmentsService {
         take: q.pageSize,
       }),
     ]);
-    return { items: rows.map(toShipmentView), total, page: q.page, pageSize: q.pageSize };
+    const names = await this.staffNames(rows);
+    return {
+      items: rows.map((r) => toShipmentView(r, names)),
+      total,
+      page: q.page,
+      pageSize: q.pageSize,
+    };
   }
 
   /**
@@ -176,7 +212,7 @@ export class ShipmentsService {
         where: { id: orderId },
         include: { items: true },
       });
-      if (!['processing', 'partially_shipped'].includes(order.status)) {
+      if (!['processing', 'partially_shipped', 'delivery_failed'].includes(order.status)) {
         throw new ShipmentError(
           HttpStatus.CONFLICT,
           'ORDER_NOT_SHIPPABLE',
@@ -207,8 +243,9 @@ export class ShipmentsService {
         }
       }
 
+      // Received-back shipments are goods in the warehouse again: not part of the split maths.
       const live = await tx.shipment.findMany({
-        where: { orderId, status: { not: ShipmentStatus.cancelled } },
+        where: { orderId, status: { not: ShipmentStatus.cancelled }, receivedBackAt: null },
         select: {
           status: true,
           codAmountP: true,
@@ -265,14 +302,11 @@ export class ShipmentsService {
         ? available
         : Math.min(Math.max(0, goodsShare) + chargeShare, available);
 
-      const seq = await tx.$queryRaw<{ n: bigint }[]>`SELECT nextval('shipment_no_seq') AS n`;
       const now = new Date();
-      const d = new Date(now.getTime() + DHAKA_OFFSET_MS);
-      const yymm = `${String(d.getUTCFullYear()).slice(2)}${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
       const shipment = await tx.shipment.create({
         data: {
           orderId,
-          shipmentNo: `SHP-${yymm}-${String(seq[0]?.n ?? 0n).padStart(5, '0')}`,
+          shipmentNo: await this.nextShipmentNo(tx),
           sellerId: order.items[0]?.sellerId ?? (await tx.seller.findFirstOrThrow()).id,
           source: 'warehouse',
           status: 'ready',

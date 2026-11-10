@@ -161,6 +161,30 @@ export const SETTINGS = {
     default: { windowDays: 7, refundApprovalAboveP: 300000 },
     public: false,
   },
+  order_notifications: {
+    group: 'Orders',
+    description:
+      'Customer SMS + email per order event (C86, A2). confirmed: order accepted for processing; handedOver: given to the courier (with courier and tracking link); refundPaid: a refund was paid out. "Order placed" is always sent.',
+    schema: z.object({
+      confirmed: z.boolean(),
+      handedOver: z.boolean(),
+      delivered: z.boolean(),
+      cancelled: z.boolean(),
+      refundPaid: z.boolean(),
+      deliveryFailed: z.boolean(),
+      edited: z.boolean(),
+    }),
+    default: {
+      confirmed: true,
+      handedOver: true,
+      delivered: true,
+      cancelled: true,
+      refundPaid: true,
+      deliveryFailed: true,
+      edited: true,
+    },
+    public: false,
+  },
   sr_default_commission_bp: {
     group: 'SR / B2B',
     description: 'SR commission in basis points of money collected (Q120), unless set per SR.',

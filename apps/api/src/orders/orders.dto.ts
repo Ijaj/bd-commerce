@@ -20,6 +20,8 @@ const orderStatus = z.enum([
   'delivered',
   'completed',
   'cancelled',
+  'delivery_failed',
+  'failed',
 ]);
 
 export class OrderListQueryDto extends createZodDto(
@@ -46,6 +48,27 @@ export class OrderListDto extends createZodDto(
     limit: z.number(),
   }),
 ) {}
+
+const shipments = z.array(
+  z.object({
+    shipmentNo: z.string(),
+    status: z.enum([
+      'preparing',
+      'with_courier',
+      'in_transit',
+      'delivered',
+      'failed',
+      'returning',
+      'returned',
+    ]),
+    courier: z.object({ code: z.string(), name: z.string() }).nullable(),
+    trackingId: z.string().nullable(),
+    trackingUrl: z.string().nullable(),
+    handedAt: z.string().nullable(),
+    deliveredAt: z.string().nullable(),
+    items: z.array(z.object({ title: z.string(), qty: z.number() })),
+  }),
+);
 
 const timeline = z.array(z.object({ status: orderStatus, at: z.string() }));
 
@@ -105,6 +128,9 @@ export class OrderDetailDto extends createZodDto(
       etaMaxDays: z.number(),
     }),
     history: timeline,
+    shipments,
+    /// Customer may cancel now (before hand-off, not on hold).
+    canCancel: z.boolean(),
   }),
 ) {}
 
@@ -123,5 +149,19 @@ export class OrderTrackDto extends createZodDto(
     etaMinDays: z.number(),
     etaMaxDays: z.number(),
     timeline,
+    shipments,
+    canCancel: z.boolean(),
+  }),
+) {}
+
+export class OrderCancelRequestDto extends createZodDto(
+  z.object({ reason: z.string().trim().max(300).optional() }),
+) {}
+
+export class OrderTrackCancelRequestDto extends createZodDto(
+  z.object({
+    orderNo: z.string().trim().min(3).max(20),
+    phone: z.string().trim().min(5).max(30),
+    reason: z.string().trim().max(300).optional(),
   }),
 ) {}

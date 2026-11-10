@@ -1,4 +1,15 @@
-import { Alert, Button, Group, Menu, Modal, Select, Stack, Text } from '@mantine/core';
+import {
+  Alert,
+  Button,
+  Checkbox,
+  Group,
+  Menu,
+  Modal,
+  Select,
+  Stack,
+  Text,
+  Textarea,
+} from '@mantine/core';
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { errorCode, friendlyMessage, notifyApiError } from '~/features/b2b/errors';
@@ -6,10 +17,10 @@ import { notifyOk } from '~/features/categories/queries';
 import { formatPrice } from '~/lib/format';
 import { useCan } from '~/lib/perm';
 import { shipmentsApi } from './api';
-import { allowedActions, COURIER_OPTIONS, needsManualCancel, type Shipment } from './logic';
-import { useInvalidateShipments } from './queries';
+import { allowedActions, needsManualCancel, needsReceiveBack, type Shipment } from './logic';
+import { useCourierOptions, useInvalidateShipments } from './queries';
 
-type Dialog = 'book' | 'rebook' | 'cancel' | 'handover' | null;
+type Dialog = 'book' | 'rebook' | 'cancel' | 'handover' | 'back' | null;
 
 /** Row menu for one shipment: only the actions its status and the staff's permission allow. */
 export function ShipmentActions({ shipment }: { shipment: Shipment }) {
@@ -27,7 +38,8 @@ export function ShipmentActions({ shipment }: { shipment: Shipment }) {
     onError: (e) => notifyApiError(e, 'Sync failed'),
   });
 
-  if (!canManage || actions.length === 0) return null;
+  const canBack = needsReceiveBack(shipment);
+  if (!canManage || (actions.length === 0 && !canBack)) return null;
   const has = (a: (typeof actions)[number]) => actions.includes(a);
 
   return (
@@ -54,6 +66,7 @@ export function ShipmentActions({ shipment }: { shipment: Shipment }) {
               Print label
             </Menu.Item>
           )}
+          {canBack && <Menu.Item onClick={() => setDialog('back')}>Received back</Menu.Item>}
           {has('rebook') && (
             <Menu.Item onClick={() => setDialog('rebook')}>
               {shipment.status === 'ready' ? 'Book with another courier' : 'Rebook'}
@@ -86,6 +99,12 @@ export function ShipmentActions({ shipment }: { shipment: Shipment }) {
         onClose={() => setDialog(null)}
         onDone={invalidate}
       />
+      <ReceivedBackDialog
+        opened={dialog === 'back'}
+        shipment={shipment}
+        onClose={() => setDialog(null)}
+        onDone={invalidate}
+      />
     </>
   );
 }
@@ -103,15 +122,17 @@ function CourierDialog({
 }: DialogProps & {
   mode: 'book' | 'rebook';
 }) {
-  const [courier, setCourier] = useState<string | null>(p.shipment.courier?.code ?? 'steadfast');
+  const [courier, setCourier] = useState<string | null>(p.shipment.courier?.code ?? null);
+  const options = useCourierOptions(true);
+  const chosen = courier ?? options[0]?.value ?? null;
   // Rebooking a booked shipment cancels the live booking first; real couriers may refuse.
   const [manualNeeded, setManualNeeded] = useState(false);
   const run = useMutation({
     mutationFn: (manualCancel: boolean) =>
       mode === 'book'
-        ? shipmentsApi.book(p.shipment.id, courier as string)
+        ? shipmentsApi.book(p.shipment.id, chosen as string)
         : shipmentsApi.rebook(p.shipment.id, {
-            courierCode: courier ?? undefined,
+            courierCode: chosen ?? undefined,
             manualCancel: manualCancel || undefined,
           }),
     onSuccess: () => {
@@ -139,8 +160,8 @@ function CourierDialog({
         </Text>
         <Select
           label="Courier"
-          data={COURIER_OPTIONS}
-          value={courier}
+          data={options}
+          value={chosen}
           onChange={setCourier}
           allowDeselect={false}
         />
@@ -159,7 +180,7 @@ function CourierDialog({
               I cancelled it manually, continue
             </Button>
           ) : (
-            <Button loading={run.isPending} disabled={!courier} onClick={() => run.mutate(false)}>
+            <Button loading={run.isPending} disabled={!chosen} onClick={() => run.mutate(false)}>
               {mode === 'book' ? 'Book' : 'Rebook'}
             </Button>
           )}
@@ -240,6 +261,52 @@ function HandoverDialog(p: DialogProps) {
           </Button>
           <Button loading={run.isPending} onClick={() => run.mutate()}>
             Handed over
+          </Button>
+        </Group>
+      </Stack>
+    </Modal>
+  );
+}
+
+/** C87: the failed parcel is physically back. Restocks it; either re-ship it or cancel its lines. */
+function ReceivedBackDialog(p: DialogProps) {
+  const [note, setNote] = useState('');
+  const [reship, setReship] = useState(false);
+  const run = useMutation({
+    mutationFn: () => shipmentsApi.receivedBack(p.shipment.id, { note: note.trim(), reship }),
+    onSuccess: (r) => {
+      notifyOk(['Received back', ...r.warnings].join('. '));
+      p.onDone();
+      p.onClose();
+    },
+    onError: (e) => notifyApiError(e, 'Could not record the return'),
+  });
+  return (
+    <Modal opened={p.opened} onClose={p.onClose} title="Received back">
+      <Stack>
+        <Text size="sm">
+          Confirm {p.shipment.shipmentNo} is back in the warehouse. The items go back into stock.
+        </Text>
+        <Checkbox
+          label="Re-ship these items"
+          description="Reserves the stock again and creates a new ready shipment. Otherwise these lines are cancelled; when nothing is left the order is closed as failed and its coupon is released."
+          checked={reship}
+          onChange={(e) => setReship(e.currentTarget.checked)}
+        />
+        <Textarea
+          label="Note"
+          maxLength={300}
+          autosize
+          minRows={2}
+          value={note}
+          onChange={(e) => setNote(e.currentTarget.value)}
+        />
+        <Group justify="flex-end">
+          <Button variant="default" onClick={p.onClose}>
+            Close
+          </Button>
+          <Button loading={run.isPending} onClick={() => run.mutate()}>
+            Confirm received back
           </Button>
         </Group>
       </Stack>
