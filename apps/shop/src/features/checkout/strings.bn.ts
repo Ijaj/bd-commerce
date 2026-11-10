@@ -107,6 +107,7 @@ export const checkoutBn: CheckoutDict = {
     ADDRESS_INVALID: 'ঠিকানা ও মোবাইল নম্বর দেখে নিন।',
     GUEST_REQUIRED: 'আপনার নাম ও সঠিক মোবাইল নম্বর দিন।',
     IDEMPOTENCY_IN_PROGRESS: 'আপনার অর্ডার এখন প্রক্রিয়া হচ্ছে। একটু অপেক্ষা করুন।',
+    CUSTOMER_BLOCKED: 'আমরা এই অর্ডারটি নিতে পারছি না। অনুগ্রহ করে সহায়তার সাথে যোগাযোগ করুন।',
   },
   success: {
     title: 'অর্ডার করার জন্য ধন্যবাদ',

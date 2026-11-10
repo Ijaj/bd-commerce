@@ -1,5 +1,5 @@
 import { Banner, SectionCard } from '@bdc/ui';
-import { Button, Group, Loader, Modal, Textarea } from '@mantine/core';
+import { Button, Group, Loader, Modal, Stack, Textarea } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
@@ -66,43 +66,45 @@ export function OrderEditModal({
 
   return (
     <Modal opened={opened} onClose={onClose} title={`Edit ${order.orderNo}`} size="xl" centered>
-      <p className="sub">
-        Items you do not change keep the price the customer ordered at. Added items are priced at
-        today&apos;s price. Coupons, offers and delivery are worked out again.
-      </p>
-      <SectionCard title="Items">
-        <OrderEditLines lines={draft.lines} onChange={(lines) => setDraft({ ...draft, lines })} />
-      </SectionCard>
-      <SectionCard title="Ship to">
-        <OrderEditShip
-          value={draft.ship}
-          placeText={order.shipTo.placeText}
-          onChange={(ship) => setDraft({ ...draft, ship })}
+      <Stack gap="md">
+        <p className="sub">
+          Items you do not change keep the price the customer ordered at. Added items are priced at
+          today&apos;s price. Coupons, offers and delivery are worked out again.
+        </p>
+        <SectionCard title="Items">
+          <OrderEditLines lines={draft.lines} onChange={(lines) => setDraft({ ...draft, lines })} />
+        </SectionCard>
+        <SectionCard title="Ship to">
+          <OrderEditShip
+            value={draft.ship}
+            placeText={order.shipTo.placeText}
+            onChange={(ship) => setDraft({ ...draft, ship })}
+          />
+        </SectionCard>
+        <SectionCard title="New totals">
+          {!changed && <div className="sub">Change something to see the new totals.</div>}
+          {empty && changed && (
+            <Banner tone="danger">
+              An order cannot be empty. Cancel the order instead of removing every item.
+            </Banner>
+          )}
+          {changed && preview.isError && !empty && (
+            <Banner tone="danger">{(preview.error as Error).message}</Banner>
+          )}
+          {changed && preview.data && !(preview.isError && !empty) && (
+            <OrderEditTotals preview={preview.data} />
+          )}
+          {changed && preview.isFetching && <Loader size="xs" aria-label="Calculating" />}
+        </SectionCard>
+        <Textarea
+          label="Reason (kept in the edit history)"
+          maxLength={500}
+          autosize
+          minRows={2}
+          value={draft.note}
+          onChange={(e) => setDraft({ ...draft, note: e.currentTarget.value })}
         />
-      </SectionCard>
-      <SectionCard title="New totals">
-        {!changed && <div className="sub">Change something to see the new totals.</div>}
-        {empty && changed && (
-          <Banner tone="danger">
-            An order cannot be empty. Cancel the order instead of removing every item.
-          </Banner>
-        )}
-        {changed && preview.isError && !empty && (
-          <Banner tone="danger">{(preview.error as Error).message}</Banner>
-        )}
-        {changed && preview.data && !(preview.isError && !empty) && (
-          <OrderEditTotals preview={preview.data} />
-        )}
-        {changed && preview.isFetching && <Loader size="xs" aria-label="Calculating" />}
-      </SectionCard>
-      <Textarea
-        label="Reason (kept in the edit history)"
-        maxLength={500}
-        autosize
-        minRows={2}
-        value={draft.note}
-        onChange={(e) => setDraft({ ...draft, note: e.currentTarget.value })}
-      />
+      </Stack>
       <Group justify="flex-end" mt="md">
         <Button variant="default" onClick={onClose} disabled={busy}>
           Close

@@ -105,6 +105,7 @@ export const checkoutEn = {
     ADDRESS_INVALID: 'Please check the address and mobile number.',
     GUEST_REQUIRED: 'Enter your name and a valid mobile number.',
     IDEMPOTENCY_IN_PROGRESS: 'Your order is already being placed. Please wait a moment.',
+    CUSTOMER_BLOCKED: "We can't take this order. Please contact support.",
   },
   success: {
     title: 'Thank you for your order',

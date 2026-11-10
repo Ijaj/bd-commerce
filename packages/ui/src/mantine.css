@@ -87,6 +87,14 @@ body {
   line-height: 1.4;
   text-transform: uppercase;
 }
+/* Mantine ellipsizes badge text inside squeezed table cells ("BOOK..."): keep status words whole. */
+.bdc-badge,
+.bdc-badge .mantine-Badge-label {
+  max-width: none;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+}
 .bdc-badge[data-variant="filled"] {
   color: var(--bdc-on-filled);
 }
@@ -162,6 +170,12 @@ body {
 }
 .bdc-tab[data-active] {
   color: var(--bdc-primary);
+  border-color: var(--bdc-primary);
+}
+/* Pill tabs (EN/BN switches) fill the active tab, so keep its text on-primary, not primary-on-primary. */
+.mantine-Tabs-root[data-variant="pills"] .bdc-tab[data-active] {
+  background: var(--bdc-primary);
+  color: var(--bdc-on-primary);
   border-color: var(--bdc-primary);
 }
 .bdc-tab[data-active] .a-count {

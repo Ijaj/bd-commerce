@@ -76,12 +76,21 @@ export function ShipmentsPage() {
         />
       ),
     },
-    { key: 'no', header: 'Shipment', render: (r) => <b>{r.shipmentNo}</b> },
+    {
+      key: 'no',
+      header: 'Shipment',
+      render: (r) => <b style={{ whiteSpace: 'nowrap' }}>{r.shipmentNo}</b>,
+    },
     {
       key: 'order',
       header: 'Order',
       render: (r) => (
-        <Link to="/orders/$id" params={{ id: r.orderId }} className={classes.orderNo}>
+        <Link
+          to="/orders/$id"
+          params={{ id: r.orderId }}
+          className={classes.orderNo}
+          style={{ whiteSpace: 'nowrap' }}
+        >
           {r.orderNo}
         </Link>
       ),

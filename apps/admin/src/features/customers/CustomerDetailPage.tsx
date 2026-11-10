@@ -83,7 +83,9 @@ export function CustomerDetailPage({ id }: { id: string }) {
                 <>
                   {c.phone ?? '-'}
                   {c.phone && (
-                    <span className="sub">{c.phoneVerifiedAt ? 'Verified' : 'Not verified'}</span>
+                    <span className="sub" style={{ marginLeft: 8 }}>
+                      {c.phoneVerifiedAt ? 'Verified' : 'Not verified'}
+                    </span>
                   )}
                 </>,
               ],
@@ -92,7 +94,9 @@ export function CustomerDetailPage({ id }: { id: string }) {
                 <>
                   {c.email ?? '-'}
                   {c.email && (
-                    <span className="sub">{c.emailVerifiedAt ? 'Verified' : 'Not verified'}</span>
+                    <span className="sub" style={{ marginLeft: 8 }}>
+                      {c.emailVerifiedAt ? 'Verified' : 'Not verified'}
+                    </span>
                   )}
                 </>,
               ],
