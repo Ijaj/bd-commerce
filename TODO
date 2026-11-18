@@ -1,0 +1,6 @@
+update order processing steps.
+1. new user shows RISK 20. fix.
+2. Orders list page. admin needs to click on the order id. make it easier.
+3. after confirming an order, either redirect to that orders detail page, or add an option (recommended) so they can click on a button and go directly to that orders detail page.
+4. after creating a shipment, dont display the actions button. instead display all options from the actions menu either on top, replacing the "Create Shipment" button (recommended)
+   or bottom of the Shipments section. this makes it easier to understand.
