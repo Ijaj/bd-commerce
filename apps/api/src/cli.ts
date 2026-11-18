@@ -3,6 +3,7 @@
 //   node dist/cli.js reset-2fa <email>             last-resort 2FA reset (C14)
 //   node dist/cli.js seed-demo                     dev-only demo catalog (refused in production)
 //   node dist/cli.js alpha-settings [--reset]      dev-only relaxed checkout/call-queue/refund limits (refused in production)
+//   node dist/cli.js seed-images                   dev-only: download real photos (DummyJSON, Wikimedia) for products/categories/carousel (refused in production)
 //   node dist/cli.js seed-pages [--publish]        placeholder text for the six seeded static pages (fills empty ones only)
 //   node dist/cli.js sync-couriers                 poll couriers for open shipments (run on a schedule)
 //   node dist/cli.js complete-orders               complete delivered orders whose return window has passed
@@ -13,7 +14,9 @@ import { z } from 'zod';
 import { AffiliateCommissionsJobService } from './affiliates/affiliate-commissions-job.service';
 import { AppModule } from './app.module';
 import { applyAlphaSettings, resetAlphaSettings } from './cli/alpha-settings';
+import { seedImages } from './cli/seed-images';
 import { seedPages } from './cli/seed-pages';
+import { ObjectStorage } from './media/object-storage';
 import { PrismaService } from './prisma/prisma.service';
 import { ReturnsCompletionService } from './returns/returns-completion.service';
 import { seedDemoCatalog } from './seed/demo-catalog';
@@ -28,8 +31,11 @@ try {
 }
 
 async function run([command, ...args]: string[]) {
-  if (command === 'seed-demo' && process.env.NODE_ENV === 'production') {
-    throw new Error('seed-demo is dev-only and refuses to run when NODE_ENV=production');
+  if (
+    (command === 'seed-demo' || command === 'seed-images') &&
+    process.env.NODE_ENV === 'production'
+  ) {
+    throw new Error(`${command} is dev-only and refuses to run when NODE_ENV=production`);
   }
   if (command === 'alpha-settings' && process.env.NODE_ENV === 'production') {
     throw new Error('alpha-settings is dev-only and refuses to run when NODE_ENV=production');
@@ -53,6 +59,8 @@ async function run([command, ...args]: string[]) {
       console.log(`2FA reset for ${reset.email}; all their sessions were signed out.`);
     } else if (command === 'seed-demo') {
       await seedDemoCatalog(app.get(PrismaService));
+    } else if (command === 'seed-images') {
+      console.log(await seedImages(app.get(PrismaService), app.get(ObjectStorage)));
     } else if (command === 'alpha-settings') {
       const settings = app.get(SettingsService);
       if (args.includes('--reset')) {
@@ -71,7 +79,7 @@ async function run([command, ...args]: string[]) {
       console.log(await app.get(AffiliateCommissionsJobService).run());
     } else {
       console.error(
-        'usage: cli create-owner <email> <name> | reset-2fa <email> | seed-demo | alpha-settings [--reset] | seed-pages [--publish] | sync-couriers | complete-orders | approve-affiliate-commissions',
+        'usage: cli create-owner <email> <name> | reset-2fa <email> | seed-demo | seed-images | alpha-settings [--reset] | seed-pages [--publish] | sync-couriers | complete-orders | approve-affiliate-commissions',
       );
       process.exitCode = 1;
     }
