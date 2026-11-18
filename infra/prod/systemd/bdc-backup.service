@@ -1,0 +1,16 @@
+# User unit: nightly backup of the prod stack (infra/prod/backup.sh).
+# Install: copy to ~/.config/systemd/user/, then `systemctl --user daemon-reload`.
+# Edit ExecStart if the repo is not at ~/webdev/bd-commerce. Set BACKUP_DIR in Environment= to change the target.
+# Keep the user manager running after logout: `loginctl enable-linger $USER`.
+[Unit]
+Description=BD Commerce prod backup
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/webdev/bd-commerce/infra/prod
+ExecStart=/usr/bin/env bash %h/webdev/bd-commerce/infra/prod/backup.sh
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+Environment=BACKUP_DIR=%h/bdc-backups
+TimeoutStartSec=2h

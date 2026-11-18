@@ -1,33 +1,38 @@
-# Edge web server behind the Cloudflare Tunnel (which terminates TLS), so plain HTTP only.
-# All hostnames derive from BASE_DOMAIN. Scheme is always http:// here, whatever PUBLIC_SCHEME is.
+# Edge web server, directly on the public internet (C96): DNS points at the PC's static IP and the
+# router forwards 80/443 to this container. All hostnames derive from BASE_DOMAIN.
+# PUBLIC_SCHEME=https (production): Caddy gets Let's Encrypt certificates by itself and redirects
+# http -> https. PUBLIC_SCHEME=http (local test on bdc.localhost): plain HTTP only, no certificates.
 {
-	auto_https off
 	admin off
+	# Let's Encrypt contact: compose turns ACME_EMAIL into the line "email <address>", or leaves it
+	# empty when ACME_EMAIL is not set (Caddy rejects an `email` directive with no address).
+	{$ACME_EMAIL_LINE}
 	servers {
-		# cloudflared (and any local proxy) sits in the compose subnet: trust it for the visitor IP.
+		# Only peers in private ranges (the compose subnet) may set X-Forwarded-For; direct
+		# visitors are identified by their socket address.
 		trusted_proxies static private_ranges
-		client_ip_headers Cf-Connecting-Ip X-Forwarded-For
+		client_ip_headers X-Forwarded-For
 	}
 }
 
-# Compose healthcheck + anything addressed by bare IP / unknown host.
-:80 {
+# Compose healthcheck only (container-internal port, not published).
+:8081 {
 	respond /healthz "ok" 200
 	respond 404
 }
 
 # Storefront (Next.js)
-http://{$BASE_DOMAIN} {
+{$PUBLIC_SCHEME:https}://{$BASE_DOMAIN} {
 	encode zstd gzip
 	reverse_proxy shop:3100
 }
 
-http://www.{$BASE_DOMAIN} {
-	redir http://{$BASE_DOMAIN}{uri} permanent
+{$PUBLIC_SCHEME:https}://www.{$BASE_DOMAIN} {
+	redir {$PUBLIC_SCHEME:https}://{$BASE_DOMAIN}{uri} permanent
 }
 
 # Admin SPA: /v1/* goes to the API (same-origin), everything else is the SPA.
-http://admin.{$BASE_DOMAIN} {
+{$PUBLIC_SCHEME:https}://admin.{$BASE_DOMAIN} {
 	encode zstd gzip
 	handle /v1/* {
 		reverse_proxy api:4000
@@ -44,7 +49,7 @@ http://admin.{$BASE_DOMAIN} {
 }
 
 # SR / B2B portal SPA
-http://sr.{$BASE_DOMAIN} {
+{$PUBLIC_SCHEME:https}://sr.{$BASE_DOMAIN} {
 	encode zstd gzip
 	handle /v1/* {
 		reverse_proxy api:4000
@@ -61,17 +66,17 @@ http://sr.{$BASE_DOMAIN} {
 }
 
 # Signed image URLs (imgproxy reads the Garage bucket)
-http://img.{$BASE_DOMAIN} {
+{$PUBLIC_SCHEME:https}://img.{$BASE_DOMAIN} {
 	reverse_proxy imgproxy:8080
 }
 
 # Public API: SR memo share links, courier webhooks
-http://api.{$BASE_DOMAIN} {
+{$PUBLIC_SCHEME:https}://api.{$BASE_DOMAIN} {
 	reverse_proxy api:4000
 }
 
 # Mailpit holds every OTP and notification while SMS is stubbed: never expose without auth.
-http://mail.{$BASE_DOMAIN} {
+{$PUBLIC_SCHEME:https}://mail.{$BASE_DOMAIN} {
 	basic_auth {
 		staff {$MAIL_UI_HASH}
 	}

@@ -17,17 +17,15 @@ Decided 2026-10-23 (S-T1 – S-T28 in doc 10). Hard requirements: lightweight st
 ## Data & services
 - **PostgreSQL** — main DB; `jsonb` for `{en,bn}` text and flexible attributes; built-in full-text search at launch (English only, Q30).
 - **Redis** — BullMQ job queue (SMS, email, courier booking, image jobs, schedules), cache, rate limiting.
-- **Garage + imgproxy** (C6) — product images (S3-compatible storage + on-the-fly resizing to WebP/AVIF), cached by Cloudflare.
+- **Garage + imgproxy** (C6) — product images (S3-compatible storage + on-the-fly resizing to WebP/AVIF).
 - **Sessions** — DB-backed; httpOnly secure cookie (web/admin), opaque token (Android). Instant logout/revoke, staff timeout (Q68).
 - **Email** — Amazon SES. **SMS** — provider TBD, swappable (Q75). **Couriers** — Steadfast + Pathao APIs (Q72).
 
-## Hosting (self-hosted, owner PCs)
-- 2–3 owner PCs, public static IP, **Podman Compose per PC**.
-- **Cloudflare Tunnel** in front: no open ports, IP hidden, DDoS + SSL + CDN caching (free tier: 100 MB per request upload limit).
-- **Postgres primary + streaming replica** on a second PC (manual promote). **Redis AOF (1s) + replica**.
-- **Power/ISP**: online UPS/IPS for PCs + router, 2 ISPs with failover.
-- **Backups**: local only for now (other PCs, same site). Not protected against fire/theft/flood at the site.
-- Example split (final at setup): PC1 shop + admin + API, PC2 Postgres primary + Redis, PC3 replicas + Garage + monitoring.
+## Hosting (self-hosted, one owner PC — C96)
+- **One owner gaming PC**, public static IP, domain DNS points straight at it, **Podman Compose**. Same machine for the test run and production.
+- **Caddy** on 80/443 (router forwards both) issues Let's Encrypt certs. No Cloudflare Tunnel/CDN: IP is public, no DDoS shield, images served from the home uplink.
+- **No replica / failover**: Postgres + Redis (AOF 1s) on the same PC. UPS advised.
+- **Backups**: nightly local dumps (`infra/prod/backup.sh`), copied off the machine by hand (C97).
 
 ## Ops
 - **CI/CD**: GitHub Actions runs tests; self-hosted runner on an owner PC builds images + restarts services with Podman on merge to `main`.

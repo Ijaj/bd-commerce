@@ -1,4 +1,5 @@
-# Self-hosted test deployment on one owner PC (C92-C95). Podman Compose, behind a Cloudflare Tunnel.
+# Self-hosted test deployment on one owner PC (C92-C95). Podman Compose, reached directly on the
+# PC's public static IP (C96): DNS A records -> router port forward -> Caddy (automatic HTTPS).
 # Config comes from infra/prod/.env (see .env.example, gen-secrets.sh). Images are built by the
 # Containerfiles next to this file (deploy.sh, or `podman compose build`).
 name: bdc-prod
@@ -28,9 +29,9 @@ x-api-env: &api-env
   SMS_PROVIDER: dev
   DISABLE_2FA: "false"
   SCHEDULER: "1"
-  # The visitor IP comes from Cf-Connecting-Ip (tunnel -> Caddy -> API); only peers in the compose
-  # subnet are believed.
-  TRUST_CF_HEADER: "1"
+  # Visitors connect directly (C96). Only peers in the compose subnet are
+  # believed.
+  TRUST_CF_HEADER: "0"
   TRUST_PROXY: ${PROD_SUBNET:-10.99.77.0/24}
   STEADFAST_API_KEY: ${STEADFAST_API_KEY:-}
   STEADFAST_SECRET_KEY: ${STEADFAST_SECRET_KEY:-}
@@ -176,7 +177,8 @@ services:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3100/').then(r=>process.exit(r.status<500?0:1),()=>process.exit(1))"]
       <<: *node-health
 
-  # Caddy: serves the admin/portal SPAs and routes every hostname. Only published port, loopback only.
+  # Caddy: serves the admin/portal SPAs, routes every hostname and gets the HTTPS certificates.
+  # The only published ports. HTTP_BIND=0.0.0.0 in production so the router can reach them.
   web:
     image: localhost/bdc-web:latest
     pull_policy: never
@@ -190,27 +192,21 @@ services:
     environment:
       BASE_DOMAIN: ${BASE_DOMAIN}
       MAIL_UI_HASH: ${MAIL_UI_HASH:?run gen-secrets.sh}
-    ports: ["127.0.0.1:${HTTP_PORT:-8088}:80"]
+      PUBLIC_SCHEME: ${PUBLIC_SCHEME:-https}
+      ACME_EMAIL_LINE: ${ACME_EMAIL:+email ${ACME_EMAIL}}
+    ports:
+      - "${HTTP_BIND:-127.0.0.1}:${HTTP_PORT:-8088}:80"
+      - "${HTTP_BIND:-127.0.0.1}:${HTTPS_PORT:-8443}:443"
+      - "${HTTP_BIND:-127.0.0.1}:${HTTPS_PORT:-8443}:443/udp"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro,Z
       - caddy-data:/data
       - caddy-config:/config
     healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:80/healthz"]
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8081/healthz"]
       interval: 15s
       timeout: 5s
       retries: 5
-
-  # Cloudflare Tunnel (remote-managed): point every public hostname at http://web:80 in the
-  # dashboard. Off by default: `podman compose --profile tunnel up -d` once TUNNEL_TOKEN is set.
-  cloudflared:
-    image: docker.io/cloudflare/cloudflared:2025.11.1
-    profiles: [tunnel]
-    restart: unless-stopped
-    depends_on: [web]
-    command: tunnel --no-autoupdate run
-    environment:
-      TUNNEL_TOKEN: ${TUNNEL_TOKEN:-}  # required when the tunnel profile is used
 
 volumes:
   pg-data:

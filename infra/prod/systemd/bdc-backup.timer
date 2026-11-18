@@ -1,0 +1,12 @@
+# Runs bdc-backup.service every day at 03:30 (catches up after downtime with Persistent=true).
+# Enable: systemctl --user enable --now bdc-backup.timer
+[Unit]
+Description=Nightly BD Commerce prod backup
+
+[Timer]
+OnCalendar=*-*-* 03:30:00
+Persistent=true
+Unit=bdc-backup.service
+
+[Install]
+WantedBy=timers.target

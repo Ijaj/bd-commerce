@@ -51,3 +51,8 @@ Round 3 (Q85–Q90) also answered → doc 10. **No open questions right now.**
 - **Q118** Supplier portal + affiliate dashboard: built inside the admin app (Vite + React, separate login/roles) or inside the shop (Next.js), or their own small app? → **answered: one partner portal app** (R-log, doc 10)
 - **Q119** SR-added buyer shops: usable immediately, or pending until staff approve? → **answered: usable now, flagged new**
 - **Q120** SR commission base: % of approved sales total, or % of money actually collected (dues paid)? → **answered: money collected**
+
+## Round 7 — raised by single-PC production (C96, open)
+- **Q121** Outside uptime check: Uptime Kuma on the same PC cannot alert when the PC or internet is down. Use a free external checker (e.g. UptimeRobot/Healthchecks.io) that sends SMS/email?
+- **Q122** Production email: plan says Amazon SES (prod compose currently routes all mail to Mailpit). Home IPs cannot send mail directly, so an SES (or other relay) account is needed before marketing. Confirm SES?
+- **Q123** ISP check: does the static-IP package allow inbound 80/443 (some BD ISPs block them) and does the router support port forwarding + hairpin NAT?
