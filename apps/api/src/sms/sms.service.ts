@@ -25,7 +25,11 @@ export class SmsService {
     @Inject(ENV) private readonly env: Env,
     private readonly mail: MailService,
   ) {
-    if (env.NODE_ENV === 'production' && env.SMS_PROVIDER === 'dev') {
+    if (
+      env.NODE_ENV === 'production' &&
+      env.SMS_PROVIDER === 'dev' &&
+      env.APP_STAGE !== 'staging'
+    ) {
       throw new Error(
         'SMS_PROVIDER=dev is a development stub and cannot run in production. Pick a real SMS provider (Q75).',
       );
@@ -39,9 +43,11 @@ export class SmsService {
       if (this.outbox.length > OUTBOX_MAX) this.outbox.shift();
     }
     if (this.env.NODE_ENV === 'test') return;
-    if (this.env.NODE_ENV === 'development') {
-      // The text carries one-time codes: it is only ever logged in development.
-      this.logger.log(`SMS to ${sms.to}: ${sms.text}`);
+    const staging = this.env.NODE_ENV === 'production' && this.env.APP_STAGE === 'staging';
+    if (this.env.NODE_ENV === 'development' || staging) {
+      // The text carries one-time codes: logged only in development; staging (C94) sends it to the
+      // private staff mailbox (Mailpit) only.
+      if (!staging) this.logger.log(`SMS to ${sms.to}: ${sms.text}`);
       this.mail.send({
         to: `sms+${sms.to}@sms.local`,
         subject: `SMS to ${sms.to}`,

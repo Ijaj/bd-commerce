@@ -2,6 +2,9 @@ import { z } from 'zod';
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  /// C94: `staging` = production build + checks, but the dev SMS stub is allowed (texts go to the
+  /// staff mailbox via SMTP_URL, which must then be a private Mailpit) until an SMS gateway exists (Q75).
+  APP_STAGE: z.enum(['production', 'staging']).default('production'),
   /// Local convenience only; production startup refuses to disable staff 2FA.
   DISABLE_2FA: z
     .enum(['true', 'false'])
@@ -79,6 +82,11 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
     }
     if (env.E2E_EXPOSE_OTP === '1') {
       throw new Error('Invalid environment:\nE2E_EXPOSE_OTP must not be set in production');
+    }
+    if (env.SMS_PROVIDER === 'dev' && env.APP_STAGE !== 'staging') {
+      throw new Error(
+        'Invalid environment:\nSMS_PROVIDER=dev is a development stub; production needs a real SMS provider (Q75). Set APP_STAGE=staging for a test deployment.',
+      );
     }
   }
   return { ...env, OTP_SECRET: env.OTP_SECRET ?? DEV_OTP_SECRET };
