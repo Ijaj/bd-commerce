@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import type { NextConfig } from 'next';
 
 const API_URL = process.env.API_URL ?? 'http://localhost:4000';
@@ -8,8 +9,19 @@ const devLanOrigins = (process.env.DEV_LAN_ORIGINS ?? '')
   .map((h) => h.trim())
   .filter(Boolean);
 
+// Container image (infra/prod/shop.Containerfile) sets NEXT_OUTPUT=standalone; `next start`/dev are unchanged.
+// The tracing root is the monorepo root so workspace packages end up in the standalone bundle.
+const standalone =
+  process.env.NEXT_OUTPUT === 'standalone'
+    ? {
+        output: 'standalone' as const,
+        outputFileTracingRoot: fileURLToPath(new URL('../..', import.meta.url)),
+      }
+    : {};
+
 const config: NextConfig = {
   reactStrictMode: true,
+  ...standalone,
   ...(devLanOrigins.length > 0 ? { allowedDevOrigins: devLanOrigins } : {}),
   agentRules: false,
   poweredByHeader: false,

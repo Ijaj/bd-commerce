@@ -1,0 +1,222 @@
+# Self-hosted test deployment on one owner PC (C92-C95). Podman Compose, behind a Cloudflare Tunnel.
+# Config comes from infra/prod/.env (see .env.example, gen-secrets.sh). Images are built by the
+# Containerfiles next to this file (deploy.sh, or `podman compose build`).
+name: bdc-prod
+
+x-api-env: &api-env
+  NODE_ENV: production
+  APP_STAGE: staging # C94: production checks, SMS stub allowed because mail goes to the private Mailpit
+  HOST: 0.0.0.0
+  PORT: "4000"
+  DATABASE_URL: postgresql://bdc:${POSTGRES_PASSWORD:?run gen-secrets.sh}@postgres:5432/bdc
+  REDIS_URL: redis://redis:6379
+  STAFF_TOTP_KEY: ${STAFF_TOTP_KEY:?}
+  AFFILIATE_PAYOUT_KEY: ${AFFILIATE_PAYOUT_KEY:?}
+  OTP_SECRET: ${OTP_SECRET:?}
+  SMTP_URL: smtp://mailpit:1025
+  MAIL_FROM: ${MAIL_FROM:-BD Commerce <no-reply@bdc.localhost>}
+  ADMIN_ORIGIN: ${PUBLIC_SCHEME:-https}://admin.${BASE_DOMAIN:?}
+  PUBLIC_API_URL: ${PUBLIC_SCHEME:-https}://api.${BASE_DOMAIN}
+  S3_ENDPOINT: http://garage:3900
+  S3_REGION: garage
+  S3_BUCKET_PRODUCTS: products
+  S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:?}
+  S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:?}
+  IMGPROXY_URL: ${PUBLIC_SCHEME:-https}://img.${BASE_DOMAIN}
+  IMGPROXY_KEY: ${IMGPROXY_KEY:?}
+  IMGPROXY_SALT: ${IMGPROXY_SALT:?}
+  SMS_PROVIDER: dev
+  DISABLE_2FA: "false"
+  SCHEDULER: "1"
+  # The visitor IP comes from Cf-Connecting-Ip (tunnel -> Caddy -> API); only peers in the compose
+  # subnet are believed.
+  TRUST_CF_HEADER: "1"
+  TRUST_PROXY: ${PROD_SUBNET:-10.99.77.0/24}
+  STEADFAST_API_KEY: ${STEADFAST_API_KEY:-}
+  STEADFAST_SECRET_KEY: ${STEADFAST_SECRET_KEY:-}
+  STEADFAST_WEBHOOK_TOKEN: ${STEADFAST_WEBHOOK_TOKEN:-}
+  PATHAO_CLIENT_ID: ${PATHAO_CLIENT_ID:-}
+  PATHAO_CLIENT_SECRET: ${PATHAO_CLIENT_SECRET:-}
+  PATHAO_USERNAME: ${PATHAO_USERNAME:-}
+  PATHAO_PASSWORD: ${PATHAO_PASSWORD:-}
+  PATHAO_STORE_ID: ${PATHAO_STORE_ID:-}
+  PATHAO_WEBHOOK_SECRET: ${PATHAO_WEBHOOK_SECRET:-}
+
+x-node-health: &node-health
+  interval: 15s
+  timeout: 5s
+  retries: 5
+  start_period: 60s
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: ${PROD_SUBNET:-10.99.77.0/24}
+
+services:
+  postgres:
+    image: docker.io/library/postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: bdc
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run gen-secrets.sh}
+      POSTGRES_DB: bdc
+    volumes:
+      - pg-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "bdc", "-d", "bdc"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: docker.io/library/redis:8-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec"]
+    volumes: [redis-data:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  garage:
+    image: docker.io/dxflrs/garage:v2.4.1
+    restart: unless-stopped
+    environment:
+      GARAGE_RPC_SECRET: ${GARAGE_RPC_SECRET:?}
+      GARAGE_ADMIN_TOKEN: ${GARAGE_ADMIN_TOKEN:?}
+    volumes:
+      - ./garage.toml:/etc/garage.toml:ro,Z
+      - garage-meta:/var/lib/garage/meta
+      - garage-data:/var/lib/garage/data
+    healthcheck:
+      test: ["CMD", "/garage", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  imgproxy:
+    image: docker.io/darthsim/imgproxy:v3.31.4
+    restart: unless-stopped
+    depends_on: [garage]
+    environment:
+      IMGPROXY_KEY: ${IMGPROXY_KEY:?}
+      IMGPROXY_SALT: ${IMGPROXY_SALT:?}
+      IMGPROXY_USE_S3: "true"
+      IMGPROXY_S3_ENDPOINT: http://garage:3900
+      IMGPROXY_S3_REGION: garage
+      IMGPROXY_S3_ENDPOINT_USE_PATH_STYLE: "true"
+      AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:?}
+      AWS_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:?}
+      IMGPROXY_ALLOWED_SOURCES: "s3://"
+      IMGPROXY_ENABLE_WEBP_DETECTION: "true"
+      IMGPROXY_ENABLE_AVIF_DETECTION: "true"
+    healthcheck:
+      test: ["CMD", "imgproxy", "health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # Holds every OTP/notification while SMS is a stub: SMTP is internal only, the UI sits behind
+  # Caddy basic auth (mail.<domain>).
+  mailpit:
+    image: docker.io/axllent/mailpit:v1.32.0
+    restart: unless-stopped
+    environment:
+      MP_DATABASE: /data/mailpit.db
+      MP_MAX_MESSAGES: "5000"
+    volumes: [mailpit-data:/data]
+    healthcheck:
+      test: ["CMD", "/mailpit", "readyz"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  api:
+    image: localhost/bdc-api:latest
+    pull_policy: never
+    build:
+      context: ../..
+      dockerfile: infra/prod/api.Containerfile
+    restart: unless-stopped
+    depends_on:
+      # service_started, not service_healthy: healthchecks run through `podman exec`, which is broken on
+      # some rootless setups (they never turn healthy). The entrypoint retries migrations and the
+      # restart policy covers the rest.
+      postgres: {condition: service_started}
+      redis: {condition: service_started}
+      garage: {condition: service_started}
+      mailpit: {condition: service_started}
+    environment: *api-env
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4000/health').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"]
+      <<: *node-health
+
+  shop:
+    image: localhost/bdc-shop:latest
+    pull_policy: never
+    build:
+      context: ../..
+      dockerfile: infra/prod/shop.Containerfile
+      args:
+        API_URL: http://api:4000
+        SITE_URL: ${PUBLIC_SCHEME:-https}://${BASE_DOMAIN:?}
+    restart: unless-stopped
+    depends_on:
+      api: {condition: service_started}
+    environment:
+      API_URL: http://api:4000
+      SITE_URL: ${PUBLIC_SCHEME:-https}://${BASE_DOMAIN}
+      HOSTNAME: 0.0.0.0
+      PORT: "3100"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3100/').then(r=>process.exit(r.status<500?0:1),()=>process.exit(1))"]
+      <<: *node-health
+
+  # Caddy: serves the admin/portal SPAs and routes every hostname. Only published port, loopback only.
+  web:
+    image: localhost/bdc-web:latest
+    pull_policy: never
+    build:
+      context: ../..
+      dockerfile: infra/prod/web.Containerfile
+      args:
+        SITE_URL: ${PUBLIC_SCHEME:-https}://${BASE_DOMAIN:?}
+    restart: unless-stopped
+    depends_on: [api, shop, imgproxy, mailpit]
+    environment:
+      BASE_DOMAIN: ${BASE_DOMAIN}
+      MAIL_UI_HASH: ${MAIL_UI_HASH:?run gen-secrets.sh}
+    ports: ["127.0.0.1:${HTTP_PORT:-8088}:80"]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro,Z
+      - caddy-data:/data
+      - caddy-config:/config
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:80/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # Cloudflare Tunnel (remote-managed): point every public hostname at http://web:80 in the
+  # dashboard. Off by default: `podman compose --profile tunnel up -d` once TUNNEL_TOKEN is set.
+  cloudflared:
+    image: docker.io/cloudflare/cloudflared:2025.11.1
+    profiles: [tunnel]
+    restart: unless-stopped
+    depends_on: [web]
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN:-}  # required when the tunnel profile is used
+
+volumes:
+  pg-data:
+  redis-data:
+  garage-meta:
+  garage-data:
+  mailpit-data:
+  caddy-data:
+  caddy-config:

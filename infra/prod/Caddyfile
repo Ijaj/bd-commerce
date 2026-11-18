@@ -1,0 +1,79 @@
+# Edge web server behind the Cloudflare Tunnel (which terminates TLS), so plain HTTP only.
+# All hostnames derive from BASE_DOMAIN. Scheme is always http:// here, whatever PUBLIC_SCHEME is.
+{
+	auto_https off
+	admin off
+	servers {
+		# cloudflared (and any local proxy) sits in the compose subnet: trust it for the visitor IP.
+		trusted_proxies static private_ranges
+		client_ip_headers Cf-Connecting-Ip X-Forwarded-For
+	}
+}
+
+# Compose healthcheck + anything addressed by bare IP / unknown host.
+:80 {
+	respond /healthz "ok" 200
+	respond 404
+}
+
+# Storefront (Next.js)
+http://{$BASE_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy shop:3100
+}
+
+http://www.{$BASE_DOMAIN} {
+	redir http://{$BASE_DOMAIN}{uri} permanent
+}
+
+# Admin SPA: /v1/* goes to the API (same-origin), everything else is the SPA.
+http://admin.{$BASE_DOMAIN} {
+	encode zstd gzip
+	handle /v1/* {
+		reverse_proxy api:4000
+	}
+	handle {
+		root * /srv/admin
+		@assets path /assets/*
+		header @assets Cache-Control "public, max-age=31536000, immutable"
+		@shell not path /assets/*
+		header @shell Cache-Control "no-cache"
+		try_files {path} /index.html
+		file_server
+	}
+}
+
+# SR / B2B portal SPA
+http://sr.{$BASE_DOMAIN} {
+	encode zstd gzip
+	handle /v1/* {
+		reverse_proxy api:4000
+	}
+	handle {
+		root * /srv/portal
+		@assets path /assets/*
+		header @assets Cache-Control "public, max-age=31536000, immutable"
+		@shell not path /assets/*
+		header @shell Cache-Control "no-cache"
+		try_files {path} /index.html
+		file_server
+	}
+}
+
+# Signed image URLs (imgproxy reads the Garage bucket)
+http://img.{$BASE_DOMAIN} {
+	reverse_proxy imgproxy:8080
+}
+
+# Public API: SR memo share links, courier webhooks
+http://api.{$BASE_DOMAIN} {
+	reverse_proxy api:4000
+}
+
+# Mailpit holds every OTP and notification while SMS is stubbed: never expose without auth.
+http://mail.{$BASE_DOMAIN} {
+	basic_auth {
+		staff {$MAIL_UI_HASH}
+	}
+	reverse_proxy mailpit:8025
+}
