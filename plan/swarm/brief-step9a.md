@@ -100,3 +100,20 @@ Goal: one owner PC runs the whole platform with Podman Compose behind a Cloudfla
 Never commit (lead commits). Never `pkill -f`. Don't touch the dev stack (`bdc-dev`) or `.env`. Don't edit
 files outside your owned paths; ask the lead via your final report if something else must change. Report:
 files changed, verify output (short), open issues.
+
+## Wave 2 facts (from A + B, verified by lead, commit 9f02d8d)
+
+- Build (repo root, default podman store): `podman build -f infra/prod/api.Containerfile -t localhost/bdc-api:latest .`;
+  shop needs `--build-arg API_URL=http://api:4000 --build-arg SITE_URL=<scheme>://<BASE_DOMAIN>`; web needs
+  `--build-arg SITE_URL=…`. Values come from `infra/prod/.env` (BASE_DOMAIN, PUBLIC_SCHEME).
+- Run: `cd infra/prod && podman compose up -d --no-build` (compose has `build:` blocks + `pull_policy: never`;
+  plain `up` would try to build). Tunnel: add `--profile tunnel` (needs `TUNNEL_TOKEN`). Down keeps volumes.
+- Health: `curl -sf http://api.$BASE_DOMAIN:$HTTP_PORT/health` from the host works locally (bdc.localhost); on the
+  owner PC with a real domain use `curl -sf -H "Host: api.$BASE_DOMAIN" http://127.0.0.1:$HTTP_PORT/health`.
+- Container healthchecks use `podman exec` (broken on the dev PC); don't rely on `healthy`.
+- First boot: `infra/prod/gen-secrets.sh` → edit `.env` → build → up → `infra/prod/init.sh` → create owner:
+  `podman compose run --rm -T --no-deps api cli create-owner` (run it from `infra/prod`; check `apps/api/src/cli.ts` for args).
+- Volumes (project `bdc-prod`): read the volume names from `infra/prod/compose.yaml`. Postgres service `postgres`, user/db/password vars in `.env.example`.
+- `podman exec` fallback: `podman run --rm --network container:<c> --volumes-from <c> <image> <cmd>` (see `ctr_exec` in `dev.sh`).
+- Tunnel routes (Cloudflare dashboard → tunnel → Published application, service HTTP `web:80`): apex, www,
+  admin, sr, img, api, mail. Mail UI user `staff`, password printed once by gen-secrets.sh (bcrypt hash in .env).
