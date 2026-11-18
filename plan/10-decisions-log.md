@@ -332,3 +332,7 @@ Note on S6: our order tracking covers status until the parcel is handed to the c
 | C89 | Static pages: **free pages** (slug, EN/BN title + rich text, published, show in footer); footer lists them automatically; About, Contact, Privacy, Terms, Returns, FAQ seeded as drafts |
 | C90 | Order edit pricing: **unchanged lines keep the ordered unit price**; only new or increased-qty lines use today's price; coupons and delivery are still recalculated (refines C86) |
 | C91 | "Order confirmed" SMS/email is sent **only after a call-queue confirm**; other orders get placed → handed to courier → delivered (plus cancelled, refund paid, delivery failed, edited) |
+| C92 | Test deployment (alpha) runs on a **separate owner PC** (later the production primary, S-T11), pulled forward from step 9 as step 9a |
+| C93 | Test site is **public through Cloudflare Tunnel** (S-T13); no open ports |
+| C94 | **Staging mode** (`APP_STAGE=staging`): keeps every production check but allows the dev SMS provider (OTP readable by staff) until Q75 is decided; pure production stays strict |
+| C95 | **No domain yet**: deploy config uses placeholder hostnames (one env var for the base domain); owner buys a domain on Cloudflare before going public |

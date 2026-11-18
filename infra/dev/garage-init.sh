@@ -4,7 +4,14 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 export PODMAN_COMPOSE_WARNING_LOGS=false
-g() { podman compose -f compose.yaml exec -T -e RUST_LOG=warn garage /garage "$@"; }
+GARAGE_CONTAINER=${GARAGE_CONTAINER:-bdc-dev-garage-1}
+# `podman exec` can fail on rootless podman 6.2 + crun 1.31 (oom_score_adj EACCES); then run the
+# CLI in a sidecar that shares the garage container's network and config volume.
+g() {
+  podman compose -f compose.yaml exec -T -e RUST_LOG=warn garage /garage "$@" 2>/dev/null && return 0
+  podman run --rm --network "container:$GARAGE_CONTAINER" --volumes-from "$GARAGE_CONTAINER" \
+    -e RUST_LOG=warn "$(podman inspect -f '{{.ImageName}}' "$GARAGE_CONTAINER")" /garage "$@"
+}
 
 KEY_ID=GK30eaaa5fc18c5caf9abb6b3c
 KEY_SECRET=b9e70233a2e7160e36204070ad45eed4ec4877fde94320cb4c6b26a843f138db

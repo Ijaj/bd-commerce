@@ -31,6 +31,17 @@ SERVICES=(
 say() { printf '\033[1m==>\033[0m %s\n' "$*"; }
 listening() { ss -ltn "sport = :$1" 2>/dev/null | grep -q LISTEN; }
 
+# Run a command inside a running container. Falls back to a throwaway sidecar sharing the
+# container's network + volumes when `podman exec` is broken (podman 6.2 + crun 1.31 rootless:
+# "crun: write to /proc/self/oom_score_adj: Permission denied"; `podman run` is unaffected).
+ctr_exec() { # <container> <command...>
+  local c=$1
+  shift
+  podman exec "$c" "$@" 2>/dev/null && return 0
+  podman run --rm --network "container:$c" --volumes-from "$c" \
+    "$(podman inspect -f '{{.ImageName}}' "$c")" "$@"
+}
+
 wait_for() { # <label> <seconds> <command...>
   local label=$1 secs=$2
   shift 2
@@ -45,7 +56,7 @@ wait_for() { # <label> <seconds> <command...>
 start_stack() {
   say "Containers"
   $COMPOSE up -d
-  wait_for "Postgres" 60 podman exec "$PG_CONTAINER" pg_isready -U bdc
+  wait_for "Postgres" 60 ctr_exec "$PG_CONTAINER" pg_isready -h 127.0.0.1 -U bdc
   # Idempotent: layout, dev key, buckets.
   infra/dev/garage-init.sh
 }
