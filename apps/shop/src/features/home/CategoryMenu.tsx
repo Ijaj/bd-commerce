@@ -6,9 +6,6 @@ import { href } from '~/i18n/routing';
 import type { CategoryNode } from '~/lib/types';
 import s from './CategoryMenu.module.css';
 
-/** Roots shown in the side menu; the rest are reachable through "All categories". */
-const MAX_ROOTS = 10;
-
 const url = (lang: Lang, c: CategoryNode) => href(lang, `/c/${c.slug}`);
 
 /**
@@ -17,23 +14,14 @@ const url = (lang: Lang, c: CategoryNode) => href(lang, `/c/${c.slug}`);
  * L3 links, L4 as a small indented list under its L3.
  */
 export function CategoryMenu({ tree, lang }: { tree: CategoryNode[]; lang: Lang }) {
-  const d = dict(lang).home;
   if (tree.length === 0) return null;
   return (
-    <nav className={s.menu} aria-label={d.catMenu}>
+    <nav className={s.menu} aria-label={dict(lang).home.catMenu}>
       <ul className={s.roots}>
-        {tree.slice(0, MAX_ROOTS).map((c) => (
+        {tree.map((c) => (
           <li key={c.id}>
             <Link className={s.root} href={url(lang, c)}>
-              {c.icon ? (
-                <Img className={s.ico} image={c.icon} alt="" sizes="24px" />
-              ) : (
-                <span
-                  className={s.dot}
-                  style={{ background: c.chipColor ?? 'var(--primary)' }}
-                  aria-hidden="true"
-                />
-              )}
+              {c.icon ? <Img className={s.ico} image={c.icon} alt="" sizes="24px" /> : null}
               <span className={s.name}>{pick(lang, c.nameEn, c.nameBn)}</span>
               {c.children.length > 0 ? <Icon className={s.chev} name="chevR" size={14} /> : null}
             </Link>
@@ -77,14 +65,6 @@ export function CategoryMenu({ tree, lang }: { tree: CategoryNode[]; lang: Lang 
             ) : null}
           </li>
         ))}
-        {tree.length > MAX_ROOTS ? (
-          <li>
-            <Link className={`${s.root} link`} href={href(lang, '/categories')}>
-              <span className={s.name}>{d.allCategories}</span>
-              <Icon className={s.chev} name="chevR" size={14} />
-            </Link>
-          </li>
-        ) : null}
       </ul>
     </nav>
   );

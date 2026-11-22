@@ -164,6 +164,17 @@ describe('CategoryMenu', () => {
       );
     }
   });
+  it('shows every root category without colored markers', () => {
+    const tree = Array.from({ length: 12 }, (_, i) => {
+      const category = node(`root-${i}`, 1);
+      category.chipColor = '#ff0000';
+      return category;
+    });
+    const { container } = render(<CategoryMenu tree={tree} lang="en" />);
+    expect(screen.getAllByRole('link')).toHaveLength(12);
+    expect(screen.queryByRole('link', { name: 'All categories' })).toBeNull();
+    expect(container.querySelector('[style*="background"]')).toBeNull();
+  });
 });
 
 describe('FeedMore', () => {

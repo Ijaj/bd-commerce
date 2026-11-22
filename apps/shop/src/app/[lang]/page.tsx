@@ -3,7 +3,6 @@ import { Suspense } from 'react';
 import { Carousel } from '~/features/home/Carousel';
 import { CategoryMenu } from '~/features/home/CategoryMenu';
 import { getCategoryTree, getHome } from '~/features/home/data';
-import { FeaturedCategories } from '~/features/home/FeaturedCategories';
 import { Feed, FeedSkeleton } from '~/features/home/Feed';
 import s from '~/features/home/Feed.module.css';
 import h from '~/features/home/Hero.module.css';
@@ -81,7 +80,6 @@ export default async function Page({ params }: LangProps) {
           />
         </section>
       ) : null}
-      <FeaturedCategories items={home?.featuredCategories ?? []} lang={lang} />
       <HomeFlashStrip lang={lang} />
       <section className={`wrap ${s.feed}`} aria-labelledby="h-feed">
         <div className="sec-head">
