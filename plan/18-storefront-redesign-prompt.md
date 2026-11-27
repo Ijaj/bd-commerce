@@ -1,12 +1,14 @@
 # Prompt: storefront redesign (for Claude Design)
 
-Copy everything below the line into Claude Design.
+Copy everything below the line into Claude Design, and attach `plan/19-storefront-pages-api.md` (data contract per page) and `plan/redesign-ref/current-shop.pdf` (current screens).
 
 ---
 
 Redesign the storefront of a general-purpose e-commerce site for **Bangladesh**. The current design works but looks plain and template-like. I want it to look like a modern, production-ready shop that holds attention: strong visual hierarchy, sections that make people scroll, and tasteful motion ("eye candy") that feels premium, not gimmicky.
 
 ## Hard constraints (the design must be buildable in our stack)
+
+- **No backend changes. Frontend only.** We are heading to a test deployment, so the redesign may only use data and actions the API already provides. `plan/19-storefront-pages-api.md` lists every page, the endpoints it calls, the fields it shows and what the API does *not* provide. Do not design anything that needs a new endpoint, field or setting (for example ratings, reviews, Q&A, per-area delivery dates or brand pages, unless doc 19 says the field exists). If an idea needs backend work, put it in a separate "later" list rather than in the design. Placeholder or decorative content (icons, illustrations, static trust-strip copy) is fine.
 
 - **Stack:** Next.js 16 App Router, React 19, **plain CSS Modules + CSS custom properties**. No Tailwind, no component library, no new runtime dependencies. Motion must be pure CSS (transitions, `@keyframes`, scroll-driven animations with `animation-timeline` as progressive enhancement) or tiny vanilla JS (IntersectionObserver). Hand me designs as HTML/CSS I can port into CSS Modules.
 - **Design tokens:** express every colour, radius, shadow, spacing and font size as CSS variables (`--bdc-*` naming). Keep a **light and a dark theme** (dark is set via `data-mantine-color-scheme="dark"` on `<html>`). Current palette for reference: primary indigo `#4338ca` (dark `#9a94ff`), accent teal `#0f766e` (dark `#2dd4bf`), bg `#f4f4fb` (dark `#0e0d1c`). You may refine or replace it, but give me the full token sheet.
@@ -15,7 +17,7 @@ Redesign the storefront of a general-purpose e-commerce site for **Bangladesh**.
 - **Mobile first:** most buyers use cheap Android phones on slow mobile data. Design at **390px first**, then 768 and 1280+. Bottom-reachable actions on mobile (sticky add-to-cart, sticky checkout bar). Tap targets ≥ 44px.
 - **Performance:** no autoplay video, no heavy blur stacks on large areas, no layout shift. Images are WebP from an image proxy, so design around fixed aspect ratios (product 1:1, banners 16:6 desktop / 4:3 mobile). LCP element on home = hero banner.
 - **Accessibility:** WCAG AA contrast in both themes, visible focus rings, all motion disabled under `prefers-reduced-motion`.
-- **Trust signals matter more than in Western shops:** Cash on Delivery, delivery time per area (Dhaka vs outside), easy returns, genuine-product guarantee, hotline/WhatsApp. Make these visible without clutter.
+- **Trust signals matter more than in Western shops:** Cash on Delivery, delivery times (static copy, e.g. Dhaka vs outside Dhaka), easy returns, genuine-product guarantee, hotline/WhatsApp. Make these visible without clutter.
 
 ## Features that exist and need a place in the design
 
@@ -26,22 +28,21 @@ Search with suggestions, category tree (max 4 levels) with facets/filters, brand
 1. **Home** — the showpiece. Suggested section order (reorder if you have a better idea):
    - Announcement bar (dismissible, can hold a countdown).
    - Header: logo, big search (mobile: search row under logo), cart/wishlist badges, account, language + theme toggle; slim category mega-menu on desktop, drawer on mobile. Header shrinks on scroll.
-   - Hero: carousel of promo banners with a clear CTA, progress-bar indicators, swipe on mobile; optional side tiles on desktop (2 smaller promos).
+   - Hero: carousel of promo banners with a clear CTA, progress-bar indicators, swipe on mobile; optional side tiles on desktop (reuse carousel slides 2–3; there is no other banner source).
    - Trust strip: COD · fast delivery · easy returns · 100% genuine (icons, compact).
    - Category rail: round or card icons, horizontally scrollable, with a subtle hover lift.
    - **Flash sale block:** bold, high-contrast, live countdown (flip or ticking digits), "X% claimed" stock bar on each card, horizontal scroller.
    - Featured categories: bento-grid of large image tiles with overlay titles.
    - "Just for you" / trending / new arrivals: product grids with tabs.
-   - Brand wall: logo marquee (slow infinite scroll, pauses on hover).
-   - Promo split banner (two half-width campaigns).
+   - Tabbed rails (New arrivals / Popular / On sale) built from the existing product listing endpoint.
    - Recently viewed.
    - Infinite / "load more" product feed.
-   - Newsletter / app-install or WhatsApp CTA.
+   - Help/contact CTA using the shop hotline and email (no newsletter backend exists).
    - Footer: CMS page links, payment/courier logos area, hotline, social, language switch.
-2. **Product card** (used everywhere): image with second-image swap on hover, discount badge, flash badge, wishlist heart with a pop animation, rating slot, price block, quick "add to cart" that turns into a qty stepper, out-of-stock state, skeleton state.
-3. **Product page:** gallery (thumbnails, pinch/zoom on mobile, hover zoom on desktop), title, price block, variant chips (colour swatches + size pills, disabled = sold out), stock hint ("Only 3 left"), delivery estimate by area, COD/returns/warranty badges, sticky add-to-cart bar on mobile, tabs or accordions for description/specs/warranty, similar products, share row.
-4. **Category / search listing:** filter sidebar (desktop) / bottom-sheet filters (mobile), sort, active-filter chips, result count, grid/list toggle, empty state, pagination or load more.
-5. **Cart + checkout:** cart drawer (slide-in) and full cart page, coupon field + suggested coupons, free-delivery progress bar ("৳300 more for free delivery"), clear order summary; checkout as one calm page with numbered sections (contact & OTP → address with division/district/upazila → delivery → payment COD → review), sticky place-order bar on mobile; order success page with a celebratory moment (confetti or check animation, once).
+2. **Product card** (used everywhere): single image (cards carry one image only) with a gentle hover zoom, discount badge, flash badge, new/pre-order/upcoming badges, wishlist heart with a pop animation, "N sold" text, price block, out-of-stock state, skeleton state. No rating stars (no review data) and no quick add-to-cart on cards (cards have no variant id; the card links to the product page).
+3. **Product page:** gallery (thumbnails, pinch/zoom on mobile, hover zoom on desktop), title, price block, variant chips (colour swatches + size pills, disabled = sold out), stock hint ("Only 3 left"), static delivery/COD/returns copy plus the product's real warranty text, sticky add-to-cart bar on mobile, tabs or accordions for description/specs/warranty, similar products, share row.
+4. **All-categories page (`/categories`), category / search listing:** filter sidebar (desktop) / bottom-sheet filters (mobile), sort, active-filter chips, result count, grid/list toggle, empty state, pagination or load more.
+5. **Cart + checkout:** cart drawer (slide-in) and full cart page, coupon field + suggested coupons, clear order summary (a free-delivery progress bar is possible only in checkout, after an address is chosen, from `freeDeliveryRemainingP`); checkout as one calm page with numbered sections (contact & OTP → address with division/district/upazila → delivery → payment COD → review), sticky place-order bar on mobile; order success page with a celebratory moment (confetti or check animation, once).
 6. **Order tracking:** timeline/stepper with courier name and tracking link.
 7. **Account:** dashboard cards (orders, returns, coupons, referral earnings), orders list, order detail.
 8. **Login / signup / OTP:** split layout desktop, single column mobile, OTP input with auto-advance boxes.
@@ -51,12 +52,11 @@ Search with suggestions, category tree (max 4 levels) with facets/filters, brand
 ## Eye candy I want (keep it tasteful and fast)
 
 - Scroll-reveal: sections fade/slide up 12-16px as they enter (once, staggered children).
-- Product image hover: gentle zoom + second image crossfade; card lift with soft shadow.
-- Add-to-cart: item "flies" or the cart badge bounces; button morphs to a stepper.
+- Product image hover: gentle zoom; card lift with soft shadow.
+- Add-to-cart (product page and cart): the cart badge bounces; button morphs to a qty stepper.
 - Wishlist heart burst.
 - Flash-sale countdown with animated digits and a pulsing "LIVE" dot.
 - Animated gradient or subtle mesh behind hero / flash-sale section (CSS only).
-- Brand logo marquee.
 - Skeleton shimmer instead of spinners.
 - Sticky header that condenses; smooth drawer and bottom-sheet transitions.
 - Micro-interactions on chips, toggles, tabs (sliding indicator).
