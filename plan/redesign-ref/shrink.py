@@ -16,6 +16,8 @@ SRC = Path(__file__).parent / "current"
 OUT = Path(__file__).parent / "small"
 RULES = {"390": (390, 1500), "1280": (960, 1200)}  # width, max slice height
 OUT.mkdir(exist_ok=True)
+for old in OUT.glob("*.jpg"):  # drop stale slices from an earlier run
+    old.unlink()
 
 total = 0
 for src in sorted(SRC.glob("*.png")):

@@ -2,6 +2,8 @@
 
 Copy everything below the line into Claude Design.
 
+**Owner workflow (C101, C102):** the owner runs Claude Design; first pass = tokens + product card + Home + Product. Save what Claude Design returns in `plan/mockups/shop-v2/` (HTML/CSS + any images), commit, then a session reviews it against the stack and ports it to `apps/shop` with an agent. Second pass (listing, cart/checkout, tracking, account, auth, offers/CMS, shared states) after the owner approves the first.
+
 ---
 
 Redesign the storefront of a general-purpose e-commerce site for **Bangladesh**. The current design works but looks plain and template-like. I want it to look like a modern, production-ready shop that holds attention: strong visual hierarchy, sections that make people scroll, and tasteful motion ("eye candy") that feels premium, not gimmicky.
@@ -67,6 +69,8 @@ Search with suggestions, category tree (max 4 levels) with facets/filters, brand
 Modern, clean, confident; generous white space, large rounded image tiles (radius 12-16px), crisp typography with a strong display size for section titles, one bold accent used sparingly for sale/urgency, soft layered shadows. Should feel at home next to the best regional and global shops (think Daraz/Shajgoj polish, Zara/Apple calm, Shopify Dawn-quality structure) without copying any of them. It must look like a real brand, not a theme demo.
 
 ## Deliverables
+
+**First pass only (do this now):** items 1 and 4 in full, from item 2 the header, footer, buttons, chips, badges, price block, countdown and **product card (all states)**, and from item 3 only **Home and Product** (390 + 1280, light + dark, plus Bangla Home and Product), with the HTML/CSS for those (item 5). The remaining pages come in a second pass after I review this one, using the same tokens.
 
 1. Token sheet (light + dark): colours, type scale (EN + BN), spacing, radius, shadows, motion durations/easings.
 2. Component sheet: header, footer, buttons, inputs, chips, badges, product card (all states), price block, countdown, tabs, drawer, bottom sheet, toast, skeleton, breadcrumb, pagination, empty state.
