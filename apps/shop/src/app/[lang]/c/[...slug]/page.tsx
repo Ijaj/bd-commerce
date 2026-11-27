@@ -73,28 +73,10 @@ export default async function Page({ params, searchParams }: Props) {
           })),
         ]}
       />
-      {cat.banner ? (
-        <div className={s.banner}>
-          <Img
-            image={cat.banner}
-            alt=""
-            sizes="(max-width: 1360px) 100vw, 1360px"
-            priority
-            placeholderRatio={4}
-          />
-        </div>
-      ) : null}
-      {cat.banner ? (
-        <>
-          <h1 className={s.title}>{name}</h1>
-          {desc ? <p className={s.lead}>{desc}</p> : null}
-        </>
-      ) : (
-        <section className={`${s.catBanner} ${s[`sl${hue}`]} on-dark`}>
-          <h1 className={s.catTitle}>{name}</h1>
-          {desc ? <p className={s.catSub}>{desc}</p> : null}
-        </section>
-      )}
+      <section className={`${s.catBanner} ${s[`sl${hue}`]} on-dark`}>
+        <h1 className={s.catTitle}>{name}</h1>
+        {desc ? <p className={s.catSub}>{desc}</p> : null}
+      </section>
       {cat.children.length > 0 ? (
         <nav className={s.subcats} aria-label={d.browse.subCategories}>
           <ul>
