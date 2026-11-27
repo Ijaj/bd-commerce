@@ -32,3 +32,31 @@ for src in sorted(SRC.glob("*.png")):
         total += tokens
         print(f"{name:24} {part.width}x{part.height:<5} ~{tokens} tokens")
 print(f"TOTAL ~{total} tokens")
+
+# One PDF with every slice (one slice per page, labelled), for tools that take a
+# single upload. Order: key pages first, phone then desktop.
+from PIL import ImageDraw, ImageFont
+
+ORDER = ["home", "product", "category", "cart", "checkout", "search",
+         "offers", "track", "login", "signup", "404"]
+def sort_key(p: Path):
+    page, width, *n = p.stem.split("-")
+    return (ORDER.index(page), int(width), int(n[0]) if n else 0)
+
+slices = sorted(OUT.glob("*.jpg"), key=sort_key)
+try:
+    font = ImageFont.truetype("DejaVuSans-Bold.ttf", 18)
+except OSError:
+    font = ImageFont.load_default()
+pages = []
+for p in slices:
+    img = Image.open(p).convert("RGB")
+    page_img = Image.new("RGB", (img.width, img.height + 36), "white")
+    page_img.paste(img, (0, 36))
+    page, width, *n = p.stem.split("-")
+    label = f"{page} - {'phone 390px' if width == '390' else 'desktop 1280px'}" + (f" - part {n[0]}" if n else "")
+    ImageDraw.Draw(page_img).text((10, 8), label, fill="black", font=font)
+    pages.append(page_img)
+pdf = OUT.parent / "current-shop.pdf"
+pages[0].save(pdf, save_all=True, append_images=pages[1:], resolution=96, quality=80)
+print(f"PDF {pdf} ({len(pages)} pages, {pdf.stat().st_size // 1024} KB)")
