@@ -7,6 +7,7 @@ import { SignupForm } from '~/features/account/SignupForm';
 import { getCustomer } from '~/features/account/server';
 import { dict } from '~/i18n';
 import { alternatesFor, href } from '~/i18n/routing';
+import { getSite } from '~/lib/api';
 import { type LangProps, routeParams } from '~/lib/lang';
 
 export async function generateMetadata({ params }: LangProps): Promise<Metadata> {
@@ -26,6 +27,7 @@ export default async function Page({
   const d = dict(lang).account;
   const next = safeNext((await searchParams).next, href(lang, '/account'));
   if (await getCustomer()) redirect(next);
+  const otpRequired = (await getSite())?.customerOtpRequired !== false;
 
   const qs = next === href(lang, '/account') ? '' : `?next=${encodeURIComponent(next)}`;
   return (
@@ -33,7 +35,7 @@ export default async function Page({
       <div className={s.card}>
         <h1>{d.signupTitle}</h1>
         <p className={s.intro}>{d.signupIntro}</p>
-        <SignupForm lang={lang} next={next} />
+        <SignupForm lang={lang} next={next} otpRequired={otpRequired} />
         <p className={s.foot}>
           {d.haveAccount}{' '}
           <Link className="link" href={`${href(lang, '/login')}${qs}`}>

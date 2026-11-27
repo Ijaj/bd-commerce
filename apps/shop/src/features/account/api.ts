@@ -7,8 +7,13 @@ export const customerApi = {
   requestOtp: (phone: string, purpose: 'signup' | 'reset') =>
     call(browserApi.POST('/v1/customer/auth/otp', { body: { phone, purpose } })),
 
-  signup: (body: { name: string; phone: string; email?: string; password: string; code: string }) =>
-    call(browserApi.POST('/v1/customer/auth/signup', { body })),
+  signup: (body: {
+    name: string;
+    phone: string;
+    email?: string;
+    password: string;
+    code?: string;
+  }) => call(browserApi.POST('/v1/customer/auth/signup', { body })),
 
   login: (login: string, password: string) =>
     call(browserApi.POST('/v1/customer/auth/login', { body: { login, password } })),

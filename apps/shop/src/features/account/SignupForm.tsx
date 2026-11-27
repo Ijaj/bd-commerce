@@ -13,7 +13,15 @@ import { resetWishlist } from './wishlist-store';
 type Errs = Partial<Record<'name' | 'phone' | 'email' | 'password' | 'code', string>>;
 
 /** Two steps: details -> SMS code. The account is created only when the code is confirmed. */
-export function SignupForm({ lang, next }: { lang: Lang; next: string }) {
+export function SignupForm({
+  lang,
+  next,
+  otpRequired = true,
+}: {
+  lang: Lang;
+  next: string;
+  otpRequired?: boolean;
+}) {
   const d = dict(lang).account;
   const router = useRouter();
   const [name, setName] = useState('');
@@ -28,6 +36,27 @@ export function SignupForm({ lang, next }: { lang: Lang; next: string }) {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
+  /** Finishes signup: with the SMS code, or without it when the server skips it (C100). */
+  async function createAccount(phone: string, smsCode?: string) {
+    setBusy(true);
+    const r = await customerApi.signup({
+      name: name.trim(),
+      phone,
+      email: email.trim() || undefined,
+      password,
+      code: smsCode,
+    });
+    if (!r.ok) {
+      setBusy(false);
+      setError(errorMessage(r, d.errors));
+      return;
+    }
+    resetWishlist();
+    setSessionMe(r.data.customer);
+    router.replace(next);
+    router.refresh();
+  }
+
   async function sendCode(e: FormEvent) {
     e.preventDefault();
     const phone = normalizePhone(phoneIn);
@@ -41,6 +70,10 @@ export function SignupForm({ lang, next }: { lang: Lang; next: string }) {
     setError(null);
     if (!phone || found.name || found.email || found.password) return;
 
+    if (!otpRequired) {
+      await createAccount(phone);
+      return;
+    }
     setBusy(true);
     const r = await customerApi.requestOtp(phone, 'signup');
     setBusy(false);
@@ -60,23 +93,7 @@ export function SignupForm({ lang, next }: { lang: Lang; next: string }) {
       return;
     }
     setErrs({});
-    setBusy(true);
-    const r = await customerApi.signup({
-      name: name.trim(),
-      phone: sent.phone,
-      email: email.trim() || undefined,
-      password,
-      code,
-    });
-    if (!r.ok) {
-      setBusy(false);
-      setError(errorMessage(r, d.errors));
-      return;
-    }
-    resetWishlist();
-    setSessionMe(r.data.customer);
-    router.replace(next);
-    router.refresh();
+    await createAccount(sent.phone, code);
   }
 
   if (sent) {
@@ -168,7 +185,7 @@ export function SignupForm({ lang, next }: { lang: Lang; next: string }) {
         autoComplete="new-password"
       />
       <button type="submit" className="btn btn-primary" disabled={busy}>
-        {busy ? d.working : d.sendCode}
+        {busy ? d.working : otpRequired ? d.sendCode : d.createButton}
       </button>
     </form>
   );

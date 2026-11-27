@@ -13334,6 +13334,9 @@
               "email"
             ]
           },
+          "customerOtpRequired": {
+            "type": "boolean"
+          },
           "flags": {
             "type": "object",
             "properties": {
@@ -13358,6 +13361,7 @@
           "maintenance",
           "announcement",
           "contact",
+          "customerOtpRequired",
           "flags"
         ]
       },
@@ -18836,8 +18840,7 @@
         "required": [
           "name",
           "phone",
-          "password",
-          "code"
+          "password"
         ]
       },
       "CustomerAuthResultDto": {

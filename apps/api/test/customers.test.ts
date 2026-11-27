@@ -69,6 +69,29 @@ describe('customer API', () => {
     return { agent, res };
   }
 
+  it('signs up without a code when DISABLE_CUSTOMER_OTP is true, and the site says so (C100)', async () => {
+    const noOtp = await createApp({ env: { DISABLE_CUSTOMER_OTP: true } });
+    try {
+      const site = await request(noOtp.getHttpServer()).get('/v1/public/site').expect(200);
+      expect(site.body.customerOtpRequired).toBe(false);
+      const res = await request(noOtp.getHttpServer())
+        .post('/v1/customer/auth/signup')
+        .send({ name: 'Rahim', phone: PHONE, password: PASSWORD });
+      expect(res.status).toBe(200);
+      expect(res.body.customer.phoneVerified).toBe(true);
+    } finally {
+      await noOtp.close();
+    }
+  });
+
+  it('signup without a code is refused when OTP is required', async () => {
+    const res = await request(server())
+      .post('/v1/customer/auth/signup')
+      .send({ name: 'Rahim', phone: PHONE, password: PASSWORD });
+    expect(res.status).toBe(400);
+    expect(res.body.code).toBe('OTP_INVALID');
+  });
+
   async function makeProduct(over: Record<string, unknown> = {}) {
     const seller =
       (await prisma.seller.findFirst()) ?? (await prisma.seller.create({ data: { name: 'Shop' } }));

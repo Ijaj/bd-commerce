@@ -17,7 +17,7 @@ import { StaffService } from '../src/staff/staff.service';
 export async function createApp(options: { env?: Partial<Env> } = {}) {
   const testingModule = Test.createTestingModule({ imports: [AppModule] });
   testingModule.overrideProvider(ENV).useValue({
-    ...loadEnv({ ...process.env, DISABLE_2FA: 'false' }),
+    ...loadEnv({ ...process.env, DISABLE_2FA: 'false', DISABLE_CUSTOMER_OTP: 'false' }),
     ...options.env,
   });
   const moduleRef = await testingModule.compile();

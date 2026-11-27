@@ -34,4 +34,12 @@ describe('APP_STAGE (C94)', () => {
       /OTP_SECRET/,
     );
   });
+  it('DISABLE_CUSTOMER_OTP is refused in production but allowed in staging (C100)', () => {
+    expect(() => loadEnv({ ...base, DISABLE_CUSTOMER_OTP: 'true' })).toThrow(
+      /DISABLE_CUSTOMER_OTP/,
+    );
+    expect(
+      loadEnv({ ...base, APP_STAGE: 'staging', DISABLE_CUSTOMER_OTP: 'true' }).DISABLE_CUSTOMER_OTP,
+    ).toBe(true);
+  });
 });

@@ -72,4 +72,6 @@ export type SiteStatus = {
     preorders_enabled: boolean;
   };
   contact?: { hotline: string; email: string };
+  /** False on test deployments where signup skips the SMS code (C100). Absent = required. */
+  customerOtpRequired?: boolean;
 };

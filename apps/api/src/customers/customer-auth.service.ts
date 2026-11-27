@@ -1,7 +1,8 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { newToken, sha256 } from '../auth/crypto';
 import { burnPasswordCheck, hashPassword, verifyPassword } from '../auth/password';
 import { ThrottleService } from '../auth/throttle.service';
+import { ENV, type Env } from '../config/env';
 import type { Customer } from '../generated/prisma/client';
 import { Prisma } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
@@ -47,6 +48,7 @@ export class CustomerAuthService {
     private readonly otp: OtpService,
     private readonly throttle: ThrottleService,
     private readonly sessions: CustomerSessionService,
+    @Inject(ENV) private readonly env: Env,
   ) {}
 
   async requestOtp(phoneInput: string, purpose: 'signup' | 'reset', ip: string | undefined) {
@@ -75,7 +77,7 @@ export class CustomerAuthService {
   }
 
   async signup(
-    input: { name: string; phone: string; email?: string; password: string; code: string },
+    input: { name: string; phone: string; email?: string; password: string; code?: string },
     meta: RequestMeta,
   ) {
     const phone = normalizePhone(input.phone);
@@ -88,7 +90,12 @@ export class CustomerAuthService {
     }
     const email = input.email?.trim().toLowerCase();
     // The code is checked first: only someone who owns the phone learns whether it is registered.
-    await this.otp.consume(phone, 'signup', input.code);
+    if (!this.env.DISABLE_CUSTOMER_OTP) {
+      if (!input.code) {
+        throw new CustomerError(HttpStatus.BAD_REQUEST, 'OTP_INVALID', 'Invalid code.');
+      }
+      await this.otp.consume(phone, 'signup', input.code);
+    }
     await this.assertFree(phone, email);
 
     let customer: Customer;

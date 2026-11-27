@@ -26,6 +26,8 @@ export class SiteStatusDto extends createZodDto(
     maintenance: z.object({ enabled: z.boolean(), message: localized }),
     announcement: z.object({ text: localized, link: z.string().nullable() }).nullable(),
     contact: z.object({ hotline: z.string(), email: z.string() }),
+    /** False when the server skips the SMS code at customer signup (test deployments). */
+    customerOtpRequired: z.boolean(),
     flags: z.object({
       online_payments_enabled: z.boolean(),
       advance_payments_enabled: z.boolean(),

@@ -1,7 +1,18 @@
-import { Body, Controller, Delete, Get, Header, HttpCode, Param, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Header,
+  HttpCode,
+  Inject,
+  Param,
+  Put,
+} from '@nestjs/common';
 import { ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { CurrentStaff, StaffAuth } from '../auth/staff-auth.guard';
 import type { StaffAuthContext } from '../auth/staff-auth.service';
+import { ENV, type Env } from '../config/env';
 import { SetSettingDto, SettingListDto, SiteStatusDto } from './settings.dto';
 import { SettingsService } from './settings.service';
 
@@ -42,7 +53,10 @@ export class SettingsController {
 @ApiTags('public')
 @Controller('public/site')
 export class SiteController {
-  constructor(private readonly settings: SettingsService) {}
+  constructor(
+    private readonly settings: SettingsService,
+    @Inject(ENV) private readonly env: Env,
+  ) {}
 
   /** Maintenance, announcement bar and feature flags for the shop and apps. */
   @Get()
@@ -58,6 +72,7 @@ export class SiteController {
       maintenance: s.maintenance_mode,
       announcement: showBar ? { text: bar.text, link: bar.link } : null,
       contact: s.shop_contact,
+      customerOtpRequired: !this.env.DISABLE_CUSTOMER_OTP,
       flags: {
         online_payments_enabled: s.online_payments_enabled,
         advance_payments_enabled: s.advance_payments_enabled,

@@ -46,7 +46,12 @@ describe('environment guards', () => {
   it('production needs OTP_SECRET and refuses the e2e OTP endpoint', () => {
     expect(() => loadEnv({ ...BASE_ENV, NODE_ENV: 'production' })).toThrow(/OTP_SECRET/);
     expect(
-      loadEnv({ ...BASE_ENV, NODE_ENV: 'production', OTP_SECRET: 'x'.repeat(32) }).OTP_SECRET,
+      loadEnv({
+        ...BASE_ENV,
+        NODE_ENV: 'production',
+        APP_STAGE: 'staging',
+        OTP_SECRET: 'x'.repeat(32),
+      }).OTP_SECRET,
     ).toBe('x'.repeat(32));
     expect(() =>
       loadEnv({
@@ -71,7 +76,16 @@ describe('environment guards', () => {
   });
 
   it('the SMS stub refuses to boot in production', () => {
-    const env = loadEnv({ ...BASE_ENV, NODE_ENV: 'production', OTP_SECRET: 'x'.repeat(32) });
+    // loadEnv itself refuses this combination now (C94); build the env past that check.
+    const env = {
+      ...loadEnv({
+        ...BASE_ENV,
+        NODE_ENV: 'production',
+        APP_STAGE: 'staging',
+        OTP_SECRET: 'x'.repeat(32),
+      }),
+      APP_STAGE: 'production' as const,
+    };
     expect(() => new SmsService(env, { send: () => {} } as never)).toThrow(/SMS_PROVIDER/);
   });
 

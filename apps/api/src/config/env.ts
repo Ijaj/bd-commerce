@@ -10,6 +10,12 @@ const envSchema = z.object({
     .enum(['true', 'false'])
     .default('false')
     .transform((value) => value === 'true'),
+  /// Test only: customer signup skips the SMS code (password reset and guest checkout keep theirs).
+  /// Production refuses it unless APP_STAGE=staging (C100).
+  DISABLE_CUSTOMER_OTP: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((value) => value === 'true'),
   PORT: z.coerce.number().int().positive().default(4000),
   DATABASE_URL: z.url(),
   REDIS_URL: z.url(),
@@ -79,6 +85,11 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
       throw new Error('Invalid environment:\nOTP_SECRET is required in production');
     if (env.DISABLE_2FA) {
       throw new Error('Invalid environment:\nDISABLE_2FA must not be true in production');
+    }
+    if (env.DISABLE_CUSTOMER_OTP && env.APP_STAGE !== 'staging') {
+      throw new Error(
+        'Invalid environment:\nDISABLE_CUSTOMER_OTP must not be true in production (allowed with APP_STAGE=staging)',
+      );
     }
     if (env.E2E_EXPOSE_OTP === '1') {
       throw new Error('Invalid environment:\nE2E_EXPOSE_OTP must not be set in production');

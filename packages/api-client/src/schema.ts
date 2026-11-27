@@ -3880,6 +3880,7 @@ export interface components {
                 hotline: string;
                 email: string;
             };
+            customerOtpRequired: boolean;
             flags: {
                 online_payments_enabled: boolean;
                 advance_payments_enabled: boolean;
@@ -4775,7 +4776,7 @@ export interface components {
             /** Format: email */
             email?: string;
             password: string;
-            code: string;
+            code?: string;
         };
         CustomerAuthResultDto: {
             customer: {

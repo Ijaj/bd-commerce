@@ -28,6 +28,8 @@ x-api-env: &api-env
   IMGPROXY_SALT: ${IMGPROXY_SALT:?}
   SMS_PROVIDER: dev
   DISABLE_2FA: "false"
+  # C100: test deployment only (needs APP_STAGE=staging); remove before real launch
+  DISABLE_CUSTOMER_OTP: "true"
   SCHEDULER: "1"
   # Visitors connect directly (C96). Only peers in the compose subnet are
   # believed.

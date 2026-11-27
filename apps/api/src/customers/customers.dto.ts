@@ -16,7 +16,7 @@ export class OtpSentDto extends createZodDto(
 ) {}
 
 export class SignupDto extends createZodDto(
-  z.object({ name, phone, email: email.optional(), password, code: otpCode }),
+  z.object({ name, phone, email: email.optional(), password, code: otpCode.optional() }),
 ) {}
 
 export class CustomerLoginDto extends createZodDto(
